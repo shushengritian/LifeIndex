@@ -1,0 +1,26 @@
+# Dependency and build outputs
+node_modules/
+dist/
+coverage/
+playwright-report/
+test-results/
+.vite/
+
+# Local tooling and operating-system files
+.DS_Store
+.idea/
+.vscode/
+*.log
+.env
+.env.*
+!.env.example
+
+# LifeIndex data is private and must never enter source control.
+lifeindex-backup-*.json
+*.lifeindex-backup.json
+backups/
+personal-data/
+
+# Temporary files
+*.tmp
+*.swp
