@@ -19,15 +19,15 @@
 
 Dexie declares only primary keys and query indexes, not every field.
 
-| Store | Primary key and indexes | Purpose |
-| --- | --- | --- |
-| `categories` | `id, [domain+archived], [domain+transactionType+archived], sortOrder, updatedAt` | Finance and optional Focus organization |
-| `transactions` | `id, occurredAt, localDate, type, categoryId, [localDate+type], updatedAt` | Income and expense records |
-| `habits` | `id, status, startLocalDate, updatedAt` | Habit definitions and schedules |
-| `habitRecords` | `id, &[habitId+localDate], habitId, localDate, completedAt` | One completion per habit/local date |
-| `focusSessions` | `id, status, startedAt, localDate, categoryId, updatedAt` | Active and completed focus sessions |
-| `settings` | `key, updatedAt` | Typed application preferences and safety metadata |
-| `actionReceipts` | `actionId, actionType, handledAt, outcomeEntityId` | Durable URL Action idempotency |
+| Store            | Primary key and indexes                                                          | Purpose                                           |
+| ---------------- | -------------------------------------------------------------------------------- | ------------------------------------------------- |
+| `categories`     | `id, [domain+archived], [domain+transactionType+archived], sortOrder, updatedAt` | Finance and optional Focus organization           |
+| `transactions`   | `id, occurredAt, localDate, type, categoryId, [localDate+type], updatedAt`       | Income and expense records                        |
+| `habits`         | `id, status, startLocalDate, updatedAt`                                          | Habit definitions and schedules                   |
+| `habitRecords`   | `id, &[habitId+localDate], habitId, localDate, completedAt`                      | One completion per habit/local date               |
+| `focusSessions`  | `id, status, startedAt, localDate, categoryId, updatedAt`                        | Active and completed focus sessions               |
+| `settings`       | `key, updatedAt`                                                                 | Typed application preferences and safety metadata |
+| `actionReceipts` | `actionId, actionType, handledAt, outcomeEntityId`                               | Durable URL Action idempotency                    |
 
 The application enforces at most one active focus session. IndexedDB cannot express a partial unique index, so `startFocus` checks and writes in one transaction.
 
@@ -91,9 +91,7 @@ Rules:
 ```ts
 type HabitStatus = 'active' | 'paused'
 
-type HabitSchedule =
-  | { type: 'daily' }
-  | { type: 'weekdays'; weekdays: number[] }
+type HabitSchedule = { type: 'daily' } | { type: 'weekdays'; weekdays: number[] }
 
 interface Habit {
   id: string
@@ -176,11 +174,7 @@ Rules:
 ## 8. Settings
 
 ```ts
-type SettingKey =
-  | 'appearance'
-  | 'currency'
-  | 'onboarding'
-  | 'lastSuccessfulExportAt'
+type SettingKey = 'appearance' | 'currency' | 'onboarding' | 'lastSuccessfulExportAt'
 
 interface Setting<T = unknown> {
   key: SettingKey

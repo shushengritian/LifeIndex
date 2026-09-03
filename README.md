@@ -18,7 +18,12 @@ LifeIndex is under active V1 development. The approved product direction is docu
 
 ## Development
 
-The application scaffold and verified development commands will be added in milestone M3. Until then, do not infer setup commands from this placeholder; follow the evidence recorded in `PLAN.md`.
+```bash
+pnpm install --frozen-lockfile
+pnpm dev
+```
+
+Use `pnpm quality` for the non-E2E local gate and `pnpm test:e2e` for the production-preview browser gate. See [DEV.md](docs/development/DEV.md) for environment, command, data-migration, and release details.
 
 ## Private data warning
 

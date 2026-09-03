@@ -209,10 +209,10 @@ No action may silently mutate data merely because a URL was opened.
 
 ## 11. Interaction budget
 
-| Task | Budget from primary destination |
-| --- | --- |
-| Check/uncheck today's habit | 1 tap |
-| Open add-transaction form | 1 tap |
-| Save a valid common transaction | No more than 4 purposeful interactions after opening |
+| Task                                    | Budget from primary destination                            |
+| --------------------------------------- | ---------------------------------------------------------- |
+| Check/uncheck today's habit             | 1 tap                                                      |
+| Open add-transaction form               | 1 tap                                                      |
+| Save a valid common transaction         | No more than 4 purposeful interactions after opening       |
 | Start a preset focus session with title | No more than 3 purposeful interactions after opening Focus |
-| Reach export/restore | No more than 2 taps after opening Settings |
+| Reach export/restore                    | No more than 2 taps after opening Settings                 |

@@ -11,3 +11,5 @@ All notable LifeIndex changes will be documented here. The project follows Seman
 - Numbered V1 product requirements, information architecture, UX/UI direction, requirement traceability, and risk register.
 - Accepted architecture decisions for the TypeScript/React/Vite stack, Dexie persistence, private hash actions, and custom PWA deployment.
 - Implementation-ready HLD, LLD, IndexedDB data model, and versioned backup contract.
+- Reproducible pnpm toolchain, React/Vite app shell, privacy-safe logger, custom service worker scaffold, and layered test configuration.
+- Development and test guides with local, browser, deployed, and physical-iPhone evidence boundaries.

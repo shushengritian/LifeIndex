@@ -147,13 +147,13 @@ The confirmation must state that current LifeIndex data will be replaced and tha
 
 ## 7. Failure behavior
 
-| Failure | User-visible result | Data guarantee |
-| --- | --- | --- |
-| File too large or unreadable | File could not be read; choose a valid LifeIndex JSON backup | No database write started |
-| Invalid JSON/schema/version | Sanitized field/category summary | No database write started |
-| Duplicate/dangling records | Counts of invalid relationships, not private values | No database write started |
-| Quota/transaction/Dexie failure | Restore failed and current data was retained; safe retry guidance | Transaction abort required and verified |
-| Post-commit view refresh failure | Data restored; app offers reload and a safe error ID | Committed data remains authoritative |
+| Failure                          | User-visible result                                               | Data guarantee                          |
+| -------------------------------- | ----------------------------------------------------------------- | --------------------------------------- |
+| File too large or unreadable     | File could not be read; choose a valid LifeIndex JSON backup      | No database write started               |
+| Invalid JSON/schema/version      | Sanitized field/category summary                                  | No database write started               |
+| Duplicate/dangling records       | Counts of invalid relationships, not private values               | No database write started               |
+| Quota/transaction/Dexie failure  | Restore failed and current data was retained; safe retry guidance | Transaction abort required and verified |
+| Post-commit view refresh failure | Data restored; app offers reload and a safe error ID              | Committed data remains authoritative    |
 
 If a browser defect makes atomic multi-store behavior uncertain in a supported environment, release is blocked until physical evidence and a safer coordinator exist.
 

@@ -33,18 +33,18 @@ The goal is complete only when all of the following are verified:
 
 ## Milestones
 
-| ID | Milestone | Status | Exit evidence |
-| --- | --- | --- | --- |
-| M0 | Discovery, local Git, governance | verified | Inventory recorded, repository initialized, governance files committed |
-| M1 | PRD, IA, UX direction, traceability | verified | Numbered V1 requirements and acceptance criteria reviewed for baseline consistency |
-| M2 | HLD, LLD, data model, backup schema, ADRs | verified | Architecture and state transitions are implementation-ready |
-| M3 | Engineering scaffold and DEV workflow | in_progress | Reproducible install, checks, build, local preview, and CI-ready scripts |
-| M4 | IndexedDB, migrations, backup/restore | todo | Migration and transactional backup round-trip tests pass |
-| M5 | Finance, Habits, Focus, Today, Settings | todo | Each vertical slice passes its mapped unit, integration, and E2E checks |
-| M6 | PWA, offline, iPhone polish, URL Actions | todo | Installability, offline app shell, update flow, and action safety verified |
-| M7 | Data-safety and release hardening | todo | Full local quality gate and production smoke suite pass |
-| M8 | GitHub, CI, GitHub Pages | todo | User-approved remote exists; CI and deployment are green; live URL passes smoke checks |
-| M9 | Physical iPhone acceptance and V1 release | todo | User confirms checklist; final gate passes; `v1.0.0` and handoff complete |
+| ID  | Milestone                                 | Status      | Exit evidence                                                                          |
+| --- | ----------------------------------------- | ----------- | -------------------------------------------------------------------------------------- |
+| M0  | Discovery, local Git, governance          | verified    | Inventory recorded, repository initialized, governance files committed                 |
+| M1  | PRD, IA, UX direction, traceability       | verified    | Numbered V1 requirements and acceptance criteria reviewed for baseline consistency     |
+| M2  | HLD, LLD, data model, backup schema, ADRs | verified    | Architecture and state transitions are implementation-ready                            |
+| M3  | Engineering scaffold and DEV workflow     | verified    | Reproducible install, checks, build, local preview, and CI-ready scripts               |
+| M4  | IndexedDB, migrations, backup/restore     | in_progress | Migration and transactional backup round-trip tests pass                               |
+| M5  | Finance, Habits, Focus, Today, Settings   | todo        | Each vertical slice passes its mapped unit, integration, and E2E checks                |
+| M6  | PWA, offline, iPhone polish, URL Actions  | todo        | Installability, offline app shell, update flow, and action safety verified             |
+| M7  | Data-safety and release hardening         | todo        | Full local quality gate and production smoke suite pass                                |
+| M8  | GitHub, CI, GitHub Pages                  | todo        | User-approved remote exists; CI and deployment are green; live URL passes smoke checks |
+| M9  | Physical iPhone acceptance and V1 release | todo        | User confirms checklist; final gate passes; `v1.0.0` and handoff complete              |
 
 ## Work breakdown
 
@@ -85,10 +85,14 @@ The goal is complete only when all of the following are verified:
 
 ### M3 — Engineering scaffold
 
-- [ ] `in_progress` M3.1 Scaffold the selected TypeScript PWA without unrelated demo content.
-- [ ] `todo` M3.2 Add formatting, lint, typecheck, unit/integration, build, preview, and E2E commands.
-- [ ] `todo` M3.3 Add shared logging/error boundaries and verify logs exclude personal values.
-- [ ] `todo` M3.4 Document setup, directory ownership, code standards, migration, Git, release, and rollback workflows.
+- [x] `verified` M3.1 Scaffold the selected TypeScript PWA without unrelated demo content.
+  - Evidence: the React/Vite shell exposes the five approved hash routes, iPhone-first navigation, version metadata, and production PWA registration without implementing out-of-scope modules.
+- [x] `verified` M3.2 Add formatting, lint, typecheck, unit/integration, build, preview, and E2E commands.
+  - Evidence: peer validation, Prettier, ESLint, strict TypeScript, 6 Vitest checks, production build, and 4 Chromium/WebKit E2E checks pass on the pinned dependency graph.
+- [x] `verified` M3.3 Add shared logging/error boundaries and verify logs exclude personal values.
+  - Evidence: runtime context allowlisting, event-name rejection, message-free exception serialization, and four logger privacy tests guard the initial app/PWA failure paths.
+- [x] `verified` M3.4 Document setup, directory ownership, code standards, migration, Git, release, and rollback workflows.
+  - Evidence: `docs/development/DEV.md` and `docs/testing/TEST_PLAN.md` define reproducible commands and distinguish automated, deployed, and physical-iPhone proof.
 
 ### M4 — Data-safety foundation
 
@@ -133,15 +137,15 @@ The goal is complete only when all of the following are verified:
 
 ## Risks and blockers
 
-| ID | Risk or blocker | Impact | Mitigation / trigger |
-| --- | --- | --- | --- |
-| R-001 | Safari may remove site data after user action, uninstall, or storage pressure | Loss of long-lived records | First-class backups, clear warnings, restore tests, and recurring backup guidance |
-| R-002 | GitHub Pages project subpaths can break routes, manifest, or service-worker scope | Installed/offline app fails | Base-path-aware build plus deployed manifest/worker smoke tests |
-| R-003 | URL query actions can leak sensitive values to the host/history | Privacy breach | Prefer fragments; validate, deduplicate, scrub, and document any exception |
-| R-004 | iOS suspends timers and JavaScript callbacks in the background | Incorrect focus duration | Derive elapsed time from persisted timestamps and test resume/reload transitions |
-| R-005 | Static Pages has no authentication | App shell is accessible by URL | Confirm this model before remote deployment; keep all records local and ship no user data |
-| R-006 | GitHub CLI is installed but not authenticated | M8 remote work blocked | Complete all local milestones first; request one account/visibility confirmation at M8 |
-| R-007 | Physical iPhone cannot be operated by the agent | Final acceptance cannot be automated | Provide one concise test action at a time and require user confirmation before release |
+| ID    | Risk or blocker                                                                   | Impact                               | Mitigation / trigger                                                                      |
+| ----- | --------------------------------------------------------------------------------- | ------------------------------------ | ----------------------------------------------------------------------------------------- |
+| R-001 | Safari may remove site data after user action, uninstall, or storage pressure     | Loss of long-lived records           | First-class backups, clear warnings, restore tests, and recurring backup guidance         |
+| R-002 | GitHub Pages project subpaths can break routes, manifest, or service-worker scope | Installed/offline app fails          | Base-path-aware build plus deployed manifest/worker smoke tests                           |
+| R-003 | URL query actions can leak sensitive values to the host/history                   | Privacy breach                       | Prefer fragments; validate, deduplicate, scrub, and document any exception                |
+| R-004 | iOS suspends timers and JavaScript callbacks in the background                    | Incorrect focus duration             | Derive elapsed time from persisted timestamps and test resume/reload transitions          |
+| R-005 | Static Pages has no authentication                                                | App shell is accessible by URL       | Confirm this model before remote deployment; keep all records local and ship no user data |
+| R-006 | GitHub CLI is installed but not authenticated                                     | M8 remote work blocked               | Complete all local milestones first; request one account/visibility confirmation at M8    |
+| R-007 | Physical iPhone cannot be operated by the agent                                   | Final acceptance cannot be automated | Provide one concise test action at a time and require user confirmation before release    |
 
 ## Decisions
 
@@ -159,20 +163,24 @@ The goal is complete only when all of the following are verified:
 - Verified M1 with 53 unique requirements, complete interaction/visual direction, traceability coverage, and 14 registered risks.
 - Began M2 with four bounded decisions covering the web stack, IndexedDB/validation, private URL Actions, and controlled PWA deployment.
 - Verified M2 with four accepted ADRs and implementation-ready architecture, data, backup, timer, action, logging, and PWA contracts.
+- Locked the M3 dependency graph after resolving a TypeScript 7 peer conflict by selecting compatible TypeScript 6.0.3.
+- Verified M3: the five-route app shell, safe logger, error boundary, custom service worker build, local workflows, and Chromium/WebKit accessibility smoke tests all pass.
 
 ## Next three actions
 
-1. Commit the verified M2 architecture milestone.
-2. Install and lock the selected M3 dependencies, then scaffold the application without demo content.
-3. Add DEV/TEST_PLAN and prove format, lint, typecheck, unit, build, preview, and initial E2E commands.
+1. Implement typed domain records, Dexie schema v1, deterministic seed data, and repository boundaries.
+2. Add exact money/local-date utilities and prove IndexedDB invariants with fake-indexeddb integration tests.
+3. Implement versioned JSON export plus preview-first, transactionally atomic replacement restore.
 
 ## Plan change log
 
-| Date | Change | Reason and impact |
-| --- | --- | --- |
-| 2026-09-03 | Created the first executable V1 plan and milestone evidence model. | Converts the approved baseline into a living delivery contract; no product-scope change. |
-| 2026-09-03 | Recorded fragment-based URL Actions as the default design direction. | Protects privacy by keeping action payloads out of HTTP requests; requires ADR validation in M2. |
-| 2026-09-03 | Defined V1 habit schedules as daily or selected weekdays and restore as preview-first replace, not merge. | Satisfies the baseline with testable, data-safe scope while deferring ambiguous scheduling and merge conflict rules. |
-| 2026-09-03 | Defined Focus V1 without pause/resume intervals. | Keeps timestamp recovery reliable and avoids turning Focus into project management; early finish and cancel remain supported. |
+| Date       | Change                                                                                                                   | Reason and impact                                                                                                                                                 |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-09-03 | Created the first executable V1 plan and milestone evidence model.                                                       | Converts the approved baseline into a living delivery contract; no product-scope change.                                                                          |
+| 2026-09-03 | Recorded fragment-based URL Actions as the default design direction.                                                     | Protects privacy by keeping action payloads out of HTTP requests; requires ADR validation in M2.                                                                  |
+| 2026-09-03 | Defined V1 habit schedules as daily or selected weekdays and restore as preview-first replace, not merge.                | Satisfies the baseline with testable, data-safe scope while deferring ambiguous scheduling and merge conflict rules.                                              |
+| 2026-09-03 | Defined Focus V1 without pause/resume intervals.                                                                         | Keeps timestamp recovery reliable and avoids turning Focus into project management; early finish and cancel remain supported.                                     |
 | 2026-09-03 | Accepted React/TypeScript/Vite, pnpm, Dexie 4, Zod, hash routing, custom Workbox service worker, Vitest, and Playwright. | Provides a typed static PWA, Safari-aware data layer, explicit update control, and layered validation without a backend or heavyweight global state/UI framework. |
-| 2026-09-03 | Added `actionReceipts` as the seventh V1 store. | Durable idempotency is necessary to prevent Shortcuts retries from duplicating records; receipts contain no payload and are included in full backup. |
+| 2026-09-03 | Added `actionReceipts` as the seventh V1 store.                                                                          | Durable idempotency is necessary to prevent Shortcuts retries from duplicating records; receipts contain no payload and are included in full backup.              |
+| 2026-09-03 | Pinned TypeScript 6.0.3 instead of the available 7.0.2.                                                                  | `typescript-eslint` 8.69.0 requires TypeScript below 6.1; resolving the peer contract keeps lint/type evidence trustworthy.                                       |
+| 2026-09-03 | Completed M3 with a production-built PWA shell and two-engine browser gate.                                              | Establishes a reproducible implementation loop before persisted data is introduced; WebKit remains an approximation until physical-iPhone acceptance.            |

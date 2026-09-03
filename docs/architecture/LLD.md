@@ -244,10 +244,7 @@ The custom service worker:
 ## 12. Safe logging
 
 ```ts
-type SafeLogContext = Record<
-  string,
-  string | number | boolean | null | undefined
->
+type SafeLogContext = Record<string, string | number | boolean | null | undefined>
 
 interface SafeLogger {
   info(event: string, context?: SafeLogContext): void

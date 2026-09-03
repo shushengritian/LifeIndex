@@ -70,20 +70,20 @@ flowchart TB
 
 ## 4. Module boundaries
 
-| Module | Owns | Must not own |
-| --- | --- | --- |
-| `app` | Bootstrap, dependency composition, hash router, global boundaries, update/offline banners | Business records or statistics rules |
-| `features/today` | Read-only daily projections and quick-action composition | Independent Today persistence |
-| `features/finance` | Transaction/category commands, lists, finance summaries | Raw Dexie access or floating-point money |
-| `features/habits` | Habit lifecycle, check-in, schedules, streaks/calendar | UTC-derived calendar-day behavior |
-| `features/focus` | Timer configuration/state transitions, session history/statistics | Callback-count-based elapsed time |
-| `features/settings` | Data safety, organization links, appearance, version display | Hidden daily capture actions |
-| `data/db` | Dexie stores, versions, migrations, transaction primitives | UI messages or feature rendering |
-| `data/repositories` | Typed persistence APIs and query boundaries | Presentation state |
-| `data/backup` | Envelope validation, migrations, referential checks, atomic replace | Automatic cloud upload or merge semantics |
-| `app/actions` | Fragment parsing, allowlist, validation, preview commands, receipt lookup | Silent business mutation |
-| `pwa` | Worker registration, update readiness, online/offline status | Business-data caching |
-| `shared` | Types, dates, money, validation helpers, logger, UI primitives | Feature-specific rules |
+| Module              | Owns                                                                                      | Must not own                              |
+| ------------------- | ----------------------------------------------------------------------------------------- | ----------------------------------------- |
+| `app`               | Bootstrap, dependency composition, hash router, global boundaries, update/offline banners | Business records or statistics rules      |
+| `features/today`    | Read-only daily projections and quick-action composition                                  | Independent Today persistence             |
+| `features/finance`  | Transaction/category commands, lists, finance summaries                                   | Raw Dexie access or floating-point money  |
+| `features/habits`   | Habit lifecycle, check-in, schedules, streaks/calendar                                    | UTC-derived calendar-day behavior         |
+| `features/focus`    | Timer configuration/state transitions, session history/statistics                         | Callback-count-based elapsed time         |
+| `features/settings` | Data safety, organization links, appearance, version display                              | Hidden daily capture actions              |
+| `data/db`           | Dexie stores, versions, migrations, transaction primitives                                | UI messages or feature rendering          |
+| `data/repositories` | Typed persistence APIs and query boundaries                                               | Presentation state                        |
+| `data/backup`       | Envelope validation, migrations, referential checks, atomic replace                       | Automatic cloud upload or merge semantics |
+| `app/actions`       | Fragment parsing, allowlist, validation, preview commands, receipt lookup                 | Silent business mutation                  |
+| `pwa`               | Worker registration, update readiness, online/offline status                              | Business-data caching                     |
+| `shared`            | Types, dates, money, validation helpers, logger, UI primitives                            | Feature-specific rules                    |
 
 Dependencies flow inward from views to feature/domain contracts and from repositories to the storage adapter. Feature modules do not import one another's components; Today composes read-model interfaces.
 

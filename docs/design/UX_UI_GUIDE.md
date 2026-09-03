@@ -42,17 +42,17 @@
 
 Initial tokens are implementation candidates and must pass contrast checks:
 
-| Role | Light candidate | Dark candidate | Purpose |
-| --- | --- | --- | --- |
-| Canvas | `#F4F3EE` | `#151713` | Calm app background |
-| Surface | `#FFFDF8` | `#20231E` | Cards and sheets |
-| Text | `#20231F` | `#F3F2EC` | Primary content |
-| Muted text | `#62675F` | `#AEB4AA` | Secondary content |
-| Accent | `#3F6B57` | `#78B596` | Primary action/selection |
-| Positive | `#4F7658` | `#82BE8C` | Completed state with icon/text |
-| Warning | `#9A6B2F` | `#D4A55D` | Recoverable attention |
-| Destructive | `#A14343` | `#E07A7A` | Confirmed destructive action only |
-| Divider | `#DADBD4` | `#373B34` | Structural separation |
+| Role        | Light candidate | Dark candidate | Purpose                           |
+| ----------- | --------------- | -------------- | --------------------------------- |
+| Canvas      | `#F4F3EE`       | `#151713`      | Calm app background               |
+| Surface     | `#FFFDF8`       | `#20231E`      | Cards and sheets                  |
+| Text        | `#20231F`       | `#F3F2EC`      | Primary content                   |
+| Muted text  | `#62675F`       | `#AEB4AA`      | Secondary content                 |
+| Accent      | `#3F6B57`       | `#78B596`      | Primary action/selection          |
+| Positive    | `#4F7658`       | `#82BE8C`      | Completed state with icon/text    |
+| Warning     | `#9A6B2F`       | `#D4A55D`      | Recoverable attention             |
+| Destructive | `#A14343`       | `#E07A7A`      | Confirmed destructive action only |
+| Divider     | `#DADBD4`       | `#373B34`      | Structural separation             |
 
 Module identity should be subtle—small accent variations, icons, and labels—not large saturated panels. Never encode income/expense or complete/incomplete by color alone.
 
