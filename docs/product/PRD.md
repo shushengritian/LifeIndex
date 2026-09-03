@@ -231,11 +231,15 @@ V1 is releasable only when:
 - GitHub Pages passes online, reload, mobile, manifest, service-worker, and offline smoke checks.
 - The user completes the physical-iPhone installation, persistence, airplane-mode, export, and restore checklist.
 
-## 11. Open decisions
+## 11. Decision checkpoints
 
-These items do not block M1/M2 local work but must be resolved by the named milestone:
+Resolved in M2:
 
-- M2: final dependency choices and supported custom focus duration bounds.
-- M2: safe entity-ID exposure policy for logs and URL Actions.
+- React/TypeScript/Vite, pnpm, Dexie 4, Zod, hash routing, custom Workbox service worker, Vitest, and Playwright are the accepted stack; exact package versions are locked by M3 installation.
+- Custom focus duration is 1 minute through 4 hours.
+- Production logs do not contain business entity IDs or user-entered values. They use event names, types, state names, counts, versions, failure classes, and generated correlation IDs.
+
+Still open by named milestone:
+
 - M8: GitHub owner, repository name, visibility, licensing intent, and acceptance that the static app shell is addressable from its Pages URL.
 - M9: user's actual iPhone/iOS version and final compatibility result.

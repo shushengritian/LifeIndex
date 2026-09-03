@@ -2,7 +2,7 @@
 
 **Status:** Active
 **Started:** 2026-09-03
-**Current checkpoint:** M2 — architecture and detailed design
+**Current checkpoint:** M3 — engineering scaffold and reproducible quality loop
 **Source of truth:** `LifeIndex-Project-Baseline.md`
 
 ## Objective
@@ -37,8 +37,8 @@ The goal is complete only when all of the following are verified:
 | --- | --- | --- | --- |
 | M0 | Discovery, local Git, governance | verified | Inventory recorded, repository initialized, governance files committed |
 | M1 | PRD, IA, UX direction, traceability | verified | Numbered V1 requirements and acceptance criteria reviewed for baseline consistency |
-| M2 | HLD, LLD, data model, backup schema, ADRs | in_progress | Architecture and state transitions are implementation-ready |
-| M3 | Engineering scaffold and DEV workflow | todo | Reproducible install, checks, build, local preview, and CI-ready scripts |
+| M2 | HLD, LLD, data model, backup schema, ADRs | verified | Architecture and state transitions are implementation-ready |
+| M3 | Engineering scaffold and DEV workflow | in_progress | Reproducible install, checks, build, local preview, and CI-ready scripts |
 | M4 | IndexedDB, migrations, backup/restore | todo | Migration and transactional backup round-trip tests pass |
 | M5 | Finance, Habits, Focus, Today, Settings | todo | Each vertical slice passes its mapped unit, integration, and E2E checks |
 | M6 | PWA, offline, iPhone polish, URL Actions | todo | Installability, offline app shell, update flow, and action safety verified |
@@ -74,14 +74,18 @@ The goal is complete only when all of the following are verified:
 
 ### M2 — Architecture and detailed design
 
-- [ ] `in_progress` M2.1 Decide the frontend, storage wrapper, validation, PWA, state, routing, and test stack in bounded ADRs.
-- [ ] `todo` M2.2 Write HLD diagrams, boundaries, data flows, privacy, logging, offline, deployment, and update architecture.
-- [ ] `todo` M2.3 Write LLD interfaces and Finance, Habit, Focus, restore, service-worker, and URL-action state transitions.
-- [ ] `todo` M2.4 Define IndexedDB schema v1, indexes, migrations, date/money semantics, and versioned backup schema.
+- [x] `verified` M2.1 Decide the frontend, storage wrapper, validation, PWA, state, routing, and test stack in bounded ADRs.
+  - Evidence: ADR-0001 through ADR-0004 accept the stack, persistence, private actions, and deployment/update strategy with alternatives and sources.
+- [x] `verified` M2.2 Write HLD diagrams, boundaries, data flows, privacy, logging, offline, deployment, and update architecture.
+  - Evidence: `docs/architecture/HLD.md` contains context/container/deployment diagrams, startup/restore sequences, module boundaries, and failure/observability rules.
+- [x] `verified` M2.3 Write LLD interfaces and Finance, Habit, Focus, restore, service-worker, and URL-action state transitions.
+  - Evidence: `docs/architecture/LLD.md` defines source ownership, service/repository contracts, algorithms, state machine, logging allowlist, and test seams.
+- [x] `verified` M2.4 Define IndexedDB schema v1, indexes, migrations, date/money semantics, and versioned backup schema.
+  - Evidence: seven-store schema, referential rules, migrations, full backup envelope, validation pipeline, atomic replace, and compatibility policy are normative.
 
 ### M3 — Engineering scaffold
 
-- [ ] `todo` M3.1 Scaffold the selected TypeScript PWA without unrelated demo content.
+- [ ] `in_progress` M3.1 Scaffold the selected TypeScript PWA without unrelated demo content.
 - [ ] `todo` M3.2 Add formatting, lint, typecheck, unit/integration, build, preview, and E2E commands.
 - [ ] `todo` M3.3 Add shared logging/error boundaries and verify logs exclude personal values.
 - [ ] `todo` M3.4 Document setup, directory ownership, code standards, migration, Git, release, and rollback workflows.
@@ -153,12 +157,14 @@ The goal is complete only when all of the following are verified:
 - Added the initial privacy-safe governance and planning files.
 - Completed M0 in local commit `f7303b4` and began translating the product baseline into testable M1 requirements.
 - Verified M1 with 53 unique requirements, complete interaction/visual direction, traceability coverage, and 14 registered risks.
+- Began M2 with four bounded decisions covering the web stack, IndexedDB/validation, private URL Actions, and controlled PWA deployment.
+- Verified M2 with four accepted ADRs and implementation-ready architecture, data, backup, timer, action, logging, and PWA contracts.
 
 ## Next three actions
 
-1. Commit the verified M1 product-design milestone.
-2. Write bounded M2 ADRs for the stack, routing/actions, persistence, and PWA deployment.
-3. Produce implementation-ready HLD, LLD, data model, and backup schema.
+1. Commit the verified M2 architecture milestone.
+2. Install and lock the selected M3 dependencies, then scaffold the application without demo content.
+3. Add DEV/TEST_PLAN and prove format, lint, typecheck, unit, build, preview, and initial E2E commands.
 
 ## Plan change log
 
@@ -168,3 +174,5 @@ The goal is complete only when all of the following are verified:
 | 2026-09-03 | Recorded fragment-based URL Actions as the default design direction. | Protects privacy by keeping action payloads out of HTTP requests; requires ADR validation in M2. |
 | 2026-09-03 | Defined V1 habit schedules as daily or selected weekdays and restore as preview-first replace, not merge. | Satisfies the baseline with testable, data-safe scope while deferring ambiguous scheduling and merge conflict rules. |
 | 2026-09-03 | Defined Focus V1 without pause/resume intervals. | Keeps timestamp recovery reliable and avoids turning Focus into project management; early finish and cancel remain supported. |
+| 2026-09-03 | Accepted React/TypeScript/Vite, pnpm, Dexie 4, Zod, hash routing, custom Workbox service worker, Vitest, and Playwright. | Provides a typed static PWA, Safari-aware data layer, explicit update control, and layered validation without a backend or heavyweight global state/UI framework. |
+| 2026-09-03 | Added `actionReceipts` as the seventh V1 store. | Durable idempotency is necessary to prevent Shortcuts retries from duplicating records; receipts contain no payload and are included in full backup. |
