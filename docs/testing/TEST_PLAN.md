@@ -61,11 +61,11 @@ Automation is evidence, not a substitute for physical-iPhone acceptance.
 
 ### Focus
 
-- 25/50/custom bounds and required title.
-- Single-active invariant.
-- Timestamp-derived tick, background/reload resume, overdue natural completion.
-- Early finish and confirm-cancel; repeated transition cannot duplicate.
-- Today/week/month/category summaries.
+- Verified: 25/50/custom bounds and required title.
+- Verified: transactional single-active invariant.
+- Verified: timestamp-derived display, reload resume, and delayed natural completion at the planned endpoint.
+- Verified: early finish, confirm-cancel behavior, sub-second cancellation, and repeated-transition idempotency.
+- Verified: Today/week/month/category summaries plus description-only history edits and confirmed deletion.
 
 ### Today and Settings
 

@@ -65,3 +65,24 @@ test('creates a habit and persists reversible daily check-in', async ({ page }) 
     'false',
   )
 })
+
+test('restores an active focus timer after reload and saves one early finish', async ({ page }) => {
+  await page.goto('/#/focus')
+  await expect(page.getByRole('heading', { name: '专注' })).toBeVisible()
+
+  await page.getByLabel('专注标题').fill('合成专注会话')
+  await page.getByRole('combobox', { name: '分类（可选）' }).selectOption({ label: '工作' })
+  await page.getByRole('button', { name: '开始专注' }).click()
+  await expect(page.getByRole('heading', { name: '合成专注会话' })).toBeVisible()
+  await expect(page.getByText(/^2[45]:[0-5][0-9]$/)).toBeVisible()
+
+  await page.reload()
+  await expect(page.getByRole('heading', { name: '合成专注会话' })).toBeVisible()
+  await page.waitForTimeout(1_100)
+  page.once('dialog', (dialog) => dialog.accept())
+  await page.getByRole('button', { name: '提前结束' }).click()
+
+  const history = page.getByRole('region', { name: '最近记录' })
+  await expect(history.getByText('合成专注会话')).toBeVisible()
+  await expect(history.getByText(/提前结束/)).toBeVisible()
+})

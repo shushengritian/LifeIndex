@@ -1,4 +1,4 @@
-import type { Habit, HabitRecord, Transaction } from '@/shared/domain/types'
+import type { FocusSession, Habit, HabitRecord, Transaction } from '@/shared/domain/types'
 
 export const FIXED_NOW = '2026-09-03T12:00:00.000Z'
 
@@ -42,6 +42,26 @@ export function buildHabitRecord(overrides: Partial<HabitRecord> = {}): HabitRec
     completedAt: FIXED_NOW,
     timezoneOffsetMinutes: -480,
     createdAt: FIXED_NOW,
+    updatedAt: FIXED_NOW,
+    ...overrides,
+  }
+}
+
+export function buildFocusSession(overrides: Partial<FocusSession> = {}): FocusSession {
+  return {
+    id: '00000000-0000-4000-8000-000000000004',
+    status: 'completed',
+    title: '合成专注记录',
+    categoryId: 'category-focus-study-v1',
+    startedAt: '2026-09-03T11:35:00.000Z',
+    plannedDurationSeconds: 1_500,
+    expectedEndAt: FIXED_NOW,
+    endedAt: FIXED_NOW,
+    durationSeconds: 1_500,
+    completionKind: 'timer',
+    localDate: '2026-09-03',
+    timezoneOffsetMinutes: -480,
+    createdAt: '2026-09-03T11:35:00.000Z',
     updatedAt: FIXED_NOW,
     ...overrides,
   }

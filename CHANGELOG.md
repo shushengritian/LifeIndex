@@ -17,3 +17,4 @@ All notable LifeIndex changes will be documented here. The project follows Seman
 - Deterministic V1 JSON snapshots, supported V0 migration, preview-only inspection, one-time restore tokens, referential checks, and transactional seven-store replacement.
 - Finance transaction creation, editing, confirmed deletion, local period filters, exact summaries, monthly category breakdown, and restrained six-month trend.
 - Habit creation/editing, daily and weekday schedules, direct idempotent check-in/undo, pause/resume with retained history, schedule-aware streaks, monthly rate, and calendar progress.
+- Focus presets/custom duration, single-active persisted timer, reload-safe timestamp reconciliation, natural/early completion, cancellation, editable history, and local period/category summaries.

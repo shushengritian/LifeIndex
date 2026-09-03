@@ -109,7 +109,8 @@ The goal is complete only when all of the following are verified:
   - Current evidence: transaction create/edit/confirmed-delete, local Today/Week/Month/History filters, exact totals, monthly categories, six-month trend, reload persistence, and Chromium/WebKit CRUD pass; category reorder/management UI remains with Settings.
 - [x] `verified` M5.2 Habits: lifecycle, daily check-in, calendar, streaks, and completion statistics.
   - Evidence: create/edit, daily/weekday plans, active/pause transitions, idempotent check-in/undo, current/longest streak, monthly rate/calendar, and history-preserving pause pass six focused tests plus Chromium/WebKit reload persistence.
-- [ ] `todo` M5.3 Focus: 25/50/custom timer, resilient timestamp state, session history, and summaries.
+- [x] `verified` M5.3 Focus: 25/50/custom timer, resilient timestamp state, session history, and summaries.
+  - Evidence: transactional single-active start, timestamp-derived display, delayed natural reconciliation, early finish, sub-second/cancel removal, description-only edits, confirmed history deletion, local summaries, and category distribution pass seven focused tests plus Chromium/WebKit reload recovery.
 - [ ] `todo` M5.4 Today: date summary and high-frequency actions without dashboard overload.
 - [ ] `todo` M5.5 Settings: data management, categories/habits, appearance, backup status, and version information.
 
@@ -173,12 +174,13 @@ The goal is complete only when all of the following are verified:
 - Verified M4: the seven-store IndexedDB foundation and preview-first atomic backup replacement pass static, 36-test, production-build, and two-engine browser gates.
 - Implemented the Finance transaction slice against real IndexedDB with exact projections and a production-preview CRUD/reload journey in both browser engines.
 - Verified the Habits slice with schedule-aware statistics, reversible compound-key check-ins, pause-with-history semantics, monthly progress UI, and dual-engine persistence evidence.
+- Verified the Focus slice with timestamp-derived countdown, single-active transactional transitions, reload recovery, history maintenance, and dual-engine early-finish evidence.
 
 ## Next three actions
 
-1. Deliver Focus timestamp-based lifecycle, reload recovery, early finish/cancel, history, and summaries.
-2. Compose Today from independent Finance, Habits, and Focus projections with direct high-frequency actions.
-3. Complete Settings category management, appearance, browser backup/restore, and all remaining M5 E2E journeys.
+1. Compose Today from independent Finance, Habits, and Focus projections with direct high-frequency actions.
+2. Complete Settings category management, appearance, browser backup/restore, and version/data-safety information.
+3. Close Finance category management and all remaining M5 cross-feature/browser evidence.
 
 ## Plan change log
 

@@ -234,6 +234,28 @@ button:disabled {
   margin-top: 0;
 }
 
+.duration-presets {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.duration-presets button {
+  min-height: 48px;
+  padding: 6px;
+  border: 1px solid var(--divider);
+  border-radius: 12px;
+  background: var(--canvas);
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.duration-presets button[aria-pressed='true'] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
 .entry-form {
   display: grid;
   gap: 16px;
@@ -383,6 +405,63 @@ button:disabled {
   font-size: clamp(13px, 3.5vw, 17px);
   font-variant-numeric: tabular-nums;
   text-overflow: ellipsis;
+}
+
+.summary-grid small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.focus-summary {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.active-focus {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  margin-top: 24px;
+  padding: 28px 20px 22px;
+  border: 1px solid color-mix(in srgb, var(--accent) 32%, var(--divider));
+  border-radius: 24px;
+  background: color-mix(in srgb, var(--accent-soft) 48%, var(--surface));
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.active-focus p,
+.active-focus h2,
+.active-focus span {
+  margin: 0;
+}
+
+.active-focus p {
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.active-focus h2 {
+  font-size: 20px;
+}
+
+.active-focus > span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.active-focus .form-actions {
+  width: 100%;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+.timer-value {
+  margin-block: 8px;
+  font-size: clamp(48px, 16vw, 76px);
+  font-variant-numeric: tabular-nums;
+  font-weight: 650;
+  letter-spacing: -0.05em;
 }
 
 .content-section {

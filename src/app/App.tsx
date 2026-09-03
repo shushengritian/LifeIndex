@@ -5,6 +5,7 @@ import { AppErrorBoundary } from '@/app/AppErrorBoundary'
 import { AppProviders } from '@/app/AppProviders'
 import { AppShell } from '@/app/AppShell'
 import { FinancePage } from '@/features/finance/FinancePage'
+import { FocusPage } from '@/features/focus/FocusPage'
 import { HabitsPage } from '@/features/habits/HabitsPage'
 import { logger } from '@/shared/logging/logger'
 
@@ -49,12 +50,7 @@ function AppRoutes() {
         <Route index element={<Navigate to="/today" replace />} />
         <Route path="/today" element={<TodayPage />} />
         <Route path="/finance" element={<FinancePage />} />
-        <Route
-          path="/focus"
-          element={
-            <FoundationPage eyebrow="focus" title="专注" description="看见时间和注意力去了哪里。" />
-          }
-        />
+        <Route path="/focus" element={<FocusPage />} />
         <Route path="/habits" element={<HabitsPage />} />
         <Route
           path="/settings"

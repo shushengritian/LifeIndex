@@ -110,7 +110,7 @@ interface FocusRepository {
   cancel(id: string): Promise<void>
   updateDetails(id: string, command: UpdateFocusDetails): Promise<FocusSession>
   removeCompleted(id: string): Promise<void>
-  listCompleted(range: InstantRange): Promise<FocusSession[]>
+  listCompleted(range: LocalDateRange): Promise<FocusSession[]>
 }
 ```
 
@@ -176,7 +176,7 @@ stateDiagram-v2
 
 Key transition rules:
 
-- `start` checks for an active row in the same transaction; if present, returns it through a typed `AlreadyActive` result.
+- `start` checks for an active row in the same transaction; if present, returns that existing session and logs an `alreadyactive` branch without writing.
 - `reconcileActive` re-reads the row, returns it when not due, or conditionally changes `status` to completed. A second reconcile sees completed and cannot duplicate it.
 - `finishEarly` rejects/returns no record when the row is absent/completed; duration derives from timestamps and must be at least one second.
 - Natural completion sets `endedAt=expectedEndAt`, `durationSeconds=plannedDurationSeconds`, `completionKind=timer`.
