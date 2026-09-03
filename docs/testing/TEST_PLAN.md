@@ -53,11 +53,11 @@ Automation is evidence, not a substitute for physical-iPhone acceptance.
 
 ### Habits
 
-- Daily and selected-weekday schedules from start date.
-- Idempotent check-in and undo compound key.
-- Pause preserving history.
-- Current/longest streak, month rate, total count; unscheduled/future dates.
-- Calendar and accessibility states.
+- Verified: daily and selected-weekday schedules from start date.
+- Verified: idempotent check-in and undo using the unique compound key.
+- Verified: pause removes current prompts while preserving history and can be reversed.
+- Verified: current/longest streak, month rate, total count, unscheduled dates, and unfinished today.
+- Verified: current-month calendar states and dual-engine create/check/reload/undo journey; broader accessibility states remain in M7.
 
 ### Focus
 

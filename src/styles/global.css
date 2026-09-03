@@ -271,6 +271,70 @@ button:disabled {
   outline: 3px solid color-mix(in srgb, var(--accent) 20%, transparent);
 }
 
+.form-grid-two {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.form-fieldset {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.form-fieldset legend {
+  margin-bottom: 7px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.weekday-picker {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+  margin-top: 10px;
+}
+
+.weekday-picker label {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  min-height: 44px;
+  place-items: center;
+}
+
+.weekday-picker input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.weekday-picker span {
+  display: grid;
+  width: 100%;
+  min-height: 44px;
+  place-items: center;
+  border: 1px solid var(--divider);
+  border-radius: 10px;
+  background: var(--canvas);
+}
+
+.weekday-picker input:checked + span {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 750;
+}
+
+.weekday-picker input:focus-visible + span {
+  outline: 3px solid color-mix(in srgb, var(--accent) 65%, white);
+  outline-offset: 2px;
+}
+
 .form-actions {
   justify-content: flex-end;
   gap: 10px;
@@ -328,6 +392,147 @@ button:disabled {
 .content-section h2 {
   margin: 0 0 12px;
   font-size: 18px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.section-heading span,
+.status-label {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.habit-check-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.habit-check-list button {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  width: 100%;
+  min-height: 60px;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border: 1px solid var(--divider);
+  border-radius: 16px;
+  background: var(--surface);
+  color: var(--text);
+  text-align: left;
+}
+
+.habit-check-list button strong {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.habit-check-list button[aria-pressed='true'] {
+  border-color: color-mix(in srgb, var(--positive) 50%, var(--divider));
+  background: color-mix(in srgb, var(--positive) 8%, var(--surface));
+}
+
+.habit-marker {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 800;
+}
+
+.marker-blue {
+  background: #dce8ef;
+  color: #315c73;
+}
+
+.marker-amber {
+  background: #f0e5cf;
+  color: #775322;
+}
+
+.marker-rose {
+  background: #f0dede;
+  color: #7e3a3a;
+}
+
+.marker-violet {
+  background: #e9e0ef;
+  color: #654479;
+}
+
+.marker-slate {
+  background: #e1e4e3;
+  color: #46504c;
+}
+
+.habit-stats {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.habit-stats article:last-child {
+  grid-column: 1 / -1;
+}
+
+.progress-panel {
+  padding: 18px;
+  border: 1px solid var(--divider);
+  border-radius: 20px;
+  background: var(--surface);
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 5px;
+  margin-top: 20px;
+}
+
+.calendar-weekday,
+.calendar-day {
+  display: grid;
+  min-width: 0;
+  min-height: 34px;
+  place-items: center;
+  border-radius: 9px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.calendar-weekday {
+  min-height: 24px;
+  font-weight: 700;
+}
+
+.calendar-scheduled {
+  border: 1px solid var(--divider);
+  color: var(--text);
+}
+
+.calendar-complete {
+  position: relative;
+  border-color: var(--positive);
+  background: color-mix(in srgb, var(--positive) 14%, var(--surface));
+  color: var(--positive);
+  font-weight: 800;
+}
+
+.calendar-complete b {
+  position: absolute;
+  right: 2px;
+  bottom: 0;
+  font-size: 8px;
 }
 
 .record-list,

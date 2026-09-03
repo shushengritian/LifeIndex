@@ -5,6 +5,7 @@ import { AppErrorBoundary } from '@/app/AppErrorBoundary'
 import { AppProviders } from '@/app/AppProviders'
 import { AppShell } from '@/app/AppShell'
 import { FinancePage } from '@/features/finance/FinancePage'
+import { HabitsPage } from '@/features/habits/HabitsPage'
 import { logger } from '@/shared/logging/logger'
 
 interface FoundationPageProps {
@@ -54,12 +55,7 @@ function AppRoutes() {
             <FoundationPage eyebrow="focus" title="专注" description="看见时间和注意力去了哪里。" />
           }
         />
-        <Route
-          path="/habits"
-          element={
-            <FoundationPage eyebrow="habits" title="习惯" description="看见长期坚持了什么。" />
-          }
-        />
+        <Route path="/habits" element={<HabitsPage />} />
         <Route
           path="/settings"
           element={

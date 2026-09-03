@@ -16,3 +16,4 @@ All notable LifeIndex changes will be documented here. The project follows Seman
 - Seven-store Dexie schema, idempotent default categories/settings, typed validation, exact money/local-date utilities, and foundational repositories.
 - Deterministic V1 JSON snapshots, supported V0 migration, preview-only inspection, one-time restore tokens, referential checks, and transactional seven-store replacement.
 - Finance transaction creation, editing, confirmed deletion, local period filters, exact summaries, monthly category breakdown, and restrained six-month trend.
+- Habit creation/editing, daily and weekday schedules, direct idempotent check-in/undo, pause/resume with retained history, schedule-aware streaks, monthly rate, and calendar progress.

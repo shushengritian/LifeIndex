@@ -39,3 +39,29 @@ test('creates, persists, edits, and deletes a local transaction', async ({ page 
   await page.getByRole('button', { name: '删除' }).click()
   await expect(page.getByText('这个时间范围还没有账目。新增一笔，就从这里开始。')).toBeVisible()
 })
+
+test('creates a habit and persists reversible daily check-in', async ({ page }) => {
+  await page.goto('/#/habits')
+  await expect(page.getByRole('heading', { name: '习惯' })).toBeVisible()
+
+  await page.getByRole('button', { name: '新增' }).click()
+  await page.getByLabel('习惯名称').fill('合成阅读习惯')
+  await page.getByRole('button', { name: '保存' }).click()
+
+  const checkIn = page.getByRole('button', { name: /合成阅读习惯.*点按完成/ })
+  await expect(checkIn).toBeVisible()
+  await checkIn.click()
+  await expect(page.getByRole('button', { name: /合成阅读习惯.*已完成/ })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  )
+
+  await page.reload()
+  const completed = page.getByRole('button', { name: /合成阅读习惯.*已完成/ })
+  await expect(completed).toBeVisible()
+  await completed.click()
+  await expect(page.getByRole('button', { name: /合成阅读习惯.*点按完成/ })).toHaveAttribute(
+    'aria-pressed',
+    'false',
+  )
+})
