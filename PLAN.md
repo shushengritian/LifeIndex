@@ -2,7 +2,7 @@
 
 **Status:** Active
 **Started:** 2026-09-03
-**Current checkpoint:** M7 — release hardening; M6 physical WebKit reload evidence deferred to M9
+**Current checkpoint:** M8 — local CI/deployment preparation; GitHub decisions and authentication pending
 **Source of truth:** `LifeIndex-Project-Baseline.md`
 
 ## Objective
@@ -42,7 +42,7 @@ The goal is complete only when all of the following are verified:
 | M4  | IndexedDB, migrations, backup/restore     | verified    | Migration and transactional backup round-trip tests pass                               |
 | M5  | Finance, Habits, Focus, Today, Settings   | verified    | Each vertical slice passes its mapped unit, integration, and E2E checks                |
 | M6  | PWA, offline, iPhone polish, URL Actions  | in_progress | Installability, offline app shell, update flow, and action safety verified             |
-| M7  | Data-safety and release hardening         | in_progress | Full local quality gate and production smoke suite pass                                |
+| M7  | Data-safety and release hardening         | verified    | Full local quality gate and production smoke suite pass                                |
 | M8  | GitHub, CI, GitHub Pages                  | todo        | User-approved remote exists; CI and deployment are green; live URL passes smoke checks |
 | M9  | Physical iPhone acceptance and V1 release | todo        | User confirms checklist; final gate passes; `v1.0.0` and handoff complete              |
 
@@ -129,9 +129,12 @@ The goal is complete only when all of the following are verified:
 
 ### M7 — Hardening
 
-- [ ] `todo` M7.1 Cover migrations, restore failures, money/date boundaries, suspended timers, repeated actions, and corrupted data.
-- [ ] `todo` M7.2 Exercise empty and representative larger datasets, accessibility, visual states, and production preview.
-- [ ] `todo` M7.3 Run and record the complete local release gate.
+- [x] `verified` M7.1 Cover migrations, restore failures, money/date boundaries, suspended timers, repeated actions, and corrupted data.
+  - Evidence: 84 unit/integration tests include V0 migration, future/corrupt backup rejection with unchanged-data proof, restore rollback, exact money/calendar boundaries, timestamp reconciliation, action deduplication, and an injected IndexedDB failure that retains the draft.
+- [x] `verified` M7.2 Exercise empty and representative larger datasets, accessibility, visual states, and production preview.
+  - Evidence: 500 transactions round-trip exactly; 33/34 browser checks pass with one documented WebKit-tool skip; all primary/entry/dark states pass axe; 320 px touch/reduced-motion automation and 320 × 568 / 390 × 844 visual review pass.
+- [x] `verified` M7.3 Run and record the complete local release gate.
+  - Evidence: peers, formatting, lint, strict TypeScript, 18-file/84-test Vitest suite, root and `/LifeIndex/` production builds, dependency audit, secret/artifact/ignore scans, and 33-pass/1-skip dual-engine E2E gate are green on 2026-09-03.
 
 ### M8 — GitHub and deployment
 
@@ -187,12 +190,14 @@ The goal is complete only when all of the following are verified:
 - Implemented M6 installability and controlled update infrastructure with an original PWA icon set, base-path-safe metadata, static-only precaching, trustworthy offline status, and shared dirty-form protection.
 - Implemented all three strict fragment URL Actions with no-write previews, atomic receipt coordination, retry deduplication, safe route scrubbing, and an iOS Shortcuts operations contract.
 - Closed the automated M6 gate with 75/75 Vitest checks and 25 passed / 1 documented WebKit-tool skip across 26 production-preview E2E scenarios; Chromium passes the complete offline reload path.
+- Completed M7 hardening with 84/84 Vitest checks, 33 passed / 1 documented WebKit-tool skip across 34 production-preview E2E scenarios, zero known production dependency vulnerabilities, privacy-safe artifacts, and verified root/project-path builds.
+- Found and fixed dark-theme primary-control contrast plus compact touch-target gaps during the M7 accessibility pass.
 
 ## Next three actions
 
-1. Run M7 boundary, corruption, larger-dataset, accessibility, visual, console/privacy, and production smoke hardening.
-2. Add least-privilege GitHub CI/Pages workflows and release/runbook documentation without creating a remote yet.
-3. Ask once for GitHub owner/name/visibility/license/Pages approval, then deploy and verify the live subpath before physical iPhone acceptance.
+1. Add least-privilege GitHub CI/Pages workflows and release/runbook documentation without creating a remote yet.
+2. Ask once for GitHub owner/name/visibility/license/Pages approval and complete GitHub authentication.
+3. Create the approved remote, observe CI/Pages, verify the live subpath, then begin physical-iPhone acceptance.
 
 ## Plan change log
 
@@ -210,3 +215,4 @@ The goal is complete only when all of the following are verified:
 | 2026-09-03 | Completed M4 with a seven-store atomic replace-restore boundary.                                                       | Data is fully validated before writes and any insertion failure rolls the whole replacement back, establishing the safety base for feature development.           |
 | 2026-09-03 | Completed all five M5 vertical slices and introduced route-level lazy loading.                                          | Settings closes category and backup handoff workflows; 58 unit/integration checks and 16 dual-engine E2E checks pass while the production main chunk stays bounded. |
 | 2026-09-03 | Completed M6 implementation while deferring one WebKit automation gap to physical acceptance.                           | Install metadata, offline mutation, update safety, and URL Actions are automated; Playwright WebKit cannot perform offline reload, so M9 retains the real-device release gate. |
+| 2026-09-03 | Completed M7 local release hardening and advanced the checkpoint to M8.                                                  | Corruption, failure, volume, privacy, accessibility, compact-layout, dependency, root/subpath build, and dual-engine gates pass; only deployed and physical-device evidence remains. |

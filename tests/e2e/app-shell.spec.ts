@@ -447,3 +447,129 @@ test('reloads the cached application shell and persisted data offline in Chromiu
     await context.setOffline(false)
   }
 })
+
+test('rejects an invalid backup in the UI without changing current records', async ({ page }) => {
+  await page.goto('/#/finance')
+  await page.getByRole('button', { name: '新增' }).click()
+  await page.getByLabel('金额（CNY）').fill('9.99')
+  await page.getByRole('combobox', { name: '分类' }).selectOption({ label: '餐饮' })
+  await page.getByRole('button', { name: '保存' }).click()
+  await expect(page.getByText('−¥9.99')).toBeVisible()
+
+  await page.getByRole('link', { name: '设置', exact: true }).click()
+  await page.getByLabel('选择备份文件').setInputFiles({
+    name: 'synthetic-invalid.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from('{"not":"a backup"}'),
+  })
+  await expect(page.getByRole('alert')).toContainText('当前数据没有改变')
+  expect(await readStoreRecords(page, 'transactions')).toHaveLength(1)
+
+  await page.getByRole('link', { name: '记账', exact: true }).click()
+  await expect(page.getByText('−¥9.99')).toBeVisible()
+})
+
+test('keeps primary routes and entry states free of detectable accessibility violations', async ({
+  page,
+}) => {
+  const routes = [
+    ['/#/today', '让今天保持清晰'],
+    ['/#/finance', '记账'],
+    ['/#/focus', '专注'],
+    ['/#/habits', '习惯'],
+    ['/#/settings', '设置'],
+  ] as const
+  for (const [route, heading] of routes) {
+    await page.goto(route)
+    await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible()
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
+  }
+
+  await page.goto('/#/finance')
+  await page.getByRole('button', { name: '新增' }).click()
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
+
+  await page.goto(
+    '/#/action/add-transaction?actionId=00000000-0000-4000-8000-000000000506&amount=8.88&categoryId=category-finance-expense-food-v1',
+  )
+  await expect(page.getByRole('heading', { name: '新增账目' })).toBeVisible()
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
+
+  await page.goto('/#/settings')
+  await page.getByRole('button', { name: '深色' }).click()
+  await expect.poll(() => page.locator('html').getAttribute('data-theme')).toBe('dark')
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
+})
+
+test('fits long representative content and touch controls at 320 CSS pixels', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 568 })
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/#/settings')
+  const categoryRegion = page.getByRole('region', { name: '记账分类' })
+  await categoryRegion.getByLabel('分类名称').fill('合成很长很长但仍然有效的旅行与家庭生活分类')
+  await categoryRegion.getByRole('button', { name: '新增分类' }).click()
+  await expect(categoryRegion.getByText('合成很长很长但仍然有效的旅行与家庭生活分类')).toBeVisible()
+
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)
+  expect(overflow).toBeLessThanOrEqual(0)
+  const smallControls = await page
+    .locator('button, a, input, select, label.file-picker')
+    .evaluateAll((elements) =>
+      elements
+        .filter((element) => {
+          const rect = element.getBoundingClientRect()
+          const style = getComputedStyle(element)
+          // Opacity-zero native inputs delegate their full target to a visible 44px label.
+          return (
+            style.visibility !== 'hidden' &&
+            style.display !== 'none' &&
+            style.opacity !== '0' &&
+            rect.width > 0
+          )
+        })
+        .map((element) => {
+          const rect = element.getBoundingClientRect()
+          return {
+            label: element.getAttribute('aria-label') ?? element.textContent,
+            width: rect.width,
+            height: rect.height,
+          }
+        })
+        .filter(({ width, height }) => width < 44 || height < 44),
+    )
+  expect(smallControls).toEqual([])
+
+  const motionDurations = await page.locator('.page').evaluate((element) => {
+    const style = getComputedStyle(element)
+    const toMilliseconds = (duration: string) =>
+      duration.endsWith('ms') ? Number.parseFloat(duration) : Number.parseFloat(duration) * 1000
+    // Browsers serialize the same duration in either seconds or milliseconds.
+    return {
+      animation: toMilliseconds(style.animationDuration),
+      transition: toMilliseconds(style.transitionDuration),
+    }
+  })
+  // Reduced-motion preference collapses decorative movement without removing state feedback.
+  expect(motionDurations.animation).toBeLessThanOrEqual(0.01)
+  expect(motionDurations.transition).toBeLessThanOrEqual(0.01)
+})
+
+test('keeps fragment payloads out of requests and privacy-safe runtime logs', async ({ page }) => {
+  const requests: string[] = []
+  const consoleMessages: string[] = []
+  page.on('request', (request) => requests.push(request.url()))
+  page.on('console', (message) => consoleMessages.push(message.text()))
+  const secret = 'SYNTHETIC_PRIVATE_ACTION_VALUE_9f4b'
+  const actionId = '00000000-0000-4000-8000-000000000507'
+  await page.goto(
+    `/#/action/add-transaction?actionId=${actionId}&amount=18.88&categoryId=category-finance-expense-food-v1&note=${secret}`,
+  )
+  await page.getByRole('button', { name: '确认新增账目' }).click()
+  await expect(page.getByText('−¥18.88')).toBeVisible()
+
+  expect(requests.length).toBeGreaterThan(0)
+  for (const value of [...requests, ...consoleMessages]) {
+    expect(value).not.toContain(secret)
+    expect(value).not.toContain(actionId)
+  }
+})

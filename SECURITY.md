@@ -10,7 +10,7 @@ The application URL and static source may be accessible to other people dependin
 
 - Never submit a real LifeIndex backup, personal record, secret, or identifying test fixture to the repository or an issue.
 - Application logs must describe event types, entity identifiers only when safe, counts, versions, and failure classes—not amounts, notes, titles, or backup payloads.
-- URL Actions must avoid HTTP query payloads for sensitive values. Fragment-based actions are the default pending the architecture decision.
+- URL Actions keep every field after the URL fragment marker, apply a strict allowlist, preview before mutation, deduplicate by action ID, and replace the route after every terminal outcome so payloads do not enter HTTP requests or remain active in history.
 - A backup must be parsed and validated before the application offers to replace current data.
 
 ## Data durability limitations

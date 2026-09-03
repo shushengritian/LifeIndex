@@ -38,7 +38,7 @@ Automation is evidence, not a substitute for physical-iPhone acceptance.
 - Verified: transaction amounts remain exact at minimum, decimal, maximum, sum, and invalid boundaries.
 - Verified: local date keys handle month/year/leap-day and calendar-component iteration.
 - Verified: backup round trip reproduces every canonical store logically.
-- Verified: invalid JSON, oversized input, count mismatch, invalid fields, and dangling references start no write; broader corrupted-data permutations remain in M7.
+- Verified: invalid JSON, oversized input, unsupported future version, count mismatch, invalid fields, duplicate primary/compound keys, dangling entity/action references, and multiple active Focus records start no write and retain current data.
 - Verified: a forced insertion failure during replace aborts all store changes.
 - Verified: supported V0 backup fixture migrates deterministically and preview tokens are cancelable/one-time.
 
@@ -49,7 +49,8 @@ Automation is evidence, not a substitute for physical-iPhone acceptance.
 - Verified: expense/income create, edit, confirm-delete, and production-preview reload persistence.
 - Verified: category type/reference, archived category history, and selected-period boundaries.
 - Verified: exact income/expense/balance/category/trend totals and zero-filled six-month trend.
-- Pending M7 hardening: explicit storage-failure UI injection and representative larger list.
+- Verified: an injected IndexedDB write failure preserves the visible Finance draft and commits no partial record.
+- Verified: a representative 500-transaction snapshot restores with stable ordering, count, and exact total.
 
 ### Habits
 
@@ -94,23 +95,33 @@ Automation is evidence, not a substitute for physical-iPhone acceptance.
 - Verified: each action rejects unknown/duplicate/malformed fields, previews without mutation, revalidates references, writes entity+receipt atomically, clears the route, and deduplicates retry.
 - Recorded M6 pre-hardening gate: 17 Vitest files / 75 tests pass; browser suite records 25 passed and 1 explicitly skipped WebKit-offline-reload scenario out of 26, with Chromium 13/13 and every runnable Mobile Safari/WebKit scenario green.
 
-## 7. Privacy checks
+## 7. M7 hardening gate
 
-- Capture console calls for failure and success paths and scan keys/serialized values for prohibited fields.
-- Capture browser network requests during representative CRUD, backup inspection, and actions; no record data leaves the origin.
-- Inspect built source/maps policy; production source maps remain disabled unless a future security decision changes it.
-- Confirm test fixtures contain only synthetic, clearly non-personal values.
-- Confirm ignored backup patterns with `git check-ignore` before release.
+- Static and supply chain: peer dependencies, Prettier, ESLint with zero warnings, strict TypeScript, tracked-file credential scan, backup ignore rules, and `pnpm audit --prod` pass with no known production vulnerability.
+- Unit/integration: 18 files and 84 tests pass, including malformed/future/corrupted backup matrices, transactional rollback, storage-failure draft retention, calendar and money boundaries, suspended Focus reconciliation, and repeated action idempotency.
+- Production: root and synthetic `/LifeIndex/` builds pass; the latter emits matching HTML resources, manifest start URL/scope/id, and worker precache paths. No source map or backup-like JSON is shipped.
+- Browser: 33 checks pass and one Playwright WebKit offline-reload scenario is explicitly skipped across 34 Chromium/Mobile Safari checks. Chromium passes full offline reload; every runnable WebKit flow is green.
+- Accessibility/visual: axe reports no detectable violations on every primary route, the Finance entry form, action preview, or dark Settings state. Automated 320 px overflow/touch/reduced-motion checks pass, and manual browser inspection covers 320 × 568 and 390 × 844 light/dark states.
+- Defect found and fixed during hardening: dark-theme accent controls now use a dark foreground, restoring WCAG AA contrast; compact skip, segmented, and category controls meet the 44 px target.
+- Remaining release evidence is intentionally outside M7: live Pages validation and physical-iPhone Safari acceptance in M8–M9.
 
-## 8. Visual/accessibility checks
+## 8. Privacy checks
 
-- 320 px compact and current iPhone-class viewport.
-- Light, dark, and reduced-motion preferences.
-- Empty, representative, long Chinese content, loading, validation, storage error, offline, and update states.
-- 44 px touch targets, 16 px form text, safe-area clearance, no hidden bottom content.
-- Headings, landmarks, current navigation state, labels, errors, focus order/visibility, contrast, and non-color indicators.
+- Verified: logger tests and runtime capture reject prohibited context and expose no action payload or identifier in console messages.
+- Verified: request capture proves fragment payloads remain absent from network URLs during a complete action flow.
+- Verified: production source maps remain disabled and the artifact contains no backup-like JSON.
+- Verified: fixtures and browser records are explicitly synthetic and non-personal.
+- Verified: backup patterns are ignored by Git; this check repeats before final release.
 
-## 9. Release commands
+## 9. Visual/accessibility checks
+
+- Automated and visually inspected: 320 px compact plus current iPhone-class viewport.
+- Automated and visually inspected: light, dark, and reduced-motion preferences.
+- Automated: empty, representative, long Chinese content, validation, storage error, and offline states; update activation remains a physical M9 check.
+- Automated: 44 px touch targets, 16 px form text, safe-area clearance, and no horizontal overflow or hidden bottom content.
+- Automated: headings, landmarks, current navigation state, labels, errors, contrast, and non-color indicators; physical touch/focus feel remains M9 evidence.
+
+## 10. Release commands
 
 Local non-E2E gate:
 

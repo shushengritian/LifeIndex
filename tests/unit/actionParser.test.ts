@@ -92,6 +92,18 @@ describe('fragment URL action parser', () => {
       '?actionId=AAAAAAAA-AAAA-4AAA-8AAA-AAAAAAAAAAAA&title=test',
       'InvalidField',
     ],
+    [
+      'prototype key',
+      'start-focus',
+      `?actionId=${ACTION_ID}&title=test&__proto__=polluted`,
+      'InvalidField',
+    ],
+    [
+      'impossible local date',
+      'check-habit',
+      `?actionId=${ACTION_ID}&habitId=00000000-0000-4000-8000-000000000002&localDate=2026-02-30`,
+      'InvalidField',
+    ],
   ])('rejects %s', (_label, type, search, reason) => {
     expect(parseActionRoute(type, search, new Date(FIXED_NOW))).toEqual({ ok: false, reason })
   })

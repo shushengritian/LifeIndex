@@ -3,8 +3,15 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { BackupService, MAX_BACKUP_BYTES } from '@/data/backup/BackupService'
 import { LifeIndexDatabase } from '@/data/db/LifeIndexDatabase'
 import type { Clock, IdGenerator } from '@/shared/domain/runtime'
+import type { LifeIndexBackupV1 } from '@/shared/domain/types'
 import { AppError } from '@/shared/errors/AppError'
-import { buildHabit, buildHabitRecord, buildTransaction, FIXED_NOW } from '../fixtures/builders'
+import {
+  buildFocusSession,
+  buildHabit,
+  buildHabitRecord,
+  buildTransaction,
+  FIXED_NOW,
+} from '../fixtures/builders'
 
 const openedDatabases: LifeIndexDatabase[] = []
 const fixedClock: Clock = { now: () => new Date(FIXED_NOW) }
@@ -82,6 +89,70 @@ describe('versioned backup and restore', () => {
     expect((await service.createSnapshot('zh-CN')).data).toEqual(before.data)
   })
 
+  it.each([
+    [
+      'a future format version',
+      (backup: LifeIndexBackupV1) => {
+        ;(backup as unknown as { formatVersion: number }).formatVersion = 2
+      },
+    ],
+    [
+      'a duplicate primary key',
+      (backup: LifeIndexBackupV1) => {
+        // Counts stay internally consistent so this case reaches the uniqueness invariant.
+        backup.data.transactions.push(structuredClone(backup.data.transactions[0]!))
+        backup.counts.transactions += 1
+      },
+    ],
+    [
+      'a duplicate habit and date pair',
+      (backup: LifeIndexBackupV1) => {
+        backup.data.habitRecords.push(
+          buildHabitRecord({ id: '00000000-0000-4000-8000-000000000103' }),
+        )
+        backup.counts.habitRecords += 1
+      },
+    ],
+    [
+      'a dangling action receipt',
+      (backup: LifeIndexBackupV1) => {
+        backup.data.actionReceipts.push({
+          actionId: '00000000-0000-4000-8000-000000000104',
+          actionType: 'add-transaction',
+          handledAt: FIXED_NOW,
+          outcomeEntityId: '00000000-0000-4000-8000-000000000105',
+        })
+        backup.counts.actionReceipts += 1
+      },
+    ],
+    [
+      'more than one active focus session',
+      (backup: LifeIndexBackupV1) => {
+        const first = buildFocusSession({ id: '00000000-0000-4000-8000-000000000106' })
+        const second = buildFocusSession({ id: '00000000-0000-4000-8000-000000000107' })
+        // Removing completion fields creates two individually valid active records.
+        for (const session of [first, second]) {
+          session.status = 'active'
+          delete session.endedAt
+          delete session.durationSeconds
+          delete session.completionKind
+        }
+        backup.data.focusSessions.push(first, second)
+        backup.counts.focusSessions += 2
+      },
+    ],
+  ])('rejects %s without changing current data', async (_label, corrupt) => {
+    const database = createDatabase()
+    await initializeWithSyntheticData(database)
+    const service = createService(database)
+    const before = await service.createSnapshot('zh-CN')
+    const input = structuredClone(before)
+    corrupt(input)
+
+    expect(() => service.inspectText(JSON.stringify(input))).toThrow(AppError)
+    expect((await service.createSnapshot('zh-CN')).data).toEqual(before.data)
+  })
+
   it('rolls back all cleared stores when an insertion fails', async () => {
     const source = createDatabase()
     const target = createDatabase()
@@ -155,5 +226,34 @@ describe('versioned backup and restore', () => {
     await expect(service.restore(accepted.token)).rejects.toMatchObject({
       failureClass: 'RestoreToken',
     })
+  })
+
+  it('round-trips a representative 500-record dataset without changing order or totals', async () => {
+    const source = createDatabase()
+    const target = createDatabase()
+    await source.initialize(new Date(FIXED_NOW))
+    await target.initialize(new Date(FIXED_NOW))
+    const records = Array.from({ length: 500 }, (_, index) =>
+      buildTransaction({
+        id: `00000000-0000-4000-8000-${String(index + 1000).padStart(12, '0')}`,
+        amountMinor: index + 1,
+        occurredAt: new Date(new Date(FIXED_NOW).getTime() + index * 1000).toISOString(),
+        note: `合成批量记录 ${index + 1}`,
+      }),
+    )
+    await source.transactions.bulkAdd(records)
+
+    const sourceService = createService(source)
+    const targetService = createService(target)
+    const snapshot = await sourceService.createSnapshot('zh-CN')
+    expect(snapshot.counts.transactions).toBe(500)
+    const preview = targetService.inspectText(sourceService.serialize(snapshot))
+    await targetService.restore(preview.token)
+
+    const restored = await target.transactions.orderBy('id').toArray()
+    expect(restored).toHaveLength(500)
+    expect(restored[0]?.id).toBe(records[0]?.id)
+    expect(restored.at(-1)?.id).toBe(records.at(-1)?.id)
+    expect(restored.reduce((sum, record) => sum + record.amountMinor, 0)).toBe(125_250)
   })
 })

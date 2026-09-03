@@ -23,3 +23,4 @@ All notable LifeIndex changes will be documented here. The project follows Seman
 - Route-level lazy loading for bounded production JavaScript chunks.
 - Original LifeIndex Home Screen/PWA icon set, complete manifest metadata, base-path-safe Apple touch icon, explicit offline/cache status, and a user-controlled update prompt protected by shared dirty-form tracking.
 - Preview-first fragment URL Actions for adding transactions, checking habits, and starting Focus, with strict parsing, atomic entity-plus-receipt writes, durable deduplication, and fragment cleanup.
+- M7 release hardening for corrupted/future backups, 500-record recovery, injected storage failure, network/log privacy, 320 px touch layout, reduced motion, full-route accessibility, dark-theme contrast, and root/subpath production builds.
