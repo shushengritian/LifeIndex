@@ -15,3 +15,4 @@ All notable LifeIndex changes will be documented here. The project follows Seman
 - Development and test guides with local, browser, deployed, and physical-iPhone evidence boundaries.
 - Seven-store Dexie schema, idempotent default categories/settings, typed validation, exact money/local-date utilities, and foundational repositories.
 - Deterministic V1 JSON snapshots, supported V0 migration, preview-only inspection, one-time restore tokens, referential checks, and transactional seven-store replacement.
+- Finance transaction creation, editing, confirmed deletion, local period filters, exact summaries, monthly category breakdown, and restrained six-month trend.

@@ -4,6 +4,7 @@ import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AppErrorBoundary } from '@/app/AppErrorBoundary'
 import { AppProviders } from '@/app/AppProviders'
 import { AppShell } from '@/app/AppShell'
+import { FinancePage } from '@/features/finance/FinancePage'
 import { logger } from '@/shared/logging/logger'
 
 interface FoundationPageProps {
@@ -46,10 +47,7 @@ function AppRoutes() {
       <Route element={<AppShell />}>
         <Route index element={<Navigate to="/today" replace />} />
         <Route path="/today" element={<TodayPage />} />
-        <Route
-          path="/finance"
-          element={<FoundationPage eyebrow="finance" title="记账" description="看见钱去了哪里。" />}
-        />
+        <Route path="/finance" element={<FinancePage />} />
         <Route
           path="/focus"
           element={

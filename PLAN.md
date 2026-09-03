@@ -105,7 +105,8 @@ The goal is complete only when all of the following are verified:
 
 ### M5 — Core vertical slices
 
-- [ ] `todo` M5.1 Finance: transaction/category workflows, time filters, and scoped summaries.
+- [ ] `in_progress` M5.1 Finance: transaction/category workflows, time filters, and scoped summaries.
+  - Current evidence: transaction create/edit/confirmed-delete, local Today/Week/Month/History filters, exact totals, monthly categories, six-month trend, reload persistence, and Chromium/WebKit CRUD pass; category reorder/management UI remains with Settings.
 - [ ] `todo` M5.2 Habits: lifecycle, daily check-in, calendar, streaks, and completion statistics.
 - [ ] `todo` M5.3 Focus: 25/50/custom timer, resilient timestamp state, session history, and summaries.
 - [ ] `todo` M5.4 Today: date summary and high-frequency actions without dashboard overload.
@@ -169,12 +170,13 @@ The goal is complete only when all of the following are verified:
 - Locked the M3 dependency graph after resolving a TypeScript 7 peer conflict by selecting compatible TypeScript 6.0.3.
 - Verified M3: the five-route app shell, safe logger, error boundary, custom service worker build, local workflows, and Chromium/WebKit accessibility smoke tests all pass.
 - Verified M4: the seven-store IndexedDB foundation and preview-first atomic backup replacement pass static, 36-test, production-build, and two-engine browser gates.
+- Implemented the Finance transaction slice against real IndexedDB with exact projections and a production-preview CRUD/reload journey in both browser engines.
 
 ## Next three actions
 
-1. Deliver Finance transaction CRUD, category selection, period filtering, and exact summaries against the M4 data layer.
-2. Deliver Habit scheduling/check-ins/statistics and Focus timestamp-based lifecycle with deterministic tests.
-3. Compose Today and Settings, including browser backup handoff and user-confirmed restore UI, then add cross-feature E2E journeys.
+1. Deliver Habit scheduling, idempotent check-ins, pause behavior, monthly calendar, and schedule-aware statistics.
+2. Deliver Focus timestamp-based lifecycle, reload recovery, early finish/cancel, history, and summaries.
+3. Compose Today and Settings, including category management and browser backup/restore, then close all M5 E2E journeys.
 
 ## Plan change log
 

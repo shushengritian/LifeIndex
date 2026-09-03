@@ -46,10 +46,10 @@ Automation is evidence, not a substitute for physical-iPhone acceptance.
 
 ### Finance
 
-- Expense/income create, edit, confirm-delete.
-- Category type/reference, archived category history, selected-period boundaries.
-- Income/expense/balance/category/trend totals.
-- Empty, invalid, storage failure, and representative larger list.
+- Verified: expense/income create, edit, confirm-delete, and production-preview reload persistence.
+- Verified: category type/reference, archived category history, and selected-period boundaries.
+- Verified: exact income/expense/balance/category/trend totals and zero-filled six-month trend.
+- Pending M7 hardening: explicit storage-failure UI injection and representative larger list.
 
 ### Habits
 
