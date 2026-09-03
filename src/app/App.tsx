@@ -2,6 +2,7 @@ import { useEffect, type ReactNode } from 'react'
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 import { AppErrorBoundary } from '@/app/AppErrorBoundary'
+import { AppProviders } from '@/app/AppProviders'
 import { AppShell } from '@/app/AppShell'
 import { logger } from '@/shared/logging/logger'
 
@@ -84,16 +85,18 @@ export function App() {
 
   return (
     <AppErrorBoundary>
-      <HashRouter>
-        <button
-          className="skip-link"
-          type="button"
-          onClick={() => document.getElementById('main-content')?.focus()}
-        >
-          跳到主要内容
-        </button>
-        <AppRoutes />
-      </HashRouter>
+      <AppProviders>
+        <HashRouter>
+          <button
+            className="skip-link"
+            type="button"
+            onClick={() => document.getElementById('main-content')?.focus()}
+          >
+            跳到主要内容
+          </button>
+          <AppRoutes />
+        </HashRouter>
+      </AppProviders>
     </AppErrorBoundary>
   )
 }

@@ -13,3 +13,5 @@ All notable LifeIndex changes will be documented here. The project follows Seman
 - Implementation-ready HLD, LLD, IndexedDB data model, and versioned backup contract.
 - Reproducible pnpm toolchain, React/Vite app shell, privacy-safe logger, custom service worker scaffold, and layered test configuration.
 - Development and test guides with local, browser, deployed, and physical-iPhone evidence boundaries.
+- Seven-store Dexie schema, idempotent default categories/settings, typed validation, exact money/local-date utilities, and foundational repositories.
+- Deterministic V1 JSON snapshots, supported V0 migration, preview-only inspection, one-time restore tokens, referential checks, and transactional seven-store replacement.

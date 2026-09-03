@@ -4,11 +4,11 @@
 
 **Dexie schema version:** 1
 
-**Status:** Normative for M3/M4 implementation
+**Status:** Implemented and verified in M4
 
 ## 1. Shared conventions
 
-- `id`: lowercase UUID string.
+- `id`: lowercase UUID string, except documented stable seed-category IDs.
 - `createdAt`, `updatedAt`, `startedAt`, `endedAt`, `completedAt`, `handledAt`: UTC ISO 8601 instant strings.
 - `localDate`, `startLocalDate`: calendar date string matching `^\d{4}-\d{2}-\d{2}$`, interpreted in the user's device-local calendar.
 - `timezoneOffsetMinutes`: the `Date.getTimezoneOffset()` value at capture time, retained for audit/display stability.
@@ -242,3 +242,5 @@ Visible names are Chinese in the UI seed. Stable IDs use non-personal constants 
 - Every upgrade has fixtures representing the oldest supported version, malformed rows, boundary dates/money, and enough records to expose transaction mistakes.
 - A failed upgrade surfaces `MigrationError` and blocks writes; it never recreates/deletes the database automatically.
 - Removing support for a backup/database version is a release decision documented in an ADR and migration guide.
+
+Database schema V1 is the first shipped schema, so it has no predecessor database upgrade. Backup-format V0 compatibility is a separate, tested in-memory migration documented in `BACKUP_SCHEMA.md`.

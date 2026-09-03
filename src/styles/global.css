@@ -222,7 +222,8 @@ a:focus-visible {
   color: white;
 }
 
-.fatal-state {
+.fatal-state,
+.startup-state {
   display: grid;
   min-height: 100vh;
   align-content: center;

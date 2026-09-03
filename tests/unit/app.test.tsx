@@ -24,7 +24,7 @@ describe('application shell', () => {
     const user = userEvent.setup()
     render(<App />)
 
-    await user.click(screen.getByRole('link', { name: /记账/ }))
+    await user.click(await screen.findByRole('link', { name: /记账/ }))
 
     expect(await screen.findByRole('heading', { name: '记账' })).toBeInTheDocument()
     expect(window.location.hash).toBe('#/finance')

@@ -4,7 +4,7 @@
 
 **Current format version:** 1
 
-**Status:** Normative for M4 implementation
+**Status:** M4 data layer implemented; browser file handoff is completed with Settings in M5
 
 ## 1. File naming and media type
 
@@ -104,6 +104,8 @@ All example values are synthetic. Real backups are excluded by `.gitignore` and 
 
 ## 4. Export algorithm
 
+M4 implements the consistent snapshot, validation, and serialization steps. The Settings browser adapter added in M5 owns the share/download handoff and updates `lastSuccessfulExportAt` only after that handoff begins.
+
 1. Log `backup.export.started` with app/schema versions only.
 2. Open a Dexie read transaction covering every exported store to obtain one consistent snapshot.
 3. Sort each store by primary key.
@@ -165,6 +167,8 @@ If a browser defect makes atomic multi-store behavior uncertain in a supported e
 - Unknown future versions are rejected without mutation and the user is told to update LifeIndex.
 - Export always emits only the current version.
 - A migration never invents a personal value; it uses documented neutral defaults or rejects the record.
+
+V1 explicitly supports one synthetic legacy V0 shape. V0 has the same six original business collections but predates `actionReceipts`; migration adds an empty receipt array/count in memory, then runs the complete V1 schema, uniqueness, count, state, and reference checks. No V0 file is written by the application.
 
 ## 9. Not included in V1
 

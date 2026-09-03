@@ -95,6 +95,8 @@ Do not create empty folders. Introduce each directory with its first owned imple
 5. Verify current backups still import or add a pure backup migration.
 6. Never delete/recreate a user's database as an automatic recovery strategy.
 
+The first shipped database schema is V1 and therefore has no predecessor database fixture. The supported backup V0 fixture exercises the pure migration pipeline separately; database and backup versions must never be treated as interchangeable.
+
 ## 9. Release and rollback
 
 - CI must reproduce install with `pnpm install --frozen-lockfile`.

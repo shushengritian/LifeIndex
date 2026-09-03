@@ -39,8 +39,8 @@ The goal is complete only when all of the following are verified:
 | M1  | PRD, IA, UX direction, traceability       | verified    | Numbered V1 requirements and acceptance criteria reviewed for baseline consistency     |
 | M2  | HLD, LLD, data model, backup schema, ADRs | verified    | Architecture and state transitions are implementation-ready                            |
 | M3  | Engineering scaffold and DEV workflow     | verified    | Reproducible install, checks, build, local preview, and CI-ready scripts               |
-| M4  | IndexedDB, migrations, backup/restore     | in_progress | Migration and transactional backup round-trip tests pass                               |
-| M5  | Finance, Habits, Focus, Today, Settings   | todo        | Each vertical slice passes its mapped unit, integration, and E2E checks                |
+| M4  | IndexedDB, migrations, backup/restore     | verified    | Migration and transactional backup round-trip tests pass                               |
+| M5  | Finance, Habits, Focus, Today, Settings   | in_progress | Each vertical slice passes its mapped unit, integration, and E2E checks                |
 | M6  | PWA, offline, iPhone polish, URL Actions  | todo        | Installability, offline app shell, update flow, and action safety verified             |
 | M7  | Data-safety and release hardening         | todo        | Full local quality gate and production smoke suite pass                                |
 | M8  | GitHub, CI, GitHub Pages                  | todo        | User-approved remote exists; CI and deployment are green; live URL passes smoke checks |
@@ -96,9 +96,12 @@ The goal is complete only when all of the following are verified:
 
 ### M4 — Data-safety foundation
 
-- [ ] `todo` M4.1 Implement IndexedDB schema v1, repositories, seed categories/settings, and migration framework.
-- [ ] `todo` M4.2 Implement schema-validated, versioned JSON export and preview-first transactional restore.
-- [ ] `todo` M4.3 Prove backup round trip, invalid-input preservation, rollback, and old-fixture migration.
+- [x] `verified` M4.1 Implement IndexedDB schema v1, repositories, seed categories/settings, and migration framework.
+  - Evidence: Dexie creates the seven normative stores/indexes, inserts 15 stable categories plus 3 typed settings idempotently, and exposes validated category/settings repository boundaries.
+- [x] `verified` M4.2 Implement schema-validated, versioned JSON export and preview-first transactional restore.
+  - Evidence: `BackupService` reads a consistent sorted snapshot, emits V1 JSON, accepts only validated previews, and replaces all seven stores in one transaction using a one-time in-memory token.
+- [x] `verified` M4.3 Prove backup round trip, invalid-input preservation, rollback, and old-fixture migration.
+  - Evidence: 10 integration checks cover schema/indexes, idempotent seeds, repositories, full round trip, malformed/oversized/count/reference rejection, forced rollback, V0 migration, and token consumption; all 36 Vitest checks pass.
 
 ### M5 — Core vertical slices
 
@@ -165,12 +168,13 @@ The goal is complete only when all of the following are verified:
 - Verified M2 with four accepted ADRs and implementation-ready architecture, data, backup, timer, action, logging, and PWA contracts.
 - Locked the M3 dependency graph after resolving a TypeScript 7 peer conflict by selecting compatible TypeScript 6.0.3.
 - Verified M3: the five-route app shell, safe logger, error boundary, custom service worker build, local workflows, and Chromium/WebKit accessibility smoke tests all pass.
+- Verified M4: the seven-store IndexedDB foundation and preview-first atomic backup replacement pass static, 36-test, production-build, and two-engine browser gates.
 
 ## Next three actions
 
-1. Implement typed domain records, Dexie schema v1, deterministic seed data, and repository boundaries.
-2. Add exact money/local-date utilities and prove IndexedDB invariants with fake-indexeddb integration tests.
-3. Implement versioned JSON export plus preview-first, transactionally atomic replacement restore.
+1. Deliver Finance transaction CRUD, category selection, period filtering, and exact summaries against the M4 data layer.
+2. Deliver Habit scheduling/check-ins/statistics and Focus timestamp-based lifecycle with deterministic tests.
+3. Compose Today and Settings, including browser backup handoff and user-confirmed restore UI, then add cross-feature E2E journeys.
 
 ## Plan change log
 
@@ -184,3 +188,5 @@ The goal is complete only when all of the following are verified:
 | 2026-09-03 | Added `actionReceipts` as the seventh V1 store.                                                                          | Durable idempotency is necessary to prevent Shortcuts retries from duplicating records; receipts contain no payload and are included in full backup.              |
 | 2026-09-03 | Pinned TypeScript 6.0.3 instead of the available 7.0.2.                                                                  | `typescript-eslint` 8.69.0 requires TypeScript below 6.1; resolving the peer contract keeps lint/type evidence trustworthy.                                       |
 | 2026-09-03 | Completed M3 with a production-built PWA shell and two-engine browser gate.                                              | Establishes a reproducible implementation loop before persisted data is introduced; WebKit remains an approximation until physical-iPhone acceptance.            |
+| 2026-09-03 | Added a supported V0-to-V1 backup migration that initializes empty action receipts.                                   | Gives the migration pipeline a real older fixture without inventing business data; V1 remains the only emitted format.                                           |
+| 2026-09-03 | Completed M4 with a seven-store atomic replace-restore boundary.                                                       | Data is fully validated before writes and any insertion failure rolls the whole replacement back, establishing the safety base for feature development.           |

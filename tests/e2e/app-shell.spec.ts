@@ -12,6 +12,7 @@ test('loads the LifeIndex shell and navigates between primary destinations', asy
 
 test('has no automatically detectable accessibility violations on the shell', async ({ page }) => {
   await page.goto('/')
+  await expect(page.getByRole('heading', { name: '让今天保持清晰' })).toBeVisible()
 
   const results = await new AxeBuilder({ page }).analyze()
   expect(results.violations).toEqual([])

@@ -33,15 +33,14 @@ Automation is evidence, not a substitute for physical-iPhone acceptance.
 
 ## 4. M4 data-safety matrix
 
-- Fresh database creates exactly the version-1 stores/indexes and stable seed data once.
-- Reopening is idempotent.
-- Repository success and failure paths emit safe event metadata.
-- Transaction amounts remain exact at minimum, decimal, maximum, sum, and invalid boundaries.
-- Local date keys handle month/year/leap-day and DST-sensitive iteration.
-- Backup round trip reproduces every canonical store logically.
-- Invalid JSON, unknown version, count mismatch, duplicate keys, invalid fields, and dangling references start no write.
-- A forced failure during replace aborts all store changes.
-- Supported older fixture migrates deterministically; failed migration keeps the database unavailable for writes rather than recreating it.
+- Verified: fresh database creates exactly seven V1 stores, 15 stable categories, and 3 typed settings; reopening is idempotent.
+- Verified: category/settings repository success, idempotent, validation, and failure paths emit safe event metadata.
+- Verified: transaction amounts remain exact at minimum, decimal, maximum, sum, and invalid boundaries.
+- Verified: local date keys handle month/year/leap-day and calendar-component iteration.
+- Verified: backup round trip reproduces every canonical store logically.
+- Verified: invalid JSON, oversized input, count mismatch, invalid fields, and dangling references start no write; broader corrupted-data permutations remain in M7.
+- Verified: a forced insertion failure during replace aborts all store changes.
+- Verified: supported V0 backup fixture migrates deterministically and preview tokens are cancelable/one-time.
 
 ## 5. M5 feature matrix
 

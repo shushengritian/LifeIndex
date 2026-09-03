@@ -47,7 +47,7 @@ Create directories only with their first real implementation or test; this diagr
 
 ## 2. Dependency composition
 
-`main.tsx` installs the earliest safe logger and renders `AppProviders`. Providers construct one database instance and repository set, expose an initialization state, install the router, subscribe to PWA status, and apply appearance.
+`main.tsx` installs the earliest safe logger and renders `AppProviders`. In M4 the provider opens one application-lifetime database and blocks normal routing behind explicit loading/failure states. M5 composes the repository set, appearance, and feature query controllers on this verified database boundary; M6 adds live PWA update state.
 
 ```ts
 interface AppServices {
@@ -188,14 +188,15 @@ Every transition emits event name, prior/next status, reason, and a generated op
 
 ```ts
 interface BackupService {
-  export(): Promise<BackupExportResult>
-  inspect(file: File): Promise<BackupPreview>
+  createSnapshot(locale?: string): Promise<LifeIndexBackupV1>
+  serialize(backup: LifeIndexBackupV1): string
+  inspectText(text: string, byteLength?: number): BackupPreview
   restore(previewToken: string): Promise<RestoreResult>
   cancel(previewToken: string): void
 }
 ```
 
-The preview token references canonical validated data held only in memory for the current app session. `restore` refuses unknown/expired tokens and revalidates the canonical data. The detailed algorithm is in `BACKUP_SCHEMA.md`.
+The preview token references canonical validated data held only in memory for the current app session. `restore` refuses unknown/expired/consumed tokens and revalidates the canonical data. A Settings-owned browser adapter reads bounded `File` input and performs download/share handoff without exposing the database. The detailed algorithm is in `BACKUP_SCHEMA.md`.
 
 ## 10. URL Action parsing and execution
 
