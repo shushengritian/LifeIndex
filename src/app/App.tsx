@@ -7,6 +7,7 @@ import { AppShell } from '@/app/AppShell'
 import { FinancePage } from '@/features/finance/FinancePage'
 import { FocusPage } from '@/features/focus/FocusPage'
 import { HabitsPage } from '@/features/habits/HabitsPage'
+import { TodayPage } from '@/features/today/TodayPage'
 import { logger } from '@/shared/logging/logger'
 
 interface FoundationPageProps {
@@ -24,22 +25,6 @@ function FoundationPage({ eyebrow, title, description, children }: FoundationPag
       <p className="page-intro">{description}</p>
       {children}
     </section>
-  )
-}
-
-function TodayPage() {
-  return (
-    <FoundationPage
-      eyebrow="today"
-      title="让今天保持清晰"
-      description="这里将汇总今天的记账、专注与习惯。"
-    >
-      <div className="foundation-card">
-        <p>本地优先</p>
-        <strong>数据只属于这台设备</strong>
-        <span>完成数据层后，你可以离线记录并通过 JSON 自主备份。</span>
-      </div>
-    </FoundationPage>
   )
 }
 

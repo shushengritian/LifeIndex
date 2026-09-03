@@ -69,8 +69,8 @@ Automation is evidence, not a substitute for physical-iPhone acceptance.
 
 ### Today and Settings
 
-- Today projections update after feature mutations and never turn read errors into zero.
-- Quick-action interaction budgets.
+- Verified: Today projections update after Finance/Habit/Focus mutations and model each read failure independently rather than substituting zero.
+- Verified: one-tap Today habit check-in and two-tap form entry budgets for Finance/Focus.
 - Appearance persistence and system mode.
 - Backup/version/durability status and management routes.
 

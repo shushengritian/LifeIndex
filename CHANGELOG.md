@@ -18,3 +18,4 @@ All notable LifeIndex changes will be documented here. The project follows Seman
 - Finance transaction creation, editing, confirmed deletion, local period filters, exact summaries, monthly category breakdown, and restrained six-month trend.
 - Habit creation/editing, daily and weekday schedules, direct idempotent check-in/undo, pause/resume with retained history, schedule-aware streaks, monthly rate, and calendar progress.
 - Focus presets/custom duration, single-active persisted timer, reload-safe timestamp reconciliation, natural/early completion, cancellation, editable history, and local period/category summaries.
+- Calm Today aggregation with local-date rollover, direct habit check-in, fast Finance/Focus entry, active Focus state, and independent module failure handling.

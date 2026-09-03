@@ -86,3 +86,34 @@ test('restores an active focus timer after reload and saves one early finish', a
   await expect(history.getByText('合成专注会话')).toBeVisible()
   await expect(history.getByText(/提前结束/)).toBeVisible()
 })
+
+test('keeps Today calm while reflecting cross-feature local changes', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.getByRole('heading', { name: '让今天保持清晰' })).toBeVisible()
+
+  await page.getByRole('link', { name: '记一笔' }).click()
+  await page.getByRole('button', { name: '新增' }).click()
+  await page.getByLabel('金额（CNY）').fill('8.80')
+  await page.getByRole('combobox', { name: '分类' }).selectOption({ label: '餐饮' })
+  await page.getByRole('button', { name: '保存' }).click()
+  await page.getByRole('link', { name: /今天/ }).click()
+  await expect(
+    page.getByRole('region', { name: '今日账目' }).getByText('¥8.80', { exact: true }),
+  ).toBeVisible()
+
+  await page.getByRole('link', { name: '管理习惯' }).click()
+  await page.getByRole('button', { name: '新增' }).click()
+  await page.getByLabel('习惯名称').fill('合成今日习惯')
+  await page.getByRole('button', { name: '保存' }).click()
+  await page.getByRole('link', { name: /今天/ }).click()
+  await page.getByRole('button', { name: /合成今日习惯.*点按完成/ }).click()
+  await expect(page.getByText('1/1')).toBeVisible()
+
+  await page.getByRole('link', { name: '开始专注' }).click()
+  await page.getByLabel('专注标题').fill('合成今日专注')
+  await page.getByRole('button', { name: '开始专注' }).click()
+  await page.getByRole('link', { name: /今天/ }).click()
+  await expect(
+    page.getByRole('region', { name: '今日专注' }).getByText('合成今日专注'),
+  ).toBeVisible()
+})

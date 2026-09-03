@@ -111,7 +111,8 @@ The goal is complete only when all of the following are verified:
   - Evidence: create/edit, daily/weekday plans, active/pause transitions, idempotent check-in/undo, current/longest streak, monthly rate/calendar, and history-preserving pause pass six focused tests plus Chromium/WebKit reload persistence.
 - [x] `verified` M5.3 Focus: 25/50/custom timer, resilient timestamp state, session history, and summaries.
   - Evidence: transactional single-active start, timestamp-derived display, delayed natural reconciliation, early finish, sub-second/cancel removal, description-only edits, confirmed history deletion, local summaries, and category distribution pass seven focused tests plus Chromium/WebKit reload recovery.
-- [ ] `todo` M5.4 Today: date summary and high-frequency actions without dashboard overload.
+- [x] `verified` M5.4 Today: date summary and high-frequency actions without dashboard overload.
+  - Evidence: local date, one-tap habit check-in, two-tap Finance/Focus entry, independent module failure states, daily summaries, active Focus, midnight rollover, and cross-feature updates pass Chromium/WebKit production-preview flow.
 - [ ] `todo` M5.5 Settings: data management, categories/habits, appearance, backup status, and version information.
 
 ### M6 — PWA and iPhone experience
@@ -175,12 +176,13 @@ The goal is complete only when all of the following are verified:
 - Implemented the Finance transaction slice against real IndexedDB with exact projections and a production-preview CRUD/reload journey in both browser engines.
 - Verified the Habits slice with schedule-aware statistics, reversible compound-key check-ins, pause-with-history semantics, monthly progress UI, and dual-engine persistence evidence.
 - Verified the Focus slice with timestamp-derived countdown, single-active transactional transitions, reload recovery, history maintenance, and dual-engine early-finish evidence.
+- Verified Today as a calm projection-only surface with independent Finance/Habits/Focus subscriptions and dual-engine cross-feature evidence.
 
 ## Next three actions
 
-1. Compose Today from independent Finance, Habits, and Focus projections with direct high-frequency actions.
-2. Complete Settings category management, appearance, browser backup/restore, and version/data-safety information.
-3. Close Finance category management and all remaining M5 cross-feature/browser evidence.
+1. Complete Settings category management, appearance, browser backup/restore, and version/data-safety information.
+2. Close Finance category management and run the complete M5 cross-feature/browser evidence suite.
+3. Begin M6 installability, icons, explicit update UX, offline mutation, and fragment URL Actions.
 
 ## Plan change log
 

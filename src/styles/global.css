@@ -147,6 +147,87 @@ a:focus-visible {
   line-height: 1.65;
 }
 
+.quick-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.quick-actions a {
+  display: grid;
+  min-height: 52px;
+  place-items: center;
+  padding: 8px;
+  border: 1px solid var(--divider);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 750;
+  text-align: center;
+  text-decoration: none;
+}
+
+.today-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.today-summary-grid > section {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--divider);
+  border-radius: 18px;
+  background: var(--surface);
+}
+
+.today-summary-grid h2 {
+  margin: 0;
+  font-size: 17px;
+}
+
+.today-summary-grid .section-heading a {
+  min-width: 44px;
+  min-height: 44px;
+  align-content: center;
+  color: var(--accent);
+  font-size: 13px;
+  text-align: right;
+  text-decoration: none;
+}
+
+.today-card-values {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.today-card-values p {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+  margin: 0;
+}
+
+.today-card-values span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.today-card-values strong {
+  overflow: hidden;
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+  text-overflow: ellipsis;
+}
+
+.today-card-values .active-inline strong {
+  color: var(--positive);
+}
+
 .page-heading-row,
 .record-main,
 .breakdown-list li,
