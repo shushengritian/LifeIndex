@@ -2,7 +2,7 @@
 
 **Status:** Active
 **Started:** 2026-09-03
-**Current checkpoint:** M0 — validate and commit repository governance
+**Current checkpoint:** M2 — architecture and detailed design
 **Source of truth:** `LifeIndex-Project-Baseline.md`
 
 ## Objective
@@ -35,9 +35,9 @@ The goal is complete only when all of the following are verified:
 
 | ID | Milestone | Status | Exit evidence |
 | --- | --- | --- | --- |
-| M0 | Discovery, local Git, governance | in_progress | Inventory recorded, repository initialized, governance files committed |
-| M1 | PRD, IA, UX direction, traceability | todo | Numbered V1 requirements and acceptance criteria reviewed for baseline consistency |
-| M2 | HLD, LLD, data model, backup schema, ADRs | todo | Architecture and state transitions are implementation-ready |
+| M0 | Discovery, local Git, governance | verified | Inventory recorded, repository initialized, governance files committed |
+| M1 | PRD, IA, UX direction, traceability | verified | Numbered V1 requirements and acceptance criteria reviewed for baseline consistency |
+| M2 | HLD, LLD, data model, backup schema, ADRs | in_progress | Architecture and state transitions are implementation-ready |
 | M3 | Engineering scaffold and DEV workflow | todo | Reproducible install, checks, build, local preview, and CI-ready scripts |
 | M4 | IndexedDB, migrations, backup/restore | todo | Migration and transactional backup round-trip tests pass |
 | M5 | Finance, Habits, Focus, Today, Settings | todo | Each vertical slice passes its mapped unit, integration, and E2E checks |
@@ -58,18 +58,23 @@ The goal is complete only when all of the following are verified:
   - Evidence: `git init -b main` completed on 2026-09-03.
 - [x] `verified` M0.4 Add privacy-safe ignore rules, repository guidance, living plan, contribution and security policies.
   - Evidence: `.gitignore`, `.editorconfig`, `AGENTS.md`, `README.md`, `PLAN.md`, `CHANGELOG.md`, `CONTRIBUTING.md`, and `SECURITY.md` are present and populated.
-- [ ] `in_progress` M0.5 Validate files, inspect the diff, and create the initial atomic commit.
+- [x] `verified` M0.5 Validate files, inspect the diff, and create the initial atomic commit.
+  - Evidence: staged whitespace check passed; commit `f7303b4` created on `main`.
 
 ### M1 — Product design
 
-- [ ] `todo` M1.1 Write numbered functional and non-functional V1 requirements in `docs/product/PRD.md`.
-- [ ] `todo` M1.2 Define navigation, user journeys, empty/error states, and iPhone interaction model.
-- [ ] `todo` M1.3 Define the calm, minimal visual system and accessibility expectations.
-- [ ] `todo` M1.4 Establish requirement-to-design-to-code-to-test traceability and the initial risk register.
+- [x] `verified` M1.1 Write numbered functional and non-functional V1 requirements in `docs/product/PRD.md`.
+  - Evidence: 53 unique functional/non-functional requirements with explicit acceptance criteria and release gates.
+- [x] `verified` M1.2 Define navigation, user journeys, empty/error states, and iPhone interaction model.
+  - Evidence: `docs/product/INFORMATION_ARCHITECTURE.md` defines all five destinations, routes, state flows, and interaction budgets.
+- [x] `verified` M1.3 Define the calm, minimal visual system and accessibility expectations.
+  - Evidence: `docs/design/UX_UI_GUIDE.md` covers layout, tokens, components, module behavior, accessibility, and visual review states.
+- [x] `verified` M1.4 Establish requirement-to-design-to-code-to-test traceability and the initial risk register.
+  - Evidence: traceability matrix covers every requirement group; risk register records 14 initial product, data, platform, security, and release risks.
 
 ### M2 — Architecture and detailed design
 
-- [ ] `todo` M2.1 Decide the frontend, storage wrapper, validation, PWA, state, routing, and test stack in bounded ADRs.
+- [ ] `in_progress` M2.1 Decide the frontend, storage wrapper, validation, PWA, state, routing, and test stack in bounded ADRs.
 - [ ] `todo` M2.2 Write HLD diagrams, boundaries, data flows, privacy, logging, offline, deployment, and update architecture.
 - [ ] `todo` M2.3 Write LLD interfaces and Finance, Habit, Focus, restore, service-worker, and URL-action state transitions.
 - [ ] `todo` M2.4 Define IndexedDB schema v1, indexes, migrations, date/money semantics, and versioned backup schema.
@@ -146,12 +151,14 @@ The goal is complete only when all of the following are verified:
 - Inspected the initial local toolchain and GitHub authentication state.
 - Initialized the repository on `main`.
 - Added the initial privacy-safe governance and planning files.
+- Completed M0 in local commit `f7303b4` and began translating the product baseline into testable M1 requirements.
+- Verified M1 with 53 unique requirements, complete interaction/visual direction, traceability coverage, and 14 registered risks.
 
 ## Next three actions
 
-1. Finish and validate the M0 governance files.
-2. Create the initial atomic Git commit.
-3. Draft M1 PRD, information architecture, UX/UI guide, traceability matrix, and risk register.
+1. Commit the verified M1 product-design milestone.
+2. Write bounded M2 ADRs for the stack, routing/actions, persistence, and PWA deployment.
+3. Produce implementation-ready HLD, LLD, data model, and backup schema.
 
 ## Plan change log
 
@@ -159,3 +166,5 @@ The goal is complete only when all of the following are verified:
 | --- | --- | --- |
 | 2026-09-03 | Created the first executable V1 plan and milestone evidence model. | Converts the approved baseline into a living delivery contract; no product-scope change. |
 | 2026-09-03 | Recorded fragment-based URL Actions as the default design direction. | Protects privacy by keeping action payloads out of HTTP requests; requires ADR validation in M2. |
+| 2026-09-03 | Defined V1 habit schedules as daily or selected weekdays and restore as preview-first replace, not merge. | Satisfies the baseline with testable, data-safe scope while deferring ambiguous scheduling and merge conflict rules. |
+| 2026-09-03 | Defined Focus V1 without pause/resume intervals. | Keeps timestamp recovery reliable and avoids turning Focus into project management; early finish and cancel remain supported. |

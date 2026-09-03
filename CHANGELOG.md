@@ -8,3 +8,4 @@ All notable LifeIndex changes will be documented here. The project follows Seman
 
 - Product baseline and long-running V1 delivery plan.
 - Local repository governance, privacy, contribution, and security guidance.
+- Numbered V1 product requirements, information architecture, UX/UI direction, requirement traceability, and risk register.
