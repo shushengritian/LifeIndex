@@ -108,15 +108,21 @@ export class CategoryRepository {
   }
 
   async archive(id: string): Promise<Category> {
-    logger.info('category.archive.started', { entityType: 'category', operation: 'archive' })
+    return this.setArchived(id, true)
+  }
+
+  async setArchived(id: string, archived: boolean): Promise<Category> {
+    const operation = archived ? 'archive' : 'restore'
+    logger.info(`category.${operation}.started`, { entityType: 'category', operation })
     try {
       return await this.database.transaction('rw', this.database.categories, async () => {
         const existing = await this.database.categories.get(id)
         if (!existing) throw new AppError('Validation', 'Category does not exist')
-        if (existing.archived === 1) {
-          logger.info('category.archive.alreadypresent', {
+        const nextArchived = archived ? 1 : 0
+        if (existing.archived === nextArchived) {
+          logger.info(`category.${operation}.alreadypresent`, {
             entityType: 'category',
-            operation: 'archive',
+            operation,
             count: 0,
           })
           return existing
@@ -124,26 +130,78 @@ export class CategoryRepository {
 
         const updated: Category = {
           ...existing,
-          archived: 1,
+          archived: nextArchived,
           updatedAt: this.clock.now().toISOString(),
         }
         await this.database.categories.put(updated)
-        logger.info('category.archive.succeeded', {
+        logger.info(`category.${operation}.succeeded`, {
           entityType: 'category',
-          operation: 'archive',
+          operation,
           count: 1,
         })
         return updated
       })
     } catch (error) {
-      logger.error('category.archive.failed', error, {
+      logger.error(`category.${operation}.failed`, error, {
         entityType: 'category',
-        operation: 'archive',
+        operation,
         failureClass: error instanceof AppError ? error.failureClass : 'DatabaseWrite',
       })
       throw error instanceof AppError
         ? error
-        : new AppError('DatabaseWrite', 'Category could not be archived', { cause: error })
+        : new AppError('DatabaseWrite', 'Category status could not be changed', { cause: error })
+    }
+  }
+
+  async reorder(ids: string[]): Promise<void> {
+    logger.info('category.reorder.started', { entityType: 'category', operation: 'reorder' })
+    try {
+      await this.database.transaction('rw', this.database.categories, async () => {
+        const categories = await this.database.categories.bulkGet(ids)
+        if (
+          categories.some((category) => category === undefined) ||
+          new Set(ids).size !== ids.length
+        ) {
+          throw new AppError('Validation', 'Category order contains an invalid key')
+        }
+        const canonical = categories as Category[]
+        const first = canonical[0]
+        if (
+          first &&
+          canonical.some(
+            (category) =>
+              category.domain !== first.domain ||
+              category.transactionType !== first.transactionType ||
+              category.archived !== first.archived,
+          )
+        ) {
+          throw new AppError('Validation', 'Only one category group can be reordered')
+        }
+        const timestamp = this.clock.now().toISOString()
+        await this.database.categories.bulkPut(
+          canonical.map((category, index) => ({
+            ...category,
+            sortOrder: (index + 1) * 10,
+            updatedAt: timestamp,
+          })),
+        )
+        logger.info('category.reorder.succeeded', {
+          entityType: 'category',
+          operation: 'reorder',
+          count: canonical.length,
+        })
+      })
+    } catch (error) {
+      const failure =
+        error instanceof AppError
+          ? error
+          : new AppError('DatabaseWrite', 'Categories could not be reordered', { cause: error })
+      logger.error('category.reorder.failed', error, {
+        entityType: 'category',
+        operation: 'reorder',
+        failureClass: failure.failureClass,
+      })
+      throw failure
     }
   }
 

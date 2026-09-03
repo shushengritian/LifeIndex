@@ -2,7 +2,7 @@
 
 **Status:** Active
 **Started:** 2026-09-03
-**Current checkpoint:** M3 — engineering scaffold and reproducible quality loop
+**Current checkpoint:** M6 — PWA, offline experience, and safe URL Actions
 **Source of truth:** `LifeIndex-Project-Baseline.md`
 
 ## Objective
@@ -40,8 +40,8 @@ The goal is complete only when all of the following are verified:
 | M2  | HLD, LLD, data model, backup schema, ADRs | verified    | Architecture and state transitions are implementation-ready                            |
 | M3  | Engineering scaffold and DEV workflow     | verified    | Reproducible install, checks, build, local preview, and CI-ready scripts               |
 | M4  | IndexedDB, migrations, backup/restore     | verified    | Migration and transactional backup round-trip tests pass                               |
-| M5  | Finance, Habits, Focus, Today, Settings   | in_progress | Each vertical slice passes its mapped unit, integration, and E2E checks                |
-| M6  | PWA, offline, iPhone polish, URL Actions  | todo        | Installability, offline app shell, update flow, and action safety verified             |
+| M5  | Finance, Habits, Focus, Today, Settings   | verified    | Each vertical slice passes its mapped unit, integration, and E2E checks                |
+| M6  | PWA, offline, iPhone polish, URL Actions  | in_progress | Installability, offline app shell, update flow, and action safety verified             |
 | M7  | Data-safety and release hardening         | todo        | Full local quality gate and production smoke suite pass                                |
 | M8  | GitHub, CI, GitHub Pages                  | todo        | User-approved remote exists; CI and deployment are green; live URL passes smoke checks |
 | M9  | Physical iPhone acceptance and V1 release | todo        | User confirms checklist; final gate passes; `v1.0.0` and handoff complete              |
@@ -105,15 +105,16 @@ The goal is complete only when all of the following are verified:
 
 ### M5 — Core vertical slices
 
-- [ ] `in_progress` M5.1 Finance: transaction/category workflows, time filters, and scoped summaries.
-  - Current evidence: transaction create/edit/confirmed-delete, local Today/Week/Month/History filters, exact totals, monthly categories, six-month trend, reload persistence, and Chromium/WebKit CRUD pass; category reorder/management UI remains with Settings.
+- [x] `verified` M5.1 Finance: transaction/category workflows, time filters, and scoped summaries.
+  - Evidence: transaction create/edit/confirmed-delete, local Today/Week/Month/History filters, exact totals, monthly categories, six-month trend, reload persistence, and category create/rename/reorder/archive/restore pass repository checks plus Chromium/WebKit flows.
 - [x] `verified` M5.2 Habits: lifecycle, daily check-in, calendar, streaks, and completion statistics.
   - Evidence: create/edit, daily/weekday plans, active/pause transitions, idempotent check-in/undo, current/longest streak, monthly rate/calendar, and history-preserving pause pass six focused tests plus Chromium/WebKit reload persistence.
 - [x] `verified` M5.3 Focus: 25/50/custom timer, resilient timestamp state, session history, and summaries.
   - Evidence: transactional single-active start, timestamp-derived display, delayed natural reconciliation, early finish, sub-second/cancel removal, description-only edits, confirmed history deletion, local summaries, and category distribution pass seven focused tests plus Chromium/WebKit reload recovery.
 - [x] `verified` M5.4 Today: date summary and high-frequency actions without dashboard overload.
   - Evidence: local date, one-tap habit check-in, two-tap Finance/Focus entry, independent module failure states, daily summaries, active Focus, midnight rollover, and cross-feature updates pass Chromium/WebKit production-preview flow.
-- [ ] `todo` M5.5 Settings: data management, categories/habits, appearance, backup status, and version information.
+- [x] `verified` M5.5 Settings: data management, categories/habits, appearance, backup status, and version information.
+  - Evidence: immediate/persisted system-light-dark appearance, Finance category lifecycle, Habits management route, app/storage/privacy status, versioned browser export, safe preview, explicit replace confirmation, and restored appearance pass 58 Vitest checks plus 16 dual-engine E2E checks.
 
 ### M6 — PWA and iPhone experience
 
@@ -177,12 +178,14 @@ The goal is complete only when all of the following are verified:
 - Verified the Habits slice with schedule-aware statistics, reversible compound-key check-ins, pause-with-history semantics, monthly progress UI, and dual-engine persistence evidence.
 - Verified the Focus slice with timestamp-derived countdown, single-active transactional transitions, reload recovery, history maintenance, and dual-engine early-finish evidence.
 - Verified Today as a calm projection-only surface with independent Finance/Habits/Focus subscriptions and dual-engine cross-feature evidence.
+- Verified Settings and completed M5 with persisted appearance, Finance category lifecycle, transparent local-storage status, and browser backup/preview/atomic replace flows; the complete gate passes 58 Vitest checks and 16 Chromium/WebKit E2E checks.
+- Split feature routes into lazy production chunks, reducing the main JavaScript chunk from the warning threshold to about 339 kB before gzip.
 
 ## Next three actions
 
-1. Complete Settings category management, appearance, browser backup/restore, and version/data-safety information.
-2. Close Finance category management and run the complete M5 cross-feature/browser evidence suite.
-3. Begin M6 installability, icons, explicit update UX, offline mutation, and fragment URL Actions.
+1. Complete installability metadata, production icons, safe-area/mobile polish, and explicit update/offline status UI.
+2. Implement strict fragment URL Action parsing, preview, atomic entity-plus-receipt execution, deduplication, and route cleanup.
+3. Verify synthetic Pages subpaths, offline reload/mutation, dirty-form update protection, and dual-engine mobile behavior.
 
 ## Plan change log
 
@@ -198,3 +201,4 @@ The goal is complete only when all of the following are verified:
 | 2026-09-03 | Completed M3 with a production-built PWA shell and two-engine browser gate.                                              | Establishes a reproducible implementation loop before persisted data is introduced; WebKit remains an approximation until physical-iPhone acceptance.            |
 | 2026-09-03 | Added a supported V0-to-V1 backup migration that initializes empty action receipts.                                   | Gives the migration pipeline a real older fixture without inventing business data; V1 remains the only emitted format.                                           |
 | 2026-09-03 | Completed M4 with a seven-store atomic replace-restore boundary.                                                       | Data is fully validated before writes and any insertion failure rolls the whole replacement back, establishing the safety base for feature development.           |
+| 2026-09-03 | Completed all five M5 vertical slices and introduced route-level lazy loading.                                          | Settings closes category and backup handoff workflows; 58 unit/integration checks and 16 dual-engine E2E checks pass while the production main chunk stays bounded. |

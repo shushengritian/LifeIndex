@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react'
 
 import { AppServicesContext } from '@/app/AppServicesContext'
 import { LifeIndexDatabase } from '@/data/db/LifeIndexDatabase'
+import { applyAppearance } from '@/features/settings/appearance'
 import { logger } from '@/shared/logging/logger'
 
 interface AppProvidersProps {
@@ -21,7 +22,9 @@ export function AppProviders({ children, database = defaultDatabase }: AppProvid
 
     void database
       .initialize()
-      .then(() => {
+      .then(async () => {
+        const appearance = await database.settings.get('appearance')
+        applyAppearance(appearance?.key === 'appearance' ? appearance.value : 'system')
         if (!active) return
         logger.info('app.initialization.ready', { operation: 'initialize' })
         setState('ready')

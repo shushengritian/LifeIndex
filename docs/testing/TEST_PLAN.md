@@ -71,8 +71,17 @@ Automation is evidence, not a substitute for physical-iPhone acceptance.
 
 - Verified: Today projections update after Finance/Habit/Focus mutations and model each read failure independently rather than substituting zero.
 - Verified: one-tap Today habit check-in and two-tap form entry budgets for Finance/Focus.
-- Appearance persistence and system mode.
-- Backup/version/durability status and management routes.
+- Verified: system/light/dark appearance applies immediately, persists, and is restored from a replacement backup.
+- Verified: category create/rename/reorder/archive/restore and the Habits management route remain usable in both engines.
+- Verified: backup handoff, non-mutating metadata preview, explicit replacement, version/database details, last-export status, and durability/privacy text.
+- Physical-iPhone pending: real Files/iCloud save, selection, and restore handoff; desktop WebKit uses a same-origin synthetic file because Playwright WebKit does not expose a download event.
+
+### M5 recorded gate
+
+- Static: Prettier, ESLint with zero warnings, and strict TypeScript pass.
+- Unit/integration: 14 files and 58 tests pass.
+- Production: Vite/PWA build passes with route-level chunks; main JavaScript is about 339 kB before gzip.
+- Browser: 16/16 tests pass across Chromium and Mobile Safari/WebKit.
 
 ## 6. M6 PWA and URL Action matrix
 

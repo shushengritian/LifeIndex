@@ -4,7 +4,7 @@
 
 **Current format version:** 1
 
-**Status:** M4 data layer implemented; browser file handoff is completed with Settings in M5
+**Status:** Automated data and browser handoff flows implemented; physical iPhone Files/iCloud acceptance remains for M9
 
 ## 1. File naming and media type
 

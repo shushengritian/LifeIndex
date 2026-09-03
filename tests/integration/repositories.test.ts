@@ -78,4 +78,23 @@ describe('foundational repositories', () => {
       } as unknown as Setting),
     ).rejects.toMatchObject({ failureClass: 'Validation' })
   })
+
+  it('reorders one active category group and restores an archived category', async () => {
+    const { categories } = await setup()
+    const original = await categories.list({ domain: 'finance', transactionType: 'expense' })
+    const swappedIds = [original[1]!.id, original[0]!.id, ...original.slice(2).map(({ id }) => id)]
+    await categories.reorder(swappedIds)
+    expect((await categories.list({ domain: 'finance', transactionType: 'expense' }))[0]?.id).toBe(
+      original[1]!.id,
+    )
+
+    await categories.setArchived(original[1]!.id, true)
+    expect(
+      await categories.list({ domain: 'finance', transactionType: 'expense' }),
+    ).not.toContainEqual(expect.objectContaining({ id: original[1]!.id }))
+    await categories.setArchived(original[1]!.id, false)
+    expect(await categories.list({ domain: 'finance', transactionType: 'expense' })).toContainEqual(
+      expect.objectContaining({ id: original[1]!.id }),
+    )
+  })
 })

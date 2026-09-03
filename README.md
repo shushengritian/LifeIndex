@@ -6,7 +6,7 @@ LifeIndex is a local-first personal life index for iPhone. The V1 progressive we
 
 ## Project status
 
-LifeIndex is under active V1 development. The approved product direction is documented in [LifeIndex-Project-Baseline.md](LifeIndex-Project-Baseline.md), and live execution status is maintained in [PLAN.md](PLAN.md).
+LifeIndex has completed its five V1 product slices and is in PWA/offline release hardening. The approved product direction is documented in [LifeIndex-Project-Baseline.md](LifeIndex-Project-Baseline.md), and live execution status is maintained in [PLAN.md](PLAN.md).
 
 ## V1 principles
 

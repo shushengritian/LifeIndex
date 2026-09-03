@@ -1,30 +1,34 @@
-import { useEffect, type ReactNode } from 'react'
+import { lazy, Suspense, useEffect, type ReactNode } from 'react'
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
 
 import { AppErrorBoundary } from '@/app/AppErrorBoundary'
 import { AppProviders } from '@/app/AppProviders'
 import { AppShell } from '@/app/AppShell'
-import { FinancePage } from '@/features/finance/FinancePage'
-import { FocusPage } from '@/features/focus/FocusPage'
-import { HabitsPage } from '@/features/habits/HabitsPage'
-import { TodayPage } from '@/features/today/TodayPage'
 import { logger } from '@/shared/logging/logger'
 
-interface FoundationPageProps {
-  eyebrow: string
-  title: string
-  description: string
-  children?: ReactNode
-}
+const TodayPage = lazy(() =>
+  import('@/features/today/TodayPage').then(({ TodayPage }) => ({ default: TodayPage })),
+)
+const FinancePage = lazy(() =>
+  import('@/features/finance/FinancePage').then(({ FinancePage }) => ({ default: FinancePage })),
+)
+const FocusPage = lazy(() =>
+  import('@/features/focus/FocusPage').then(({ FocusPage }) => ({ default: FocusPage })),
+)
+const HabitsPage = lazy(() =>
+  import('@/features/habits/HabitsPage').then(({ HabitsPage }) => ({ default: HabitsPage })),
+)
+const SettingsPage = lazy(() =>
+  import('@/features/settings/SettingsPage').then(({ SettingsPage }) => ({
+    default: SettingsPage,
+  })),
+)
 
-function FoundationPage({ eyebrow, title, description, children }: FoundationPageProps) {
+function LazyRoute({ children }: { children: ReactNode }) {
   return (
-    <section className="page" aria-labelledby={`${eyebrow}-title`}>
-      <p className="eyebrow">{eyebrow}</p>
-      <h1 id={`${eyebrow}-title`}>{title}</h1>
-      <p className="page-intro">{description}</p>
+    <Suspense fallback={<p className="state-message route-loading">正在打开模块…</p>}>
       {children}
-    </section>
+    </Suspense>
   )
 }
 
@@ -33,18 +37,44 @@ function AppRoutes() {
     <Routes>
       <Route element={<AppShell />}>
         <Route index element={<Navigate to="/today" replace />} />
-        <Route path="/today" element={<TodayPage />} />
-        <Route path="/finance" element={<FinancePage />} />
-        <Route path="/focus" element={<FocusPage />} />
-        <Route path="/habits" element={<HabitsPage />} />
+        <Route
+          path="/today"
+          element={
+            <LazyRoute>
+              <TodayPage />
+            </LazyRoute>
+          }
+        />
+        <Route
+          path="/finance"
+          element={
+            <LazyRoute>
+              <FinancePage />
+            </LazyRoute>
+          }
+        />
+        <Route
+          path="/focus"
+          element={
+            <LazyRoute>
+              <FocusPage />
+            </LazyRoute>
+          }
+        />
+        <Route
+          path="/habits"
+          element={
+            <LazyRoute>
+              <HabitsPage />
+            </LazyRoute>
+          }
+        />
         <Route
           path="/settings"
           element={
-            <FoundationPage
-              eyebrow="settings"
-              title="设置"
-              description="管理数据安全与应用偏好。"
-            />
+            <LazyRoute>
+              <SettingsPage />
+            </LazyRoute>
           }
         />
         <Route path="*" element={<Navigate to="/today" replace />} />
