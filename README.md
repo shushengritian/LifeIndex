@@ -6,7 +6,7 @@ LifeIndex is a local-first personal life index for iPhone. The V1 progressive we
 
 ## Project status
 
-LifeIndex has completed its five V1 product slices and is in PWA/offline release hardening. The approved product direction is documented in [LifeIndex-Project-Baseline.md](LifeIndex-Project-Baseline.md), and live execution status is maintained in [PLAN.md](PLAN.md).
+LifeIndex has completed its local V1 product, PWA, data-safety, and release-hardening gates. GitHub deployment and physical-iPhone acceptance remain before `v1.0.0`. The approved product direction is documented in [LifeIndex-Project-Baseline.md](LifeIndex-Project-Baseline.md), and live execution status is maintained in [PLAN.md](PLAN.md).
 
 ## V1 principles
 
@@ -26,6 +26,8 @@ pnpm dev
 Use `pnpm quality` for the non-E2E local gate and `pnpm test:e2e` for the production-preview browser gate. See [DEV.md](docs/development/DEV.md) for environment, command, data-migration, and release details.
 
 PWA installation behavior, controlled updates, offline guarantees, and the strict iOS Shortcut URL contract are documented in [PWA_AND_SHORTCUTS.md](docs/operations/PWA_AND_SHORTCUTS.md).
+
+GitHub CI/Pages behavior and rollback are documented in [DEPLOYMENT.md](docs/operations/DEPLOYMENT.md). The real-device release gate is maintained separately in [IPHONE_ACCEPTANCE.md](docs/operations/IPHONE_ACCEPTANCE.md) so automated WebKit checks cannot be mistaken for physical acceptance.
 
 ## Private data warning
 

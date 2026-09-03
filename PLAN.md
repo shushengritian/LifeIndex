@@ -43,7 +43,7 @@ The goal is complete only when all of the following are verified:
 | M5  | Finance, Habits, Focus, Today, Settings   | verified    | Each vertical slice passes its mapped unit, integration, and E2E checks                |
 | M6  | PWA, offline, iPhone polish, URL Actions  | in_progress | Installability, offline app shell, update flow, and action safety verified             |
 | M7  | Data-safety and release hardening         | verified    | Full local quality gate and production smoke suite pass                                |
-| M8  | GitHub, CI, GitHub Pages                  | todo        | User-approved remote exists; CI and deployment are green; live URL passes smoke checks |
+| M8  | GitHub, CI, GitHub Pages                  | in_progress | User-approved remote exists; CI and deployment are green; live URL passes smoke checks |
 | M9  | Physical iPhone acceptance and V1 release | todo        | User confirms checklist; final gate passes; `v1.0.0` and handoff complete              |
 
 ## Work breakdown
@@ -138,9 +138,10 @@ The goal is complete only when all of the following are verified:
 
 ### M8 — GitHub and deployment
 
-- [ ] `todo` M8.1 Confirm owner, repository name, visibility, licensing intent, and acceptance of the Pages access model in one request.
+- [ ] `in_progress` M8.1 Confirm owner, repository name, visibility, licensing intent, and acceptance of the Pages access model in one request.
 - [ ] `todo` M8.2 Create/configure the remote and push only reviewed source and documentation.
-- [ ] `todo` M8.3 Configure least-privilege CI and Pages deployment gated by successful checks.
+- [ ] `in_progress` M8.3 Configure least-privilege CI and Pages deployment gated by successful checks.
+  - Local evidence: current official action contracts were reviewed; CI is content-read-only, Pages grants write/OIDC only to the dependent deploy job, frozen install/full quality/dual-engine gates precede artifact upload, and the configured Pages base path drives the final build. Remote execution remains pending.
 - [ ] `todo` M8.4 Inspect workflow evidence and validate the live subpath, assets, manifest, worker, console, mobile view, and offline reload.
 
 ### M9 — Physical iPhone and release
@@ -196,8 +197,8 @@ The goal is complete only when all of the following are verified:
 ## Next three actions
 
 1. Add least-privilege GitHub CI/Pages workflows and release/runbook documentation without creating a remote yet.
-2. Ask once for GitHub owner/name/visibility/license/Pages approval and complete GitHub authentication.
-3. Create the approved remote, observe CI/Pages, verify the live subpath, then begin physical-iPhone acceptance.
+2. Validate and commit the local workflow/runbook preparation.
+3. Ask once for GitHub owner/name/visibility/license/Pages approval and authentication, then create and verify the remote deployment.
 
 ## Plan change log
 

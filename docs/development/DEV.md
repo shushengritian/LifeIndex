@@ -103,3 +103,5 @@ The first shipped database schema is V1 and therefore has no predecessor databas
 - Pages deploys only the generated `dist` artifact after required checks.
 - A source rollback deploys a prior known-good app artifact but does not downgrade or mutate IndexedDB automatically.
 - If new code cannot safely read an existing schema, stop the release and ship a forward-compatible fix; never instruct users to clear data as the default remedy.
+- `.github/workflows/ci.yml` owns pull-request and non-`main` branch evidence; `.github/workflows/pages.yml` repeats the full gate on `main` before publishing.
+- `docs/operations/DEPLOYMENT.md` is the remote setup, live smoke, and rollback runbook; `docs/operations/IPHONE_ACCEPTANCE.md` is the non-substitutable physical-device gate.
