@@ -23,6 +23,7 @@ import {
 import type { Category, FocusSession } from '@/shared/domain/types'
 import { useLiveQueryState } from '@/shared/hooks/useLiveQueryState'
 import { logger } from '@/shared/logging/logger'
+import { useDirtyForm } from '@/pwa/useDirtyForm'
 
 function durationLabel(seconds: number): string {
   if (seconds < 60) return `${seconds} 秒`
@@ -44,6 +45,14 @@ function FocusForm({ categories, onStart }: FocusFormProps) {
   const [note, setNote] = useState('')
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
+
+  useDirtyForm(
+    duration !== '1500' ||
+      customMinutes !== '25' ||
+      title !== '' ||
+      categoryId !== '' ||
+      note !== '',
+  )
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -169,6 +178,12 @@ function FocusEditForm({
   const [categoryId, setCategoryId] = useState(session.categoryId ?? '')
   const [note, setNote] = useState(session.note ?? '')
   const [error, setError] = useState('')
+
+  useDirtyForm(
+    title !== session.title ||
+      categoryId !== (session.categoryId ?? '') ||
+      note !== (session.note ?? ''),
+  )
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()

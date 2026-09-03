@@ -2,6 +2,28 @@ import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
 import { Buffer } from 'node:buffer'
 
+async function readStoreRecords(
+  page: import('@playwright/test').Page,
+  storeName: string,
+): Promise<Array<Record<string, unknown>>> {
+  return page.evaluate(async (name) => {
+    const database = await new Promise<IDBDatabase>((resolve, reject) => {
+      const request = indexedDB.open('LifeIndexDB')
+      request.onsuccess = () => resolve(request.result)
+      request.onerror = () => reject(request.error)
+    })
+    try {
+      return await new Promise<Array<Record<string, unknown>>>((resolve, reject) => {
+        const request = database.transaction(name, 'readonly').objectStore(name).getAll()
+        request.onsuccess = () => resolve(request.result)
+        request.onerror = () => reject(request.error)
+      })
+    } finally {
+      database.close()
+    }
+  }, storeName)
+}
+
 async function createSyntheticBackupInput(page: import('@playwright/test').Page) {
   const serialized = await page.evaluate(async () => {
     const storeNames = [
@@ -262,4 +284,166 @@ test('exports, previews, and replaces data from a downloaded backup', async ({
   await page.getByRole('link', { name: /记账/ }).click()
   await expect(page.getByText('−¥11.11')).toBeVisible()
   await expect(page.getByText('−¥22.22')).toHaveCount(0)
+})
+
+test('ships base-aware install metadata and complete icon assets', async ({ page }) => {
+  await page.goto('/')
+  const manifestHref = await page.locator('link[rel="manifest"]').getAttribute('href')
+  expect(manifestHref).toBe('/manifest.webmanifest')
+  const manifest = await page.evaluate(async (href) => {
+    const response = await fetch(href!)
+    return response.json() as Promise<{
+      name: string
+      start_url: string
+      scope: string
+      display: string
+      icons: Array<{ src: string; sizes: string; purpose: string }>
+    }>
+  }, manifestHref)
+
+  expect(manifest).toMatchObject({
+    name: 'LifeIndex',
+    start_url: '/',
+    scope: '/',
+    display: 'standalone',
+  })
+  expect(manifest.icons).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining({ sizes: '192x192', purpose: 'any' }),
+      expect.objectContaining({ sizes: '512x512', purpose: 'any' }),
+      expect.objectContaining({ sizes: '512x512', purpose: 'maskable' }),
+    ]),
+  )
+  await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveAttribute(
+    'href',
+    '/icons/apple-touch-icon.png',
+  )
+  for (const icon of manifest.icons) {
+    expect((await page.request.get(`/${icon.src}`)).ok()).toBe(true)
+  }
+
+  await page.evaluate(async () => navigator.serviceWorker.ready)
+  const cachedUrls = await page.evaluate(async () => {
+    const names = await caches.keys()
+    const requests = await Promise.all(names.map(async (name) => (await caches.open(name)).keys()))
+    return requests.flat().map(({ url }) => url)
+  })
+  expect(cachedUrls.length).toBeGreaterThan(5)
+  for (const cachedUrl of cachedUrls) {
+    const url = new URL(cachedUrl)
+    expect(url.origin).toBe('http://127.0.0.1:4173')
+    expect(url.hash).toBe('')
+    expect(url.pathname).toMatch(/^\/(?:index\.html|manifest\.webmanifest|assets\/|icons\/)/)
+    expect([...url.searchParams.keys()].every((key) => key === '__WB_REVISION__')).toBe(true)
+  }
+})
+
+test('previews, commits, and durably deduplicates a transaction URL action', async ({ page }) => {
+  const actionId = '00000000-0000-4000-8000-000000000501'
+  const actionUrl = `/#/action/add-transaction?actionId=${actionId}&amount=35.10&categoryId=category-finance-expense-food-v1&note=${encodeURIComponent('合成快捷午餐')}`
+  await page.goto(actionUrl)
+
+  await expect(page.getByRole('heading', { name: '新增账目' })).toBeVisible()
+  await expect(page.getByText('¥35.10')).toBeVisible()
+  expect(await readStoreRecords(page, 'transactions')).toHaveLength(0)
+  await page.getByRole('button', { name: '确认新增账目' }).click()
+  await expect(page).toHaveURL(/#\/finance$/)
+  await expect(page.getByText('−¥35.10')).toBeVisible()
+
+  await page.goto(actionUrl)
+  await expect(page.getByRole('heading', { name: '这个快捷动作已经处理过' })).toBeVisible()
+  await expect(page).toHaveURL(/#\/action-result\?status=handled&type=add-transaction$/)
+  expect(page.url()).not.toContain(actionId)
+  expect(await readStoreRecords(page, 'transactions')).toHaveLength(1)
+})
+
+test('supports habit and focus actions while scrubbing cancel and invalid fragments', async ({
+  page,
+}) => {
+  await page.goto('/#/habits')
+  await page.getByRole('button', { name: '新增' }).click()
+  await page.getByLabel('习惯名称').fill('合成快捷习惯')
+  await page.getByRole('button', { name: '保存' }).click()
+  const habits = await readStoreRecords(page, 'habits')
+  const habit = habits.find(({ name }) => name === '合成快捷习惯')
+  expect(habit?.id).toEqual(expect.any(String))
+
+  await page.goto(
+    `/#/action/check-habit?actionId=00000000-0000-4000-8000-000000000502&habitId=${String(habit!.id)}`,
+  )
+  await expect(page.getByRole('heading', { name: '完成习惯' })).toBeVisible()
+  await page.getByRole('button', { name: '确认完成习惯' }).click()
+  await expect(page.getByRole('button', { name: /合成快捷习惯.*已完成/ })).toBeVisible()
+
+  const focusUrl = `/#/action/start-focus?actionId=00000000-0000-4000-8000-000000000503&title=${encodeURIComponent('合成快捷专注')}&durationMinutes=25&categoryId=category-focus-work-v1`
+  await page.goto(focusUrl)
+  await expect(page.getByRole('heading', { name: '开始专注' })).toBeVisible()
+  await page.getByRole('button', { name: '取消', exact: true }).click()
+  await expect(page).toHaveURL(/#\/today$/)
+  expect(page.url()).not.toContain('合成快捷专注')
+  expect(await readStoreRecords(page, 'focusSessions')).toHaveLength(0)
+
+  await page.goto(focusUrl.replace('000000000503', '000000000504'))
+  await page.getByRole('button', { name: '确认开始专注' }).click()
+  await expect(page.getByRole('heading', { name: '合成快捷专注' })).toBeVisible()
+
+  await page.goto(
+    '/#/action/add-transaction?actionId=00000000-0000-4000-8000-000000000505&amount=1&categoryId=category-finance-expense-food-v1&unknown=private',
+  )
+  await expect(page.getByRole('heading', { name: '无法识别这个快捷动作' })).toBeVisible()
+  expect(page.url()).not.toContain('unknown=private')
+})
+
+test('creates and persists local data after the browser goes offline', async ({
+  page,
+  context,
+}) => {
+  await page.goto('/#/finance')
+  await expect(page.getByRole('heading', { name: '记账' })).toBeVisible()
+  await page.evaluate(async () => {
+    await navigator.serviceWorker.ready
+  })
+  await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller))
+
+  await context.setOffline(true)
+  try {
+    await expect(page.getByText('当前离线 · 本机数据仍可继续使用')).toBeVisible()
+    await page.getByRole('button', { name: '新增' }).click()
+    await page.getByLabel('金额（CNY）').fill('6.66')
+    await page.getByRole('combobox', { name: '分类' }).selectOption({ label: '餐饮' })
+    await page.getByRole('button', { name: '保存' }).click()
+    await expect(page.getByText('−¥6.66')).toBeVisible()
+  } finally {
+    await context.setOffline(false)
+  }
+  await page.reload()
+  await expect(page.getByText('−¥6.66')).toBeVisible()
+})
+
+test('reloads the cached application shell and persisted data offline in Chromium', async ({
+  page,
+  context,
+}, testInfo) => {
+  // Playwright WebKit currently raises an internal error on offline reload; physical Safari covers it in M9.
+  test.skip(testInfo.project.name !== 'chromium', 'Offline WebKit reload is not automatable here')
+  await page.goto('/#/finance')
+  await page.evaluate(async () => {
+    await navigator.serviceWorker.ready
+  })
+  await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller))
+
+  await context.setOffline(true)
+  try {
+    await page.reload()
+    await expect(page.getByText('当前离线 · 本机数据仍可继续使用')).toBeVisible()
+    await page.getByRole('button', { name: '新增' }).click()
+    await page.getByLabel('金额（CNY）').fill('7.77')
+    await page.getByRole('combobox', { name: '分类' }).selectOption({ label: '餐饮' })
+    await page.getByRole('button', { name: '保存' }).click()
+    await expect(page.getByText('−¥7.77')).toBeVisible()
+    await page.reload()
+    await expect(page.getByText('−¥7.77')).toBeVisible()
+  } finally {
+    await context.setOffline(false)
+  }
 })

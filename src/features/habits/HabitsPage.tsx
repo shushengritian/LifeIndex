@@ -11,6 +11,7 @@ import { parseLocalDateKey, toLocalDateKey } from '@/shared/domain/date'
 import type { Habit, HabitRecord, HabitSchedule } from '@/shared/domain/types'
 import { useLiveQueryState } from '@/shared/hooks/useLiveQueryState'
 import { logger } from '@/shared/logging/logger'
+import { useDirtyForm } from '@/pwa/useDirtyForm'
 
 const weekdayLabels = ['日', '一', '二', '三', '四', '五', '六'] as const
 const colorOptions = [
@@ -29,21 +30,36 @@ interface HabitFormProps {
 }
 
 function HabitForm({ habit, onCancel, onSave }: HabitFormProps) {
-  const [name, setName] = useState(habit?.name ?? '')
-  const [icon, setIcon] = useState(habit?.icon ?? 'check')
-  const [color, setColor] = useState(habit?.color ?? 'sage')
+  const [initialValues] = useState(() => ({
+    name: habit?.name ?? '',
+    icon: habit?.icon ?? 'check',
+    color: habit?.color ?? 'sage',
+    scheduleType: habit?.schedule.type ?? ('daily' as HabitSchedule['type']),
+    weekdays: habit?.schedule.type === 'weekdays' ? habit.schedule.weekdays : [1, 2, 3, 4, 5],
+    startLocalDate: habit?.startLocalDate ?? toLocalDateKey(new Date()),
+    note: habit?.note ?? '',
+  }))
+  const [name, setName] = useState(initialValues.name)
+  const [icon, setIcon] = useState(initialValues.icon)
+  const [color, setColor] = useState(initialValues.color)
   const [scheduleType, setScheduleType] = useState<HabitSchedule['type']>(
-    habit?.schedule.type ?? 'daily',
+    initialValues.scheduleType,
   )
-  const [weekdays, setWeekdays] = useState<number[]>(
-    habit?.schedule.type === 'weekdays' ? habit.schedule.weekdays : [1, 2, 3, 4, 5],
-  )
-  const [startLocalDate, setStartLocalDate] = useState(
-    habit?.startLocalDate ?? toLocalDateKey(new Date()),
-  )
-  const [note, setNote] = useState(habit?.note ?? '')
+  const [weekdays, setWeekdays] = useState<number[]>(initialValues.weekdays)
+  const [startLocalDate, setStartLocalDate] = useState(initialValues.startLocalDate)
+  const [note, setNote] = useState(initialValues.note)
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
+
+  useDirtyForm(
+    name !== initialValues.name ||
+      icon !== initialValues.icon ||
+      color !== initialValues.color ||
+      scheduleType !== initialValues.scheduleType ||
+      weekdays.join(',') !== initialValues.weekdays.join(',') ||
+      startLocalDate !== initialValues.startLocalDate ||
+      note !== initialValues.note,
+  )
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()

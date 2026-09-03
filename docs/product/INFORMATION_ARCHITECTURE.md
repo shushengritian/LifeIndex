@@ -54,7 +54,7 @@ The implementation may refine route syntax, but the information model is:
     └── start-focus
 ```
 
-GitHub Pages and privacy make hash-based client routes the leading M2 candidate. In that design, an action looks like `#/action/add-transaction?...`; everything after `#` remains client-side and is not part of the HTTP request.
+GitHub Pages and privacy make hash-based client routes the accepted V1 design. An action looks like `#/action/add-transaction?...`; everything after `#` remains client-side and is not part of the HTTP request.
 
 ## 3. Today
 

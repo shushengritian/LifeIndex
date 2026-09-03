@@ -1065,6 +1065,114 @@ button:disabled {
   line-height: 1.55;
 }
 
+.connectivity-banner,
+.update-banner {
+  margin: 0 20px 12px;
+  border: 1px solid color-mix(in srgb, var(--accent) 28%, var(--divider));
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--surface) 92%, var(--accent-soft));
+}
+
+.connectivity-banner {
+  padding: 10px 14px;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.connectivity-banner.warning {
+  border-color: color-mix(in srgb, var(--warning) 35%, var(--divider));
+  color: var(--warning);
+}
+
+.update-banner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  box-shadow: var(--shadow);
+}
+
+.update-banner strong,
+.update-banner p {
+  margin: 0;
+}
+
+.update-banner p {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.update-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.update-actions button {
+  min-height: 44px;
+}
+
+.action-page {
+  max-width: 34rem;
+  margin: 0 auto;
+}
+
+.action-summary {
+  display: grid;
+  gap: 0;
+  margin: 28px 0 0;
+  overflow: hidden;
+  border: 1px solid var(--divider);
+  border-radius: 18px;
+  background: var(--surface);
+}
+
+.action-summary div {
+  display: grid;
+  grid-template-columns: minmax(72px, 0.35fr) minmax(0, 1fr);
+  gap: 14px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--divider);
+}
+
+.action-summary div:last-child {
+  border-bottom: 0;
+}
+
+.action-summary dt,
+.action-summary dd {
+  margin: 0;
+}
+
+.action-summary dt {
+  color: var(--muted);
+}
+
+.action-summary dd {
+  overflow-wrap: anywhere;
+  font-weight: 700;
+}
+
+.action-note {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.action-confirmation {
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.action-result-link {
+  display: inline-flex;
+  margin-top: 24px;
+}
+
 .bottom-nav {
   position: fixed;
   z-index: 10;
@@ -1185,6 +1293,14 @@ button:disabled {
 }
 
 @media (max-width: 420px) {
+  .update-banner {
+    grid-template-columns: 1fr;
+  }
+
+  .update-actions {
+    justify-content: flex-end;
+  }
+
   .inline-category-form {
     grid-template-columns: 96px minmax(0, 1fr);
   }

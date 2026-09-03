@@ -11,9 +11,8 @@ src/
 ├── app/
 │   ├── App.tsx
 │   ├── AppProviders.tsx
-│   ├── routes.tsx
-│   ├── actions/
-│   └── errors/
+│   ├── AppShell.tsx
+│   └── actions/
 ├── data/
 │   ├── db/
 │   │   ├── LifeIndexDatabase.ts
@@ -225,13 +224,15 @@ The route parser logs action type and failure class only, never raw fragment or 
 
 ```ts
 interface PwaStatus {
+  online: boolean
   offlineReady: boolean
-  updateAvailable: boolean
-  registrationError?: SafeError
+  updateReady: boolean
+  applyingUpdate: boolean
+  registrationFailed: boolean
 }
 ```
 
-`usePwaUpdate` exposes `applyUpdate()`. The update UI checks a central dirty-form registry before posting `SKIP_WAITING`. Active Focus is persisted and does not by itself block an accepted reload. Forms register/unregister dirtiness with stable IDs and clear only after repository success or explicit discard.
+`PwaProvider` exposes `applyUpdate()` and a central dirty-form registry. The update UI checks that registry before posting `SKIP_WAITING`. Active Focus is persisted and does not by itself block an accepted reload. Forms register/unregister dirtiness with stable symbol tokens and clear only after repository success or explicit discard. A body-free, same-origin `HEAD` probe distinguishes true connectivity from a cached shell without transmitting business data.
 
 The custom service worker:
 

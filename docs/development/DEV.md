@@ -53,7 +53,7 @@ Local builds use `/`. A GitHub Pages project build supplies the repository path 
 LIFEINDEX_BASE_PATH=/REPOSITORY-NAME/ pnpm build
 ```
 
-`vite.config.ts` normalizes this once and uses it for assets, manifest ID/start/scope, and worker placement. M8 records the exact confirmed value and validates the deployed artifact.
+`vite.config.ts` normalizes this once and uses it for assets, manifest ID/start/scope, icons, and worker placement. M8 records the exact confirmed value and validates the deployed artifact. `docs/operations/PWA_AND_SHORTCUTS.md` defines the runtime, update, and fragment-action contract.
 
 ## 5. Source ownership
 

@@ -23,6 +23,7 @@ import { formatMoney, parseMoneyToMinor } from '@/shared/domain/money'
 import type { Category, Transaction, TransactionType } from '@/shared/domain/types'
 import { useLiveQueryState } from '@/shared/hooks/useLiveQueryState'
 import { logger } from '@/shared/logging/logger'
+import { useDirtyForm } from '@/pwa/useDirtyForm'
 
 const periodLabels: Array<{ value: FinancePeriod; label: string }> = [
   { value: 'today', label: '今天' },
@@ -53,24 +54,35 @@ interface TransactionFormProps {
 }
 
 function TransactionForm({ categories, transaction, onCancel, onSave }: TransactionFormProps) {
-  const [type, setType] = useState<TransactionType>(transaction?.type ?? 'expense')
-  const [amount, setAmount] = useState(
-    transaction ? (transaction.amountMinor / 100).toFixed(2) : '',
-  )
+  const [initialValues] = useState(() => ({
+    type: transaction?.type ?? ('expense' as TransactionType),
+    amount: transaction ? (transaction.amountMinor / 100).toFixed(2) : '',
+    categoryId: transaction?.categoryId ?? '',
+    occurredAt: transaction
+      ? toDateTimeLocalInput(new Date(transaction.occurredAt))
+      : toDateTimeLocalInput(new Date()),
+    note: transaction?.note ?? '',
+  }))
+  const [type, setType] = useState<TransactionType>(initialValues.type)
+  const [amount, setAmount] = useState(initialValues.amount)
   const matchingCategories = categories.filter(
     (category) =>
       category.transactionType === type &&
       (category.archived === 0 || category.id === transaction?.categoryId),
   )
-  const [categoryId, setCategoryId] = useState(transaction?.categoryId ?? '')
-  const [occurredAt, setOccurredAt] = useState(
-    transaction
-      ? toDateTimeLocalInput(new Date(transaction.occurredAt))
-      : toDateTimeLocalInput(new Date()),
-  )
-  const [note, setNote] = useState(transaction?.note ?? '')
+  const [categoryId, setCategoryId] = useState(initialValues.categoryId)
+  const [occurredAt, setOccurredAt] = useState(initialValues.occurredAt)
+  const [note, setNote] = useState(initialValues.note)
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
+
+  useDirtyForm(
+    type !== initialValues.type ||
+      amount !== initialValues.amount ||
+      categoryId !== initialValues.categoryId ||
+      occurredAt !== initialValues.occurredAt ||
+      note !== initialValues.note,
+  )
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()

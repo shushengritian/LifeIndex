@@ -11,6 +11,8 @@ import { applyAppearance } from '@/features/settings/appearance'
 import type { Appearance, Category, TransactionType } from '@/shared/domain/types'
 import { useLiveQueryState } from '@/shared/hooks/useLiveQueryState'
 import { logger } from '@/shared/logging/logger'
+import { usePwa } from '@/pwa/PwaContext'
+import { useDirtyForm } from '@/pwa/useDirtyForm'
 
 const appearances: Array<{ value: Appearance; label: string }> = [
   { value: 'system', label: '跟随系统' },
@@ -20,6 +22,7 @@ const appearances: Array<{ value: Appearance; label: string }> = [
 
 export function SettingsPage() {
   const { database } = useAppServices()
+  const { state: pwaState } = usePwa()
   const settings = useMemo(() => new SettingsRepository(database), [database])
   const categories = useMemo(() => new CategoryRepository(database), [database])
   const backup = useMemo(() => new BackupService(database, __APP_VERSION__), [database])
@@ -28,6 +31,8 @@ export function SettingsPage() {
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
   const [working, setWorking] = useState(false)
+
+  useDirtyForm(Boolean(preview) || working)
 
   const query = useCallback(async () => {
     const [appearance, lastExport, financeCategories] = await Promise.all([
@@ -252,6 +257,16 @@ export function SettingsPage() {
                 <dt>存储方式</dt>
                 <dd>IndexedDB · 本地优先</dd>
               </div>
+              <div>
+                <dt>离线能力</dt>
+                <dd>
+                  {pwaState.registrationFailed
+                    ? '需联网刷新重试'
+                    : pwaState.offlineReady
+                      ? '应用壳体已就绪'
+                      : '正在准备'}
+                </dd>
+              </div>
             </dl>
             <p>LifeIndex 不使用账户、分析服务或云端数据库。导出文件由你自行保管。</p>
           </section>
@@ -322,6 +337,7 @@ function CategoryManager({
 }) {
   const [type, setType] = useState<TransactionType>('expense')
   const [name, setName] = useState('')
+  useDirtyForm(name !== '')
   const active = categories.filter(
     (category) => category.archived === 0 && category.transactionType === type,
   )

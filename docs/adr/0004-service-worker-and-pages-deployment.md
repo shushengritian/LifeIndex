@@ -16,7 +16,7 @@ LifeIndex must launch and mutate local data offline after one successful load. I
 - Clean outdated static caches after activation.
 - Use prompt-for-update behavior. A waiting worker activates only after the UI confirms no dirty form is at risk and asks the user to apply the update.
 - Persist active focus state before any worker update can reload the UI.
-- Build with an explicit `VITE_BASE_PATH`/Vite `base` contract; local builds use `/`, Pages builds use the confirmed repository path.
+- Build with an explicit `LIFEINDEX_BASE_PATH`/Vite `base` contract; local builds use `/`, Pages builds use the confirmed repository path.
 - Run CI checks before a least-privilege GitHub Pages deploy job uploads the `dist` artifact.
 
 ## Rationale

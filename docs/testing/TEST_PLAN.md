@@ -85,12 +85,14 @@ Automation is evidence, not a substitute for physical-iPhone acceptance.
 
 ## 6. M6 PWA and URL Action matrix
 
-- Manifest required fields, icons, start URL, scope, colors, and standalone metadata under `/` and a synthetic Pages subpath.
-- Initial online load then offline launch/reload/mutation.
-- Cache contains app assets but no business records/API responses.
-- Waiting worker prompts; dirty form defers reload; approved update activates.
-- Fragment action never appears before `#` in a requested URL.
-- Each action validates unknown/malformed fields, previews, confirms, writes entity+receipt atomically, clears route, and deduplicates refresh/retry.
+- Verified: manifest required fields, original 192/512/maskable icons, Apple touch icon, start URL, scope, colors, and standalone metadata under `/` and synthetic `/LifeIndex/` builds.
+- Verified: Chromium performs initial online control, offline launch/reload/mutation, another offline reload, and persisted read.
+- Verified: Mobile Safari/WebKit mutates while offline and retains data after returning online; its Playwright offline reload raises an internal engine error, so installed iPhone reload remains M9 evidence.
+- Verified: Cache Storage entries are same-origin HTML/manifest/icon/versioned asset paths only, with no action fragment, API, or business-record request.
+- Verified: waiting-worker UI requires an explicit click, dirty forms disable activation, application failures remain retryable, and active Focus state is persisted independently.
+- Verified: action routes exist only after `#`; invalid, canceled, handled, and completed actions replace the current route to remove active fields.
+- Verified: each action rejects unknown/duplicate/malformed fields, previews without mutation, revalidates references, writes entity+receipt atomically, clears the route, and deduplicates retry.
+- Recorded M6 pre-hardening gate: 17 Vitest files / 75 tests pass; browser suite records 25 passed and 1 explicitly skipped WebKit-offline-reload scenario out of 26, with Chromium 13/13 and every runnable Mobile Safari/WebKit scenario green.
 
 ## 7. Privacy checks
 

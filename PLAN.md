@@ -2,7 +2,7 @@
 
 **Status:** Active
 **Started:** 2026-09-03
-**Current checkpoint:** M6 — PWA, offline experience, and safe URL Actions
+**Current checkpoint:** M7 — release hardening; M6 physical WebKit reload evidence deferred to M9
 **Source of truth:** `LifeIndex-Project-Baseline.md`
 
 ## Objective
@@ -42,7 +42,7 @@ The goal is complete only when all of the following are verified:
 | M4  | IndexedDB, migrations, backup/restore     | verified    | Migration and transactional backup round-trip tests pass                               |
 | M5  | Finance, Habits, Focus, Today, Settings   | verified    | Each vertical slice passes its mapped unit, integration, and E2E checks                |
 | M6  | PWA, offline, iPhone polish, URL Actions  | in_progress | Installability, offline app shell, update flow, and action safety verified             |
-| M7  | Data-safety and release hardening         | todo        | Full local quality gate and production smoke suite pass                                |
+| M7  | Data-safety and release hardening         | in_progress | Full local quality gate and production smoke suite pass                                |
 | M8  | GitHub, CI, GitHub Pages                  | todo        | User-approved remote exists; CI and deployment are green; live URL passes smoke checks |
 | M9  | Physical iPhone acceptance and V1 release | todo        | User confirms checklist; final gate passes; `v1.0.0` and handoff complete              |
 
@@ -118,10 +118,14 @@ The goal is complete only when all of the following are verified:
 
 ### M6 — PWA and iPhone experience
 
-- [ ] `todo` M6.1 Implement manifest, icons, standalone metadata, safe areas, mobile navigation, themes, and reduced motion.
-- [ ] `todo` M6.2 Implement offline app-shell caching and an explicit, recoverable update flow.
-- [ ] `todo` M6.3 Implement validated, idempotent URL Actions using fragments by default; document any compatibility exception.
-- [ ] `todo` M6.4 Verify iPhone-sized input, touch, WebKit, offline, refresh, and update behavior.
+- [x] `verified` M6.1 Implement manifest, icons, standalone metadata, safe areas, mobile navigation, themes, and reduced motion.
+  - Evidence: original production icon master plus 32/180/192/512/maskable outputs, complete manifest and Apple metadata, safe-area navigation, light/dark/system themes, and reduced-motion CSS pass root and synthetic `/LifeIndex/` builds.
+- [x] `verified` M6.2 Implement offline app-shell caching and an explicit, recoverable update flow.
+  - Evidence: custom precache contains only allowlisted static paths; real connectivity status uses a body-free same-origin HEAD probe; update activation requires a user click and is disabled while any registered form/backup draft is dirty.
+- [x] `verified` M6.3 Implement validated, idempotent URL Actions using fragments by default; document any compatibility exception.
+  - Evidence: all three action types strictly parse fragment-local fields, preview without writes, revalidate references, atomically write entity plus receipt, deduplicate, and scrub routes; 13 parser/service checks and dual-engine E2E flows pass.
+- [ ] `in_progress` M6.4 Verify iPhone-sized input, touch, WebKit, offline, refresh, and update behavior.
+  - Current evidence: Mobile Safari/WebKit passes navigation, CRUD, backup, manifest, all action flows, and offline mutation/persistence; Chromium passes full offline shell reload and mutation. Playwright WebKit raises an internal error on offline reload, so installed iPhone Safari airplane-mode reload and update activation remain an explicit M9 device gate.
 
 ### M7 — Hardening
 
@@ -180,12 +184,15 @@ The goal is complete only when all of the following are verified:
 - Verified Today as a calm projection-only surface with independent Finance/Habits/Focus subscriptions and dual-engine cross-feature evidence.
 - Verified Settings and completed M5 with persisted appearance, Finance category lifecycle, transparent local-storage status, and browser backup/preview/atomic replace flows; the complete gate passes 58 Vitest checks and 16 Chromium/WebKit E2E checks.
 - Split feature routes into lazy production chunks, reducing the main JavaScript chunk from the warning threshold to about 339 kB before gzip.
+- Implemented M6 installability and controlled update infrastructure with an original PWA icon set, base-path-safe metadata, static-only precaching, trustworthy offline status, and shared dirty-form protection.
+- Implemented all three strict fragment URL Actions with no-write previews, atomic receipt coordination, retry deduplication, safe route scrubbing, and an iOS Shortcuts operations contract.
+- Closed the automated M6 gate with 75/75 Vitest checks and 25 passed / 1 documented WebKit-tool skip across 26 production-preview E2E scenarios; Chromium passes the complete offline reload path.
 
 ## Next three actions
 
-1. Complete installability metadata, production icons, safe-area/mobile polish, and explicit update/offline status UI.
-2. Implement strict fragment URL Action parsing, preview, atomic entity-plus-receipt execution, deduplication, and route cleanup.
-3. Verify synthetic Pages subpaths, offline reload/mutation, dirty-form update protection, and dual-engine mobile behavior.
+1. Run M7 boundary, corruption, larger-dataset, accessibility, visual, console/privacy, and production smoke hardening.
+2. Add least-privilege GitHub CI/Pages workflows and release/runbook documentation without creating a remote yet.
+3. Ask once for GitHub owner/name/visibility/license/Pages approval, then deploy and verify the live subpath before physical iPhone acceptance.
 
 ## Plan change log
 
@@ -202,3 +209,4 @@ The goal is complete only when all of the following are verified:
 | 2026-09-03 | Added a supported V0-to-V1 backup migration that initializes empty action receipts.                                   | Gives the migration pipeline a real older fixture without inventing business data; V1 remains the only emitted format.                                           |
 | 2026-09-03 | Completed M4 with a seven-store atomic replace-restore boundary.                                                       | Data is fully validated before writes and any insertion failure rolls the whole replacement back, establishing the safety base for feature development.           |
 | 2026-09-03 | Completed all five M5 vertical slices and introduced route-level lazy loading.                                          | Settings closes category and backup handoff workflows; 58 unit/integration checks and 16 dual-engine E2E checks pass while the production main chunk stays bounded. |
+| 2026-09-03 | Completed M6 implementation while deferring one WebKit automation gap to physical acceptance.                           | Install metadata, offline mutation, update safety, and URL Actions are automated; Playwright WebKit cannot perform offline reload, so M9 retains the real-device release gate. |

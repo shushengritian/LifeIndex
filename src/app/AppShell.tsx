@@ -1,5 +1,7 @@
 import { NavLink, Outlet } from 'react-router-dom'
 
+import { PwaStatus } from '@/pwa/PwaStatus'
+
 const destinations = [
   { to: '/today', label: '今天', short: '今' },
   { to: '/finance', label: '记账', short: '账' },
@@ -20,6 +22,8 @@ export function AppShell() {
           v{__APP_VERSION__}
         </span>
       </header>
+
+      <PwaStatus />
 
       {/* HashRouter owns the URL fragment, so the skip control moves focus directly. */}
       <main className="app-content" id="main-content" tabIndex={-1}>

@@ -21,3 +21,5 @@ All notable LifeIndex changes will be documented here. The project follows Seman
 - Calm Today aggregation with local-date rollover, direct habit check-in, fast Finance/Focus entry, active Focus state, and independent module failure handling.
 - Settings workflows for persisted appearance, Finance category creation/rename/reorder/archive/restore, Habits management, app/storage/privacy status, and browser backup export/preview/replace.
 - Route-level lazy loading for bounded production JavaScript chunks.
+- Original LifeIndex Home Screen/PWA icon set, complete manifest metadata, base-path-safe Apple touch icon, explicit offline/cache status, and a user-controlled update prompt protected by shared dirty-form tracking.
+- Preview-first fragment URL Actions for adding transactions, checking habits, and starting Focus, with strict parsing, atomic entity-plus-receipt writes, durable deduplication, and fragment cleanup.

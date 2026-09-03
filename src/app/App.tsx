@@ -4,6 +4,7 @@ import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AppErrorBoundary } from '@/app/AppErrorBoundary'
 import { AppProviders } from '@/app/AppProviders'
 import { AppShell } from '@/app/AppShell'
+import { PwaProvider } from '@/pwa/PwaProvider'
 import { logger } from '@/shared/logging/logger'
 
 const TodayPage = lazy(() =>
@@ -21,6 +22,14 @@ const HabitsPage = lazy(() =>
 const SettingsPage = lazy(() =>
   import('@/features/settings/SettingsPage').then(({ SettingsPage }) => ({
     default: SettingsPage,
+  })),
+)
+const ActionPage = lazy(() =>
+  import('@/app/actions/ActionPage').then(({ ActionPage }) => ({ default: ActionPage })),
+)
+const ActionResultPage = lazy(() =>
+  import('@/app/actions/ActionPage').then(({ ActionResultPage }) => ({
+    default: ActionResultPage,
   })),
 )
 
@@ -77,6 +86,22 @@ function AppRoutes() {
             </LazyRoute>
           }
         />
+        <Route
+          path="/action/:actionType"
+          element={
+            <LazyRoute>
+              <ActionPage />
+            </LazyRoute>
+          }
+        />
+        <Route
+          path="/action-result"
+          element={
+            <LazyRoute>
+              <ActionResultPage />
+            </LazyRoute>
+          }
+        />
         <Route path="*" element={<Navigate to="/today" replace />} />
       </Route>
     </Routes>
@@ -91,16 +116,18 @@ export function App() {
   return (
     <AppErrorBoundary>
       <AppProviders>
-        <HashRouter>
-          <button
-            className="skip-link"
-            type="button"
-            onClick={() => document.getElementById('main-content')?.focus()}
-          >
-            跳到主要内容
-          </button>
-          <AppRoutes />
-        </HashRouter>
+        <PwaProvider>
+          <HashRouter>
+            <button
+              className="skip-link"
+              type="button"
+              onClick={() => document.getElementById('main-content')?.focus()}
+            >
+              跳到主要内容
+            </button>
+            <AppRoutes />
+          </HashRouter>
+        </PwaProvider>
       </AppProviders>
     </AppErrorBoundary>
   )
