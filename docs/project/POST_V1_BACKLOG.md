@@ -15,6 +15,7 @@ The owner accepted V1 with the explicit release exception in [ADR-0005](../adr/0
 | PV1-05 | Valid/invalid actions, deduplication and an actual iOS Shortcut | User + agent guidance | Physical checklist §7 passes |
 | PV1-06 | Two-version installed update protects drafts and saved records | User + agent guidance | Physical checklist §8 passes against two recorded verified versions |
 | PV1-07 | Project license choice | Repository owner | Explicit owner decision; no license is currently added |
+| PV1-08 | Supplemental fresh dependency-advisory query unavailable during release | Engineering | Recheck the unchanged production dependency graph when npm's advisory endpoint is reachable, before future dependency changes; do not represent the timeout as a clean audit |
 
 Use [IPHONE_ACCEPTANCE.md](../operations/IPHONE_ACCEPTANCE.md) for the full steps. Never upload personal records, backups, device identifiers, or action URLs to GitHub as evidence.
 

@@ -1,6 +1,6 @@
 # LifeIndex V1 Requirements Traceability
 
-**Status:** Living document
+**Status:** V1 release mapping archived; physical exceptions and follow-ups retained
 
 **Last updated:** 2026-09-04
 
@@ -26,6 +26,8 @@ For `v1.0.0`, physical-evidence gaps below are accepted **deferrals**, not verif
 | NFR-MNT/TST          | PRD §7                     | `AGENTS.md`; HLD §16; LLD §§14–16; `docs/development/DEV.md`; `docs/testing/TEST_PLAN.md` | modular source and quality scripts            | Full local gates and successful Linux/Pages/live run 33833052946 for 0.1.1; final release sign-off pending | automated verified |
 
 ## Deployment and update-discovery evidence
+
+- Released application `1.0.0` at tag commit `40eb947` passed the final local gates and complete [workflow 33849576847](https://github.com/shushengritian/LifeIndex/actions/runs/33849576847), including 9 exact-version live passes / 1 documented skip. All implementation mappings below remain unchanged from 0.1.1; release metadata and verification comments do not alter business behavior. [Release evidence](../releases/v1.0.0.md) separates this current result from the historical runs below.
 
 - GitHub run [33832099931](https://github.com/shushengritian/LifeIndex/actions/runs/33832099931) verifies the first live application at `60b0676`: clean Linux install, full local gates, base-path build/deployment, and 9 live smoke passes with the documented WebKit offline-reload skip. This supersedes the initial matrix's “remote run/live pending” notes for that commit only.
 - `tests/unit/pwaUpdates.test.ts` maps the 0.1.1 foreground/reconnect discovery change to PWA-001–005 and NFR-OFF/REL: foreground, reconnect, offline/hidden guards, in-flight/cooled-down checks, install/waiting guards, failure retry, and listener cleanup. Existing `tests/unit/pwa.test.tsx` still proves explicit activation and dirty-form blocking.

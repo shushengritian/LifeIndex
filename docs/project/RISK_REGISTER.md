@@ -1,6 +1,6 @@
 # LifeIndex V1 Risk Register
 
-**Status:** Active
+**Status:** V1 risks archived; ongoing risks and owner-approved deferrals retained
 
 **Last reviewed:** 2026-09-04
 
@@ -29,3 +29,7 @@ Likelihood and impact use `low`, `medium`, and `high`. Release-blocking risks re
 - A broken core offline/capture workflow is release-blocking.
 - Cosmetic issues may be deferred only when they do not impair comprehension, accessibility, or safe action.
 - Closed risks retain their evidence link rather than being deleted.
+
+## Final publication evidence
+
+`v1.0.0` is published at `40eb947` after the complete configured quality/build/Pages/live workflow 33849576847 succeeded. R-004's deployed path/scope checks and R-010/R-013's approved publishing route now have concrete release evidence in `docs/releases/v1.0.0.md`; future platform/auth changes remain operational risks. The supplemental current npm advisory query timed out through both package-manager and direct API attempts, so no fresh clean-audit claim is made. Dependencies are unchanged, and PV1-08 records a later advisory recheck. This is an availability limitation, not evidence of a vulnerability.

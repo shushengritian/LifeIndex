@@ -1,6 +1,6 @@
 # LifeIndex V1 Test Plan
 
-**Status:** Active
+**Status:** V1 release gate recorded; deferred physical follow-ups retained
 
 **Last updated:** 2026-09-04
 
@@ -168,5 +168,7 @@ M8 CI runs equivalent frozen-lockfile commands and retains useful reports on fai
 - Manual browser upgrade from 0.1.0 to 0.1.1 confirms a waiting update, disabled activation while an unsaved synthetic Finance form is dirty, re-enabled activation after cancel, and the displayed version changing only after confirmation. No record was saved. This adds browser evidence, not an iPhone sign-off.
 
 ## 14. Evidence recording
+
+Final V1 evidence: [workflow 33849576847](https://github.com/shushengritian/LifeIndex/actions/runs/33849576847) completed successfully for tagged application commit `40eb947` (1.0.0), including 9 live checks / 1 documented skip and exact version validation. The local final gate passed 19 files / 92 unit/integration tests and 33 browser checks / 1 skip, without changing the existing assertions or skip conditions. See [the release record](../releases/v1.0.0.md) for tag/Release verification and the explicitly unavailable supplemental npm advisory recheck. No physical evidence is inferred.
 
 For each verified milestone, `PLAN.md` records commands/results and the corresponding commit. `REQUIREMENTS_TRACEABILITY.md` points to named test files rather than relying on an unqualified “tests passed.” M8/M9 operations guides record deployed and physical evidence separately.

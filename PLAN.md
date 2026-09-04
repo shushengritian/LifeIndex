@@ -1,8 +1,8 @@
 # LifeIndex V1 Delivery Plan
 
-**Status:** Active
+**Status:** Completed — owner-accepted V1 with explicitly deferred physical verification
 **Started:** 2026-09-03
-**Current checkpoint:** Owner accepted V1 with explicit physical-test deferral; preparing verified v1.0.0 publication
+**Current checkpoint:** v1.0.0 live and published at 40eb947; owner-approved physical-test deferrals archived, no further V1 feature work
 **Source of truth:** `LifeIndex-Project-Baseline.md`
 
 ## Objective
@@ -44,8 +44,8 @@ The goal is complete only when all of the following are verified:
 | M5  | Finance, Habits, Focus, Today, Settings   | verified    | Each vertical slice passes its mapped unit, integration, and E2E checks                |
 | M6  | PWA, offline, iPhone polish, URL Actions  | accepted_with_deferral | Automated evidence retained; remaining physical checks deferred by ADR-0005 |
 | M7  | Data-safety and release hardening         | verified    | Full local quality gate and production smoke suite pass                                |
-| M8  | GitHub, CI, GitHub Pages                  | in_progress | User-approved remote exists; CI and deployment are green; live URL passes smoke checks |
-| M9  | Physical iPhone acceptance and V1 release | in_progress | User confirms checklist; final gate passes; `v1.0.0` and handoff complete              |
+| M8  | GitHub, CI, GitHub Pages                  | verified | Owner-approved remote, successful full 1.0.0 workflow and version-aware live smoke |
+| M9  | Owner acceptance, deferred device checks, V1 release | accepted_with_deferral | ADR-0005, published v1.0.0, release evidence and named unverified follow-ups |
 
 ## Work breakdown
 
@@ -126,7 +126,7 @@ The goal is complete only when all of the following are verified:
 - [x] `verified` M6.3 Implement validated, idempotent URL Actions using fragments by default; document any compatibility exception.
   - Evidence: all three action types strictly parse fragment-local fields, preview without writes, revalidate references, atomically write entity plus receipt, deduplicate, and scrub routes; 13 parser/service checks and dual-engine E2E flows pass.
 - [ ] `deferred_by_owner` M6.4 Complete physical input, touch, offline, refresh, and update verification in PV1-01–06; not a passed test.
-  - Current evidence: Mobile Safari/WebKit passes navigation, CRUD, backup, manifest, all action flows, and offline mutation/persistence; Chromium passes full offline shell reload and mutation. Playwright WebKit raises an internal error on offline reload, so installed iPhone Safari airplane-mode reload and update activation remain an explicit M9 device gate.
+  - Automated evidence: Mobile Safari/WebKit passes navigation, CRUD, backup, manifest, all action flows, and offline mutation/persistence; Chromium passes full offline shell reload and mutation. Playwright WebKit cannot automate offline reload. Physical airplane-mode reload and update activation remain unverified, explicitly deferred under ADR-0005 rather than blocking this release.
 
 ### M7 — Hardening
 
@@ -155,7 +155,7 @@ The goal is complete only when all of the following are verified:
 - [x] `accepted_with_deferral` M9.1 Record owner acceptance: phone-browser opening confirmed; installation and further physical checks explicitly deferred under ADR-0005.
 - [ ] `deferred_by_owner` M9.2 Files/iCloud restore and real Shortcuts checks retained in PV1-04–05; no pass is claimed.
 - [ ] `deferred_by_owner` M9.3 Remaining physical verification and any resulting fixes move to PV1-01–06 when the owner resumes them. This does not waive a known critical defect.
-- [ ] `todo` M9.4 Update final documentation, run the full gate, ensure a clean worktree, push, tag `v1.0.0`, and prepare release handoff.
+- [x] `published` M9.4 Final local gate and complete remote run 33849576847 pass; tag `v1.0.0` resolves to `40eb947`, and its GitHub Release is published. Final evidence and handoff are archived in `docs/releases/v1.0.0.md`; synchronize this documentation-only closure without moving the release tag.
 
 ## Risks and blockers
 
@@ -170,6 +170,7 @@ The goal is complete only when all of the following are verified:
 | R-007 | Physical iPhone cannot be operated by the agent                                   | Final acceptance cannot be automated | Provide one concise test action at a time and require user confirmation before release    |
 | R-008 | New dependency versions can introduce unreviewed install scripts | Future CI installs may stop | Current sharp incident resolved by exact-version approval and verified Linux runs; retain fail-closed checks and review upgrades |
 | R-009 | Owner accepted V1 before full physical-device verification | Device-only issues may remain undetected | Explicit ADR-0005 exception, PV1-01–06 follow-ups, retained automated gates, independent backups; never label deferred checks passed |
+| R-010 | Supplemental current npm advisory lookup timed out | Fresh security-advisory result unavailable | Do not claim a fresh clean audit; unchanged dependency graph and successful configured gates retained. Record PV1-08 for recheck before future dependency changes |
 
 ## Decisions
 
@@ -211,12 +212,13 @@ The goal is complete only when all of the following are verified:
 - Verified 0.1.1 locally with 19 test files / 92 tests and 33 passed / 1 documented skipped browser checks. Added an exact candidate-version assertion to deployed smoke to distinguish the new release from a healthy cached predecessor.
 - Verified 0.1.1 in complete GitHub run 33833052946 (including 9 live checks / 1 documented skip) and manually exercised the explicit dirty-form-safe browser upgrade from 0.1.0. No physical-device result is inferred.
 - Recorded the owner's phone-browser opening feedback and explicit acceptance of V1 with deferred physical checks. Prepared version-only `1.0.0`, release notes, and named post-V1 follow-ups without altering storage or runtime business logic.
+- Published `v1.0.0` at `40eb947` after local 92-test / 33-browser-pass checks and complete GitHub run 33849576847 with 9 live passes / 1 documented skip. Tag and Release are verified; the unavailable supplemental advisory recheck is disclosed rather than reported as passed.
 
-## Next three actions
+## Closure and next-version boundary
 
-1. Run the final local and remote automated gates for `1.0.0` and verify its exact live version.
-2. Record final evidence, create/push `v1.0.0` and its GitHub Release, and verify repository hygiene.
-3. Close this delivery goal. Do not begin new feature work; the owner will provide later version ideas. Deferred checks remain in `docs/project/POST_V1_BACKLOG.md`.
+1. This archived plan records V1 closure against the verified tag, Release, and application workflow. The final archive-only main push still uses the normal full workflow; goal completion requires that check and a clean, synchronized worktree.
+2. Preserve the published tag and release. No feature work or recurring monitoring remains authorized in this goal.
+3. The owner will provide later version ideas. Deferred checks and administrative follow-ups remain in `docs/project/POST_V1_BACKLOG.md`, not falsely completed requirements.
 
 ## Plan change log
 
@@ -239,3 +241,4 @@ The goal is complete only when all of the following are verified:
 | 2026-09-04 | Verified first Pages deployment and added 0.1.1 update-discovery work before M9 sign-off. | All remote gates pass for 0.1.0, but a long-lived installed app needs foreground/reconnect checks to discover later releases predictably; activation remains explicit. |
 | 2026-09-04 | Verified the 0.1.1 deployment and a real browser upgrade; advanced to user-performed M9 checks. | Linux, live HTTPS, candidate version, and dirty-form activation evidence now pass; iPhone and licensing decisions remain user-owned and unverified. |
 | 2026-09-04 | Owner explicitly accepted V1 and deferred uncompleted physical checks; formal release preparation started. | ADR-0005 updates the acceptance gate transparently. Keep all automated gates and evidence limits; do not claim physical pass or change database schema. |
+| 2026-09-04 | Published owner-accepted v1.0.0 and archived the handoff. | Complete workflow 33849576847 and live version-aware smoke pass; tag/Release identify 40eb947. Keep deferred tests, unselected license, and unavailable supplemental advisory lookup explicit. |

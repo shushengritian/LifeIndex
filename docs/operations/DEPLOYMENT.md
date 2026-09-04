@@ -1,6 +1,6 @@
 # LifeIndex GitHub Pages Deployment Runbook
 
-**Status:** Preparing owner-accepted v1.0.0; physical checks deferred under ADR-0005
+**Status:** v1.0.0 deployed and released; physical checks deferred under ADR-0005
 
 **Last reviewed:** 2026-09-04
 
@@ -58,7 +58,7 @@ Current instance: the user created the public [shushengritian/LifeIndex](https:/
 
 ## 4. Live smoke gate
 
-The `v1.0.0` publication record is maintained in [the release handoff](../releases/v1.0.0.md). [ADR-0005](../adr/0005-v1-owner-acceptance.md) changes only the owner's physical-acceptance gate; all automated build/deploy/live checks below remain required. The release preserves schema/backup V1, the same URL, and the existing unselected license state.
+The `v1.0.0` publication record is maintained in [the release handoff](../releases/v1.0.0.md): application/tag commit `40eb947`, successful full [workflow 33849576847](https://github.com/shushengritian/LifeIndex/actions/runs/33849576847), and [published Release](https://github.com/shushengritian/LifeIndex/releases/tag/v1.0.0). [ADR-0005](../adr/0005-v1-owner-acceptance.md) changes only the owner's physical-acceptance gate; all automated build/deploy/live checks below remain required. The release preserves schema/backup V1, the same URL, and the existing unselected license state. Later evidence-only documentation commits do not move the tag or alter application behavior.
 
 Record the repository, commit SHA, workflow run, deployment URL, time, and result. At the live HTTPS URL verify:
 
