@@ -7,6 +7,7 @@ All notable LifeIndex changes will be documented here. The project follows Seman
 ### Fixed
 
 - Replaced the unresolved sharp install-script approval with a reviewed exact-version allowance while keeping strict dependency-build checks enabled for clean CI installs.
+- Version 0.1.1 discovers installed-app updates on foreground/reconnect with in-flight protection, a short successful-check cooldown, and recoverable failure handling; activation remains explicit and dirty-form-safe.
 
 ### Added
 

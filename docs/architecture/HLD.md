@@ -196,6 +196,7 @@ The worker lifecycle is surfaced to the app:
 
 - Ready offline: non-blocking confirmation on first cache completion.
 - Update waiting: show prompt.
+- Update discovery: visible online clients check again when returning to the foreground or reconnecting, with duplicate/recent-check suppression; this does not activate the worker.
 - Dirty form: defer activation or request explicit discard/save choice.
 - Active focus: safe because active state is persisted; still avoid surprise reload.
 - Registration/update failure: log safe context and continue online/local operation where possible.

@@ -66,6 +66,7 @@ LIFEINDEX_BASE_PATH=/REPOSITORY-NAME/ pnpm build
 - `src/pwa`: service-worker registration and update/offline client state.
 - `src/shared`: pure domain utilities, safe logging, validation, and UI primitives.
 - `src/styles`: tokens and shared layout.
+- `src/pwa/watchPwaUpdates.ts`: foreground/reconnect discovery only, separate from user-approved worker activation; `tests/unit/pwaUpdates.test.ts` covers state guards, coalescing, cooldown, retry, and listener cleanup.
 - `tests/unit`: pure functions and component contracts.
 - `tests/integration`: IndexedDB, repository, migration, and restore contracts.
 - `tests/e2e`: production-intent user journeys in Chromium and Mobile Safari/WebKit.

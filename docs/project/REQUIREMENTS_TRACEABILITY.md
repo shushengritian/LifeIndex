@@ -2,7 +2,7 @@
 
 **Status:** Living document
 
-**Last updated:** 2026-09-03
+**Last updated:** 2026-09-04
 
 This matrix connects approved product requirements to design, implementation, and verification evidence. `TBD` is intentional before the corresponding milestone; it must be replaced by a real file, test, or accepted exception before V1 release.
 
@@ -22,6 +22,12 @@ This matrix connects approved product requirements to design, implementation, an
 | NFR-OFF/REL          | PRD §7                     | HLD §§5, 9–13; LLD §§8–11, 13; ADR-0004                                                   | service worker, error boundary, DB recovery   | Automated offline/update/failure paths and root/subpath deployed-smoke harness verified; live and physical gates pending | partial verification |
 | NFR-UX/A11Y          | PRD §7                     | `docs/design/UX_UI_GUIDE.md`                                                              | design tokens and shared components           | Dual-engine axe, 320 px/touch/reduced-motion automation, light/dark visual checks; physical device pending | automated verified   |
 | NFR-MNT/TST          | PRD §7                     | `AGENTS.md`; HLD §16; LLD §§14–16; `docs/development/DEV.md`; `docs/testing/TEST_PLAN.md` | modular source and quality scripts            | Full local M7 gate and SHA-pinned CI/Pages/deployed-smoke definitions verified; remote run pending | partial verification |
+
+## Deployment and update-discovery evidence
+
+- GitHub run [33832099931](https://github.com/shushengritian/LifeIndex/actions/runs/33832099931) verifies the first live application at `60b0676`: clean Linux install, full local gates, base-path build/deployment, and 9 live smoke passes with the documented WebKit offline-reload skip. This supersedes the initial matrix's “remote run/live pending” notes for that commit only.
+- `tests/unit/pwaUpdates.test.ts` maps the 0.1.1 foreground/reconnect discovery change to PWA-001–005 and NFR-OFF/REL: foreground, reconnect, offline/hidden guards, in-flight/cooled-down checks, install/waiting guards, failure retry, and listener cleanup. Existing `tests/unit/pwa.test.tsx` still proves explicit activation and dirty-form blocking.
+- The new 0.1.1 source must pass its own full local and remote gates. Physical installation, offline relaunch, Files restore, Shortcuts, and the two-version update transition remain unverified until user sign-off.
 
 ## Release rule
 

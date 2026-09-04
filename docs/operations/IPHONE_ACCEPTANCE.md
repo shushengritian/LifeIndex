@@ -2,7 +2,7 @@
 
 **Status:** Ready to execute after the live Pages gate
 
-**Last updated:** 2026-09-03
+**Last updated:** 2026-09-04
 
 ## 1. Evidence header
 
@@ -29,7 +29,7 @@ Complete this header during M9. Do not record device identifiers, Apple ID, or p
 ## 3. Install and standalone launch
 
 1. Open the verified Pages HTTPS URL in Safari and confirm Today appears without a console/browser warning.
-2. Use **Share → Add to Home Screen**, keep the name `LifeIndex`, and confirm the generated icon matches the approved sage ring.
+2. Use **Share → Add to Home Screen** (on some Safari layouts, open **More → Share** first). If **Open as Web App / 作为网页 App 打开** is shown, keep it enabled; keep the name `LifeIndex`, and confirm the generated icon matches the approved sage ring. If the Home Screen action is missing, use **Edit Actions** to add it. See [Apple's installation guide](https://support.apple.com/zh-cn/guide/iphone/iphea86e5236/ios).
 3. Launch from the new Home Screen icon. Confirm it opens without Safari chrome, starts on Today, respects safe areas, and reaches all five bottom-navigation destinations.
 4. Rotate or enlarge text only if that is part of the user's normal device configuration; record any clipping or blocked control.
 
@@ -80,6 +80,8 @@ Pass condition: valid actions are preview-first and idempotent; invalid/canceled
 ## 8. Controlled update gate
 
 This section requires a second verified Pages deployment after the installed version is controlling the app.
+
+Use 0.1.1 or later as the starting version for this foreground-update test. If 0.1.0 was installed first, reopen it online and apply the available update before creating the dirty form; 0.1.0 only initiates update discovery at startup. The operator then deploys a different, verified version and records both versions. Merely redeploying unchanged application bytes does not prove an update transition.
 
 1. Begin a Finance form and leave a synthetic amount unsaved.
 2. After the new deployment is available, bring LifeIndex to the foreground and wait for the update banner.

@@ -2,7 +2,7 @@
 
 **Status:** M6 implementation and automated verification complete; physical iPhone steps remain in M9
 
-**Last updated:** 2026-09-03
+**Last updated:** 2026-09-04
 
 ## 1. Privacy and ownership
 
@@ -31,11 +31,14 @@ The app checks connectivity with a same-origin, body-free `HEAD` request that co
 ## 3. Controlled updates
 
 - A newly installed worker waits; LifeIndex never silently reloads the current screen.
+- Version 0.1.1 checks for a newer worker on return to the foreground and restored connectivity. Hidden/offline states, a pending update, and repeated events within 60 seconds of a successful check are skipped. Failed checks keep the current app usable and retry on a later event. Discovery only calls `registration.update()`; it cannot approve activation. Version 0.1.0 checks at startup, so reopen that version online once to discover 0.1.1 before testing the foreground-update contract.
 - The app displays an update banner and requires `立即更新`.
 - Finance, Habit, Focus-detail, category, and backup-preview drafts register with one shared dirty-form guard.
 - When any draft is dirty, the update button is disabled until the user saves or cancels it.
 - An active Focus timer is already persisted by absolute timestamps, so a user-approved update can safely reconstruct it.
 - If activation fails, the current app remains open and offers a retry.
+
+Implementation reference: [Vite PWA manual update checks](https://vite-pwa-org.netlify.app/guide/periodic-sw-updates).
 
 ## 4. Action contract
 

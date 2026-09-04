@@ -159,6 +159,12 @@ M8 CI runs equivalent frozen-lockfile commands and retains useful reports on fai
 - The repair explicitly allows only the reviewed sharp version and keeps `strictDepBuilds: true`. On 2026-09-04, a temporary project with copied manifests/lockfile and an empty, separate pnpm store downloaded 542 platform-applicable packages and completed `pnpm install --frozen-lockfile`; the sharp install step completed successfully. No dependency or lockfile version changed.
 - After the repair, peers, formatting, zero-warning lint, strict TypeScript, all 18 files / 84 unit/integration tests, production/PWA build, and the 33-pass/1-documented-skip dual-engine browser gate pass locally. The GitHub Linux run must independently prove its clean install and complete gate before M8 closes.
 
-## 13. Evidence recording
+## 13. Installed-update discovery and first live proof
+
+- First live gate: [run 33832099931](https://github.com/shushengritian/LifeIndex/actions/runs/33832099931) completed successfully for `60b0676` (0.1.0): clean Linux install, all static/unit/browser gates, Pages deployment, and 9 deployed checks / 1 documented skipped WebKit reload. The verified URL is `https://shushengritian.github.io/LifeIndex/`.
+- 0.1.1 adds `tests/unit/pwaUpdates.test.ts` with eight cases proving foreground/reconnect discovery, hidden/offline guards, coalescing/cooldown, retry, installing/waiting guards, and cleanup. With the existing four update-UI tests, all 12 focused checks pass. This is not proof of the installed two-version transition, which remains physical M9 acceptance.
+- Local 0.1.1 gate: peers, formatting, lint, types, 19 files / 92 unit/integration tests, production/PWA build, and 33 browser checks / 1 documented skipped WebKit reload pass. The deployed suite additionally compares the rendered app version with the checked-out `package.json`, so a still-cached earlier release cannot satisfy the candidate's deployment check.
+
+## 14. Evidence recording
 
 For each verified milestone, `PLAN.md` records commands/results and the corresponding commit. `REQUIREMENTS_TRACEABILITY.md` points to named test files rather than relying on an unqualified “tests passed.” M8/M9 operations guides record deployed and physical evidence separately.

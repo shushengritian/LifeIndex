@@ -1,5 +1,11 @@
+import { readFileSync } from 'node:fs'
+
 import AxeBuilder from '@axe-core/playwright'
 import { expect, test, type TestInfo } from '@playwright/test'
+
+const { version: expectedVersion } = JSON.parse(
+  readFileSync(new URL('../../package.json', import.meta.url), 'utf8'),
+) as { version: string }
 
 function baseUrl(testInfo: TestInfo): URL {
   return new URL(String(testInfo.project.use.baseURL))
@@ -23,6 +29,8 @@ test('serves base-scoped routes, assets, manifest, and worker without runtime er
   const response = await page.goto(baseUrl(testInfo).toString())
   expect(response?.ok()).toBe(true)
   await expect(page.getByRole('heading', { name: '让今天保持清晰' })).toBeVisible()
+  // A healthy old cached release is not proof that the checked-out candidate was deployed.
+  await expect(page.getByLabel(`应用版本 ${expectedVersion}`, { exact: true })).toBeVisible()
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
 
   for (const destination of ['记账', '专注', '习惯', '设置']) {

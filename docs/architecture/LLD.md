@@ -234,6 +234,8 @@ interface PwaStatus {
 
 `PwaProvider` exposes `applyUpdate()` and a central dirty-form registry. The update UI checks that registry before posting `SKIP_WAITING`. Active Focus is persisted and does not by itself block an accepted reload. Forms register/unregister dirtiness with stable symbol tokens and clear only after repository success or explicit discard. A body-free, same-origin `HEAD` probe distinguishes true connectivity from a cached shell without transmitting business data.
 
+`watchPwaUpdates` attaches application-lifetime `visibilitychange` and `online` listeners after successful registration. Visible, online clients call `registration.update()` unless another check/install/waiting worker exists or the last successful check is under 60 seconds old. The in-flight flag is released in `finally`; failure is logged without personal values and does not block a later retry. Discovery never calls `SKIP_WAITING` or reloads, so the existing user-confirmation and dirty-form boundary remains authoritative. A cleanup callback removes the listeners for tests or future lifecycle ownership changes.
+
 The custom service worker:
 
 - calls `precacheAndRoute(self.__WB_MANIFEST)`;

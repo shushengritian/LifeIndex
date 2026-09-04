@@ -2,7 +2,7 @@
 
 **Status:** Active
 **Started:** 2026-09-03
-**Current checkpoint:** M8 — approved GitHub repository pushed and Pages source enabled; repairing clean-install CI before first live deployment
+**Current checkpoint:** First Pages deployment verified; preparing 0.1.1 foreground-update refinement and physical-iPhone acceptance
 **Source of truth:** `LifeIndex-Project-Baseline.md`
 
 ## Objective
@@ -145,11 +145,14 @@ The goal is complete only when all of the following are verified:
 - [ ] `in_progress` M8.3 Configure least-privilege CI and Pages deployment gated by successful checks.
   - Local evidence: current official action contracts were reviewed and SHA-pinned; CI is content-read-only, Pages grants write/OIDC only to the dependent deploy job, frozen install/full quality/dual-engine gates precede artifact upload, and a read-only post-deploy job runs live Chromium/WebKit smoke. The deployed suite passes 9 checks with one documented WebKit-tool skip against both `/` and `/LifeIndex/`.
   - Remote evidence: first run 33830831321 failed at frozen install (`ERR_PNPM_IGNORED_BUILDS`, sharp 0.33.5); tests and deploy were skipped, so local success did not prove CI reproducibility. Pages now confirms **GitHub Actions** as its saved source. The repaired exact-version approval passes a local frozen install from an empty separate pnpm store (542 downloaded packages, successful sharp install), peers, static gates, all 84 unit/integration tests, and production build; Linux CI/deployment still need verification.
-- [ ] `todo` M8.4 Inspect workflow evidence and validate the live subpath, assets, manifest, worker, console, mobile view, and offline reload.
+  - First green run: 33832099931 deployed `60b0676` (0.1.0) and passed the full Linux gate plus 9 live checks / 1 documented skip at `https://shushengritian.github.io/LifeIndex/`. The next 0.1.1 update-discovery refinement must pass the same release path.
+- [ ] `in_progress` M8.4 Inspect workflow evidence and validate the live subpath, assets, manifest, worker, console, mobile view, and offline reload.
+  - Evidence: first live HTTPS suite passes; manual browser inspection covers 390 × 844 Today and 320 × 568 Settings, which reports offline shell ready. Repeat affected checks for 0.1.1; physical Safari is not yet verified.
 
 ### M9 — Physical iPhone and release
 
-- [ ] `todo` M9.1 Guide the user through install, standalone launch, CRUD persistence, airplane-mode use, and update checks.
+- [ ] `in_progress` M9.1 Guide the user through install, standalone launch, CRUD persistence, airplane-mode use, and update checks.
+  - The user has been given the live URL and first installation/navigation action; device model, iOS version, and result await their response. The installed update test must start on 0.1.1+ and receive a distinct verified build.
 - [ ] `todo` M9.2 Guide a test-data-only Files/iCloud export and restore round trip plus valid/invalid URL Actions.
 - [ ] `todo` M9.3 Fix observed defects and repeat affected checks until the user confirms acceptance.
 - [ ] `todo` M9.4 Update final documentation, run the full gate, ensure a clean worktree, push, tag `v1.0.0`, and prepare release handoff.
@@ -201,12 +204,15 @@ The goal is complete only when all of the following are verified:
 - Enabled Pages with the user's explicit instruction and verified the saved GitHub Actions source through the signed-in browser.
 - Inspected the first remote run and isolated the clean-install failure to sharp's unresolved build-approval placeholder; no application deployment occurred.
 - Verified the sharp repair with a separate empty-store frozen install, all 84 unit/integration checks, production/PWA build, and 33 passed / 1 documented skipped browser checks on 2026-09-04.
+- Verified first public deployment in run 33832099931 with 9 live smoke passes and one documented WebKit-tool skip; opened the live mobile layout and confirmed offline shell readiness.
+- Identified a gap between the installed-update checklist and startup-only discovery; 0.1.1 adds guarded foreground/reconnect discovery without changing the activation/dirty-form contract.
+- Verified 0.1.1 locally with 19 test files / 92 tests and 33 passed / 1 documented skipped browser checks. Added an exact candidate-version assertion to deployed smoke to distinguish the new release from a healthy cached predecessor.
 
 ## Next three actions
 
-1. Repair the exact-version sharp install approval and verify clean frozen installation plus the full local gate.
-2. Commit/push the repair, inspect the complete Pages run, and verify the real deployed URL and mobile view.
-3. Complete owner license choice and user-performed iPhone acceptance; only then finalize and tag `v1.0.0`.
+1. Verify and deploy 0.1.1 with foreground/reconnect update checks while retaining explicit, dirty-form-safe activation.
+2. Record the owner's license choice and physical-iPhone install/navigation result, then guide offline/persistence/Files backup and action acceptance with synthetic data.
+3. Deploy a distinct verified build for the installed-update transition; only after all physical checks pass finalize and tag `v1.0.0`.
 
 ## Plan change log
 
@@ -226,3 +232,4 @@ The goal is complete only when all of the following are verified:
 | 2026-09-03 | Completed M6 implementation while deferring one WebKit automation gap to physical acceptance.                           | Install metadata, offline mutation, update safety, and URL Actions are automated; Playwright WebKit cannot perform offline reload, so M9 retains the real-device release gate. |
 | 2026-09-03 | Completed M7 local release hardening and advanced the checkpoint to M8.                                                  | Corruption, failure, volume, privacy, accessibility, compact-layout, dependency, root/subpath build, and dual-engine gates pass; only deployed and physical-device evidence remains. |
 | 2026-09-04 | Recorded the public GitHub push, approved Pages source, and first CI failure. | Remote evidence revealed an unresolved sharp install-script decision masked by the warm local environment; repair reproducibility before deployment, with no product-scope change. |
+| 2026-09-04 | Verified first Pages deployment and added 0.1.1 update-discovery work before M9 sign-off. | All remote gates pass for 0.1.0, but a long-lived installed app needs foreground/reconnect checks to discover later releases predictably; activation remains explicit. |

@@ -8,6 +8,7 @@ import {
   setPwaUpdateHandler,
 } from '@/pwa/pwaStore'
 import { logger } from '@/shared/logging/logger'
+import { watchPwaUpdates } from '@/pwa/watchPwaUpdates'
 
 export function registerPwa(): void {
   logger.info('pwa.registration.started', { operation: 'register' })
@@ -47,6 +48,8 @@ export function registerPwa(): void {
       logger.info('pwa.registration.succeeded', { operation: 'register' })
       // Returning visitors already controlled by an active worker are offline-ready without a new install event.
       if (registration?.active) markPwaOfflineReady()
+      // Home Screen apps may stay mounted for days; foreground/reconnect events must also discover new releases.
+      if (registration) watchPwaUpdates(registration)
     },
     onRegisterError(error) {
       logger.error('pwa.registration.failed', error, {

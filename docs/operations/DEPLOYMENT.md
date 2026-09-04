@@ -1,6 +1,6 @@
 # LifeIndex GitHub Pages Deployment Runbook
 
-**Status:** Approved public repository pushed; Pages source enabled; first successful deployment pending CI repair
+**Status:** First deployment and live gate verified; 0.1.1 foreground-update refinement in progress; physical iPhone acceptance pending
 
 **Last reviewed:** 2026-09-04
 
@@ -37,11 +37,21 @@ Current instance: the user created the public [shushengritian/LifeIndex](https:/
 
 [Run 33830831321](https://github.com/shushengritian/LifeIndex/actions/runs/33830831321) failed before tests or deployment because the sharp build decision was an unresolved pnpm placeholder. The log reported `ERR_PNPM_IGNORED_BUILDS` for `sharp@0.33.5`. Replace that placeholder with a reviewed, exact-version `allowBuilds` decision while retaining `strictDepBuilds: true`, verify a clean frozen install, and rerun the complete gate. Re-running the unchanged failed commit cannot fix this source configuration issue. No deployment from that run took place.
 
+### First verified deployment — 2026-09-04
+
+- Source: `60b06765c4d84c2892797b1f43eb86e1447b2ea8`, app version `0.1.0`.
+- Workflow: [33832099931](https://github.com/shushengritian/LifeIndex/actions/runs/33832099931), completed successfully at `2026-09-04T03:13:39Z`.
+- Live URL: [LifeIndex](https://shushengritian.github.io/LifeIndex/).
+- Linux proof: successful frozen sharp install, peers/static gates, 18 files / 84 unit/integration tests, 33 passed / 1 documented skipped browser checks, and production build using configured base `/LifeIndex`.
+- Deploy proof: `Deploy verified artifact` succeeded and returned the live URL. `Verify live Pages deployment` passed 9 checks and retained the documented single WebKit offline-reload skip.
+- Manual browser proof: live Today at 390 × 844 and Settings at 320 × 568 were inspected; Settings reported offline shell ready and no warning/error log was captured. This is not physical-iPhone evidence.
+- Before the M9 update transition, 0.1.1 adds explicit foreground/reconnect discovery; that new source requires its own complete gate and deployment evidence.
+
 ## 4. Live smoke gate
 
 Record the repository, commit SHA, workflow run, deployment URL, time, and result. At the live HTTPS URL verify:
 
-1. The response is successful and every JavaScript, CSS, manifest, icon, and worker request remains under the configured base URL.
+1. The response is successful, the rendered version matches the checked-out `package.json`, and every JavaScript, CSS, manifest, icon, and worker request remains under the configured base URL.
 2. Today is the default route; all five destinations and an invalid hash route behave as documented.
 3. `manifest.webmanifest` has the deployed `id`, `start_url`, and `scope`; the worker controls the same scope.
 4. Browser console has no application error and network requests contain no business/action fragment values.
