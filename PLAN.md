@@ -2,7 +2,7 @@
 
 **Status:** Active
 **Started:** 2026-09-03
-**Current checkpoint:** M8 — local CI/deployment preparation; GitHub decisions and authentication pending
+**Current checkpoint:** M8 — approved GitHub repository pushed and Pages source enabled; repairing clean-install CI before first live deployment
 **Source of truth:** `LifeIndex-Project-Baseline.md`
 
 ## Objective
@@ -26,7 +26,7 @@ The goal is complete only when all of the following are verified:
 - The repository began with one 523-line baseline document and no Git metadata or application code.
 - The product is a PWA for iPhone Safari/Home Screen, not a native SwiftUI app.
 - IndexedDB is the sole primary data store. No backend, login, sync, analytics, or external telemetry is allowed in V1.
-- GitHub Pages will host only the static app shell. Its public-access implications must be confirmed before remote creation.
+- GitHub Pages will host only the static app shell. The user created and pushed public `shushengritian/LifeIndex` and explicitly approved enabling its GitHub Actions Pages source on 2026-09-04. No project license has been selected; do not add one without the owner's decision.
 - Physical-device actions require user participation and cannot be substituted with simulator or desktop browser results.
 - Initial technical candidate: React + TypeScript + Vite, Dexie, Zod, a Workbox-backed PWA integration, Vitest, and Playwright. M2 ADRs will confirm or adjust this after a bounded comparison.
 - Default user-facing language is Chinese while the product name remains `LifeIndex`. Locale, currency, minimum iOS version, and GitHub visibility will be made explicit in product/architecture decisions.
@@ -139,9 +139,12 @@ The goal is complete only when all of the following are verified:
 ### M8 — GitHub and deployment
 
 - [ ] `in_progress` M8.1 Confirm owner, repository name, visibility, licensing intent, and acceptance of the Pages access model in one request.
-- [ ] `todo` M8.2 Create/configure the remote and push only reviewed source and documentation.
+  - Evidence: user-created public `shushengritian/LifeIndex`, successful user push, and explicit Pages-source authorization confirm the target and hosting route. License choice remains open; no MIT or other grant is inferred.
+- [x] `verified` M8.2 Create/configure the remote and push only reviewed source and documentation.
+  - Evidence: `origin` is `https://github.com/shushengritian/LifeIndex.git`; local `main` tracks `origin/main` at `7755346` with a clean worktree before the CI repair. GitHub run 33830831321 checked out that exact commit.
 - [ ] `in_progress` M8.3 Configure least-privilege CI and Pages deployment gated by successful checks.
-  - Local evidence: current official action contracts were reviewed and SHA-pinned; CI is content-read-only, Pages grants write/OIDC only to the dependent deploy job, frozen install/full quality/dual-engine gates precede artifact upload, and a read-only post-deploy job runs live Chromium/WebKit smoke. The deployed suite passes 9 checks with one documented WebKit-tool skip against both `/` and `/LifeIndex/`; remote execution remains pending.
+  - Local evidence: current official action contracts were reviewed and SHA-pinned; CI is content-read-only, Pages grants write/OIDC only to the dependent deploy job, frozen install/full quality/dual-engine gates precede artifact upload, and a read-only post-deploy job runs live Chromium/WebKit smoke. The deployed suite passes 9 checks with one documented WebKit-tool skip against both `/` and `/LifeIndex/`.
+  - Remote evidence: first run 33830831321 failed at frozen install (`ERR_PNPM_IGNORED_BUILDS`, sharp 0.33.5); tests and deploy were skipped, so local success did not prove CI reproducibility. Pages now confirms **GitHub Actions** as its saved source. The repaired exact-version approval passes a local frozen install from an empty separate pnpm store (542 downloaded packages, successful sharp install), peers, static gates, all 84 unit/integration tests, and production build; Linux CI/deployment still need verification.
 - [ ] `todo` M8.4 Inspect workflow evidence and validate the live subpath, assets, manifest, worker, console, mobile view, and offline reload.
 
 ### M9 — Physical iPhone and release
@@ -160,8 +163,9 @@ The goal is complete only when all of the following are verified:
 | R-003 | URL query actions can leak sensitive values to the host/history                   | Privacy breach                       | Prefer fragments; validate, deduplicate, scrub, and document any exception                |
 | R-004 | iOS suspends timers and JavaScript callbacks in the background                    | Incorrect focus duration             | Derive elapsed time from persisted timestamps and test resume/reload transitions          |
 | R-005 | Static Pages has no authentication                                                | App shell is accessible by URL       | Confirm this model before remote deployment; keep all records local and ship no user data |
-| R-006 | GitHub CLI is installed but not authenticated                                     | M8 remote work blocked               | Complete all local milestones first; request one account/visibility confirmation at M8    |
+| R-006 | GitHub CLI is unauthenticated, but Git push and the signed-in browser/connector work | CLI-only administration unavailable | Use existing authorized Git/browser/connector surfaces; do not copy tokens or require redundant login |
 | R-007 | Physical iPhone cannot be operated by the agent                                   | Final acceptance cannot be automated | Provide one concise test action at a time and require user confirmation before release    |
+| R-008 | Unreviewed dependency-install script blocked the first clean CI install | First deployment cannot proceed | Approve only the reviewed locked sharp version, retain fail-closed checks, and prove a clean frozen install |
 
 ## Decisions
 
@@ -193,12 +197,16 @@ The goal is complete only when all of the following are verified:
 - Closed the automated M6 gate with 75/75 Vitest checks and 25 passed / 1 documented WebKit-tool skip across 26 production-preview E2E scenarios; Chromium passes the complete offline reload path.
 - Completed M7 hardening with 84/84 Vitest checks, 33 passed / 1 documented WebKit-tool skip across 34 production-preview E2E scenarios, zero known production dependency vulnerabilities, privacy-safe artifacts, and verified root/project-path builds.
 - Found and fixed dark-theme primary-control contrast plus compact touch-target gaps during the M7 accessibility pass.
+- The user pushed the existing history and deployed-smoke commit `7755346` to public `shushengritian/LifeIndex` without rewriting history.
+- Enabled Pages with the user's explicit instruction and verified the saved GitHub Actions source through the signed-in browser.
+- Inspected the first remote run and isolated the clean-install failure to sharp's unresolved build-approval placeholder; no application deployment occurred.
+- Verified the sharp repair with a separate empty-store frozen install, all 84 unit/integration checks, production/PWA build, and 33 passed / 1 documented skipped browser checks on 2026-09-04.
 
 ## Next three actions
 
-1. Add least-privilege GitHub CI/Pages workflows and release/runbook documentation without creating a remote yet.
-2. Validate and commit the local workflow/runbook preparation.
-3. Ask once for GitHub owner/name/visibility/license/Pages approval and authentication, then create and verify the remote deployment.
+1. Repair the exact-version sharp install approval and verify clean frozen installation plus the full local gate.
+2. Commit/push the repair, inspect the complete Pages run, and verify the real deployed URL and mobile view.
+3. Complete owner license choice and user-performed iPhone acceptance; only then finalize and tag `v1.0.0`.
 
 ## Plan change log
 
@@ -217,3 +225,4 @@ The goal is complete only when all of the following are verified:
 | 2026-09-03 | Completed all five M5 vertical slices and introduced route-level lazy loading.                                          | Settings closes category and backup handoff workflows; 58 unit/integration checks and 16 dual-engine E2E checks pass while the production main chunk stays bounded. |
 | 2026-09-03 | Completed M6 implementation while deferring one WebKit automation gap to physical acceptance.                           | Install metadata, offline mutation, update safety, and URL Actions are automated; Playwright WebKit cannot perform offline reload, so M9 retains the real-device release gate. |
 | 2026-09-03 | Completed M7 local release hardening and advanced the checkpoint to M8.                                                  | Corruption, failure, volume, privacy, accessibility, compact-layout, dependency, root/subpath build, and dual-engine gates pass; only deployed and physical-device evidence remains. |
+| 2026-09-04 | Recorded the public GitHub push, approved Pages source, and first CI failure. | Remote evidence revealed an unresolved sharp install-script decision masked by the warm local environment; repair reproducibility before deployment, with no product-scope change. |

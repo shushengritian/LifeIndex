@@ -4,6 +4,10 @@ All notable LifeIndex changes will be documented here. The project follows Seman
 
 ## [Unreleased]
 
+### Fixed
+
+- Replaced the unresolved sharp install-script approval with a reviewed exact-version allowance while keeping strict dependency-build checks enabled for clean CI installs.
+
 ### Added
 
 - Product baseline and long-running V1 delivery plan.

@@ -2,7 +2,7 @@
 
 **Status:** Active
 
-**Last updated:** 2026-09-03
+**Last updated:** 2026-09-04
 
 ## 1. Quality objective
 
@@ -153,6 +153,12 @@ M8 CI runs equivalent frozen-lockfile commands and retains useful reports on fai
 - Local proof on 2026-09-03: both `http://127.0.0.1:4173/` and `http://127.0.0.1:4173/LifeIndex/` record 9 passed and one explicit Playwright WebKit offline-reload skip out of 10 scenarios.
 - Live HTTPS evidence remains pending until the approved repository is deployed; physical Safari evidence remains M9-only.
 
-## 10. Evidence recording
+## 12. Clean-install reproducibility
+
+- The first Linux CI attempt failed before tests because `sharp@0.33.5` had an unresolved pnpm build-script approval. This is recorded as a real release failure, not a flaky test.
+- The repair explicitly allows only the reviewed sharp version and keeps `strictDepBuilds: true`. On 2026-09-04, a temporary project with copied manifests/lockfile and an empty, separate pnpm store downloaded 542 platform-applicable packages and completed `pnpm install --frozen-lockfile`; the sharp install step completed successfully. No dependency or lockfile version changed.
+- After the repair, peers, formatting, zero-warning lint, strict TypeScript, all 18 files / 84 unit/integration tests, production/PWA build, and the 33-pass/1-documented-skip dual-engine browser gate pass locally. The GitHub Linux run must independently prove its clean install and complete gate before M8 closes.
+
+## 13. Evidence recording
 
 For each verified milestone, `PLAN.md` records commands/results and the corresponding commit. `REQUIREMENTS_TRACEABILITY.md` points to named test files rather than relying on an unqualified “tests passed.” M8/M9 operations guides record deployed and physical evidence separately.

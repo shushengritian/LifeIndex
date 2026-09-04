@@ -1,2 +1,5 @@
+strictDepBuilds: true
 allowBuilds:
-  sharp: set this to true or false
+  # The icon generator needs sharp's reviewed native-library install check.
+  # Limit approval to the locked release; new versions require another review.
+  sharp@0.33.5: true

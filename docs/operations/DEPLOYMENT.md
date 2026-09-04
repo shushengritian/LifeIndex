@@ -1,8 +1,8 @@
 # LifeIndex GitHub Pages Deployment Runbook
 
-**Status:** Local workflow ready; remote repository and live deployment pending owner approval
+**Status:** Approved public repository pushed; Pages source enabled; first successful deployment pending CI repair
 
-**Last reviewed:** 2026-09-03
+**Last reviewed:** 2026-09-04
 
 ## 1. Deployment contract
 
@@ -23,13 +23,19 @@ The Pages build reads `steps.pages.outputs.base_path` from GitHub's configuratio
 
 ## 3. One-time remote setup
 
-Do not run these steps until the user confirms the GitHub owner, repository name, visibility, license, and static-shell access model.
+Confirm the GitHub owner, repository name, visibility, and static-shell access model before remote publication. Do not invent a license grant; add a license only when the owner chooses one.
 
-1. Authenticate GitHub CLI with the intended account and verify it with `gh auth status`.
+Current instance: the user created the public [shushengritian/LifeIndex](https://github.com/shushengritian/LifeIndex) repository and pushed local `main` through commit `7755346` on 2026-09-04. The user then explicitly requested **GitHub Actions** as the Pages source; the settings page returned **GitHub Pages source saved.** The source is enabled and HTTPS is required for the default domain. A project license has not yet been selected, so no license file has been added. Git push and browser authentication work independently of `gh auth status`; GitHub CLI remains unauthenticated, and the connected GitHub tools/browser are available for workflow inspection/settings.
+
+1. Authenticate the chosen GitHub interface with the intended account. If using GitHub CLI, verify it with `gh auth status`; otherwise verify the signed-in browser or connector and use the existing Git credentials for pushing.
 2. Add the approved license, if any, before the first public push.
 3. Create the empty repository from this existing local history and set `origin` without rewriting commits.
 4. In **Settings → Pages → Build and deployment → Source**, select **GitHub Actions**. The normal workflow token intentionally does not have repository-administration permission to enable Pages itself.
 5. Push `main` and inspect the `Deploy GitHub Pages` run. Do not proceed after a skipped, canceled, or partially green run.
+
+### Initial CI installation incident
+
+[Run 33830831321](https://github.com/shushengritian/LifeIndex/actions/runs/33830831321) failed before tests or deployment because the sharp build decision was an unresolved pnpm placeholder. The log reported `ERR_PNPM_IGNORED_BUILDS` for `sharp@0.33.5`. Replace that placeholder with a reviewed, exact-version `allowBuilds` decision while retaining `strictDepBuilds: true`, verify a clean frozen install, and rerun the complete gate. Re-running the unchanged failed commit cannot fix this source configuration issue. No deployment from that run took place.
 
 ## 4. Live smoke gate
 

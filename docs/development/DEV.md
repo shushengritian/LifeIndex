@@ -2,7 +2,7 @@
 
 **Status:** Active
 
-**Last verified:** 2026-09-03
+**Last verified:** 2026-09-04
 
 ## 1. Prerequisites
 
@@ -21,6 +21,8 @@ pnpm dev
 ```
 
 Vite prints the local URL. The normal development server does not register the production service worker; PWA behavior is verified from a production build/preview.
+
+Dependency install scripts are fail-closed: `pnpm-workspace.yaml` keeps `strictDepBuilds: true` and explicitly approves only `sharp@0.33.5`, the locked native image dependency of the PWA icon generator. Its `install/check.js` checks whether a source build is requested or a global libvips is present; this script was reviewed before approval. Review the installation code again when upgrading sharp. Never commit pnpm's `set this to true or false` placeholders or disable script checks globally to make CI pass. Inspect the install log for `ERR_PNPM_IGNORED_BUILDS`; a warm local dependency tree is not evidence that a clean CI install succeeds.
 
 ## 3. Commands
 
