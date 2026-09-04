@@ -72,7 +72,38 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+
+  smoke:
+    name: Verify live Pages deployment
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install pinned pnpm, Node, and dependencies
+        uses: pnpm/setup@703c52620218391530e48b9e8870d5c0082e1b9b # v2.1.0
+        with:
+          version: 11.19.0
+          runtime: node@20.19.5
+          cache: true
+          require-lockfile: true
+
+      - name: Install deployed-smoke browser engines
+        run: pnpm exec playwright install --with-deps chromium webkit
+
+      - name: Run live base-path, privacy, persistence, and offline smoke
+        env:
+          LIFEINDEX_DEPLOYED_URL: ${{ needs.deploy.outputs.page_url }}
+        run: pnpm test:deployed

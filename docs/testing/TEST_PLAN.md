@@ -137,7 +137,21 @@ pnpm build
 pnpm test:e2e
 ```
 
+Deployed HTTPS gate after Pages reports its URL:
+
+```bash
+LIFEINDEX_DEPLOYED_URL=https://OWNER.github.io/REPOSITORY/ pnpm test:deployed
+```
+
 M8 CI runs equivalent frozen-lockfile commands and retains useful reports on failure without uploading personal data.
+
+## 11. M8 deployed-smoke preparation
+
+- The separate configuration rejects missing targets and insecure non-local HTTP origins before opening a browser.
+- The suite verifies the response, five routes and unknown-route fallback, axe result, manifest base fields/icons, exact worker scope, runtime errors, and unexpected failed requests.
+- Fresh ephemeral profiles prove synthetic Finance persistence without a backend, action-fragment network privacy, and offline mutation in Chromium/WebKit; Chromium additionally reloads the cached shell offline.
+- Local proof on 2026-09-03: both `http://127.0.0.1:4173/` and `http://127.0.0.1:4173/LifeIndex/` record 9 passed and one explicit Playwright WebKit offline-reload skip out of 10 scenarios.
+- Live HTTPS evidence remains pending until the approved repository is deployed; physical Safari evidence remains M9-only.
 
 ## 10. Evidence recording
 

@@ -141,7 +141,7 @@ The goal is complete only when all of the following are verified:
 - [ ] `in_progress` M8.1 Confirm owner, repository name, visibility, licensing intent, and acceptance of the Pages access model in one request.
 - [ ] `todo` M8.2 Create/configure the remote and push only reviewed source and documentation.
 - [ ] `in_progress` M8.3 Configure least-privilege CI and Pages deployment gated by successful checks.
-  - Local evidence: current official action contracts were reviewed; CI is content-read-only, Pages grants write/OIDC only to the dependent deploy job, frozen install/full quality/dual-engine gates precede artifact upload, and the configured Pages base path drives the final build. Remote execution remains pending.
+  - Local evidence: current official action contracts were reviewed and SHA-pinned; CI is content-read-only, Pages grants write/OIDC only to the dependent deploy job, frozen install/full quality/dual-engine gates precede artifact upload, and a read-only post-deploy job runs live Chromium/WebKit smoke. The deployed suite passes 9 checks with one documented WebKit-tool skip against both `/` and `/LifeIndex/`; remote execution remains pending.
 - [ ] `todo` M8.4 Inspect workflow evidence and validate the live subpath, assets, manifest, worker, console, mobile view, and offline reload.
 
 ### M9 — Physical iPhone and release

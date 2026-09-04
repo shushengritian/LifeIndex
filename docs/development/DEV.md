@@ -37,6 +37,7 @@ Vite prints the local URL. The normal development server does not register the p
 | `pnpm build`            | Type-check and create the production PWA artifact in `dist` |
 | `pnpm preview`          | Serve the built artifact locally                            |
 | `pnpm test:e2e`         | Run Chromium and Mobile Safari/WebKit Playwright tests      |
+| `pnpm test:deployed`    | Run the separate smoke suite against `LIFEINDEX_DEPLOYED_URL` |
 | `pnpm quality`          | Run the local non-E2E quality gate                          |
 
 Playwright browser binaries are version-coupled to the package. Install the required engines after dependency installation:
@@ -66,6 +67,7 @@ LIFEINDEX_BASE_PATH=/REPOSITORY-NAME/ pnpm build
 - `tests/unit`: pure functions and component contracts.
 - `tests/integration`: IndexedDB, repository, migration, and restore contracts.
 - `tests/e2e`: production-intent user journeys in Chromium and Mobile Safari/WebKit.
+- `tests/deployed`: read-only-host smoke plus ephemeral local-data checks against an explicit deployed URL.
 
 Do not create empty folders. Introduce each directory with its first owned implementation and test.
 

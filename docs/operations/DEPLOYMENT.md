@@ -15,9 +15,9 @@ The Pages URL may expose the application shell to anyone allowed by the selected
 | File                            | Trigger                                  | Authority                                      | Result                                                                  |
 | ------------------------------- | ---------------------------------------- | ---------------------------------------------- | ----------------------------------------------------------------------- |
 | `.github/workflows/ci.yml`      | Pull request, non-`main` push, manual    | Read repository contents                       | Frozen install, peers, full local gate, Chromium and WebKit checks      |
-| `.github/workflows/pages.yml`   | `main` push or manual                    | Build reads contents; deploy writes Pages/OIDC | Same full gate, configured-base build, artifact upload, gated deployment |
+| `.github/workflows/pages.yml`   | `main` push or manual                    | Build/smoke read contents; deploy writes Pages/OIDC | Same full gate, configured-base build, gated deployment, live smoke |
 
-The deployment job depends on the verification/build job, so it cannot publish a failed build. Checkout credentials are not persisted. No application secret is required. Reports and local data are not uploaded.
+The deployment job depends on the verification/build job, so it cannot publish a failed build. A final read-only job runs the separate deployed suite against the URL returned by `deploy-pages`; the workflow is not green until that live check passes. Checkout credentials are not persisted. No application secret is required. Reports and local data are not uploaded.
 
 The Pages build reads `steps.pages.outputs.base_path` from GitHub's configuration action and passes it to `LIFEINDEX_BASE_PATH`. This keeps HTML assets, manifest `id`/`start_url`/`scope`, icons, and service-worker scope aligned for project sites, user sites, or a future custom domain.
 
@@ -42,6 +42,10 @@ Record the repository, commit SHA, workflow run, deployment URL, time, and resul
 5. A synthetic Finance record survives refresh; no repository or artifact changes as a result.
 6. After one controlled online load, the application launches and reads that synthetic record with browser networking disabled, then writes another local synthetic record.
 7. A fresh browser profile starts empty, proving data is not served by Pages.
+
+The workflow automates these checks through `pnpm test:deployed` in ephemeral Chromium and Mobile Safari/WebKit profiles. Playwright WebKit's unsupported offline reload remains explicitly skipped, while offline mutation is exercised in both engines and full offline reload in Chromium. The operator still reviews the workflow evidence and live mobile view before M8 closes.
+
+The deployed suite was validated locally against both `/` and `/LifeIndex/` production previews on 2026-09-03: each target passed 9 scenarios with the one documented WebKit offline-reload skip. This proves the test harness and base-path logic locally; it is not evidence that a future GitHub URL is live.
 
 The live gate uses synthetic values only. Never upload or paste a real backup into CI, an issue, a workflow artifact, or a screenshot.
 

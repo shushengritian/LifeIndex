@@ -14,7 +14,8 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./tests/setup.ts'],
-    exclude: ['tests/e2e/**', 'node_modules/**', 'dist/**'],
+    // Browser suites own production preview and deployed targets; Vitest collects only unit/integration files.
+    exclude: ['tests/e2e/**', 'tests/deployed/**', 'node_modules/**', 'dist/**'],
     clearMocks: true,
     restoreMocks: true,
   },
