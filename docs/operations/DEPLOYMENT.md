@@ -1,6 +1,6 @@
 # LifeIndex GitHub Pages Deployment Runbook
 
-**Status:** 0.1.1 deployment and live gate verified; physical iPhone acceptance pending
+**Status:** Preparing owner-accepted v1.0.0; physical checks deferred under ADR-0005
 
 **Last reviewed:** 2026-09-04
 
@@ -47,7 +47,7 @@ Current instance: the user created the public [shushengritian/LifeIndex](https:/
 - Manual browser proof: live Today at 390 × 844 and Settings at 320 × 568 were inspected; Settings reported offline shell ready and no warning/error log was captured. This is not physical-iPhone evidence.
 - The subsequent 0.1.1 refinement adds explicit foreground/reconnect discovery; its separate evidence follows.
 
-### Current verified application — 0.1.1
+### Previously verified application — 0.1.1
 
 - Application source: `ff7d443db47fab2283031e58047c9e6396fb7913`.
 - Workflow: [33833052946](https://github.com/shushengritian/LifeIndex/actions/runs/33833052946), completed successfully at `2026-09-04T03:29:21Z`.
@@ -57,6 +57,8 @@ Current instance: the user created the public [shushengritian/LifeIndex](https:/
 - Later documentation-only commits do not change this application source or substitute for the recorded release evidence. Any runtime, dependency, build, or workflow change must pass the full gate again.
 
 ## 4. Live smoke gate
+
+The `v1.0.0` publication record is maintained in [the release handoff](../releases/v1.0.0.md). [ADR-0005](../adr/0005-v1-owner-acceptance.md) changes only the owner's physical-acceptance gate; all automated build/deploy/live checks below remain required. The release preserves schema/backup V1, the same URL, and the existing unselected license state.
 
 Record the repository, commit SHA, workflow run, deployment URL, time, and result. At the live HTTPS URL verify:
 

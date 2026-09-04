@@ -424,7 +424,7 @@ test('reloads the cached application shell and persisted data offline in Chromiu
   page,
   context,
 }, testInfo) => {
-  // Playwright WebKit currently raises an internal error on offline reload; physical Safari covers it in M9.
+  // WebKit cannot automate offline reload here; ADR-0005 defers the unverified physical check to PV1-03.
   test.skip(testInfo.project.name !== 'chromium', 'Offline WebKit reload is not automatable here')
   await page.goto('/#/finance')
   await page.evaluate(async () => {

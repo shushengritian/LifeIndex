@@ -1,6 +1,6 @@
 # LifeIndex PWA and iOS Shortcuts Guide
 
-**Status:** M6 implementation and automated verification complete; physical iPhone steps remain in M9
+**Status:** V1 implementation and automated verification complete; physical steps deferred by owner under ADR-0005
 
 **Last updated:** 2026-09-04
 
@@ -130,4 +130,4 @@ Never share an action URL containing real amounts, titles, notes, or local IDs i
 
 ## 7. Verification boundary
 
-Automated M6 evidence covers root and synthetic Pages-subpath builds, manifest/icon inspection, Cache Storage policy, explicit update/dirty-form components, all three action types, no-write preview, malformed input, stale references, atomic rollback, durable deduplication, fragment cleanup, dual-engine offline mutation, and Chromium offline reload. Playwright WebKit raises an internal error on offline `reload()`; real iPhone Safari/Home Screen launch, airplane mode, Files/iCloud, and installed update behavior remain mandatory M9 checks.
+Automated M6 evidence covers root and synthetic Pages-subpath builds, manifest/icon inspection, Cache Storage policy, explicit update/dirty-form components, all three action types, no-write preview, malformed input, stale references, atomic rollback, durable deduplication, fragment cleanup, dual-engine offline mutation, and Chromium offline reload. Playwright WebKit raises an internal error on offline `reload()`; real iPhone Home Screen launch, airplane mode, Files/iCloud, actual Shortcuts, and installed update behavior remain unverified. The owner deferred these checks for `v1.0.0` in [ADR-0005](../adr/0005-v1-owner-acceptance.md); the full steps remain in `IPHONE_ACCEPTANCE.md`.

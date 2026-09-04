@@ -109,4 +109,4 @@ The first shipped database schema is V1 and therefore has no predecessor databas
 - A source rollback deploys a prior known-good app artifact but does not downgrade or mutate IndexedDB automatically.
 - If new code cannot safely read an existing schema, stop the release and ship a forward-compatible fix; never instruct users to clear data as the default remedy.
 - `.github/workflows/ci.yml` owns pull-request and non-`main` branch evidence; `.github/workflows/pages.yml` repeats the full gate on `main` before publishing.
-- `docs/operations/DEPLOYMENT.md` is the remote setup, live smoke, and rollback runbook; `docs/operations/IPHONE_ACCEPTANCE.md` is the non-substitutable physical-device gate.
+- `docs/operations/DEPLOYMENT.md` is the remote setup, live smoke, and rollback runbook; `docs/operations/IPHONE_ACCEPTANCE.md` retains physical-only checks. ADR-0005 permits owner-accepted `v1.0.0` with those checks deferred, never marked passed. See `docs/releases/v1.0.0.md` and `docs/project/POST_V1_BACKLOG.md` for release scope and follow-ups.

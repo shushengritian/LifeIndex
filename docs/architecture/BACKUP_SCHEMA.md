@@ -4,7 +4,7 @@
 
 **Current format version:** 1
 
-**Status:** Automated data and browser handoff flows implemented; physical iPhone Files/iCloud acceptance remains for M9
+**Status:** Automated data and browser handoff flows implemented; physical Files/iCloud acceptance deferred by owner for v1.0.0 under ADR-0005, not passed
 
 ## 1. File naming and media type
 

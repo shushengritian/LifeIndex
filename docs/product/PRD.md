@@ -4,11 +4,11 @@
 
 **Tagline:** Index your life.
 
-**Status:** Implementation baseline
+**Status:** Owner-accepted V1 baseline; physical-test exception recorded in ADR-0005
 
-**Version:** 1.0-draft
+**Version:** 1.0
 
-**Date:** 2026-09-03
+**Date:** 2026-09-04
 
 **Source:** `LifeIndex-Project-Baseline.md`
 
@@ -229,7 +229,7 @@ V1 is releasable only when:
 - No open severity-1 data loss/privacy issue or severity-2 core-workflow issue remains.
 - Full local and GitHub CI gates pass from a clean checkout.
 - GitHub Pages passes online, reload, mobile, manifest, service-worker, and offline smoke checks.
-- The user completes the physical-iPhone installation, persistence, airplane-mode, export, and restore checklist.
+- The user completes the physical-iPhone checklist or explicitly approves a documented release exception. For `v1.0.0`, [ADR-0005](../adr/0005-v1-owner-acceptance.md) records the owner's acceptance of current delivery and deferral of unfinished physical checks; only phone-browser opening is confirmed.
 
 ## 11. Decision checkpoints
 
@@ -241,5 +241,5 @@ Resolved in M2:
 
 Still open by named milestone:
 
-- M8: GitHub owner, repository name, visibility, licensing intent, and acceptance that the static app shell is addressable from its Pages URL.
-- M9: user's actual iPhone/iOS version and final compatibility result.
+- M8: public `shushengritian/LifeIndex` and GitHub Actions Pages are owner-approved. No project license has been selected or added; the administrative decision remains PV1-07.
+- M9: owner's V1 delivery acceptance is recorded in ADR-0005; device/iOS details and the full compatibility result remain explicitly deferred in PV1-01–06, not verified.

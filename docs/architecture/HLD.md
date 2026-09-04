@@ -257,4 +257,4 @@ No production event contains a business entity ID, amount, note, title, habit na
 - Repository integration: Dexie over `fake-indexeddb`, transactions, indexes, restore rollback.
 - Production E2E: Chromium for broad feedback and Mobile Safari/WebKit for primary compatibility.
 - Deployed smoke: base path, manifest, worker, reload, offline.
-- Physical acceptance: user's actual iPhone; required before `v1.0.0`.
+- Physical acceptance: user's actual iPhone; deferred for owner-accepted `v1.0.0` by [ADR-0005](../adr/0005-v1-owner-acceptance.md), not substituted with automated evidence. The checklist remains a post-V1 follow-up.

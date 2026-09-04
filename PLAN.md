@@ -2,12 +2,12 @@
 
 **Status:** Active
 **Started:** 2026-09-03
-**Current checkpoint:** 0.1.1 live and fully gated; awaiting physical-iPhone acceptance and owner's license decision before v1.0.0
+**Current checkpoint:** Owner accepted V1 with explicit physical-test deferral; preparing verified v1.0.0 publication
 **Source of truth:** `LifeIndex-Project-Baseline.md`
 
 ## Objective
 
-Deliver a tested, documented, local-first LifeIndex V1 as an installable iPhone PWA, deploy its static application shell through GitHub Pages, and complete a user-confirmed physical-iPhone acceptance pass before tagging `v1.0.0`.
+Deliver a tested, documented, local-first LifeIndex V1 as an installable iPhone PWA and deploy its static application shell through GitHub Pages. On 2026-09-04 the owner explicitly accepted the current delivery, deferred unfinished physical-iPhone checks, and authorized `v1.0.0` publication and goal closure after final automated checks. [ADR-0005](docs/adr/0005-v1-owner-acceptance.md) supersedes the original pre-release physical gate for this release only.
 
 ## Definition of Done
 
@@ -18,7 +18,7 @@ The goal is complete only when all of the following are verified:
 - Finance, Habits, Focus, Today, Settings, IndexedDB persistence, migration, backup/restore, offline app shell, and safe URL Actions meet their acceptance criteria.
 - Formatting, linting, type checking, automated tests, production build, mobile WebKit E2E checks, and deployed smoke checks pass.
 - The approved GitHub repository, CI workflow, and GitHub Pages deployment are live.
-- The user confirms installation, persistence, offline use, and backup/restore on their physical iPhone.
+- The owner's V1 acceptance and explicit physical-check deferral are recorded accurately. Only phone-browser opening is user-confirmed; other physical results remain unverified in the follow-up register.
 - Final documents, changelog, traceability evidence, tag `v1.0.0`, and release handoff are complete.
 
 ## Baseline and current assumptions
@@ -28,6 +28,7 @@ The goal is complete only when all of the following are verified:
 - IndexedDB is the sole primary data store. No backend, login, sync, analytics, or external telemetry is allowed in V1.
 - GitHub Pages will host only the static app shell. The user created and pushed public `shushengritian/LifeIndex` and explicitly approved enabling its GitHub Actions Pages source on 2026-09-04. No project license has been selected; do not add one without the owner's decision.
 - Physical-device actions require user participation and cannot be substituted with simulator or desktop browser results.
+- The owner answered “接受” to accepting current delivery, deferring uncompleted physical tests, and publishing `v1.0.0` after documentation and automated checks. This is an accepted release exception, not a passed test. Unselected licensing remains unchanged with no license grant added.
 - Initial technical candidate: React + TypeScript + Vite, Dexie, Zod, a Workbox-backed PWA integration, Vitest, and Playwright. M2 ADRs will confirm or adjust this after a bounded comparison.
 - Default user-facing language is Chinese while the product name remains `LifeIndex`. Locale, currency, minimum iOS version, and GitHub visibility will be made explicit in product/architecture decisions.
 
@@ -41,7 +42,7 @@ The goal is complete only when all of the following are verified:
 | M3  | Engineering scaffold and DEV workflow     | verified    | Reproducible install, checks, build, local preview, and CI-ready scripts               |
 | M4  | IndexedDB, migrations, backup/restore     | verified    | Migration and transactional backup round-trip tests pass                               |
 | M5  | Finance, Habits, Focus, Today, Settings   | verified    | Each vertical slice passes its mapped unit, integration, and E2E checks                |
-| M6  | PWA, offline, iPhone polish, URL Actions  | in_progress | Installability, offline app shell, update flow, and action safety verified             |
+| M6  | PWA, offline, iPhone polish, URL Actions  | accepted_with_deferral | Automated evidence retained; remaining physical checks deferred by ADR-0005 |
 | M7  | Data-safety and release hardening         | verified    | Full local quality gate and production smoke suite pass                                |
 | M8  | GitHub, CI, GitHub Pages                  | in_progress | User-approved remote exists; CI and deployment are green; live URL passes smoke checks |
 | M9  | Physical iPhone acceptance and V1 release | in_progress | User confirms checklist; final gate passes; `v1.0.0` and handoff complete              |
@@ -124,7 +125,7 @@ The goal is complete only when all of the following are verified:
   - Evidence: custom precache contains only allowlisted static paths; real connectivity status uses a body-free same-origin HEAD probe; update activation requires a user click and is disabled while any registered form/backup draft is dirty.
 - [x] `verified` M6.3 Implement validated, idempotent URL Actions using fragments by default; document any compatibility exception.
   - Evidence: all three action types strictly parse fragment-local fields, preview without writes, revalidate references, atomically write entity plus receipt, deduplicate, and scrub routes; 13 parser/service checks and dual-engine E2E flows pass.
-- [ ] `in_progress` M6.4 Verify iPhone-sized input, touch, WebKit, offline, refresh, and update behavior.
+- [ ] `deferred_by_owner` M6.4 Complete physical input, touch, offline, refresh, and update verification in PV1-01–06; not a passed test.
   - Current evidence: Mobile Safari/WebKit passes navigation, CRUD, backup, manifest, all action flows, and offline mutation/persistence; Chromium passes full offline shell reload and mutation. Playwright WebKit raises an internal error on offline reload, so installed iPhone Safari airplane-mode reload and update activation remain an explicit M9 device gate.
 
 ### M7 — Hardening
@@ -138,8 +139,8 @@ The goal is complete only when all of the following are verified:
 
 ### M8 — GitHub and deployment
 
-- [ ] `in_progress` M8.1 Confirm owner, repository name, visibility, licensing intent, and acceptance of the Pages access model in one request.
-  - Evidence: user-created public `shushengritian/LifeIndex`, successful user push, and explicit Pages-source authorization confirm the target and hosting route. License choice remains open; no MIT or other grant is inferred.
+- [x] `recorded` M8.1 Record approved owner/repository/public Pages model and unchanged, unselected licensing status; PV1-07 retains the owner's future decision.
+  - Evidence: user-created public `shushengritian/LifeIndex`, successful user push, and explicit Pages-source authorization confirm the target and hosting route. License choice remains open; no MIT or other grant is inferred. V1 closure preserves this state rather than adding a license without approval.
 - [x] `verified` M8.2 Create/configure the remote and push only reviewed source and documentation.
   - Evidence: `origin` is `https://github.com/shushengritian/LifeIndex.git`; local `main` tracks `origin/main` at `7755346` with a clean worktree before the CI repair. GitHub run 33830831321 checked out that exact commit.
 - [x] `verified` M8.3 Configure least-privilege CI and Pages deployment gated by successful checks.
@@ -151,10 +152,9 @@ The goal is complete only when all of the following are verified:
 
 ### M9 — Physical iPhone and release
 
-- [ ] `in_progress` M9.1 Guide the user through install, standalone launch, CRUD persistence, airplane-mode use, and update checks.
-  - The user has been given the live URL and first installation/navigation action; device model, iOS version, and result await their response. The installed update test must start on 0.1.1+ and receive a distinct verified build.
-- [ ] `todo` M9.2 Guide a test-data-only Files/iCloud export and restore round trip plus valid/invalid URL Actions.
-- [ ] `todo` M9.3 Fix observed defects and repeat affected checks until the user confirms acceptance.
+- [x] `accepted_with_deferral` M9.1 Record owner acceptance: phone-browser opening confirmed; installation and further physical checks explicitly deferred under ADR-0005.
+- [ ] `deferred_by_owner` M9.2 Files/iCloud restore and real Shortcuts checks retained in PV1-04–05; no pass is claimed.
+- [ ] `deferred_by_owner` M9.3 Remaining physical verification and any resulting fixes move to PV1-01–06 when the owner resumes them. This does not waive a known critical defect.
 - [ ] `todo` M9.4 Update final documentation, run the full gate, ensure a clean worktree, push, tag `v1.0.0`, and prepare release handoff.
 
 ## Risks and blockers
@@ -169,11 +169,13 @@ The goal is complete only when all of the following are verified:
 | R-006 | GitHub CLI is unauthenticated, but Git push and the signed-in browser/connector work | CLI-only administration unavailable | Use existing authorized Git/browser/connector surfaces; do not copy tokens or require redundant login |
 | R-007 | Physical iPhone cannot be operated by the agent                                   | Final acceptance cannot be automated | Provide one concise test action at a time and require user confirmation before release    |
 | R-008 | New dependency versions can introduce unreviewed install scripts | Future CI installs may stop | Current sharp incident resolved by exact-version approval and verified Linux runs; retain fail-closed checks and review upgrades |
+| R-009 | Owner accepted V1 before full physical-device verification | Device-only issues may remain undetected | Explicit ADR-0005 exception, PV1-01–06 follow-ups, retained automated gates, independent backups; never label deferred checks passed |
 
 ## Decisions
 
 - No architecture decisions are final until their ADR is written in M2.
 - The baseline architecture and product non-goals are already approved and do not require a new ADR.
+- ADR-0005 records the owner's later acceptance-gate change. Database/backup remain V1; future ideas are not authorized work until separately requested.
 
 ## Recently completed
 
@@ -208,12 +210,13 @@ The goal is complete only when all of the following are verified:
 - Identified a gap between the installed-update checklist and startup-only discovery; 0.1.1 adds guarded foreground/reconnect discovery without changing the activation/dirty-form contract.
 - Verified 0.1.1 locally with 19 test files / 92 tests and 33 passed / 1 documented skipped browser checks. Added an exact candidate-version assertion to deployed smoke to distinguish the new release from a healthy cached predecessor.
 - Verified 0.1.1 in complete GitHub run 33833052946 (including 9 live checks / 1 documented skip) and manually exercised the explicit dirty-form-safe browser upgrade from 0.1.0. No physical-device result is inferred.
+- Recorded the owner's phone-browser opening feedback and explicit acceptance of V1 with deferred physical checks. Prepared version-only `1.0.0`, release notes, and named post-V1 follow-ups without altering storage or runtime business logic.
 
 ## Next three actions
 
-1. Record the owner's license choice and actual iPhone model/iOS plus install/navigation result; these questions have been sent and await user input.
-2. Guide physical persistence, airplane-mode relaunch/write, Files/iCloud backup/restore, and valid/invalid Shortcuts with synthetic data only.
-3. After the user has installed 0.1.1+, deploy a distinct verified build for the installed-update transition; only after all physical checks pass finalize and tag `v1.0.0`.
+1. Run the final local and remote automated gates for `1.0.0` and verify its exact live version.
+2. Record final evidence, create/push `v1.0.0` and its GitHub Release, and verify repository hygiene.
+3. Close this delivery goal. Do not begin new feature work; the owner will provide later version ideas. Deferred checks remain in `docs/project/POST_V1_BACKLOG.md`.
 
 ## Plan change log
 
@@ -235,3 +238,4 @@ The goal is complete only when all of the following are verified:
 | 2026-09-04 | Recorded the public GitHub push, approved Pages source, and first CI failure. | Remote evidence revealed an unresolved sharp install-script decision masked by the warm local environment; repair reproducibility before deployment, with no product-scope change. |
 | 2026-09-04 | Verified first Pages deployment and added 0.1.1 update-discovery work before M9 sign-off. | All remote gates pass for 0.1.0, but a long-lived installed app needs foreground/reconnect checks to discover later releases predictably; activation remains explicit. |
 | 2026-09-04 | Verified the 0.1.1 deployment and a real browser upgrade; advanced to user-performed M9 checks. | Linux, live HTTPS, candidate version, and dirty-form activation evidence now pass; iPhone and licensing decisions remain user-owned and unverified. |
+| 2026-09-04 | Owner explicitly accepted V1 and deferred uncompleted physical checks; formal release preparation started. | ADR-0005 updates the acceptance gate transparently. Keep all automated gates and evidence limits; do not claim physical pass or change database schema. |

@@ -145,7 +145,7 @@ test('reloads the deployed cached shell offline in Chromium', async ({
   page,
   context,
 }, testInfo) => {
-  // Playwright WebKit still throws internally on offline reload; physical iPhone remains the release gate.
+  // WebKit cannot automate offline reload here; ADR-0005 defers PV1-03 without counting this skip as a pass.
   test.skip(
     testInfo.project.name !== 'deployed-chromium',
     'Offline WebKit reload is not automatable here',

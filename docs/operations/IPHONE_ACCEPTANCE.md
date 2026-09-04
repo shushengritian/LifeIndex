@@ -1,8 +1,10 @@
 # LifeIndex V1 Physical iPhone Acceptance
 
-**Status:** 0.1.1 live gate passed; user installation and device details requested; no physical result confirmed yet
+**Status:** Phone-browser opening confirmed; remaining checks deferred by the owner for v1.0.0 under ADR-0005
 
 **Last updated:** 2026-09-04
+
+The owner explicitly accepted current V1 delivery and deferred unfinished physical checks. This checklist is retained for [post-V1 follow-up](../project/POST_V1_BACKLOG.md), not recorded as passed. See [ADR-0005](../adr/0005-v1-owner-acceptance.md). Device/iOS details, Home Screen installation, persistence, offline, Files restore, actual Shortcuts, and the physical two-version update transition are still unverified.
 
 ## 1. Evidence header
 
@@ -16,7 +18,8 @@ Complete this header during M9. Do not record device identifiers, Apple ID, or p
 | Deployed commit SHA   | TBD    |
 | Pages URL             | https://shushengritian.github.io/LifeIndex/ |
 | Installed/standalone  | TBD    |
-| Final result          | TBD    |
+| Phone-browser opening | User confirmed on 2026-09-04 |
+| Final result          | V1 delivery accepted; full physical checklist deferred, not passed |
 
 ## 2. Safety rules
 
@@ -93,4 +96,4 @@ Pass condition: updates are explicit, dirty work is protected, and persisted dat
 
 ## 9. Release sign-off
 
-Record each section as pass/fail with a short synthetic-only note. M6.4, M9, and `v1.0.0` remain blocked until the user explicitly confirms sections 3–8 on the physical iPhone. Automated Chromium/WebKit evidence must not be substituted for this sign-off.
+Record each section as pass/fail only after the user executes it, with a short synthetic-only note. ADR-0005 explicitly permits `v1.0.0` closure without completing sections 3–8; their results remain deferred in PV1-01–06. This is owner acceptance of a verification limitation, not a physical sign-off. Automated Chromium/WebKit evidence must never be substituted for actual device results.

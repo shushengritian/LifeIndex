@@ -2,14 +2,14 @@
 
 **Status:** Active
 
-**Last reviewed:** 2026-09-03
+**Last reviewed:** 2026-09-04
 
-Likelihood and impact use `low`, `medium`, and `high`. Release-blocking risks remain open until their mitigation has verified evidence.
+Likelihood and impact use `low`, `medium`, and `high`. Release-blocking risks remain open until mitigation has verified evidence or the owner explicitly accepts a scoped release exception. ADR-0005 accepts deferred physical-device evidence for `v1.0.0`; it does not waive a known critical data-loss/privacy defect. Unverified device behavior remains PV1-01–06, and licensing remains PV1-07 without adding a grant.
 
 | ID    | Risk                                                                                            | Likelihood | Impact | Mitigation and verification                                                                                                          | Owner           | Status |
 | ----- | ----------------------------------------------------------------------------------------------- | ---------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------ | --------------- | ------ |
 | R-001 | Safari data is removed by website-data clearing, app removal, device loss, or storage pressure. | medium     | high   | First-class export/restore, explicit durability copy, last-export status, fixture/round-trip tests, physical Files/iCloud flow.      | Product/Data    | open   |
-| R-002 | A schema upgrade corrupts or silently drops years of records.                                   | medium     | high   | Versioned Dexie migrations, V0 fixture upgrade, schema tests, backup-before-risk guidance, no destructive change without migration.  | Data            | mitigated |
+| R-002 | A future schema upgrade corrupts or silently drops years of records. | medium | high | Database remains V1 in this release. Backup V0 fixture conversion is separate, not proof of database upgrades. Future schema changes require tested migration/rollback and independent backups. | Data | open for future schema changes |
 | R-003 | Restore clears valid current data before an invalid backup is fully processed.                  | medium     | high   | M7 verifies malformed/future/corrupted rejection before mutation plus forced transactional rollback and unchanged-data assertions.   | Data            | mitigated |
 | R-004 | GitHub Pages subpath breaks routes, assets, manifest start URL, or worker scope.                | medium     | high   | Base-path-aware config, hash routing candidate, artifact inspection, deployed online/offline/reload smoke suite.                     | Platform        | open   |
 | R-005 | Sensitive URL query values reach GitHub or browser/network logs.                                | medium     | high   | Fragment-only fields, strict allowlist, preview, route replacement, and M7 request/console capture prove payloads remain local.       | Security        | mitigated |
@@ -21,7 +21,7 @@ Likelihood and impact use `low`, `medium`, and `high`. Release-blocking risks re
 | R-011 | Accessibility or compact-screen defects block daily use on iPhone.                              | medium     | medium | 320 px layouts, 44 px targets, system fonts, WebKit E2E, automated accessibility and physical-device review.                         | UX/Test         | open   |
 | R-012 | Dependency or browser support changes during a long-lived project.                              | medium     | medium | Lockfile, bounded dependency set, documented browser floor, CI, deliberate upgrade/migration commits.                                | Engineering     | open   |
 | R-013 | GitHub account/authentication is unavailable at deployment time.                                | high       | medium | Complete and verify all local milestones first; request one consolidated auth/repository decision at M8.                             | Release/User    | open   |
-| R-014 | Automated browser evidence is mistaken for physical-iPhone acceptance.                          | medium     | high   | Separate M9 checklist; require user-reported results before `v1.0.0`.                                                                | Test/User       | open   |
+| R-014 | Automated browser evidence is mistaken for physical-iPhone acceptance. | medium | high | Separate device checklist and explicit ADR-0005 owner-approved deferral; only phone-browser opening is confirmed. PV1-01–06 remain unverified. | Test/User | accepted deferral; evidence boundary retained |
 
 ## Severity rules
 

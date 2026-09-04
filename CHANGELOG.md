@@ -4,6 +4,16 @@ All notable LifeIndex changes will be documented here. The project follows Seman
 
 ## [Unreleased]
 
+No post-V1 feature work is authorized yet.
+
+## [1.0.0] - 2026-09-04
+
+### Release acceptance
+
+- Owner accepted the current V1 delivery and explicitly deferred unfinished physical-iPhone checks under ADR-0005. Phone-browser opening is confirmed; full device acceptance is not claimed.
+- Promoted application metadata from 0.1.1 to 1.0.0 without changing business logic, dependencies, database schema V1, or backup format V1.
+- Archived release guidance and named follow-ups; retained every automated release gate and the documented WebKit offline-reload skip.
+
 ### Fixed
 
 - Replaced the unresolved sharp install-script approval with a reviewed exact-version allowance while keeping strict dependency-build checks enabled for clean CI installs.

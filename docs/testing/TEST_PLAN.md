@@ -8,7 +8,7 @@
 
 Prove that LifeIndex preserves private local data and core daily workflows across normal use, validation failures, iOS-style suspension/reload, offline operation, upgrades, and backup recovery.
 
-Automation is evidence, not a substitute for physical-iPhone acceptance.
+Automation is evidence, not a substitute for physical-iPhone acceptance. For `v1.0.0`, [ADR-0005](../adr/0005-v1-owner-acceptance.md) records the owner's explicit acceptance of current delivery with uncompleted physical checks deferred. The later release exception supersedes earlier references to a blocking M9 gate, but does not turn any pending test into a pass or waive automated checks. Named follow-ups remain in `docs/project/POST_V1_BACKLOG.md`.
 
 ## 2. Test layers
 

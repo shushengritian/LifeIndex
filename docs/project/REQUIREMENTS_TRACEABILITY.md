@@ -6,6 +6,8 @@
 
 This matrix connects approved product requirements to design, implementation, and verification evidence. `TBD` is intentional before the corresponding milestone; it must be replaced by a real file, test, or accepted exception before V1 release.
 
+For `v1.0.0`, physical-evidence gaps below are accepted **deferrals**, not verified tests: [ADR-0005](../adr/0005-v1-owner-acceptance.md) records the owner's explicit approval and [POST_V1_BACKLOG.md](POST_V1_BACKLOG.md) names PV1-01–06. Final version-specific automated evidence belongs in [the release handoff](../releases/v1.0.0.md). Phone-browser opening is the only user-confirmed device result.
+
 | Requirement group    | Product evidence           | Design evidence                                                                           | Planned implementation                        | Planned verification                                              | Status               |
 | -------------------- | -------------------------- | ----------------------------------------------------------------------------------------- | --------------------------------------------- | ----------------------------------------------------------------- | -------------------- |
 | APP-001–004          | `docs/product/PRD.md` §6.1 | IA §§1–2, 10; HLD §§3–5; LLD §§1–2, 13                                                    | `src/app`, routing, initialization boundary   | `tests/unit/app.test.tsx`; `tests/e2e/app-shell.spec.ts`          | foundation verified  |
