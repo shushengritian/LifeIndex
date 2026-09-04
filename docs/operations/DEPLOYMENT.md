@@ -1,6 +1,6 @@
 # LifeIndex GitHub Pages Deployment Runbook
 
-**Status:** First deployment and live gate verified; 0.1.1 foreground-update refinement in progress; physical iPhone acceptance pending
+**Status:** 0.1.1 deployment and live gate verified; physical iPhone acceptance pending
 
 **Last reviewed:** 2026-09-04
 
@@ -45,7 +45,16 @@ Current instance: the user created the public [shushengritian/LifeIndex](https:/
 - Linux proof: successful frozen sharp install, peers/static gates, 18 files / 84 unit/integration tests, 33 passed / 1 documented skipped browser checks, and production build using configured base `/LifeIndex`.
 - Deploy proof: `Deploy verified artifact` succeeded and returned the live URL. `Verify live Pages deployment` passed 9 checks and retained the documented single WebKit offline-reload skip.
 - Manual browser proof: live Today at 390 × 844 and Settings at 320 × 568 were inspected; Settings reported offline shell ready and no warning/error log was captured. This is not physical-iPhone evidence.
-- Before the M9 update transition, 0.1.1 adds explicit foreground/reconnect discovery; that new source requires its own complete gate and deployment evidence.
+- The subsequent 0.1.1 refinement adds explicit foreground/reconnect discovery; its separate evidence follows.
+
+### Current verified application — 0.1.1
+
+- Application source: `ff7d443db47fab2283031e58047c9e6396fb7913`.
+- Workflow: [33833052946](https://github.com/shushengritian/LifeIndex/actions/runs/33833052946), completed successfully at `2026-09-04T03:29:21Z`.
+- Same live URL: [LifeIndex](https://shushengritian.github.io/LifeIndex/).
+- All install/static/build gates pass, with 19 files / 92 unit/integration tests, 33 browser passes / 1 documented skip, and 9 live passes / 1 documented skip. The live test asserts version 0.1.1, not just page availability.
+- Manual browser transition: retained a 0.1.0 session, reopened online to discover the waiting worker, entered one unsaved synthetic amount, verified `立即更新` became disabled, canceled the draft, confirmed update, and observed 0.1.1 with the empty transaction state preserved. No test record was saved and no personal data was used. Physical installed-Safari update behavior still requires M9.
+- Later documentation-only commits do not change this application source or substitute for the recorded release evidence. Any runtime, dependency, build, or workflow change must pass the full gate again.
 
 ## 4. Live smoke gate
 
@@ -61,7 +70,7 @@ Record the repository, commit SHA, workflow run, deployment URL, time, and resul
 
 The workflow automates these checks through `pnpm test:deployed` in ephemeral Chromium and Mobile Safari/WebKit profiles. Playwright WebKit's unsupported offline reload remains explicitly skipped, while offline mutation is exercised in both engines and full offline reload in Chromium. The operator still reviews the workflow evidence and live mobile view before M8 closes.
 
-The deployed suite was validated locally against both `/` and `/LifeIndex/` production previews on 2026-09-03: each target passed 9 scenarios with the one documented WebKit offline-reload skip. This proves the test harness and base-path logic locally; it is not evidence that a future GitHub URL is live.
+The deployed suite was validated locally against both `/` and `/LifeIndex/` production previews on 2026-09-03: each target passed 9 scenarios with the documented WebKit offline-reload skip. The real HTTPS evidence is recorded separately above; it must not be inferred from local preview results.
 
 The live gate uses synthetic values only. Never upload or paste a real backup into CI, an issue, a workflow artifact, or a screenshot.
 

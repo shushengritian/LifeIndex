@@ -2,7 +2,7 @@
 
 **Status:** Active
 **Started:** 2026-09-03
-**Current checkpoint:** First Pages deployment verified; preparing 0.1.1 foreground-update refinement and physical-iPhone acceptance
+**Current checkpoint:** 0.1.1 live and fully gated; awaiting physical-iPhone acceptance and owner's license decision before v1.0.0
 **Source of truth:** `LifeIndex-Project-Baseline.md`
 
 ## Objective
@@ -44,7 +44,7 @@ The goal is complete only when all of the following are verified:
 | M6  | PWA, offline, iPhone polish, URL Actions  | in_progress | Installability, offline app shell, update flow, and action safety verified             |
 | M7  | Data-safety and release hardening         | verified    | Full local quality gate and production smoke suite pass                                |
 | M8  | GitHub, CI, GitHub Pages                  | in_progress | User-approved remote exists; CI and deployment are green; live URL passes smoke checks |
-| M9  | Physical iPhone acceptance and V1 release | todo        | User confirms checklist; final gate passes; `v1.0.0` and handoff complete              |
+| M9  | Physical iPhone acceptance and V1 release | in_progress | User confirms checklist; final gate passes; `v1.0.0` and handoff complete              |
 
 ## Work breakdown
 
@@ -142,12 +142,12 @@ The goal is complete only when all of the following are verified:
   - Evidence: user-created public `shushengritian/LifeIndex`, successful user push, and explicit Pages-source authorization confirm the target and hosting route. License choice remains open; no MIT or other grant is inferred.
 - [x] `verified` M8.2 Create/configure the remote and push only reviewed source and documentation.
   - Evidence: `origin` is `https://github.com/shushengritian/LifeIndex.git`; local `main` tracks `origin/main` at `7755346` with a clean worktree before the CI repair. GitHub run 33830831321 checked out that exact commit.
-- [ ] `in_progress` M8.3 Configure least-privilege CI and Pages deployment gated by successful checks.
+- [x] `verified` M8.3 Configure least-privilege CI and Pages deployment gated by successful checks.
   - Local evidence: current official action contracts were reviewed and SHA-pinned; CI is content-read-only, Pages grants write/OIDC only to the dependent deploy job, frozen install/full quality/dual-engine gates precede artifact upload, and a read-only post-deploy job runs live Chromium/WebKit smoke. The deployed suite passes 9 checks with one documented WebKit-tool skip against both `/` and `/LifeIndex/`.
-  - Remote evidence: first run 33830831321 failed at frozen install (`ERR_PNPM_IGNORED_BUILDS`, sharp 0.33.5); tests and deploy were skipped, so local success did not prove CI reproducibility. Pages now confirms **GitHub Actions** as its saved source. The repaired exact-version approval passes a local frozen install from an empty separate pnpm store (542 downloaded packages, successful sharp install), peers, static gates, all 84 unit/integration tests, and production build; Linux CI/deployment still need verification.
-  - First green run: 33832099931 deployed `60b0676` (0.1.0) and passed the full Linux gate plus 9 live checks / 1 documented skip at `https://shushengritian.github.io/LifeIndex/`. The next 0.1.1 update-discovery refinement must pass the same release path.
-- [ ] `in_progress` M8.4 Inspect workflow evidence and validate the live subpath, assets, manifest, worker, console, mobile view, and offline reload.
-  - Evidence: first live HTTPS suite passes; manual browser inspection covers 390 × 844 Today and 320 × 568 Settings, which reports offline shell ready. Repeat affected checks for 0.1.1; physical Safari is not yet verified.
+  - Incident and repair evidence: first run 33830831321 failed at frozen install (`ERR_PNPM_IGNORED_BUILDS`, sharp 0.33.5). The exact-version script approval passes a local empty-store frozen install and both later complete Linux runs. Pages confirms **GitHub Actions** as its saved source.
+  - First green run: 33832099931 deployed `60b0676` (0.1.0). Current application run [33833052946](https://github.com/shushengritian/LifeIndex/actions/runs/33833052946) deployed `ff7d443` (0.1.1) and completed successfully at `2026-09-04T03:29:21Z`: 19 files / 92 unit/integration tests, 33 browser checks / 1 documented skip, and 9 live checks / 1 documented skip including exact app-version validation.
+- [x] `verified` M8.4 Inspect workflow evidence and validate the live subpath, assets, manifest, worker, console, mobile view, and offline reload.
+  - Evidence: `https://shushengritian.github.io/LifeIndex/` passes the 0.1.1 live suite. Manual browser inspection covers 390 × 844 Today and 320 × 568 Settings/offline-shell readiness; a real 0.1.0-to-0.1.1 browser transition verifies the waiting prompt, dirty-form disabled state, canceled draft, explicit activation, and final version without creating a record. This does not prove physical Safari acceptance.
 
 ### M9 — Physical iPhone and release
 
@@ -168,7 +168,7 @@ The goal is complete only when all of the following are verified:
 | R-005 | Static Pages has no authentication                                                | App shell is accessible by URL       | Confirm this model before remote deployment; keep all records local and ship no user data |
 | R-006 | GitHub CLI is unauthenticated, but Git push and the signed-in browser/connector work | CLI-only administration unavailable | Use existing authorized Git/browser/connector surfaces; do not copy tokens or require redundant login |
 | R-007 | Physical iPhone cannot be operated by the agent                                   | Final acceptance cannot be automated | Provide one concise test action at a time and require user confirmation before release    |
-| R-008 | Unreviewed dependency-install script blocked the first clean CI install | First deployment cannot proceed | Approve only the reviewed locked sharp version, retain fail-closed checks, and prove a clean frozen install |
+| R-008 | New dependency versions can introduce unreviewed install scripts | Future CI installs may stop | Current sharp incident resolved by exact-version approval and verified Linux runs; retain fail-closed checks and review upgrades |
 
 ## Decisions
 
@@ -207,12 +207,13 @@ The goal is complete only when all of the following are verified:
 - Verified first public deployment in run 33832099931 with 9 live smoke passes and one documented WebKit-tool skip; opened the live mobile layout and confirmed offline shell readiness.
 - Identified a gap between the installed-update checklist and startup-only discovery; 0.1.1 adds guarded foreground/reconnect discovery without changing the activation/dirty-form contract.
 - Verified 0.1.1 locally with 19 test files / 92 tests and 33 passed / 1 documented skipped browser checks. Added an exact candidate-version assertion to deployed smoke to distinguish the new release from a healthy cached predecessor.
+- Verified 0.1.1 in complete GitHub run 33833052946 (including 9 live checks / 1 documented skip) and manually exercised the explicit dirty-form-safe browser upgrade from 0.1.0. No physical-device result is inferred.
 
 ## Next three actions
 
-1. Verify and deploy 0.1.1 with foreground/reconnect update checks while retaining explicit, dirty-form-safe activation.
-2. Record the owner's license choice and physical-iPhone install/navigation result, then guide offline/persistence/Files backup and action acceptance with synthetic data.
-3. Deploy a distinct verified build for the installed-update transition; only after all physical checks pass finalize and tag `v1.0.0`.
+1. Record the owner's license choice and actual iPhone model/iOS plus install/navigation result; these questions have been sent and await user input.
+2. Guide physical persistence, airplane-mode relaunch/write, Files/iCloud backup/restore, and valid/invalid Shortcuts with synthetic data only.
+3. After the user has installed 0.1.1+, deploy a distinct verified build for the installed-update transition; only after all physical checks pass finalize and tag `v1.0.0`.
 
 ## Plan change log
 
@@ -233,3 +234,4 @@ The goal is complete only when all of the following are verified:
 | 2026-09-03 | Completed M7 local release hardening and advanced the checkpoint to M8.                                                  | Corruption, failure, volume, privacy, accessibility, compact-layout, dependency, root/subpath build, and dual-engine gates pass; only deployed and physical-device evidence remains. |
 | 2026-09-04 | Recorded the public GitHub push, approved Pages source, and first CI failure. | Remote evidence revealed an unresolved sharp install-script decision masked by the warm local environment; repair reproducibility before deployment, with no product-scope change. |
 | 2026-09-04 | Verified first Pages deployment and added 0.1.1 update-discovery work before M9 sign-off. | All remote gates pass for 0.1.0, but a long-lived installed app needs foreground/reconnect checks to discover later releases predictably; activation remains explicit. |
+| 2026-09-04 | Verified the 0.1.1 deployment and a real browser upgrade; advanced to user-performed M9 checks. | Linux, live HTTPS, candidate version, and dirty-form activation evidence now pass; iPhone and licensing decisions remain user-owned and unverified. |

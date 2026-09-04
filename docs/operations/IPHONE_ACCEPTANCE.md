@@ -1,6 +1,6 @@
 # LifeIndex V1 Physical iPhone Acceptance
 
-**Status:** Ready to execute after the live Pages gate
+**Status:** 0.1.1 live gate passed; user installation and device details requested; no physical result confirmed yet
 
 **Last updated:** 2026-09-04
 
@@ -14,7 +14,7 @@ Complete this header during M9. Do not record device identifiers, Apple ID, or p
 | iPhone model family   | TBD    |
 | iOS/Safari version    | TBD    |
 | Deployed commit SHA   | TBD    |
-| Pages URL             | TBD    |
+| Pages URL             | https://shushengritian.github.io/LifeIndex/ |
 | Installed/standalone  | TBD    |
 | Final result          | TBD    |
 

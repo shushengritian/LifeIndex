@@ -151,7 +151,7 @@ M8 CI runs equivalent frozen-lockfile commands and retains useful reports on fai
 - The suite verifies the response, five routes and unknown-route fallback, axe result, manifest base fields/icons, exact worker scope, runtime errors, and unexpected failed requests.
 - Fresh ephemeral profiles prove synthetic Finance persistence without a backend, action-fragment network privacy, and offline mutation in Chromium/WebKit; Chromium additionally reloads the cached shell offline.
 - Local proof on 2026-09-03: both `http://127.0.0.1:4173/` and `http://127.0.0.1:4173/LifeIndex/` record 9 passed and one explicit Playwright WebKit offline-reload skip out of 10 scenarios.
-- Live HTTPS evidence remains pending until the approved repository is deployed; physical Safari evidence remains M9-only.
+- Live HTTPS evidence is recorded in §13 after real deployment; physical Safari evidence remains M9-only.
 
 ## 12. Clean-install reproducibility
 
@@ -164,6 +164,8 @@ M8 CI runs equivalent frozen-lockfile commands and retains useful reports on fai
 - First live gate: [run 33832099931](https://github.com/shushengritian/LifeIndex/actions/runs/33832099931) completed successfully for `60b0676` (0.1.0): clean Linux install, all static/unit/browser gates, Pages deployment, and 9 deployed checks / 1 documented skipped WebKit reload. The verified URL is `https://shushengritian.github.io/LifeIndex/`.
 - 0.1.1 adds `tests/unit/pwaUpdates.test.ts` with eight cases proving foreground/reconnect discovery, hidden/offline guards, coalescing/cooldown, retry, installing/waiting guards, and cleanup. With the existing four update-UI tests, all 12 focused checks pass. This is not proof of the installed two-version transition, which remains physical M9 acceptance.
 - Local 0.1.1 gate: peers, formatting, lint, types, 19 files / 92 unit/integration tests, production/PWA build, and 33 browser checks / 1 documented skipped WebKit reload pass. The deployed suite additionally compares the rendered app version with the checked-out `package.json`, so a still-cached earlier release cannot satisfy the candidate's deployment check.
+- Current application: [run 33833052946](https://github.com/shushengritian/LifeIndex/actions/runs/33833052946) completed successfully for `ff7d443` (0.1.1) with the same 92-test / 33-browser-pass gates and 9 real HTTPS smoke passes / 1 documented skip. The amended version-aware suite also passed locally before push.
+- Manual browser upgrade from 0.1.0 to 0.1.1 confirms a waiting update, disabled activation while an unsaved synthetic Finance form is dirty, re-enabled activation after cancel, and the displayed version changing only after confirmation. No record was saved. This adds browser evidence, not an iPhone sign-off.
 
 ## 14. Evidence recording
 

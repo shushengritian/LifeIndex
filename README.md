@@ -6,7 +6,9 @@ LifeIndex is a local-first personal life index for iPhone. The V1 progressive we
 
 ## Project status
 
-LifeIndex has completed its local V1 product, PWA, data-safety, and release-hardening gates. GitHub deployment and physical-iPhone acceptance remain before `v1.0.0`. The approved product direction is documented in [LifeIndex-Project-Baseline.md](LifeIndex-Project-Baseline.md), and live execution status is maintained in [PLAN.md](PLAN.md).
+LifeIndex `0.1.1` is [live on GitHub Pages](https://shushengritian.github.io/LifeIndex/), with verified CI, deployment, and live smoke checks. Physical-iPhone acceptance and final release sign-off remain before `v1.0.0`. The approved product direction is documented in [LifeIndex-Project-Baseline.md](LifeIndex-Project-Baseline.md), and live execution status is maintained in [PLAN.md](PLAN.md).
+
+To install, open the live URL in iPhone Safari, choose **Share → Add to Home Screen**, and leave **Open as Web App** enabled if shown. Start from the Home Screen icon and use synthetic data until the [physical acceptance checklist](docs/operations/IPHONE_ACCEPTANCE.md) is complete. No App Store or Apple Developer account is needed.
 
 ## V1 principles
 
