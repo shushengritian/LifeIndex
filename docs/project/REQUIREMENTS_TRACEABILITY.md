@@ -1,10 +1,10 @@
 # LifeIndex V2 Requirements Traceability
 
-**Status:** First Pages candidate verified; physical UI correction cycle in progress
+**Status:** Corrected Pages candidate verified; focused physical UI retest pending
 
 **Last updated:** 2026-09-06
 
-V1 implementation remains the regression base. “Local verified” means source, static, Vitest, and production-intent browser evidence pass; it does not claim GitHub Pages or physical-iPhone evidence. Candidate `55706aa` passed Pages automation, after which owner review opened four UI corrections that require a new deployment and explicit retest.
+V1 implementation remains the regression base. “Local verified” means source, static, Vitest, and production-intent browser evidence pass; it does not claim GitHub Pages or physical-iPhone evidence. Candidate `55706aa` passed initial Pages automation; owner review then opened four UI corrections. Corrected candidate `09debca` passed final Pages run 34037198731, while explicit physical retest remains pending.
 
 | Requirement | Product/design evidence | Architecture/data evidence | Planned implementation | Planned verification | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -19,12 +19,12 @@ V1 implementation remains the regression base. “Local verified” means source
 | TOD-001–004 | PRD §6.8; IA §3 | HLD §§4,7 | refreshed Today projection | shell and cross-feature E2E pass | local verified |
 | SET-001–005 | PRD §6.9; IA §7 | Data model §§3,9; LLD §11 | four independent groups and category/target controls | exact order, theme, category, backup tests pass | local verified |
 | BKP-001–006 | PRD §6.10; IA §8 | Backup schema; ADR-0007; HLD §10; LLD §§9–10 | V2/migration/nine-store restore | V0/V1/V2 invalid/reference/rollback/browser replacement pass | local verified |
-| PWA-001–005 | PRD §6.11 | HLD §§2,11,14 | retained worker/update code + shell integration | unit, dual-engine offline mutation, Chromium reload pass; live/iPhone pending | partial |
+| PWA-001–005 | PRD §6.11 | HLD §§2,11,14 | retained worker/update code + shell integration | unit, dual-engine offline mutation, Chromium reload, live update/HTTPS pass; iPhone pending | partial |
 | URL-001–004 | PRD §6.12; IA §9 | HLD §11 | retained `src/app/actions` | parser/service/dual-engine privacy/idempotency pass | local verified |
 | NFR-DAT/REL | PRD §7 | Data model §§13–14; backup §7; ADR-0007 | additive DB and atomic repositories/restore | schema-V1 upgrade/rollback pass; iPhone continuity pending | partial |
-| NFR-PRV/OFF | PRD §7 | HLD §§11–13 | logger/PWA boundaries | local source/runtime privacy and offline pass; live/iPhone pending | partial |
-| NFR-UX/A11Y | PRD §7; UI spec | IA §§10–12; LLD §§7–8 | tokens, semantic calendar/dialogs, responsive pages | 320/390, dual-theme inspection, axe, touch, reduced motion; icon-center/field-width/category-collapse correction tests | correction local full-gate verified; redeploy pending |
-| NFR-MNT/TST | PRD §7 | HLD §14; LLD §§12–15; DEV; test plan | modular source and reproducible scripts | local full gate passes; CI/deployed/physical pending | partial |
+| NFR-PRV/OFF | PRD §7 | HLD §§11–13 | logger/PWA boundaries | local and live privacy/offline pass; physical offline pending | partial |
+| NFR-UX/A11Y | PRD §7; UI spec | IA §§10–12; LLD §§7–8 | tokens, semantic calendar/dialogs, responsive pages | 320/390, dual-theme inspection, axe, touch, reduced motion; icon-center/field-width/category-collapse correction tests; live DOM pass | automated verified; physical retest pending |
+| NFR-MNT/TST | PRD §7 | HLD §14; LLD §§12–15; DEV; test plan | modular source and reproducible scripts | local, branch CI, and deployed gates pass; physical pending | partial |
 
 ## Verification rule
 

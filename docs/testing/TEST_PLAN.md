@@ -1,6 +1,6 @@
 # LifeIndex V2 Test Plan
 
-**Status:** First Pages candidate verified; owner-reported UI corrections pass the complete local gate and await branch CI/redeployment
+**Status:** Corrected Pages candidate verified; focused physical-iPhone retest pending
 
 **Last updated:** 2026-09-06
 
@@ -26,11 +26,11 @@ V2 implementation commit `2162c32` passed the complete Ubuntu branch gate in [CI
 
 Candidate commit `55706aa` passed [Pages run 34034416695](https://github.com/shushengritian/LifeIndex/actions/runs/34034416695): 22 files / 125 Vitest tests, 35 runnable production browser scenarios, configured `/LifeIndex/` deployment, and 11 runnable live HTTPS scenarios all passed. The two recorded skips are the same documented WebKit offline full-page reload limitation at the local and deployed layers. Physical-iPhone evidence remains separate.
 
-After the first owner review, the iPhone-polish correction candidate passed formatting, ESLint, strict TypeScript, 22 files / 125 Vitest tests, production build, 37 runnable Chromium/Mobile Safari-WebKit scenarios, and 11 runnable local `/LifeIndex/` deployed-smoke scenarios. Each browser layer retains only the same documented WebKit offline full-page reload skip. This is local evidence pending branch CI and live Pages redeployment.
+After the first owner review, iPhone-polish commit `fc0cd7f` passed [branch CI run 34036136865](https://github.com/shushengritian/LifeIndex/actions/runs/34036136865), and persistence-wait hardening commit `09debca` passed [branch CI run 34036951739](https://github.com/shushengritian/LifeIndex/actions/runs/34036951739). [Pages run 34037198731](https://github.com/shushengritian/LifeIndex/actions/runs/34037198731) then passed formatting, ESLint, strict TypeScript, 22 files / 125 Vitest tests, production build, 37 runnable Chromium/Mobile Safari-WebKit scenarios, configured `/LifeIndex/` deployment, and 11 runnable live HTTPS scenarios without retry or flaky results. Each browser layer retains only the same documented WebKit offline full-page reload skip. Physical-iPhone evidence remains separate.
 
 ## 3. Data and migration gate
 
-**Evidence recorded 2026-09-06:** `tests/integration/database.test.ts`, `healthRepositories.test.ts`, `health-ui.test.tsx`, `backup.test.ts`, and retained repository tests pass. The current full Vitest suite passes 22 files / 125 tests. Prettier, ESLint, strict TypeScript, and the production build pass. Browser/UI evidence is recorded below; real Pages and physical claims remain pending.
+**Evidence recorded 2026-09-06:** `tests/integration/database.test.ts`, `healthRepositories.test.ts`, `health-ui.test.tsx`, `backup.test.ts`, and retained repository tests pass. The current full Vitest suite passes 22 files / 125 tests. Prettier, ESLint, strict TypeScript, the production build, and real Pages automation pass. Physical-device claims remain pending.
 
 - Fresh V2 creates nine stores, 21 stable categories, and the existing three default Settings rows.
 - Reopen is idempotent and does not overwrite renamed/archived category values.
@@ -92,7 +92,7 @@ After the first owner review, the iPhone-polish correction candidate passed form
 
 **Local evidence recorded 2026-09-06:** the production build passes 37 Chromium/Mobile Safari-WebKit scenarios; the single skip is the documented WebKit automation limitation for offline full-page reload. Health create/edit/delete, target set/clear, Activity and Weight persistence, Finance calendar/CRUD, Habit continuity, Focus reconciliation, Settings order/categories/theme, backup replacement, URL Actions, offline mutation, privacy, accessibility, add-icon optical centering, native date/time width, and default-collapsed Category management pass in both engines.
 
-The configured-base candidate was also built and served at `/LifeIndex/`; its deployed-smoke suite passes 11 scenarios with the same single WebKit skip. This proves the local artifact's base path, routes, manifest/worker scope, nine-store persistence, Health reload, offline mutation, and fragment privacy, but does not substitute for the real GitHub Pages HTTPS gate.
+The configured-base candidate was also built and served at `/LifeIndex/`; its deployed-smoke suite passes 11 scenarios with the same single WebKit skip. Final Pages run 34037198731 repeats those 11 runnable checks against the real HTTPS deployment, proving base path, routes, manifest/worker scope, nine-store persistence, Health reload, offline mutation, and fragment privacy.
 
 Run the production build in Chromium and Mobile Safari/WebKit with isolated synthetic profiles:
 

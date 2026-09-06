@@ -193,7 +193,7 @@ Each slice includes documentation, comments on key logic, privacy-safe logs, nar
 
 ### V2-M6 — GitHub Pages release candidate
 
-**Status:** Complete — verified Pages candidate deployed on 2026-09-06
+**Status:** Complete — corrected Pages candidate verified and deployed on 2026-09-06
 
 - Review the release diff and repository cleanliness.
 - Push the approved commit set to GitHub.
@@ -201,11 +201,11 @@ Each slice includes documentation, comments on key logic, privacy-safe logs, nar
 - Run deployed smoke, installability, deep-link, asset-path, and service-worker update checks.
 - Do not tag the final release yet.
 
-**Evidence:** Implementation commit `2162c32` passed [branch CI run 34033594594](https://github.com/shushengritian/LifeIndex/actions/runs/34033594594), and the owner explicitly confirmed the V1 backup file exists before production changed. `main` then fast-forwarded without conflict to candidate commit `55706aa`. [Pages run 34034416695](https://github.com/shushengritian/LifeIndex/actions/runs/34034416695) passed 22 files / 125 Vitest tests, 35 browser scenarios with one documented WebKit skip, configured-base artifact deployment, and 11 live HTTPS scenarios with the same skip. An isolated retained V1 browser profile discovered the waiting worker and updated from 0.1.1 to 2.0.0; Settings then reported logical database version 2 and the four approved groups. This browser evidence is not physical-iPhone evidence.
+**Evidence:** Implementation commit `2162c32` passed [branch CI run 34033594594](https://github.com/shushengritian/LifeIndex/actions/runs/34033594594), and the owner explicitly confirmed the V1 backup file exists before production changed. `main` then fast-forwarded without conflict to candidate commit `55706aa`. [Pages run 34034416695](https://github.com/shushengritian/LifeIndex/actions/runs/34034416695) passed 22 files / 125 Vitest tests, 35 browser scenarios with one documented WebKit skip, configured-base artifact deployment, and 11 live HTTPS scenarios with the same skip. After first owner review, UI correction commit `fc0cd7f` passed [branch CI run 34036136865](https://github.com/shushengritian/LifeIndex/actions/runs/34036136865); persistence-wait hardening commit `09debca` passed [branch CI run 34036951739](https://github.com/shushengritian/LifeIndex/actions/runs/34036951739). Final [Pages run 34037198731](https://github.com/shushengritian/LifeIndex/actions/runs/34037198731) completed successfully in 5m 32s with 22 files / 125 Vitest tests, 37 browser passes / 1 documented skip, configured-base deployment, and 11 live HTTPS passes / 1 matching skip, without retries or flaky tests. A retained browser activated the waiting correction worker and measured all four add-icon offsets at 0 px, equal Finance/Weight/Activity field widths, and closed Category details. This browser evidence is not physical-iPhone evidence.
 
 ### V2-M7 — Physical-iPhone acceptance
 
-**Status:** In progress — first owner review completed; four UI corrections are being verified for redeployment
+**Status:** In progress — corrected Pages candidate ready for the owner's focused iPhone retest
 
 The first installed-iPhone review of candidate `55706aa` reported four presentation defects: the Finance and Health header add signs were not optically centered, native date/time controls did not match adjacent field widths, the Settings category editor was expanded by default, and the Health Weight/Activity text actions did not look clearly tappable. The accepted correction keeps product and data scope unchanged:
 
@@ -214,7 +214,7 @@ The first installed-iPhone review of candidate `55706aa` reported four presentat
 - retain Categories as an independent Settings group while collapsing its editor behind an explicit “分类管理” disclosure by default;
 - replace the Weight and Activity card text actions with icon-only add controls that retain explicit assistive labels.
 
-The complete local correction gate passes: formatting, ESLint, strict TypeScript, 22 files / 125 Vitest tests, 37 browser scenarios / 1 documented WebKit skip, production build, and the `/LifeIndex/` artifact's 11 deployed-smoke scenarios / 1 matching skip. It covers optical-center offsets, equal field widths, default collapse/expansion, accessible icon names, and 320 px overflow. A correction is not considered accepted until branch CI and the updated Pages candidate pass and the owner retests these four items on the installed iPhone app.
+The complete local, branch-CI, and corrected Pages gates pass. Final run 34037198731 covers formatting, ESLint, strict TypeScript, 22 files / 125 Vitest tests, 37 browser scenarios / 1 documented WebKit skip, production deployment, and 11 live-smoke scenarios / 1 matching skip. It covers optical-center offsets, equal field widths, default collapse/expansion, accessible icon names, and 320 px overflow. The correction is not considered physically accepted until the owner retests these four items on the installed iPhone app.
 
 The owner verifies on the installed Home Screen app:
 
@@ -296,6 +296,7 @@ The owner should review the first design against these questions:
 
 | Date | Change |
 | --- | --- |
+| 2026-09-06 | Corrected candidate `09debca` passed branch CI 34036951739 and Pages run 34037198731: 125 Vitest, 37/1 browser, and 11/1 live HTTPS checks passed without retries; opened focused owner retest. |
 | 2026-09-06 | Pages run 34036404483 built and deployed `fc0cd7f`, but the live Health smoke reloaded before its async save assertion reached a committed-UI boundary; opened a test-wait hardening follow-up before accepting deployment evidence. |
 | 2026-09-06 | Completed the local iPhone-polish correction gate: static/build checks, 125 Vitest tests, 37/1 dual-engine E2E, and 11/1 `/LifeIndex/` smoke all pass; branch CI and redeployment remain. |
 | 2026-09-06 | Recorded four owner-reported V2-M7 UI defects and opened a correction/redeployment cycle without changing schema, business behavior, or release scope. |

@@ -1,6 +1,6 @@
 # LifeIndex V2 Physical iPhone Acceptance
 
-**Status:** First candidate reviewed; four owner-reported UI corrections awaiting redeployment and focused retest
+**Status:** Corrected Pages candidate deployed; four-item focused owner retest pending
 
 **Last updated:** 2026-09-06
 
@@ -16,7 +16,8 @@ Do not record device identifiers, Apple ID, record contents, or backup contents.
 | iPhone model family | TBD |
 | iOS/Safari version | TBD |
 | First candidate commit SHA | `55706aa4f5300ec9cbaf7023398ccba9abccd63d` |
-| Correction candidate commit SHA | Pending deployment |
+| Correction candidate commit SHA | `09debcaea31b17ed440dad4962338220c67a4d6e` |
+| Correction Pages workflow | [34037198731](https://github.com/shushengritian/LifeIndex/actions/runs/34037198731) — passed |
 | Pages URL | https://shushengritian.github.io/LifeIndex/ |
 | Starting installed version | V1; owner confirmed a backup exists before deployment |
 | Candidate displayed version | `2.0.0` expected; owner to confirm on-device |
