@@ -1,7 +1,7 @@
 # LifeIndex V2 UI and Interaction Specification
 
-**Status:** Revision 4 draft for owner review
-**Version:** 0.4
+**Status:** Revision 5 draft for owner review
+**Version:** 0.5
 **Date:** 2026-09-06
 **Implementation authority:** None until the owner approves design gate G1 in [V2_PLAN.md](../../V2_PLAN.md)
 
@@ -11,11 +11,11 @@ LifeIndex V2 should feel like a small, quiet personal tool: fast enough to use s
 
 The design uses three principles:
 
-1. **One dominant task per screen.** Today supports orientation; Finance supports recording and scanning; Habits supports completion; Focus supports a timer.
-2. **Progress without judgment.** Completion is visible and pleasant, while missed habits, spending, and interrupted focus sessions use neutral language.
+1. **One dominant task per screen.** Today supports orientation; Finance supports recording and scanning; Health supports body/activity context and habit completion; Focus supports a timer.
+2. **Progress without judgment.** Weight direction, activity, and completion are visible without labeling a day or body value as good or bad.
 3. **Trust through legibility.** Local storage, pending writes, failures, destructive actions, and update states are explicit and recoverable.
 
-The interface also has a strict complexity budget: no screen may add a chart, score, motivational panel, progress ring, or secondary card unless it is required by an existing V1 capability and materially helps the current task.
+The interface also has a strict complexity budget: no screen may add a chart, score, motivational panel, progress ring, or secondary card unless it is required by an approved core capability and materially helps the current task.
 
 ## 2. Reference synthesis
 
@@ -26,13 +26,20 @@ The design borrows interaction lessons, not branded visuals or business scope:
 - **Dime — secondary:** whitespace and a restrained ledger.
 - **Streaks — secondary:** one-tap habit completion.
 - **HabitKit — secondary:** readable historical rhythm inside habit detail, not on the daily list.
+- **Gentler Streak — Health structure:** calm wellbeing hierarchy, activity in body context, and progress language without pressure.
+- **Happy Scale — weight direction:** a clear current value, smoothed trend, and achievable progress framing rather than reacting to a single weigh-in.
+- **Hevy — activity entry:** direct workout logging and legible history; routines, sets, exercise libraries, rest timers, records, and social features are intentionally excluded.
 
-LifeIndex deliberately does not adopt MOZE's multi-account, budget, investment, invoice, cloud, and multidimensional reporting scope. It also does not adopt unrelated advertising or tracking behavior from 记账本. The result is a lighter product with a shared teal/sage identity across finance, habits, and focus.
+LifeIndex deliberately does not adopt MOZE's multi-account, budget, investment, invoice, cloud, and multidimensional reporting scope. It also does not adopt unrelated advertising or tracking behavior from 记账本, nor turn Health into a diet, medical, or gym-programming product. The result is a lighter product with a shared teal/sage identity across finance, health, and focus.
 
 Reference evidence reviewed for this revision:
 
 - [MOZE App Store listing](https://apps.apple.com/tw/app/moze/id1460011387)
 - [记账本 App Store listing](https://apps.apple.com/cn/app/%E8%AE%B0%E8%B4%A6%E6%9C%AC-%E8%AE%B0%E8%B4%A6-%E9%A2%84%E7%AE%97-%E6%94%AF%E5%87%BA%E7%90%86%E8%B4%A2%E5%8A%A9%E6%89%8B/id482361839)
+- [Gentler Streak product overview](https://gentlerstories.com/gentlerstreak)
+- [Happy Scale App Store listing](https://apps.apple.com/us/app/happy-scale/id532430574)
+- [Hevy product overview](https://www.hevyapp.com/)
+- [Apple HealthKit setup requirements](https://developer.apple.com/documentation/healthkit/setting-up-healthkit)
 
 ## 3. Visual system
 
@@ -73,7 +80,7 @@ Light and dark are complete themes rather than an inverted afterthought. “Foll
 ### 3.4 Icons and motion
 
 - Use one consistent rounded line-icon family; do not use Chinese characters as icons.
-- Keep icon meaning conventional: home/today, wallet/finance, timer/focus, check-circle/habits, sliders/settings.
+- Keep icon meaning conventional: home/today, wallet/finance, timer/focus, wellbeing-check/health, sliders/settings.
 - Page transitions: 160–220 ms fade/translate, disabled under reduced motion.
 - Habit success: check draws and row tint settles within 220 ms; no confetti.
 - Sheet transition: bottom slide with opacity scrim; focus remains trapped in the sheet until dismissed.
@@ -91,7 +98,7 @@ The global V1 brand, tagline, and version badge are removed from routine pages. 
 
 ### 4.2 Bottom navigation
 
-Five destinations remain in the same order: Today, Finance, Focus, Habits, Settings.
+Five destinations remain in the same order: Today, Finance, Focus, Health, Settings. Today and Settings are shell destinations; Finance, Focus, and Health are the three business domains.
 
 - Use icon plus short Chinese label.
 - The active destination uses an accent-soft capsule behind the icon and stronger text.
@@ -113,7 +120,7 @@ Five destinations remain in the same order: Today, Finance, Focus, Habits, Setti
 
 1. Plain “今天” title and date, with local-only status in small metadata.
 2. Compact completion count, for example “2 / 3 已完成”.
-3. Scheduled habit rows as the primary content.
+3. Scheduled health-habit rows as the primary content.
 4. Two high-frequency actions: “记一笔” and “开始专注”.
 5. One finance row and one focus row.
 
@@ -125,7 +132,7 @@ This order intentionally prioritizes actions that can be completed today over hi
 - On tap, show a short pending state without announcing completion.
 - After IndexedDB succeeds, animate the check and update the count.
 - On failure, restore the previous state, keep focus on the row, and announce a concise error.
-- Long press is not required; edit/detail remains in the Habits destination.
+- Long press is not required; edit/detail remains in the Habits section of Health.
 
 ### 5.3 Quick actions
 
@@ -192,31 +199,49 @@ Interaction rules:
 - Replace the old period tab strip with calendar selection; preserve category breakdown and monthly trend after the selected-day ledger.
 - Do not add budgets, accounts, or spending judgments in this release scope.
 
-## 7. Habits
+## 7. Health
 
-### 7.1 Daily list
+Health replaces Habits as the top-level destination and keeps three related record types in one scroll: body weight, activity sessions, and existing habits. It is a personal record, not a medical or coaching system.
 
-- Header shows “习惯” and today’s completion count.
+### 7.1 Overview
+
+1. Header shows “健康” and one add-record action.
+2. Body-weight block shows the latest value, neutral 30-day direction, target when configured, and “记录体重”.
+3. Weekly activity section shows count, total duration, and recent sessions.
+4. Today's Habits section shows the completion count and existing one-tap rows.
+
+The add-record sheet offers exactly three routes: Record weight, Record activity, and Create habit. Weight and activity details use route pages or focused sheets rather than expanding the overview into a dashboard.
+
+### 7.2 Habits
+
 - Each active scheduled habit uses one full-width management row with a separate 44 px check-in target.
 - Leading mark uses the habit color/icon; text contains name and schedule context.
 - Completed rows use a calm tint and clear check; incomplete rows remain visually available rather than faded away.
 - Current streak appears as compact text in the row; tapping the descriptive portion opens habit detail.
+- The detail retains current/longest streak, a fourteen-week heatmap, monthly completion rate, total completions, recent check-ins, and pause/resume/edit actions.
+- Existing `habits` and `habitRecords` keep their identifiers and meaning; moving them under Health is a navigation change, not a data conversion.
 
-### 7.2 Detail
+### 7.3 Body weight
 
-- The identity block shows the habit, schedule, start date, and current streak.
-- A fourteen-week heatmap is the main historical view, based only on existing check-in records.
-- Statistics show current streak, longest streak, monthly completion rate, and total completions in one two-by-two group.
-- Recent check-ins show date, completion time, and the corresponding streak day.
-- The display avoids flame, failure, or “broken streak” language.
-- Edit, pause/resume, and delete are secondary actions below progress content.
-- The heatmap and statistics are projections only and require no new persisted fields or schema change.
+- Entry requires local date/time and weight; note is optional.
+- Display uses kilograms by default and converts only in the presentation layer if another unit is approved later.
+- The overview shows the latest measurement and neutral direction. A detail view shows raw entries and a smoothed trend without hiding the raw values.
+- A target is optional and never produces shame, medical classification, or “failed” language.
+- Delete/edit requires explicit record selection and preserves the remaining trend history.
 
-### 7.3 Add/edit flow
+### 7.4 Activity
 
-- Use a route page or tall sheet with name, icon, color, schedule, start date, and optional note.
-- Day-of-week targets behave as a seven-item multi-select with explicit selected states.
-- Pausing a habit preserves records and explains that it leaves Today until resumed.
+- Entry requires activity type, duration, local date/time, and perceived intensity: light, moderate, or hard. Note is optional.
+- History shows the activity name, duration, date, and intensity; weekly summary is count plus total duration.
+- V2 does not track routines, individual exercises, sets, reps, loads, rest timers, personal records, or calories.
+- Activity can coexist with a related habit, but recording an activity does not silently complete a habit.
+
+### 7.5 Platform and data boundary
+
+- Weight and activity are new additive record types whose exact IndexedDB and backup contracts are specified only after G1.
+- All Health data remains local and participates in validated export/restore and V1-to-V2 migration tests.
+- Direct HealthKit/Apple Health synchronization is excluded from this PWA release. Apple's setup requires enabling HealthKit on an iOS app target in Xcode; a native bridge would be a separate architecture and privacy decision.
+- No calorie/macro tracking, meal plans, BMI judgment, medical advice, sensors, wearables, social features, or cloud synchronization.
 
 ## 8. Focus
 
@@ -246,7 +271,7 @@ Interaction rules:
 
 Use familiar inset grouped rows in this order:
 
-1. **Categories:** one standalone full-width group for Finance and Focus category management.
+1. **Categories:** one standalone full-width group for Finance, Focus, and Health category/type management.
 2. **Appearance:** one standalone full-width group containing the Theme row.
 3. **Data & security:** device-only status, export, import, validation outcome, and clear-data action.
 4. **Other:** Shortcuts, update state, and About.
@@ -259,7 +284,7 @@ Destructive clear/import replacement actions are visually separated from routine
 
 - **320–374 px:** one-column layout, 16 px page inset, abbreviated metadata, category grid remains at least four columns only when each target stays 44 px; otherwise use three columns.
 - **375–430 px:** reference iPhone layout, 16–20 px inset, four-column category grid.
-- **Above 430 px:** content remains centered with a phone-oriented reading width; do not stretch transaction or habit rows into a desktop dashboard.
+- **Above 430 px:** content remains centered with a phone-oriented reading width; do not stretch transaction or Health rows into a desktop dashboard.
 - Bottom sheets account for keyboard height and safe-area bottom inset.
 - Dynamic Type may increase row height; text is not clipped or replaced with unlabeled icons.
 
@@ -294,7 +319,9 @@ The first interactive review includes representative data for visual evaluation 
 - switching directly between light and dark themes from Settings;
 - viewing Categories, Appearance, Data & security, and Other as four independent Settings groups;
 - opening the Theme chooser from the standalone Appearance group;
-- toggling a Today/Habits completion state;
+- navigating to Health without adding a sixth bottom destination;
+- reviewing weight direction, recent activity, and today's habits in one scroll;
+- opening the three-choice Health record sheet and toggling a Today/Health habit completion state;
 - opening and closing Finance quick entry;
 - entering an amount, choosing a category, and seeing the saved representative row;
 - navigating Finance months, viewing per-day amounts, selecting a populated date, and selecting an empty date;
@@ -319,6 +346,7 @@ Only an explicit owner approval authorizes V2-M2 requirements/architecture work 
 
 | Version | Date | Change |
 | --- | --- | --- |
+| 0.5 | 2026-09-06 | Replaced the Habits destination with Health, combining unchanged Habits with lightweight weight direction and activity history while keeping five bottom destinations. |
 | 0.4 | 2026-09-06 | Separated Settings into four independent groups: Categories, Appearance, Data & security, and Other. |
 | 0.3 | 2026-09-06 | Replaced Finance period tabs with a clickable amount calendar and smaller totals below it; added habit streak/heatmap/statistics detail; moved Appearance to a full-width row between Categories and Data & security. |
 | 0.2 | 2026-09-06 | Made MOZE and 记账本 primary references, reduced dashboard-like surfaces, moved habit rhythm to detail, and exposed complete light/dark theme switching. |

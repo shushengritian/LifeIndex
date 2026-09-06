@@ -1,6 +1,6 @@
 # LifeIndex V2 Version Plan
 
-**Status:** Revision 4 draft for owner UI/interaction review — implementation is not authorized yet
+**Status:** Revision 5 draft for owner UI/interaction review — implementation is not authorized yet
 **Started:** 2026-09-06
 **Target release:** `v2.0.0` after approval, implementation, deployment, and physical-iPhone acceptance
 **Product baseline:** [LifeIndex-Project-Baseline.md](LifeIndex-Project-Baseline.md)
@@ -8,7 +8,7 @@
 
 ## Objective
 
-Refresh LifeIndex into a calmer, faster, more iPhone-native daily companion while preserving the proven V1 local-first architecture and business scope. The highest-frequency actions—reviewing today, recording a transaction, checking in a habit, and starting focus—should become visually clearer and require less decision-making.
+Refresh LifeIndex into a calmer, faster, more iPhone-native daily companion while preserving the proven V1 local-first architecture and explicitly expanding Habits into a lightweight Health domain. The highest-frequency actions—reviewing today, recording a transaction, checking in a habit, recording weight or activity, and starting focus—should become visually clearer and require less decision-making.
 
 V2 follows a gated sequence:
 
@@ -27,13 +27,13 @@ No production UI, business behavior, storage schema, or deployed release is chan
 
 V2 keeps LifeIndex visually quiet and deliberately small. It improves the presentation and the shortest path through each existing task without turning the product into a comprehensive life-management system:
 
-- **Today** is a short daily list, led by habits and immediate actions rather than a dashboard.
+- **Today** is a short daily list, led by health habits and immediate actions rather than a dashboard.
 - **Finance** is optimized for one-handed, fast entry and a ledger that is easy to scan by day.
-- **Habits** prioritizes one-tap completion; continuity and statistics stay in the detail view.
+- **Health** combines existing habits with lightweight body-weight and activity records; it does not become a diet, medical, or full workout-planning system.
 - **Focus** makes the timer the dominant object and keeps session details secondary.
 - **Settings** uses familiar grouped iOS patterns for data safety, appearance, categories, and help.
 
-The primary visual references are now **MOZE** and the Chinese app **记账本**. LifeIndex takes MOZE's clear hierarchy, theme discipline, and context-first quick entry, while taking 记账本's direct calculator-style amount entry and date-grouped ledger. It does not copy MOZE's extensive accounts, budgets, investments, invoice, or reporting system, and it does not copy unrelated advertising or cloud features from 记账本. Earlier references such as Dime, Streaks, and HabitKit remain secondary lessons only: restraint, one-tap completion, and readable history.
+The primary Finance visual references remain **MOZE** and the Chinese app **记账本**. Health takes Gentler Streak's calm wellbeing hierarchy, Happy Scale's legible weight direction, and Hevy's direct workout logging while deliberately omitting their advanced recommendation, prediction, routine, exercise-library, social, wearable, and cloud systems. Earlier references such as Dime, Streaks, and HabitKit remain secondary lessons only: restraint, one-tap completion, and readable history.
 
 ## Approved baseline carried forward
 
@@ -41,7 +41,7 @@ The primary visual references are now **MOZE** and the Chinese app **记账本**
 - IndexedDB remains the sole primary business database.
 - The service worker caches the application shell only.
 - No account, backend, analytics, cloud database, or third-party telemetry.
-- Existing Finance, Habits, Focus, Today, Settings, backup/restore, offline, and URL Action capabilities remain supported.
+- Existing Finance, Habits, Focus, Today, Settings, backup/restore, offline, and URL Action capabilities remain supported; Habits moves under the Health presentation domain without reinterpreting its records.
 - Amounts remain integer minor currency units; date-sensitive records retain local calendar date keys.
 - Existing user data must remain readable through the entire V2 upgrade.
 
@@ -59,7 +59,7 @@ The primary visual references are now **MOZE** and the Chinese app **记账本**
 ### Today
 
 - Use a plain date/title header and a compact completion count; do not add a motivational hero, score, ring, or dashboard panel.
-- Keep habits directly actionable from Today.
+- Keep health habits directly actionable from Today.
 - Promote “记一笔” and “开始专注” as the two primary actions.
 - Show finance and focus as two compact summary rows with no additional analysis.
 - Keep Today as a projection only; it must not create independent business records.
@@ -75,12 +75,14 @@ The primary visual references are now **MOZE** and the Chinese app **记账本**
 - Keep existing category/trend reports below the calendar-ledger flow without adding new budget or account concepts.
 - Preserve input on validation or persistence failure.
 
-### Habits
+### Health
 
-- Present scheduled habits as one-tap rows/cards with clear but gentle completion feedback.
-- Show the current streak in the habit list as compact context.
-- Provide one habit-detail screen containing current/longest streak, a fourteen-week completion heatmap, monthly completion rate, total completions, and recent check-ins.
-- Separate active and paused habits without hiding status.
+- Rename the Habits destination to Health and keep the bottom navigation at five items: Today, Finance, Focus, Health, and Settings.
+- Lead with a compact body-weight block showing the latest value, a neutral recent trend, and a quick record action.
+- Show recent activity and a weekly count/duration summary; new activity entry stays limited to type, duration, perceived intensity, date/time, and optional note.
+- Keep scheduled habits as one-tap rows with current streak context and gentle completion feedback.
+- Preserve the habit-detail screen with current/longest streak, fourteen-week completion heatmap, monthly completion rate, total completions, and recent check-ins.
+- Keep existing habit records unchanged; weight and activity require additive, versioned storage only after G1 approval.
 - Confirm persistence before final completion feedback and roll back the visual state on failure.
 
 ### Focus
@@ -107,7 +109,9 @@ The following are not authorized by the V2 UI refresh and require separate produ
 - cloud sync, login, shared households, backend services, or analytics;
 - AI categorization or remote model calls;
 - native Swift/SwiftUI packaging;
-- a new IndexedDB schema or destructive migration;
+- destructive schema migration or reinterpretation of existing Habits records;
+- calorie/macro tracking, meal plans, medical advice, BMI judgments, workout routines, exercise libraries, sets/reps/load, rest timers, personal records, or social fitness;
+- direct Apple Health/HealthKit, wearable, or sensor synchronization within the current PWA;
 - new Shortcut behavior beyond presenting the existing URL Action capability more clearly.
 
 ## Delivery milestones and gates
@@ -126,12 +130,12 @@ The following are not authorized by the V2 UI refresh and require separate produ
 
 **Status:** Awaiting owner review
 
-- Produce a high-fidelity iPhone design covering Today, Finance, Finance quick entry, Focus, Habits, and Settings.
-- Demonstrate the primary interactions: tab navigation, habit check-in, focus preset selection, and finance entry sheet.
+- Produce a high-fidelity iPhone design covering Today, Finance, Finance quick entry, Focus, Health, habit detail, and Settings.
+- Demonstrate the primary interactions: tab navigation, habit check-in, health-record chooser, focus preset selection, and finance entry sheet.
 - Define responsive, accessibility, light/dark, state, and motion behavior.
 - Present the design and collect owner changes.
 
-**Evidence:** Revision 4 covers all five destinations plus a habit-detail view. The Finance calendar supports month navigation and day selection with per-day amounts and selected-day ledger changes. Habit streak, fourteen-week heatmap, four statistics, and recent check-ins are visible. Settings uses four independent groups—Categories, Appearance, Data & security, and Other—and the Theme row opens system/light/dark choices. Automated interaction checks cover these paths.
+**Evidence:** Revision 5 covers all five destinations plus a habit-detail view. Health combines a compact weight trend, recent activity, weekly movement summary, today's habits, and an add-record chooser without adding a bottom destination. Finance calendar and quick entry, habit history, Focus, and the four Settings groups remain represented. Automated interaction checks cover these paths in light and dark themes.
 
 **Exit gate G1:** The owner explicitly replies that the design is approved, or approves it after requested revisions.
 
@@ -140,9 +144,9 @@ The following are not authorized by the V2 UI refresh and require separate produ
 **Status:** Blocked by G1
 
 - Update the PRD and information architecture with final approved behavior.
-- Write ADRs for material decisions.
+- Resolve proposed [ADR-0006](docs/adr/0006-v2-health-domain.md) and write any further material decisions.
 - Update HLD and LLD for component boundaries, state transitions, routing, persistence calls, and failure recovery.
-- Confirm that the IndexedDB schema is unchanged; if approval later introduces a schema change, write and test a forward migration plus rollback/recovery plan first.
+- Design additive IndexedDB and backup-schema migrations for weight and activity records while preserving every V1 store and record; specify forward migration, validation, rollback, and recovery before code.
 - Produce the implementation matrix and traceability map.
 
 **Exit gate G2:** Product, architecture, data safety, and test documents agree on the same scope.
@@ -163,7 +167,7 @@ Implement and verify one reviewable slice at a time:
 
 1. Today and shared quick actions.
 2. Finance ledger and quick-entry sheet.
-3. Habits daily list and detail continuity view.
+3. Health overview, weight/activity entry, and Habits continuity/detail view.
 4. Focus setup, active timer, and history.
 5. Settings grouping and data-safety presentation.
 
@@ -174,9 +178,9 @@ Each slice includes documentation, comments on key logic, privacy-safe logs, nar
 **Status:** Blocked by V2-M4
 
 - Run format, lint, typecheck, unit, integration, E2E, accessibility, build, and offline/update suites.
-- Verify backup/export/import compatibility with V1 records.
+- Verify backup/export/import compatibility with V1 records and the new versioned Health record types.
 - Verify update recovery, dirty-form protection, direct URL Actions, storage failures, and timer resume after iOS suspension.
-- Complete a migration rehearsal even when the schema is unchanged: install V1, create representative data, upgrade to V2, and verify all records.
+- Complete a migration rehearsal: install V1, create representative data, upgrade to the additive V2 schema, and verify all old and new records plus rollback behavior.
 
 ### V2-M6 — GitHub Pages release candidate
 
@@ -196,7 +200,8 @@ The owner verifies on the installed Home Screen app:
 
 - existing V1 data remains present after the update;
 - cold start, offline reopen, background/foreground, and display-mode behavior;
-- Today navigation and habit completion;
+- Today navigation and health-habit completion;
+- Health weight/activity entry, history, trends, and failed-save recovery;
 - finance entry, edit, delete, history, and failed-save recovery;
 - focus start, background resume, complete/interrupt, and history;
 - light/dark appearance, keyboard behavior, safe areas, and 320/390-class layouts as available;
@@ -218,13 +223,14 @@ Codex records only results the owner explicitly reports; opening the site on a p
 
 - No loss, overwrite, or reinterpretation of existing IndexedDB records.
 - No core data moved to `localStorage`.
-- No personal amount, title, note, habit name, backup body, or URL Action content appears in logs.
+- No personal amount, title, note, habit name, weight, activity detail, backup body, or URL Action content appears in logs.
 - Every primary action works with touch targets of at least 44 × 44 CSS px.
 - The interface remains usable at 320 CSS px without horizontal scrolling.
 - Dark appearance and reduced-motion behavior are intentional, not accidental inversions.
 - Loading and failures are never represented as zero or success.
 - Finance entry remains recoverable after invalid input or a write failure.
 - Habit completion is reversible and persistence failures restore the prior visual state.
+- Existing Habits records retain their identifiers and semantics under Health; weight and activity records use additive versioned stores and backup fields.
 - Active focus sessions reconcile from persisted timestamps rather than depending on a foreground interval.
 - Deployed assets and routes work under the `/LifeIndex/` GitHub Pages base path.
 
@@ -234,11 +240,12 @@ The owner should review the first design against these questions:
 
 - Do both the light and dark themes feel suitable for daily long-term use?
 - Does the MOZE/记账本-inspired hierarchy feel familiar without making LifeIndex look like a large finance system?
-- Is Today ordered correctly, with habits first and finance/focus summaries secondary?
+- Is Today ordered correctly, with health habits first and finance/focus summaries secondary?
 - Does the Finance calendar make daily amounts and day selection clear enough at iPhone size?
 - Is the finance bottom sheet faster and clearer than the V1 form?
-- Does habit completion feel satisfying without creating pressure?
-- Does the habit detail provide enough streak, heatmap, and statistics context without becoming a dashboard?
+- Does Health feel like one coherent lightweight domain rather than three mini-apps?
+- Are weight direction and activity history useful without calorie counting, medical judgment, or a full gym logger?
+- Does habit completion and detail remain clear inside Health without creating pressure?
 - Is the focus screen quiet enough to support concentration?
 - Are any V1 capabilities missing or unnecessarily harder to reach?
 - Should any proposed interaction be revised before technical documents and code are generated?
@@ -260,11 +267,13 @@ The owner should review the first design against these questions:
 | 2026-09-06 | Revision 2 makes MOZE and 记账本 the primary references, removes dashboard-like decoration, and provides explicit light/dark themes. | Proposed for G1 |
 | 2026-09-06 | Revision 3 replaces Finance period tabs with a clickable monthly calendar, adds a dedicated habit statistics detail, and moves Appearance into the requested full-width Settings row. | Proposed for G1 |
 | 2026-09-06 | Revision 4 separates Settings into four independent groups: Categories, Appearance, Data & security, and Other. | Proposed for G1 |
+| 2026-09-06 | Revision 5 proposes Health as the third business domain, combining unchanged Habits with minimal weight and activity records while retaining five bottom destinations. | Proposed for G1; see ADR-0006 |
 
 ## Change log
 
 | Date | Change |
 | --- | --- |
+| 2026-09-06 | Revised M1 to replace the Habits destination with a lightweight Health overview and recorded the additive data impact in ADR-0006. |
 | 2026-09-06 | Revised M1 Settings so Categories, Appearance, Data & security, and Other are four separate groups. |
 | 2026-09-06 | Revised M1 with a selectable Finance calendar, per-day amounts, habit streak/heatmap/statistics detail, and reordered Appearance settings. |
 | 2026-09-06 | Revised M1 after owner feedback: narrowed the reference system, simplified Today and Habits, and made both themes directly reviewable. |
