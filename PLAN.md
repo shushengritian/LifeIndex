@@ -1,5 +1,7 @@
 # LifeIndex V1 Delivery Plan
 
+> V1 is archived. The active V2 design and delivery plan is [V2_PLAN.md](V2_PLAN.md).
+
 **Status:** Completed — owner-accepted V1 with explicitly deferred physical verification
 **Started:** 2026-09-03
 **Current checkpoint:** v1.0.0 live and published at 40eb947; owner-approved physical-test deferrals archived, no further V1 feature work
