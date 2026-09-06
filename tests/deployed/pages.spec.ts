@@ -130,6 +130,10 @@ test('persists synthetic Health records locally on the deployed candidate', asyn
   await page.getByLabel('时长（分钟）').fill('20')
   await page.getByRole('button', { name: '保存' }).click()
 
+  // Wait for the committed record to flow back through the live query before testing reload durability.
+  // Without this boundary a fast reload can interrupt the async click handler on a remote Pages run.
+  await expect(page.getByText('20 分钟 · 适中', { exact: true })).toBeVisible()
+
   await page.reload()
   await expect(page.locator('.weight-overview strong')).toHaveText('67.8')
   await expect(page.getByText('20 分钟 · 适中', { exact: true })).toBeVisible()

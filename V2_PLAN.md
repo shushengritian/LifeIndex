@@ -296,6 +296,7 @@ The owner should review the first design against these questions:
 
 | Date | Change |
 | --- | --- |
+| 2026-09-06 | Pages run 34036404483 built and deployed `fc0cd7f`, but the live Health smoke reloaded before its async save assertion reached a committed-UI boundary; opened a test-wait hardening follow-up before accepting deployment evidence. |
 | 2026-09-06 | Completed the local iPhone-polish correction gate: static/build checks, 125 Vitest tests, 37/1 dual-engine E2E, and 11/1 `/LifeIndex/` smoke all pass; branch CI and redeployment remain. |
 | 2026-09-06 | Recorded four owner-reported V2-M7 UI defects and opened a correction/redeployment cycle without changing schema, business behavior, or release scope. |
 | 2026-09-06 | Completed V2-M6/G6: owner confirmed the V1 backup, `main` fast-forwarded to `55706aa`, Pages run 34034416695 deployed successfully, and all 11 runnable live-smoke scenarios passed. Opened physical-iPhone acceptance. |

@@ -106,6 +106,7 @@ Run the production build in Chromium and Mobile Safari/WebKit with isolated synt
 - offline launch/reload/mutation where engine support allows;
 - URL Actions remain fragment-private and idempotent;
 - waiting update remains explicit and blocked by dirty forms.
+- persistence/reload assertions first wait for committed UI state: the appearance selector's persisted `aria-pressed` value or the saved Health row returned by its IndexedDB live query;
 - at 390 × 844, Finance/Health circular add icon centers differ from their button centers by no more than 0.5 CSS px;
 - Finance, Weight, and Activity native date/time controls differ from their adjacent reference input widths by no more than 1 CSS px.
 

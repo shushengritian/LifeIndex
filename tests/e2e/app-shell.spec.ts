@@ -323,8 +323,12 @@ test('persists appearance and manages Finance category lifecycle', async ({ page
   await page.goto('/#/settings')
   await expect(page.getByRole('heading', { name: '设置' })).toBeVisible()
 
-  await page.getByRole('button', { name: '深色' }).click()
+  const darkAppearance = page.getByRole('button', { name: '深色' })
+  await darkAppearance.click()
   await expect.poll(() => page.locator('html').getAttribute('data-theme')).toBe('dark')
+  // The theme is applied optimistically; aria-pressed changes only after the IndexedDB live query
+  // observes the committed setting, so it is the persistence boundary before a reload.
+  await expect(darkAppearance).toHaveAttribute('aria-pressed', 'true')
   await page.reload()
   await expect.poll(() => page.locator('html').getAttribute('data-theme')).toBe('dark')
   await expect(page.getByRole('heading', { name: '分类' })).toBeVisible()
