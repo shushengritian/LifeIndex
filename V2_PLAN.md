@@ -1,6 +1,6 @@
 # LifeIndex V2 Version Plan
 
-**Status:** Draft for owner UI/interaction review — implementation is not authorized yet
+**Status:** Revision 2 draft for owner UI/interaction review — implementation is not authorized yet
 **Started:** 2026-09-06
 **Target release:** `v2.0.0` after approval, implementation, deployment, and physical-iPhone acceptance
 **Product baseline:** [LifeIndex-Project-Baseline.md](LifeIndex-Project-Baseline.md)
@@ -25,15 +25,15 @@ No production UI, business behavior, storage schema, or deployed release is chan
 
 ## Design thesis
 
-V2 keeps LifeIndex visually quiet but gives every module a stronger job:
+V2 keeps LifeIndex visually quiet and deliberately small. It improves the presentation and the shortest path through each existing task without turning the product into a comprehensive life-management system:
 
-- **Today** is the daily command center, led by habits and immediate actions rather than a generic dashboard.
+- **Today** is a short daily list, led by habits and immediate actions rather than a dashboard.
 - **Finance** is optimized for one-handed, fast entry and a ledger that is easy to scan by day.
-- **Habits** combines one-tap completion with compact visual continuity, without turning missed days into punishment.
+- **Habits** prioritizes one-tap completion; continuity and statistics stay in the detail view.
 - **Focus** makes the timer the dominant object and keeps session details secondary.
 - **Settings** uses familiar grouped iOS patterns for data safety, appearance, categories, and help.
 
-The reference mix is deliberately selective: Dime and the Chinese app “记账本” inform fast finance entry; MOZE informs information hierarchy and reporting restraint; Streaks informs one-tap habit completion; HabitKit informs compact continuity views. LifeIndex keeps its own sage-and-ivory identity rather than copying any one product.
+The primary visual references are now **MOZE** and the Chinese app **记账本**. LifeIndex takes MOZE's clear hierarchy, theme discipline, and context-first quick entry, while taking 记账本's direct calculator-style amount entry and date-grouped ledger. It does not copy MOZE's extensive accounts, budgets, investments, invoice, or reporting system, and it does not copy unrelated advertising or cloud features from 记账本. Earlier references such as Dime, Streaks, and HabitKit remain secondary lessons only: restraint, one-tap completion, and readable history.
 
 ## Approved baseline carried forward
 
@@ -51,16 +51,17 @@ The reference mix is deliberately selective: Dime and the Chinese app “记账�
 
 - Replace the persistent brand/tagline/version block with a compact contextual top bar.
 - Replace character-based navigation markers with a consistent line-icon set and short labels.
-- Establish a shared spacing, type, radius, elevation, motion, and semantic-color system.
-- Preserve light/dark appearance, safe areas, reduced motion, keyboard access, and 44 px minimum targets.
+- Establish a small shared spacing, type, radius, motion, and semantic-color system with only two surface levels.
+- Provide complete light and dark themes, with “follow system” as the default preference.
+- Preserve safe areas, reduced motion, keyboard access, and 44 px minimum targets.
 - Make all major states explicit: loading, empty, ready, pending save, recoverable failure, and offline/update available.
 
 ### Today
 
-- Use the date and daily completion as the opening hierarchy.
+- Use a plain date/title header and a compact completion count; do not add a motivational hero, score, ring, or dashboard panel.
 - Keep habits directly actionable from Today.
 - Promote “记一笔” and “开始专注” as the two primary actions.
-- Merge finance and focus summaries into compact, scannable rows rather than equal dashboard cards.
+- Show finance and focus as two compact summary rows with no additional analysis.
 - Keep Today as a projection only; it must not create independent business records.
 
 ### Finance
@@ -74,7 +75,7 @@ The reference mix is deliberately selective: Dime and the Chinese app “记账�
 ### Habits
 
 - Present scheduled habits as one-tap rows/cards with clear but gentle completion feedback.
-- Add a compact seven-day rhythm strip to the daily list and retain the existing month calendar/statistics detail.
+- Keep streak, seven-day rhythm, month calendar, and statistics in habit detail rather than repeating them on every daily row.
 - Separate active and paused habits without hiding status.
 - Confirm persistence before final completion feedback and roll back the visual state on failure.
 
@@ -125,7 +126,7 @@ The following are not authorized by the V2 UI refresh and require separate produ
 - Define responsive, accessibility, light/dark, state, and motion behavior.
 - Present the design and collect owner changes.
 
-**Evidence:** The interactive iPhone review covers all five destinations and the primary Finance, Habits, and Focus interactions. Light/dark rendering and the interaction path were checked locally; the final touch-target audit raised all demonstrated controls to the 44 px minimum.
+**Evidence:** Revision 2 covers all five destinations and the primary Finance, Habits, and Focus interactions while reducing the number of cards, summary blocks, progress visuals, and secondary states visible at once. Light/dark themes are directly switchable, and demonstrated controls retain the 44 px minimum.
 
 **Exit gate G1:** The owner explicitly replies that the design is approved, or approves it after requested revisions.
 
@@ -226,7 +227,8 @@ Codex records only results the owner explicitly reports; opening the site on a p
 
 The owner should review the first design against these questions:
 
-- Does the overall sage/ivory visual direction feel right for daily long-term use?
+- Do both the light and dark themes feel suitable for daily long-term use?
+- Does the MOZE/记账本-inspired hierarchy feel familiar without making LifeIndex look like a large finance system?
 - Is Today ordered correctly, with habits first and finance/focus summaries secondary?
 - Is the finance bottom sheet faster and clearer than the V1 form?
 - Does habit completion feel satisfying without creating pressure?
@@ -248,10 +250,12 @@ The owner should review the first design against these questions:
 | 2026-09-06 | Start V2 with a UI/interaction-first workflow and an owner approval gate before implementation. | Active |
 | 2026-09-06 | Keep the first design inside V1 capability and storage boundaries; treat new business features as separate decisions. | Proposed for G1 |
 | 2026-09-06 | Use a finance quick-entry sheet, habit one-tap rows, a timer-led Focus screen, and compact iOS-style settings groups. | Proposed for G1 |
+| 2026-09-06 | Revision 2 makes MOZE and 记账本 the primary references, removes dashboard-like decoration, and provides explicit light/dark themes. | Proposed for G1 |
 
 ## Change log
 
 | Date | Change |
 | --- | --- |
+| 2026-09-06 | Revised M1 after owner feedback: narrowed the reference system, simplified Today and Habits, and made both themes directly reviewable. |
 | 2026-09-06 | Completed the M1 self-review for primary interactions, light/dark rendering, and 44 px touch targets; G1 remains awaiting owner review. |
 | 2026-09-06 | Created the V2 version plan and opened V2-M1 design review. |

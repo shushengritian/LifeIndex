@@ -1,13 +1,13 @@
 # LifeIndex V2 UI and Interaction Specification
 
-**Status:** Draft for owner review
-**Version:** 0.1
+**Status:** Revision 2 draft for owner review
+**Version:** 0.2
 **Date:** 2026-09-06
 **Implementation authority:** None until the owner approves design gate G1 in [V2_PLAN.md](../../V2_PLAN.md)
 
 ## 1. Design intent
 
-LifeIndex V2 should feel like a quiet personal instrument: fast enough to use several times a day, warm enough to keep, and restrained enough that personal data remains the focus. The refresh retains V1's local-first promise and functional scope while replacing form-heavy, web-like patterns with mobile-first actions and clearer hierarchy.
+LifeIndex V2 should feel like a small, quiet personal tool: fast enough to use several times a day and restrained enough that the user's own records remain the focus. The refresh retains V1's local-first promise and functional scope while replacing form-heavy, web-like patterns with mobile-first actions and clearer hierarchy.
 
 The design uses three principles:
 
@@ -15,17 +15,24 @@ The design uses three principles:
 2. **Progress without judgment.** Completion is visible and pleasant, while missed habits, spending, and interrupted focus sessions use neutral language.
 3. **Trust through legibility.** Local storage, pending writes, failures, destructive actions, and update states are explicit and recoverable.
 
+The interface also has a strict complexity budget: no screen may add a chart, score, motivational panel, progress ring, or secondary card unless it is required by an existing V1 capability and materially helps the current task.
+
 ## 2. Reference synthesis
 
-The design borrows interaction lessons, not branded visuals:
+The design borrows interaction lessons, not branded visuals or business scope:
 
-- **Dime:** restrained ledger hierarchy and confident use of whitespace.
-- **MOZE:** strong Chinese-language information architecture and useful summaries without a dense dashboard.
-- **记账本:** large amount entry, direct category selection, and one-handed recording speed.
-- **Streaks:** clear one-tap habit completion.
-- **HabitKit:** compact rhythm/heatmap context that makes continuity visible.
+- **MOZE — primary:** clear Chinese information hierarchy, strong light/dark theme discipline, context-first entry, readable financial rows, and restrained use of accent color.
+- **记账本 — primary:** calculator-style rapid amount entry, direct categories, date-grouped ledger records, larger typography, and a practical focus on recording speed.
+- **Dime — secondary:** whitespace and a restrained ledger.
+- **Streaks — secondary:** one-tap habit completion.
+- **HabitKit — secondary:** readable historical rhythm inside habit detail, not on the daily list.
 
-LifeIndex differentiates itself through a shared sage-and-ivory system across finance, habits, and focus; no module should look like a separate app.
+LifeIndex deliberately does not adopt MOZE's multi-account, budget, investment, invoice, cloud, and multidimensional reporting scope. It also does not adopt unrelated advertising or tracking behavior from 记账本. The result is a lighter product with a shared teal/sage identity across finance, habits, and focus.
+
+Reference evidence reviewed for this revision:
+
+- [MOZE App Store listing](https://apps.apple.com/tw/app/moze/id1460011387)
+- [记账本 App Store listing](https://apps.apple.com/cn/app/%E8%AE%B0%E8%B4%A6%E6%9C%AC-%E8%AE%B0%E8%B4%A6-%E9%A2%84%E7%AE%97-%E6%94%AF%E5%87%BA%E7%90%86%E8%B4%A2%E5%8A%A9%E6%89%8B/id482361839)
 
 ## 3. Visual system
 
@@ -43,7 +50,7 @@ LifeIndex differentiates itself through a shared sage-and-ivory system across fi
 | Warning | ochre | warm amber | Recoverable attention state |
 | Destructive | brick red | muted coral | Delete/reset only |
 
-The owner can tune the accent and corner radius in the review prototype. The recommended default remains close to V1 so the upgrade feels evolutionary rather than like a different product.
+Light and dark are complete themes rather than an inverted afterthought. “Follow system” is the product default; the review prototype also allows immediate manual switching. The recommended accent stays close to V1, adjusted toward MOZE-like teal clarity so the upgrade feels evolutionary rather than like a different product.
 
 ### 3.2 Type and numbers
 
@@ -60,7 +67,7 @@ The owner can tune the accent and corner radius in the review prototype. The rec
 - Page horizontal inset: 16 px on compact iPhones, 20 px when space allows.
 - Primary vertical rhythm: 8 / 12 / 16 / 24 / 32 px.
 - Default surface radius: 20 px; controls: 12–16 px; round actions: 50%.
-- Use borders and tonal separation before shadows. Sheets may use a stronger shadow because they represent a new interaction layer.
+- Use one canvas and one raised surface. Prefer dividers and tonal separation; routine rows do not receive individual shadows or nested cards. Sheets may use a stronger shadow because they represent a new interaction layer.
 - All interactive targets are at least 44 × 44 CSS px.
 
 ### 3.4 Icons and motion
@@ -104,13 +111,13 @@ Five destinations remain in the same order: Today, Finance, Focus, Habits, Setti
 
 ### 5.1 Layout
 
-1. Compact date header and a quiet local-only indicator.
-2. Daily completion statement, for example “今天完成 2 / 3”.
+1. Plain “今天” title and date, with local-only status in small metadata.
+2. Compact completion count, for example “2 / 3 已完成”.
 3. Scheduled habit rows as the primary content.
 4. Two high-frequency actions: “记一笔” and “开始专注”.
-5. Compact finance and focus summary rows.
+5. One finance row and one focus row.
 
-This order intentionally prioritizes actions that can be completed today over historical reporting.
+This order intentionally prioritizes actions that can be completed today over historical reporting. There is no motivational hero, daily score, progress ring, large dashboard card, or invented insight.
 
 ### 5.2 Habit row interaction
 
@@ -179,8 +186,8 @@ Interaction rules:
 - Header shows “习惯” and today’s completion count.
 - Each active scheduled habit uses a full-width one-tap row.
 - Leading mark uses the habit color/icon; text contains name and schedule context.
-- A compact seven-day strip shows recent rhythm, including today.
 - Completed rows use a calm tint and clear check; incomplete rows remain visually available rather than faded away.
+- Streak and seven-day rhythm are available after opening a habit; they are not repeated on the daily list.
 
 ### 7.2 Detail
 
@@ -214,15 +221,16 @@ Interaction rules:
 
 ### 8.3 History
 
-- Today’s total and count appear before recent sessions.
+- Today’s total and count appear as one compact line before recent sessions.
 - Sessions are grouped by local date and show duration, category, and status.
 - Edit changes description only; recorded duration remains immutable under current V1 rules.
+- The ready screen does not display charts, achievement scores, or additional productivity cards.
 
 ## 9. Settings
 
 Use familiar inset grouped rows in this order:
 
-1. **Appearance:** system/light/dark and reduced-motion result.
+1. **Appearance:** an explicit system/light/dark selector and reduced-motion result. Changing the selector previews the theme immediately and persists only after the user chooses it.
 2. **Categories:** finance and focus categories.
 3. **Data & backup:** device-only status, export, import, validation outcome, clear-data action.
 4. **Shortcuts:** existing safe URL Action instructions and PWA/Safari storage warning.
@@ -267,11 +275,13 @@ Destructive clear/import replacement actions are visually separated from routine
 The first interactive review includes representative data for visual evaluation only and demonstrates:
 
 - switching among all five destinations;
+- switching directly between light and dark themes from Settings;
 - toggling a Today/Habits completion state;
 - opening and closing Finance quick entry;
 - entering an amount, choosing a category, and seeing the saved representative row;
 - selecting Focus duration presets;
 - previewing compact/comfortable density, accent color, radius, and navigation label treatment.
+- previewing a MOZE-like airy density and a 记账本-like compact ledger density without changing product scope.
 
 Prototype interactions do not write to the LifeIndex repository database and are not evidence that production behavior has been implemented.
 
@@ -284,3 +294,10 @@ Design gate G1 remains open. After review, record one of the following in this s
 - revision requested, with an itemized list.
 
 Only an explicit owner approval authorizes V2-M2 requirements/architecture work and subsequent production implementation.
+
+## 15. Revision history
+
+| Version | Date | Change |
+| --- | --- | --- |
+| 0.2 | 2026-09-06 | Made MOZE and 记账本 primary references, reduced dashboard-like surfaces, moved habit rhythm to detail, and exposed complete light/dark theme switching. |
+| 0.1 | 2026-09-06 | Initial V2 UI and interaction proposal. |
