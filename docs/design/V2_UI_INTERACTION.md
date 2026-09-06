@@ -1,9 +1,9 @@
 # LifeIndex V2 UI and Interaction Specification
 
-**Status:** Revision 5 draft for owner review
+**Status:** Revision 5 approved by the owner at design gate G1
 **Version:** 0.5
 **Date:** 2026-09-06
-**Implementation authority:** None until the owner approves design gate G1 in [V2_PLAN.md](../../V2_PLAN.md)
+**Implementation authority:** Requirements and architecture work authorized; production implementation remains blocked until gate G2 in [V2_PLAN.md](../../V2_PLAN.md)
 
 ## 1. Design intent
 
@@ -334,13 +334,7 @@ Prototype interactions do not write to the LifeIndex repository database and are
 
 ## 14. Approval record
 
-Design gate G1 remains open. After review, record one of the following in this section and in [V2_PLAN.md](../../V2_PLAN.md):
-
-- approved without changes;
-- approved with named revisions;
-- revision requested, with an itemized list.
-
-Only an explicit owner approval authorizes V2-M2 requirements/architecture work and subsequent production implementation.
+Design gate G1 was approved by the owner on 2026-09-06 with the instruction “开始按计划推进吧”. Revision 5, including Health as the merged Habits/body-weight/activity destination, is the approved design baseline. V2-M2 requirements and architecture work is authorized; production implementation begins only after the G2 document-consistency gate is satisfied.
 
 ## 15. Revision history
 

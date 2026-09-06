@@ -1,6 +1,6 @@
 # LifeIndex V2 Version Plan
 
-**Status:** Revision 5 draft for owner UI/interaction review — implementation is not authorized yet
+**Status:** Revision 5 approved — V2-M2 requirements and architecture freeze in progress; production implementation remains blocked by G2
 **Started:** 2026-09-06
 **Target release:** `v2.0.0` after approval, implementation, deployment, and physical-iPhone acceptance
 **Product baseline:** [LifeIndex-Project-Baseline.md](LifeIndex-Project-Baseline.md)
@@ -128,20 +128,20 @@ The following are not authorized by the V2 UI refresh and require separate produ
 
 ### V2-M1 — UI and interaction design
 
-**Status:** Awaiting owner review
+**Status:** Complete — owner approved Revision 5 on 2026-09-06
 
 - Produce a high-fidelity iPhone design covering Today, Finance, Finance quick entry, Focus, Health, habit detail, and Settings.
 - Demonstrate the primary interactions: tab navigation, habit check-in, health-record chooser, focus preset selection, and finance entry sheet.
 - Define responsive, accessibility, light/dark, state, and motion behavior.
 - Present the design and collect owner changes.
 
-**Evidence:** Revision 5 covers all five destinations plus a habit-detail view. Health combines a compact weight trend, recent activity, weekly movement summary, today's habits, and an add-record chooser without adding a bottom destination. Finance calendar and quick entry, habit history, Focus, and the four Settings groups remain represented. Automated interaction checks cover these paths in light and dark themes.
+**Evidence:** Revision 5 covers all five destinations plus a habit-detail view. Health combines a compact weight trend, recent activity, weekly movement summary, today's habits, and an add-record chooser without adding a bottom destination. Finance calendar and quick entry, habit history, Focus, and the four Settings groups remain represented. Automated interaction checks cover these paths in light and dark themes. The owner replied “开始按计划推进吧” on 2026-09-06, explicitly advancing the approved design into the documented delivery sequence.
 
 **Exit gate G1:** The owner explicitly replies that the design is approved, or approves it after requested revisions.
 
 ### V2-M2 — Requirements and architecture freeze
 
-**Status:** Blocked by G1
+**Status:** In progress
 
 - Update the PRD and information architecture with final approved behavior.
 - Resolve proposed [ADR-0006](docs/adr/0006-v2-health-domain.md) and write any further material decisions.
@@ -267,12 +267,13 @@ The owner should review the first design against these questions:
 | 2026-09-06 | Revision 2 makes MOZE and 记账本 the primary references, removes dashboard-like decoration, and provides explicit light/dark themes. | Proposed for G1 |
 | 2026-09-06 | Revision 3 replaces Finance period tabs with a clickable monthly calendar, adds a dedicated habit statistics detail, and moves Appearance into the requested full-width Settings row. | Proposed for G1 |
 | 2026-09-06 | Revision 4 separates Settings into four independent groups: Categories, Appearance, Data & security, and Other. | Proposed for G1 |
-| 2026-09-06 | Revision 5 proposes Health as the third business domain, combining unchanged Habits with minimal weight and activity records while retaining five bottom destinations. | Proposed for G1; see ADR-0006 |
+| 2026-09-06 | Revision 5 makes Health the third business domain, combining unchanged Habits with minimal weight and activity records while retaining five bottom destinations. | Accepted at G1; see ADR-0006 |
 
 ## Change log
 
 | Date | Change |
 | --- | --- |
+| 2026-09-06 | Recorded the owner's approval of Revision 5, completed V2-M1/G1, accepted ADR-0006, and started V2-M2 documentation freeze. |
 | 2026-09-06 | Revised M1 to replace the Habits destination with a lightweight Health overview and recorded the additive data impact in ADR-0006. |
 | 2026-09-06 | Revised M1 Settings so Categories, Appearance, Data & security, and Other are four separate groups. |
 | 2026-09-06 | Revised M1 with a selectable Finance calendar, per-day amounts, habit streak/heatmap/statistics detail, and reordered Appearance settings. |

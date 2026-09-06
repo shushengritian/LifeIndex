@@ -1,6 +1,6 @@
 # ADR-0006: Combine habits, body weight, and activity under Health
 
-**Status:** Proposed for V2 design gate G1
+**Status:** Accepted by the product owner at V2 design gate G1
 
 **Date:** 2026-09-06
 
@@ -14,7 +14,7 @@ Health and fitness products offer useful patterns at very different levels of co
 - [Happy Scale](https://apps.apple.com/us/app/happy-scale/id532430574) makes weight fluctuation easier to understand with a smoothed trend and small milestones.
 - [Hevy](https://www.hevyapp.com/) makes workout entry and progress review direct, but its routines, sets, exercise library, rest timers, records, and social system are substantially larger than LifeIndex's intended scope.
 
-## Proposed decision
+## Decision
 
 - Rename the top-level Habits destination to **Health** while retaining the existing Habits capability inside it.
 - Keep five bottom destinations: Today, Finance, Focus, Health, and Settings. Today and Settings remain shell destinations; Finance, Focus, and Health are the three business domains.
