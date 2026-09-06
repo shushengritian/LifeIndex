@@ -1,99 +1,98 @@
-# LifeIndex V1 Physical iPhone Acceptance
+# LifeIndex V2 Physical iPhone Acceptance
 
-**Status:** Phone-browser opening confirmed; remaining checks deferred by the owner for v1.0.0 under ADR-0005
+**Status:** Awaiting verified GitHub Pages candidate and owner execution
 
-**Last updated:** 2026-09-04
+**Last updated:** 2026-09-06
 
-The owner explicitly accepted current V1 delivery and deferred unfinished physical checks. This checklist is retained for [post-V1 follow-up](../project/POST_V1_BACKLOG.md), not recorded as passed. See [ADR-0005](../adr/0005-v1-owner-acceptance.md). Device/iOS details, Home Screen installation, persistence, offline, Files restore, actual Shortcuts, and the physical two-version update transition are still unverified.
+This checklist is the physical-only release gate for V2. Automated Chromium/WebKit results do not substitute for an installed iPhone report. The owner accepted V1 with earlier physical limitations documented in [ADR-0005](../adr/0005-v1-owner-acceptance.md) and the [v1.0.0 release record](../releases/v1.0.0.md); those historical limitations are not silently reclassified as V2 passes.
 
 ## 1. Evidence header
 
-Complete this header during M9. Do not record device identifiers, Apple ID, or personal data.
+Do not record device identifiers, Apple ID, record contents, or backup contents.
 
-| Field                 | Result |
-| --------------------- | ------ |
-| Date/time zone        | TBD    |
-| iPhone model family   | TBD    |
-| iOS/Safari version    | TBD    |
-| Deployed commit SHA   | TBD    |
-| Pages URL             | https://shushengritian.github.io/LifeIndex/ |
-| Installed/standalone  | TBD    |
-| Phone-browser opening | User confirmed on 2026-09-04 |
-| Final result          | V1 delivery accepted; full physical checklist deferred, not passed |
+| Field | Result |
+| --- | --- |
+| Date/time zone | TBD |
+| iPhone model family | TBD |
+| iOS/Safari version | TBD |
+| Candidate commit SHA | TBD |
+| Pages URL | https://shushengritian.github.io/LifeIndex/ |
+| Starting installed version | V1; owner to confirm |
+| Candidate displayed version | TBD |
+| Final result | Pending |
 
-## 2. Safety rules
+## 2. Pre-deployment data-safety prerequisite
 
-- Use only the synthetic names and amounts in this checklist.
-- Save the test backup to a clearly named temporary folder in Files/iCloud Drive; delete it after acceptance if no longer needed.
-- Never send the backup, action URL, local IDs, screenshots with values, or Safari diagnostic logs to GitHub.
-- Do not clear Safari website data, delete the Home Screen app, or remove a backup while it is the only copy of important records.
-- Stop at the first failed step, record the visible symptom without private content, and fix/repeat the affected section before release.
+Complete this before the V2 candidate replaces production:
 
-## 3. Install and standalone launch
+1. Open the currently installed LifeIndex while online.
+2. In **设置 → 数据与安全**, choose **导出完整备份** and save it to Files or iCloud Drive.
+3. Confirm the file exists and has a recent timestamp. Do not open, upload, or send its contents.
+4. Keep the existing Home Screen app and Safari website data intact.
 
-1. Open the verified Pages HTTPS URL in Safari and confirm Today appears without a console/browser warning.
-2. Use **Share → Add to Home Screen** (on some Safari layouts, open **More → Share** first). If **Open as Web App / 作为网页 App 打开** is shown, keep it enabled; keep the name `LifeIndex`, and confirm the generated icon matches the approved sage ring. If the Home Screen action is missing, use **Edit Actions** to add it. See [Apple's installation guide](https://support.apple.com/zh-cn/guide/iphone/iphea86e5236/ios).
-3. Launch from the new Home Screen icon. Confirm it opens without Safari chrome, starts on Today, respects safe areas, and reaches all five bottom-navigation destinations.
-4. Rotate or enlarge text only if that is part of the user's normal device configuration; record any clipping or blocked control.
+Pass condition: the owner explicitly confirms a recoverable V1 backup exists. Codex must not infer this from a browser screenshot.
 
-Pass condition: the installed app is recognizable, standalone, readable, and fully navigable with normal touch input.
+## 3. Installed upgrade and V1 data continuity
 
-## 4. Local persistence and suspension
+1. After Codex reports the verified V2 Pages deployment, open the existing Home Screen app while online.
+2. If **新版本已准备好** appears, choose **立即更新** with no draft form open.
+3. Confirm Settings shows application version `2.0.0` and database version `2`.
+4. Confirm representative existing Finance, Focus, Habit, category, appearance, and backup-status data remains present and unchanged.
+5. Force-close LifeIndex, reopen it from the Home Screen, and confirm it starts normally with five destinations: 今天、记账、专注、健康、设置.
 
-1. Add an expense of `12.34` CNY in `餐饮` with note `合成验收账目`.
-2. Create a daily habit named `合成验收习惯` and check it for today.
-3. Start a one-minute Focus named `合成验收专注`, leave the app, lock the phone briefly, return, and finish it.
-4. Force-close LifeIndex, reopen it from the Home Screen, and verify the transaction, habit state, and Focus history remain correct.
+Pass condition: V1 records remain usable after schema V2 opens; no reset, duplicate, invented Health value, or request to clear site data occurs.
 
-Pass condition: persisted timestamps—not background callback frequency—produce the correct Focus result, and all three modules survive close/relaunch.
+## 4. Health and Habit acceptance
 
-## 5. Airplane-mode offline gate
+Use only synthetic values, then remove them after verification:
 
-1. Confirm Settings reports the offline shell is ready, then force-close LifeIndex.
-2. Enable airplane mode and ensure Wi-Fi is also off.
-3. Launch from the Home Screen, refresh/relaunch once, and confirm the offline banner appears while existing synthetic data remains readable.
-4. Add a `6.66` CNY synthetic expense and toggle the synthetic habit. Close and reopen while still offline; verify both changes remain.
-5. Restore connectivity and confirm no duplicate, data replacement, or unexpected remote synchronization occurs.
+1. In Health, record `68.4` kg with no real note; force-close/reopen and confirm it persists.
+2. Set a `65.0` kg target, confirm neutral target copy, then clear it.
+3. Edit the synthetic weight to `68.2` kg and confirm the newest value/trend display; delete it with confirmation.
+4. Record a `45` minute synthetic running Activity at “较强”, edit it to `50` minutes at “轻松”, force-close/reopen, then delete it.
+5. Create `合成验收习惯`, check it in, open progress, and verify current/longest streak, monthly statistics, fourteen-week heatmap, and recent check-in. Undo once and check in again.
 
-Pass condition: installed launch, reload, read, write, and persistence work offline on physical Safari/Home Screen.
+Pass condition: every save appears only after persistence, edits/deletes are confirmed, and Weight/Activity/Habit records survive reopen without judgmental or medical language.
 
-## 6. Files/iCloud backup and replacement restore
+## 5. Finance and Focus regression
 
-1. In Settings, export a complete backup and save it as a synthetic LifeIndex JSON file in Files or iCloud Drive.
-2. Note the on-screen backup time and expected counts; do not open or share the JSON contents.
+1. Select a date in the Finance month calendar and add a `12.34` CNY synthetic expense in `餐饮`.
+2. Confirm the day cell, month balance/expense/income, and selected-day ledger agree; edit to `20.00`, reopen, then delete it.
+3. Start a one-minute Focus named `合成验收专注`, leave the app, lock the phone briefly, return, and finish it early.
+4. Confirm Focus history is derived from persisted timestamps and remains after force-close/reopen.
+
+Pass condition: Finance calendar and Focus state remain correct across navigation, suspension, and reopen.
+
+## 6. Offline installed-app gate
+
+1. While online, confirm Settings reports the offline shell ready, then force-close LifeIndex.
+2. Enable airplane mode and turn Wi-Fi off.
+3. Launch from the Home Screen and confirm the offline banner appears while existing synthetic data remains readable.
+4. Add a `6.66` CNY synthetic expense and toggle the synthetic Habit. Close and reopen while still offline; verify both changes remain.
+5. Restore connectivity and confirm no duplicate, replacement, or unexpected synchronization occurs.
+
+Pass condition: physical Home Screen launch, read, write, and persistence work offline.
+
+## 7. Files/iCloud backup and replacement restore
+
+1. Export a V2 backup containing only the checklist's synthetic records and save it in Files/iCloud Drive.
+2. Note the displayed export time and counts without sharing the JSON.
 3. Add a `22.22` CNY synthetic expense after export.
-4. Select the saved backup, verify the preview metadata/counts, cancel once, and confirm current data is unchanged.
-5. Select it again, explicitly confirm replacement, and verify `22.22` is absent while the pre-export `12.34` and `6.66` records are present.
-6. Try a small non-backup JSON/text file and confirm LifeIndex rejects it while keeping all current records.
+4. Select the backup, inspect the nine-store preview, cancel once, and confirm current data is unchanged.
+5. Select it again, confirm replacement, and verify the post-export `22.22` record is absent while pre-export synthetic records remain.
+6. Select a small non-backup JSON/text file and confirm rejection leaves all current records unchanged.
 
-Pass condition: real iOS file handoff, preview, cancel, replacement, rejection, and post-restore restart are safe.
+Pass condition: iOS file handoff, preview, cancel, replacement, invalid-file rejection, and post-restore reopen are safe.
 
-## 7. URL Actions and Shortcuts
+## 8. Appearance, layout, and update safety
 
-Use the deployed base URL and the contracts in `PWA_AND_SHORTCUTS.md`.
+1. Check System, Light, and Dark appearance; confirm each main page remains readable.
+2. Open Finance and Health sheets with the keyboard visible; confirm fields, save/cancel controls, bottom safe area, and focus return are usable.
+3. Confirm no horizontal clipping at the device's normal text size and the five-item bottom bar does not cover content.
+4. For a later verified candidate deployment, leave a synthetic Finance or Health draft unsaved. Confirm **立即更新** is disabled and the draft remains. Cancel/save, apply the update, and confirm persisted records survive.
 
-1. Open a synthetic add-transaction fragment action with a fresh lowercase UUID. Confirm preview causes no write; cancel and verify its fields disappear from the active URL/history entry.
-2. Open it again with another UUID, confirm once, and verify exactly one record. Reopen the identical handled URL and verify no duplicate appears.
-3. Repeat preview/confirm with the synthetic habit and a one-minute Focus action.
-4. Open an action containing an unknown field and confirm it is rejected, scrubbed, and writes nothing.
-5. Build one iOS Shortcut using **Generate UUID → lowercase → URL Encode → Open URLs** and verify it stops at LifeIndex's confirmation screen.
-
-Pass condition: valid actions are preview-first and idempotent; invalid/canceled values are removed and never mutate data.
-
-## 8. Controlled update gate
-
-This section requires a second verified Pages deployment after the installed version is controlling the app.
-
-Use 0.1.1 or later as the starting version for this foreground-update test. If 0.1.0 was installed first, reopen it online and apply the available update before creating the dirty form; 0.1.0 only initiates update discovery at startup. The operator then deploys a different, verified version and records both versions. Merely redeploying unchanged application bytes does not prove an update transition.
-
-1. Begin a Finance form and leave a synthetic amount unsaved.
-2. After the new deployment is available, bring LifeIndex to the foreground and wait for the update banner.
-3. Confirm `立即更新` is disabled while the draft is dirty and the entered value remains visible.
-4. Cancel or save the draft, apply the update, and confirm LifeIndex reloads to the new displayed version without losing persisted records.
-5. If an active Focus was running, confirm its elapsed state reconstructs from timestamps.
-
-Pass condition: updates are explicit, dirty work is protected, and persisted data/state survives activation.
+Pass condition: appearance and layout work on the actual device, and an update cannot discard a dirty form.
 
 ## 9. Release sign-off
 
-Record each section as pass/fail only after the user executes it, with a short synthetic-only note. ADR-0005 explicitly permits `v1.0.0` closure without completing sections 3–8; their results remain deferred in PV1-01–06. This is owner acceptance of a verification limitation, not a physical sign-off. Automated Chromium/WebKit evidence must never be substituted for actual device results.
+The owner reports each section as pass/fail with a short synthetic-only note. Any data-loss, privacy, migration, offline-capture, blocked-control, or unrecoverable backup defect blocks the `v2.0.0` tag. Only after all required results are recorded may Codex publish the final tag and release notes.

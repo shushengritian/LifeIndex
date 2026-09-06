@@ -80,19 +80,13 @@ export function TodayPage() {
 
   return (
     <section className="page today-page" aria-labelledby="today-title">
-      <p className="eyebrow">today</p>
-      <h1 id="today-title">让今天保持清晰</h1>
-      <p className="page-intro">{formatToday(now)} · 所有记录仅保存在这台设备。</p>
-
-      <div className="quick-actions" aria-label="快捷操作">
-        <Link to="/finance">记一笔</Link>
-        <Link to="/focus">开始专注</Link>
-        <Link to="/habits">管理习惯</Link>
-      </div>
+      <p className="eyebrow">{formatToday(now)}</p>
+      <h1 id="today-title">今天</h1>
+      <p className="page-intro">先完成眼前的小事，记录会在本机安静累积。</p>
 
       <section className="content-section" aria-labelledby="today-habit-title">
         <div className="section-heading">
-          <h2 id="today-habit-title">今日习惯</h2>
+          <h2 id="today-habit-title">健康习惯</h2>
           {habitState.status === 'ready' ? (
             <span>
               {
@@ -115,7 +109,7 @@ export function TodayPage() {
           </p>
         ) : null}
         {habitState.status === 'ready' && habitState.data.scheduled.length === 0 ? (
-          <p className="empty-state">今天没有计划中的习惯。可以从“管理习惯”开始。</p>
+          <p className="empty-state">今天没有计划中的习惯。可以从“健康”创建一个。</p>
         ) : null}
         {habitState.status === 'ready' && habitState.data.scheduled.length > 0 ? (
           <ul className="habit-check-list">
@@ -140,6 +134,11 @@ export function TodayPage() {
           </ul>
         ) : null}
       </section>
+
+      <div className="quick-actions today-primary-actions" aria-label="快捷操作">
+        <Link to="/finance">记一笔</Link>
+        <Link to="/focus">开始专注</Link>
+      </div>
 
       <div className="today-summary-grid">
         <section aria-labelledby="today-finance-title">

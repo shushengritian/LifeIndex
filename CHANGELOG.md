@@ -4,7 +4,25 @@ All notable LifeIndex changes will be documented here. The project follows Seman
 
 ## [Unreleased]
 
-No post-V1 feature work is authorized yet.
+### Added
+
+- A lightweight Health destination combining manual weight, activity, and the retained Habit workflows without adding calorie, medical, workout-plan, wearable, or cloud features.
+- Additive IndexedDB schema V2 stores for Weight and Activity, six stable Activity categories, optional local weight target, and strict repositories/validation.
+- Backup format V2 across nine stores, with frozen V0/V1 in-memory migration, complete pre-write validation, and atomic replacement rollback.
+- A selectable Monday-first Finance month calendar with per-day net amounts, compact month totals, selected-day ledger, and mobile quick-entry sheet.
+- Fourteen-week Habit heatmap, current/longest streak, monthly completion, totals, and recent check-ins inside Health.
+- Shared line icons, compact contextual header, reusable modal sheet, and complete responsive light/dark visual system.
+
+### Changed
+
+- Bottom navigation is now Today, Finance, Focus, Health, and Settings; legacy Habit bookmarks redirect to Health.
+- Settings now exposes Categories, Appearance, Data & security, and Other as four independent groups.
+- Today prioritizes Health habits and the two direct Finance/Focus actions; Focus uses a timer-led presentation while retaining its timestamp state machine.
+
+### Verification
+
+- A real synthetic schema-V1 database upgrades in place with every old row preserved and both Health stores initially empty.
+- The local candidate passes static checks, 22 files / 125 Vitest tests, dual-engine production E2E, accessibility, offline, privacy, and 320/390 responsive checks. GitHub Pages and physical-iPhone evidence remain pending.
 
 ## [1.0.0] - 2026-09-04
 

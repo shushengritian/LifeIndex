@@ -45,6 +45,10 @@ function FocusForm({ categories, onStart }: FocusFormProps) {
   const [note, setNote] = useState('')
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
+  const previewSeconds =
+    duration === 'custom' && Number.isFinite(Number(customMinutes))
+      ? Number(customMinutes) * 60
+      : Number(duration === 'custom' ? 0 : duration)
 
   useDirtyForm(
     duration !== '1500' ||
@@ -94,6 +98,10 @@ function FocusForm({ categories, onStart }: FocusFormProps) {
       onSubmit={(event) => void submit(event)}
       aria-label="开始专注"
     >
+      <div className="focus-timer-ring" aria-label={`计划 ${durationLabel(previewSeconds)}`}>
+        <strong>{formatFocusDuration(previewSeconds)}</strong>
+        <span>准备专注</span>
+      </div>
       <div className="duration-presets" aria-label="专注时长">
         {[
           { value: '1500', label: '25 分钟' },
@@ -384,9 +392,10 @@ function ActiveFocus({
     <section className="active-focus" aria-labelledby="active-focus-title">
       <p>正在专注</p>
       <h2 id="active-focus-title">{session.title}</h2>
-      <strong className="timer-value" aria-label={`剩余 ${durationLabel(remaining)}`}>
-        {formatFocusDuration(remaining)}
-      </strong>
+      <div className="focus-timer-ring active" aria-label={`剩余 ${durationLabel(remaining)}`}>
+        <strong className="timer-value">{formatFocusDuration(remaining)}</strong>
+        <span>剩余</span>
+      </div>
       <span>即使切到后台，也会按结束时间继续计算。</span>
       <div className="form-actions">
         <button className="button-secondary" type="button" onClick={onCancel}>

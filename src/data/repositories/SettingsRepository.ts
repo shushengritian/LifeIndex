@@ -51,4 +51,24 @@ export class SettingsRepository {
         : new AppError('DatabaseWrite', 'Setting could not be written', { cause: error })
     }
   }
+
+  async remove(key: Setting['key']): Promise<void> {
+    logger.info('settings.delete.started', { entityType: 'setting', operation: 'delete' })
+    try {
+      const existing = await this.database.settings.get(key)
+      await this.database.settings.delete(key)
+      logger.info('settings.delete.succeeded', {
+        entityType: 'setting',
+        operation: 'delete',
+        count: existing ? 1 : 0,
+      })
+    } catch (error) {
+      logger.error('settings.delete.failed', error, {
+        entityType: 'setting',
+        operation: 'delete',
+        failureClass: 'DatabaseWrite',
+      })
+      throw new AppError('DatabaseWrite', 'Setting could not be deleted', { cause: error })
+    }
+  }
 }

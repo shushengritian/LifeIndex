@@ -16,8 +16,8 @@ const FinancePage = lazy(() =>
 const FocusPage = lazy(() =>
   import('@/features/focus/FocusPage').then(({ FocusPage }) => ({ default: FocusPage })),
 )
-const HabitsPage = lazy(() =>
-  import('@/features/habits/HabitsPage').then(({ HabitsPage }) => ({ default: HabitsPage })),
+const HealthPage = lazy(() =>
+  import('@/features/health/HealthPage').then(({ HealthPage }) => ({ default: HealthPage })),
 )
 const SettingsPage = lazy(() =>
   import('@/features/settings/SettingsPage').then(({ SettingsPage }) => ({
@@ -71,13 +71,14 @@ function AppRoutes() {
           }
         />
         <Route
-          path="/habits"
+          path="/health"
           element={
             <LazyRoute>
-              <HabitsPage />
+              <HealthPage />
             </LazyRoute>
           }
         />
+        <Route path="/habits" element={<Navigate to="/health" replace />} />
         <Route
           path="/settings"
           element={

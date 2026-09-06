@@ -1,9 +1,9 @@
 {
   "name": "lifeindex",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
-  "description": "A local-first personal life index for iPhone.",
+  "description": "A calm local-first finance, focus, and health index for iPhone.",
   "packageManager": "pnpm@11.19.0",
   "engines": {
     "node": ">=20.19.0"

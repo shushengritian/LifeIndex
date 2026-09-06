@@ -1,12 +1,12 @@
 # LifeIndex PWA and iOS Shortcuts Guide
 
-**Status:** V1 implementation and automated verification complete; physical steps deferred by owner under ADR-0005
+**Status:** V2 retains the verified V1 URL Action contract; V2 physical checks pending
 
-**Last updated:** 2026-09-04
+**Last updated:** 2026-09-06
 
 ## 1. Privacy and ownership
 
-LifeIndex is a static, local-first PWA. GitHub Pages serves application files only; Finance, Habits, Focus, Settings, action receipts, and backups remain in the current browser profile's IndexedDB unless the user explicitly exports a JSON file.
+LifeIndex is a static, local-first PWA. GitHub Pages serves application files only; Finance, Health/Habits, Focus, Settings, action receipts, and backups remain in the current browser profile's IndexedDB unless the user explicitly exports a JSON file.
 
 URL Actions use this shape:
 
@@ -130,4 +130,4 @@ Never share an action URL containing real amounts, titles, notes, or local IDs i
 
 ## 7. Verification boundary
 
-Automated M6 evidence covers root and synthetic Pages-subpath builds, manifest/icon inspection, Cache Storage policy, explicit update/dirty-form components, all three action types, no-write preview, malformed input, stale references, atomic rollback, durable deduplication, fragment cleanup, dual-engine offline mutation, and Chromium offline reload. Playwright WebKit raises an internal error on offline `reload()`; real iPhone Home Screen launch, airplane mode, Files/iCloud, actual Shortcuts, and installed update behavior remain unverified. The owner deferred these checks for `v1.0.0` in [ADR-0005](../adr/0005-v1-owner-acceptance.md); the full steps remain in `IPHONE_ACCEPTANCE.md`.
+V2 local automation retains root/Pages-subpath builds, manifest/icon inspection, Cache Storage policy, explicit update/dirty-form components, all three action types, no-write preview, malformed input, stale references, atomic rollback, durable deduplication, fragment cleanup, dual-engine offline mutation, and Chromium offline reload. Playwright WebKit raises an internal error on offline `reload()`; real iPhone Home Screen launch, airplane mode, Files/iCloud, actual Shortcuts, and installed update behavior remain unverified. The owner deferred those checks for `v1.0.0` in [ADR-0005](../adr/0005-v1-owner-acceptance.md); V2 must use the current [physical acceptance checklist](IPHONE_ACCEPTANCE.md).

@@ -4,7 +4,7 @@ import { useAppServices } from '@/app/AppServicesContext'
 import { HabitRepository, type SaveHabitCommand } from '@/data/repositories/HabitRepository'
 import {
   calculateHabitStatistics,
-  currentMonthCalendar,
+  habitHeatmap,
   isHabitVisibleForToday,
 } from '@/features/habits/habitDomain'
 import { parseLocalDateKey, toLocalDateKey } from '@/shared/domain/date'
@@ -205,11 +205,18 @@ function HabitForm({ habit, onCancel, onSave }: HabitFormProps) {
   )
 }
 
-export function HabitsPage() {
+export function HabitsPage({
+  embedded = false,
+  createRequest = 0,
+}: {
+  embedded?: boolean
+  createRequest?: number
+}) {
   const { database } = useAppServices()
   const repository = useMemo(() => new HabitRepository(database), [database])
   const today = toLocalDateKey(new Date())
-  const [formOpen, setFormOpen] = useState(false)
+  // A keyed Health workspace can request the existing create flow on its initial render.
+  const [formOpen, setFormOpen] = useState(createRequest > 0)
   const [editing, setEditing] = useState<Habit | undefined>()
   const [selectedHabitId, setSelectedHabitId] = useState<string>()
   const [pageError, setPageError] = useState('')
@@ -268,22 +275,27 @@ export function HabitsPage() {
   const isFormOpen = formOpen || editing !== undefined
 
   return (
-    <section className="page" aria-labelledby="habits-title">
-      <div className="page-heading-row">
-        <div>
-          <p className="eyebrow">habits</p>
-          <h1 id="habits-title">习惯</h1>
+    <section
+      className={embedded ? 'health-habit-workspace' : 'page'}
+      aria-labelledby={embedded ? undefined : 'habits-title'}
+    >
+      {!embedded ? (
+        <div className="page-heading-row">
+          <div>
+            <p className="eyebrow">habits</p>
+            <h1 id="habits-title">习惯</h1>
+          </div>
+          {!isFormOpen ? (
+            <button
+              className="button-primary compact"
+              type="button"
+              onClick={() => setFormOpen(true)}
+            >
+              新增
+            </button>
+          ) : null}
         </div>
-        {!isFormOpen ? (
-          <button
-            className="button-primary compact"
-            type="button"
-            onClick={() => setFormOpen(true)}
-          >
-            新增
-          </button>
-        ) : null}
-      </div>
+      ) : null}
 
       {isFormOpen ? (
         <HabitForm
@@ -449,14 +461,14 @@ function HabitProgress({
   today: string
 }) {
   const statistics = calculateHabitStatistics(habit, records, today)
-  const completed = new Set(records.map(({ localDate }) => localDate))
-  const calendar = currentMonthCalendar(habit, today)
-  const firstDate = parseLocalDateKey(calendar[0]!.localDate)!
-  const mondayOffset = (firstDate.getDay() + 6) % 7
+  const heatmap = habitHeatmap(habit, records, today)
+  const recentRecords = [...records]
+    .sort((left, right) => right.completedAt.localeCompare(left.completedAt))
+    .slice(0, 5)
 
   return (
     <section className="content-section progress-panel" aria-labelledby="habit-progress-title">
-      <h2 id="habit-progress-title">{habit.name} · 本月进度</h2>
+      <h2 id="habit-progress-title">{habit.name} · 统计</h2>
       <div className="summary-grid habit-stats">
         <article>
           <span>当前连续</span>
@@ -481,18 +493,10 @@ function HabitProgress({
           <strong>{statistics.totalCompletions} 次</strong>
         </article>
       </div>
-      <div className="calendar-grid" aria-label={`${habit.name} 本月日历`}>
-        {['一', '二', '三', '四', '五', '六', '日'].map((label) => (
-          <span className="calendar-weekday" key={label}>
-            {label}
-          </span>
-        ))}
-        {Array.from({ length: mondayOffset }, (_, index) => (
-          <span key={`blank-${index}`} aria-hidden="true" />
-        ))}
-        {calendar.map(({ localDate, scheduled, future }) => {
-          const isComplete = completed.has(localDate)
-          const state = isComplete
+      <h3 className="subsection-title">近 14 周</h3>
+      <div className="habit-heatmap" aria-label={`${habit.name} 近 14 周热力图`}>
+        {heatmap.map(({ localDate, scheduled, completed, future }) => {
+          const state = completed
             ? '已完成'
             : scheduled && !future
               ? '未完成'
@@ -502,15 +506,25 @@ function HabitProgress({
           return (
             <span
               key={localDate}
-              className={`calendar-day${isComplete ? ' calendar-complete' : ''}${scheduled ? ' calendar-scheduled' : ''}`}
+              className={`heatmap-cell${completed ? ' heatmap-complete' : ''}${scheduled ? ' heatmap-scheduled' : ''}${future ? ' heatmap-future' : ''}`}
               aria-label={`${localDate} ${state}`}
-            >
-              {Number(localDate.slice(8))}
-              {isComplete ? <b aria-hidden="true">✓</b> : null}
-            </span>
+            />
           )
         })}
       </div>
+      <h3 className="subsection-title">最近打卡</h3>
+      {recentRecords.length ? (
+        <ul className="recent-checkins">
+          {recentRecords.map((record) => (
+            <li key={record.id}>
+              <span>{record.localDate}</span>
+              <strong>已完成</strong>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="empty-state">还没有打卡记录。</p>
+      )}
     </section>
   )
 }

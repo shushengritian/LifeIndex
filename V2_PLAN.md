@@ -1,6 +1,6 @@
 # LifeIndex V2 Version Plan
 
-**Status:** Gate G2 passed — V2-M3 data foundation, design system, and application shell in progress
+**Status:** V2-M5 complete — V2-M6 release candidate preparation in progress
 **Started:** 2026-09-06
 **Target release:** `v2.0.0` after approval, implementation, deployment, and physical-iPhone acceptance
 **Product baseline:** [LifeIndex-Project-Baseline.md](LifeIndex-Project-Baseline.md)
@@ -155,18 +155,18 @@ The following are not authorized by the V2 UI refresh and require separate produ
 
 ### V2-M3 — Data foundation, shared design system, and application shell
 
-**Status:** In progress
+**Status:** Complete
 
 - Implement and verify the additive schema V2, Health types/repositories, backup V2 migration/restore, and stable Activity seeds before Health UI writes exist.
 - Implement tokens, typography, shared primitives, icons, navigation, top bar, sheets, rows, and feedback states.
 - Add focused unit/component tests and mobile visual checks.
 - Verify 320 px and 390 px widths, safe areas, light/dark appearance, and reduced motion.
 
-**Progress evidence:** The data-first slice is complete on 2026-09-06: schema V2 retains both Dexie declarations, adds only `weightEntries` and `activitySessions`, seeds six missing stable Activity categories, implements Weight/Activity repositories, and emits/accepts backup V2 with V0/V1 in-memory migrations. A populated real schema-V1 fixture preserves all representative old rows. Focused integration checks pass 29/29; full Vitest passes 20 files / 104 tests; ESLint and strict TypeScript pass. Shared visual system and shell remain in progress.
+**Evidence:** Schema V2 retains both Dexie declarations, adds only `weightEntries` and `activitySessions`, seeds six stable Activity categories, implements Weight/Activity repositories, and emits/accepts backup V2 with V0/V1 in-memory migrations. A populated real schema-V1 fixture preserves all representative old rows. The shared shell now uses five line-icon destinations, a compact local-only header, reusable inert/focus-restoring sheets, complete light/dark tokens, and responsive 320/390 layouts. Unit/integration coverage reaches 22 files / 125 tests after the Health UI failure cases were added; ESLint and strict TypeScript pass.
 
 ### V2-M4 — Vertical feature slices
 
-**Status:** Blocked by V2-M3
+**Status:** Complete
 
 Implement and verify one reviewable slice at a time:
 
@@ -178,18 +178,22 @@ Implement and verify one reviewable slice at a time:
 
 Each slice includes documentation, comments on key logic, privacy-safe logs, narrow automated checks, and regression checks for existing data operations.
 
+**Evidence:** Today, Finance, Health/Habits, Focus, and Settings are implemented against the frozen repositories and contracts. Finance has a Monday-first selectable month calendar, daily net cells, compact month totals, selected-day ledger, reports, and quick-entry sheet. Health has Weight target/trend/history, Activity weekly summary/history, retained Habit CRUD/check-in/detail, and the three-action add chooser. Settings exposes Categories, Appearance, Data & security, and Other as four independent groups. Health create/edit/delete/target and retained critical workflows run in both browser engines.
+
 ### V2-M5 — Integrated hardening
 
-**Status:** Blocked by V2-M4
+**Status:** Complete — local versioned gate passed on 2026-09-06
 
 - Run format, lint, typecheck, unit, integration, E2E, accessibility, build, and offline/update suites.
 - Verify backup/export/import compatibility with V1 records and the new versioned Health record types.
 - Verify update recovery, dirty-form protection, direct URL Actions, storage failures, and timer resume after iOS suspension.
 - Complete a migration rehearsal: install V1, create representative data, upgrade to the additive V2 schema, and verify all old and new records plus rollback behavior.
 
+**Evidence:** The final `2.0.0` root-path production build passes 35 Playwright scenarios with one documented WebKit-only offline-reload skip. The GitHub Pages-equivalent `/LifeIndex/` build passes 11 deployed-smoke scenarios with the same single skip, including base-scoped routes/assets/manifest/worker, local Health persistence, offline mutation, and fragment privacy. The full Vitest suite passes 22 files / 125 tests, including populated V1-to-V2 migration and atomic backup rollback. Axe reports no detectable violations on all primary routes and Finance/Health sheets. Automated 320 px checks prove no horizontal overflow and at least 44 × 44 calendar capture targets; direct browser inspection covers 390 px Finance/Health light appearance, Settings dark appearance, and the 320 px Finance first screen. Prettier, ESLint, strict TypeScript, production build, and repository diff checks pass.
+
 ### V2-M6 — GitHub Pages release candidate
 
-**Status:** Blocked by V2-M5
+**Status:** In progress — local release candidate ready; owner V1 backup required before production merge
 
 - Review the release diff and repository cleanliness.
 - Push the approved commit set to GitHub.
@@ -274,11 +278,14 @@ The owner should review the first design against these questions:
 | 2026-09-06 | Revision 4 separates Settings into four independent groups: Categories, Appearance, Data & security, and Other. | Proposed for G1 |
 | 2026-09-06 | Revision 5 makes Health the third business domain, combining unchanged Habits with minimal weight and activity records while retaining five bottom destinations. | Accepted at G1; see ADR-0006 |
 | 2026-09-06 | Use additive schema V2 stores, integer grams/minutes, Activity categories, optional target setting, and backup format V2 with V0/V1 in-memory migration. | Accepted at G2; see ADR-0007 |
+| 2026-09-06 | Use Monday-first semantic calendar rows and an edge-to-edge narrow-screen calendar so 320 px capture targets retain the 44 px floor. | Implemented and verified locally |
 
 ## Change log
 
 | Date | Change |
 | --- | --- |
+| 2026-09-06 | Completed V2-M5/G5: 125 Vitest checks, 35/1 dual-engine E2E, 11/1 `/LifeIndex/` deployment smoke, accessibility, privacy, offline, backup/migration, and responsive gates pass locally. |
+| 2026-09-06 | Completed V2-M3/M4 implementation; started integrated hardening with 125 Vitest checks, 35 dual-engine browser passes, accessibility checks, and 320/390 visual inspection. |
 | 2026-09-06 | Completed V2-M2/G2 and started V2-M3 with the data foundation before visual implementation. |
 | 2026-09-06 | Recorded the owner's approval of Revision 5, completed V2-M1/G1, accepted ADR-0006, and started V2-M2 documentation freeze. |
 | 2026-09-06 | Revised M1 to replace the Habits destination with a lightweight Health overview and recorded the additive data impact in ADR-0006. |

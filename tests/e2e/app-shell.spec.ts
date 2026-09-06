@@ -100,15 +100,15 @@ async function createSyntheticBackupInput(page: import('@playwright/test').Page)
 test('loads the LifeIndex shell and navigates between primary destinations', async ({ page }) => {
   await page.goto('/')
 
-  await expect(page.getByRole('heading', { name: '让今天保持清晰' })).toBeVisible()
-  await page.getByRole('link', { name: '习惯', exact: true }).click()
-  await expect(page.getByRole('heading', { name: '习惯', exact: true })).toBeVisible()
-  await expect(page).toHaveURL(/#\/habits$/)
+  await expect(page.getByRole('heading', { name: '今天' })).toBeVisible()
+  await page.getByRole('link', { name: '健康', exact: true }).click()
+  await expect(page.getByRole('heading', { name: '健康', exact: true })).toBeVisible()
+  await expect(page).toHaveURL(/#\/health$/)
 })
 
 test('has no automatically detectable accessibility violations on the shell', async ({ page }) => {
   await page.goto('/')
-  await expect(page.getByRole('heading', { name: '让今天保持清晰' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '今天' })).toBeVisible()
 
   const results = await new AxeBuilder({ page }).analyze()
   expect(results.violations).toEqual([])
@@ -118,11 +118,18 @@ test('creates, persists, edits, and deletes a local transaction', async ({ page 
   await page.goto('/#/finance')
   await expect(page.getByRole('heading', { name: '记账' })).toBeVisible()
 
-  await page.getByRole('button', { name: '新增' }).click()
+  const addTransaction = page.getByRole('button', { name: '新增交易' })
+  await addTransaction.focus()
+  await addTransaction.press('Enter')
   await page.getByLabel('金额（CNY）').fill('12.30')
   await page.getByRole('combobox', { name: '分类' }).selectOption({ label: '餐饮' })
   await page.getByRole('button', { name: '保存' }).click()
   await expect(page.getByText('−¥12.30')).toBeVisible()
+  await expect(addTransaction).toBeFocused()
+  await expect(page.getByRole('gridcell', { name: /净额 -¥12\.30/ })).toHaveAttribute(
+    'aria-selected',
+    'true',
+  )
 
   await page.reload()
   await expect(page.getByText('−¥12.30')).toBeVisible()
@@ -133,14 +140,15 @@ test('creates, persists, edits, and deletes a local transaction', async ({ page 
 
   page.once('dialog', (dialog) => dialog.accept())
   await page.getByRole('button', { name: '删除' }).click()
-  await expect(page.getByText('这个时间范围还没有账目。新增一笔，就从这里开始。')).toBeVisible()
+  await expect(page.getByText('这一天还没有账目。点按右上角即可记一笔。')).toBeVisible()
 })
 
 test('creates a habit and persists reversible daily check-in', async ({ page }) => {
-  await page.goto('/#/habits')
-  await expect(page.getByRole('heading', { name: '习惯', exact: true })).toBeVisible()
+  await page.goto('/#/health')
+  await expect(page.getByRole('heading', { name: '健康', exact: true })).toBeVisible()
 
-  await page.getByRole('button', { name: '新增' }).click()
+  await page.getByRole('button', { name: '添加健康记录' }).click()
+  await page.getByRole('button', { name: /创建习惯/ }).click()
   await page.getByLabel('习惯名称').fill('合成阅读习惯')
   await page.getByRole('button', { name: '保存' }).click()
 
@@ -160,6 +168,71 @@ test('creates a habit and persists reversible daily check-in', async ({ page }) 
     'aria-pressed',
     'false',
   )
+})
+
+test('creates and persists local weight and Activity records', async ({ page }) => {
+  const requests: string[] = []
+  const consoleMessages: string[] = []
+  const privateMarker = 'SYNTHETIC_HEALTH_PRIVATE_MARKER_73cd'
+  page.on('request', (request) => requests.push(request.url()))
+  page.on('console', (message) => consoleMessages.push(message.text()))
+  await page.goto('/#/health')
+  await expect(page.getByRole('heading', { name: '健康', exact: true })).toBeVisible()
+
+  await page.getByRole('button', { name: '添加健康记录' }).click()
+  await page.getByRole('button', { name: /记录体重/ }).click()
+  await page.getByLabel('体重（公斤）').fill('68.4')
+  await page.getByLabel('备注（可选）').fill(privateMarker)
+  await page.getByRole('button', { name: '保存' }).click()
+  const weightRegion = page.getByRole('region', { name: '体重' })
+  await expect(weightRegion.locator('.weight-overview strong')).toHaveText('68.4')
+
+  await weightRegion.getByRole('button', { name: /目标/ }).click()
+  await page.getByLabel('目标（公斤）').fill('65')
+  await page.getByRole('button', { name: '保存' }).click()
+  await expect(weightRegion.getByRole('button', { name: /65\.0 kg/ })).toBeVisible()
+  await weightRegion.getByRole('button', { name: /65\.0 kg/ }).click()
+  await page.getByRole('button', { name: '清除目标' }).click()
+  await expect(weightRegion.getByRole('button', { name: /未设置/ })).toBeVisible()
+
+  await weightRegion.getByRole('button', { name: '编辑' }).click()
+  await page.getByLabel('体重（公斤）').fill('68.2')
+  await page.getByRole('button', { name: '保存' }).click()
+  await expect(weightRegion.locator('.weight-overview strong')).toHaveText('68.2')
+
+  await page.getByRole('button', { name: '添加健康记录' }).click()
+  await page.getByRole('button', { name: /记录运动/ }).click()
+  await page.getByLabel('运动类型').selectOption({ label: '跑步' })
+  await page.getByLabel('时长（分钟）').fill('45')
+  await page.getByRole('button', { name: '较强' }).click()
+  await page.getByRole('button', { name: '保存' }).click()
+  await expect(page.getByText('45 分钟 · 较强', { exact: true })).toBeVisible()
+
+  const activityRegion = page.getByRole('region', { name: '运动' })
+  await activityRegion.getByRole('button', { name: '编辑' }).click()
+  await page.getByLabel('时长（分钟）').fill('50')
+  await page.getByRole('button', { name: '轻松' }).click()
+  await page.getByRole('button', { name: '保存' }).click()
+  await expect(page.getByText('50 分钟 · 轻松', { exact: true })).toBeVisible()
+
+  await page.reload()
+  await expect(weightRegion.locator('.weight-overview strong')).toHaveText('68.2')
+  await expect(page.getByText('50 分钟 · 轻松', { exact: true })).toBeVisible()
+  expect(await readStoreRecords(page, 'weightEntries')).toHaveLength(1)
+  expect(await readStoreRecords(page, 'activitySessions')).toHaveLength(1)
+
+  page.once('dialog', (dialog) => dialog.accept())
+  await weightRegion.getByRole('button', { name: '删除' }).click()
+  await expect(weightRegion.getByText(/记录第一次体重/)).toBeVisible()
+  page.once('dialog', (dialog) => dialog.accept())
+  await activityRegion.getByRole('button', { name: '删除' }).click()
+  await expect(activityRegion.getByText(/本周还没有运动记录/)).toBeVisible()
+  expect(await readStoreRecords(page, 'weightEntries')).toHaveLength(0)
+  expect(await readStoreRecords(page, 'activitySessions')).toHaveLength(0)
+
+  for (const value of [...requests, ...consoleMessages]) {
+    expect(value).not.toContain(privateMarker)
+  }
 })
 
 test('restores an active focus timer after reload and saves one early finish', async ({ page }) => {
@@ -185,10 +258,10 @@ test('restores an active focus timer after reload and saves one early finish', a
 
 test('keeps Today calm while reflecting cross-feature local changes', async ({ page }) => {
   await page.goto('/')
-  await expect(page.getByRole('heading', { name: '让今天保持清晰' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '今天' })).toBeVisible()
 
   await page.getByRole('link', { name: '记一笔' }).click()
-  await page.getByRole('button', { name: '新增' }).click()
+  await page.getByRole('button', { name: '新增交易' }).click()
   await page.getByLabel('金额（CNY）').fill('8.80')
   await page.getByRole('combobox', { name: '分类' }).selectOption({ label: '餐饮' })
   await page.getByRole('button', { name: '保存' }).click()
@@ -197,8 +270,9 @@ test('keeps Today calm while reflecting cross-feature local changes', async ({ p
     page.getByRole('region', { name: '今日账目' }).getByText('¥8.80', { exact: true }),
   ).toBeVisible()
 
-  await page.getByRole('link', { name: '管理习惯' }).click()
-  await page.getByRole('button', { name: '新增' }).click()
+  await page.getByRole('link', { name: '健康', exact: true }).click()
+  await page.getByRole('button', { name: '添加健康记录' }).click()
+  await page.getByRole('button', { name: /创建习惯/ }).click()
   await page.getByLabel('习惯名称').fill('合成今日习惯')
   await page.getByRole('button', { name: '保存' }).click()
   await page.getByRole('link', { name: /今天/ }).click()
@@ -222,8 +296,15 @@ test('persists appearance and manages Finance category lifecycle', async ({ page
   await expect.poll(() => page.locator('html').getAttribute('data-theme')).toBe('dark')
   await page.reload()
   await expect.poll(() => page.locator('html').getAttribute('data-theme')).toBe('dark')
+  await expect(page.getByRole('heading', { name: '分类' })).toBeVisible()
+  expect(await page.locator('.settings-section h2').allTextContents()).toEqual([
+    '分类',
+    '外观',
+    '数据与安全',
+    '其他',
+  ])
 
-  const categoryRegion = page.getByRole('region', { name: '记账分类' })
+  const categoryRegion = page.getByRole('region', { name: '分类' })
   await categoryRegion.getByLabel('分类名称').fill('合成旅行')
   await categoryRegion.getByRole('button', { name: '新增分类' }).click()
   let categoryRow = categoryRegion.getByRole('listitem').filter({ hasText: '合成旅行' })
@@ -242,7 +323,7 @@ test('persists appearance and manages Finance category lifecycle', async ({ page
   await archivedRow.getByRole('button', { name: '恢复' }).click()
 
   await page.getByRole('link', { name: /记账/ }).click()
-  await page.getByRole('button', { name: '新增' }).click()
+  await page.getByRole('button', { name: '新增交易' }).click()
   await expect(
     page.getByRole('combobox', { name: '分类' }).getByRole('option', { name: '合成出行' }),
   ).toBeAttached()
@@ -252,7 +333,7 @@ test('exports, previews, and replaces data from a downloaded backup', async ({
   page,
 }, testInfo) => {
   await page.goto('/#/finance')
-  await page.getByRole('button', { name: '新增' }).click()
+  await page.getByRole('button', { name: '新增交易' }).click()
   await page.getByLabel('金额（CNY）').fill('11.11')
   await page.getByRole('combobox', { name: '分类' }).selectOption({ label: '餐饮' })
   await page.getByRole('button', { name: '保存' }).click()
@@ -272,7 +353,7 @@ test('exports, previews, and replaces data from a downloaded backup', async ({
   await expect(page.getByText(/备份文件已交给系统/)).toBeVisible()
 
   await page.getByRole('link', { name: /记账/ }).click()
-  await page.getByRole('button', { name: '新增' }).click()
+  await page.getByRole('button', { name: '新增交易' }).click()
   await page.getByLabel('金额（CNY）').fill('22.22')
   await page.getByRole('combobox', { name: '分类' }).selectOption({ label: '交通' })
   await page.getByRole('button', { name: '保存' }).click()
@@ -364,8 +445,9 @@ test('previews, commits, and durably deduplicates a transaction URL action', asy
 test('supports habit and focus actions while scrubbing cancel and invalid fragments', async ({
   page,
 }) => {
-  await page.goto('/#/habits')
-  await page.getByRole('button', { name: '新增' }).click()
+  await page.goto('/#/health')
+  await page.getByRole('button', { name: '添加健康记录' }).click()
+  await page.getByRole('button', { name: /创建习惯/ }).click()
   await page.getByLabel('习惯名称').fill('合成快捷习惯')
   await page.getByRole('button', { name: '保存' }).click()
   const habits = await readStoreRecords(page, 'habits')
@@ -412,7 +494,7 @@ test('creates and persists local data after the browser goes offline', async ({
   await context.setOffline(true)
   try {
     await expect(page.getByText('当前离线 · 本机数据仍可继续使用')).toBeVisible()
-    await page.getByRole('button', { name: '新增' }).click()
+    await page.getByRole('button', { name: '新增交易' }).click()
     await page.getByLabel('金额（CNY）').fill('6.66')
     await page.getByRole('combobox', { name: '分类' }).selectOption({ label: '餐饮' })
     await page.getByRole('button', { name: '保存' }).click()
@@ -440,7 +522,7 @@ test('reloads the cached application shell and persisted data offline in Chromiu
   try {
     await page.reload()
     await expect(page.getByText('当前离线 · 本机数据仍可继续使用')).toBeVisible()
-    await page.getByRole('button', { name: '新增' }).click()
+    await page.getByRole('button', { name: '新增交易' }).click()
     await page.getByLabel('金额（CNY）').fill('7.77')
     await page.getByRole('combobox', { name: '分类' }).selectOption({ label: '餐饮' })
     await page.getByRole('button', { name: '保存' }).click()
@@ -454,7 +536,7 @@ test('reloads the cached application shell and persisted data offline in Chromiu
 
 test('rejects an invalid backup in the UI without changing current records', async ({ page }) => {
   await page.goto('/#/finance')
-  await page.getByRole('button', { name: '新增' }).click()
+  await page.getByRole('button', { name: '新增交易' }).click()
   await page.getByLabel('金额（CNY）').fill('9.99')
   await page.getByRole('combobox', { name: '分类' }).selectOption({ label: '餐饮' })
   await page.getByRole('button', { name: '保存' }).click()
@@ -477,10 +559,10 @@ test('keeps primary routes and entry states free of detectable accessibility vio
   page,
 }) => {
   const routes = [
-    ['/#/today', '让今天保持清晰'],
+    ['/#/today', '今天'],
     ['/#/finance', '记账'],
     ['/#/focus', '专注'],
-    ['/#/habits', '习惯'],
+    ['/#/health', '健康'],
     ['/#/settings', '设置'],
   ] as const
   for (const [route, heading] of routes) {
@@ -490,7 +572,11 @@ test('keeps primary routes and entry states free of detectable accessibility vio
   }
 
   await page.goto('/#/finance')
-  await page.getByRole('button', { name: '新增' }).click()
+  await page.getByRole('button', { name: '新增交易' }).click()
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
+
+  await page.goto('/#/health')
+  await page.getByRole('button', { name: '添加健康记录' }).click()
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
 
   await page.goto(
@@ -509,7 +595,7 @@ test('fits long representative content and touch controls at 320 CSS pixels', as
   await page.setViewportSize({ width: 320, height: 568 })
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/#/settings')
-  const categoryRegion = page.getByRole('region', { name: '记账分类' })
+  const categoryRegion = page.getByRole('region', { name: '分类' })
   await categoryRegion.getByLabel('分类名称').fill('合成很长很长但仍然有效的旅行与家庭生活分类')
   await categoryRegion.getByRole('button', { name: '新增分类' }).click()
   await expect(categoryRegion.getByText('合成很长很长但仍然有效的旅行与家庭生活分类')).toBeVisible()
@@ -542,6 +628,19 @@ test('fits long representative content and touch controls at 320 CSS pixels', as
         .filter(({ width, height }) => width < 44 || height < 44),
     )
   expect(smallControls).toEqual([])
+
+  await page.goto('/#/finance')
+  await expect(page.getByRole('heading', { name: '记账' })).toBeVisible()
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth - innerWidth),
+  ).toBeLessThanOrEqual(0)
+  const calendarTargets = await page.locator('.finance-calendar button').evaluateAll((elements) =>
+    elements.map((element) => {
+      const rect = element.getBoundingClientRect()
+      return { width: rect.width, height: rect.height }
+    }),
+  )
+  expect(calendarTargets.every(({ width, height }) => width >= 44 && height >= 44)).toBe(true)
 
   const motionDurations = await page.locator('.page').evaluate((element) => {
     const style = getComputedStyle(element)

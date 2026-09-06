@@ -28,17 +28,50 @@ test('serves base-scoped routes, assets, manifest, and worker without runtime er
 
   const response = await page.goto(baseUrl(testInfo).toString())
   expect(response?.ok()).toBe(true)
-  await expect(page.getByRole('heading', { name: '让今天保持清晰' })).toBeVisible()
-  // A healthy old cached release is not proof that the checked-out candidate was deployed.
-  await expect(page.getByLabel(`应用版本 ${expectedVersion}`, { exact: true })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '今天' })).toBeVisible()
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
 
-  for (const destination of ['记账', '专注', '习惯', '设置']) {
+  for (const destination of ['记账', '专注', '健康', '设置']) {
     await page.getByRole('link', { name: destination, exact: true }).click()
     await expect(page.getByRole('heading', { name: destination, exact: true })).toBeVisible()
   }
+  // A healthy old cached release is not proof that the checked-out candidate was deployed.
+  await expect(page.getByLabel(`应用版本 ${expectedVersion}`, { exact: true })).toBeVisible()
+  expect(await page.locator('.settings-section h2').allTextContents()).toEqual([
+    '分类',
+    '外观',
+    '数据与安全',
+    '其他',
+  ])
+  const databaseMetadata = await page.evaluate(async () => {
+    const database = await new Promise<IDBDatabase>((resolve, reject) => {
+      const request = indexedDB.open('LifeIndexDB')
+      request.onsuccess = () => resolve(request.result)
+      request.onerror = () => reject(request.error)
+    })
+    try {
+      return { version: database.version, stores: Array.from(database.objectStoreNames).sort() }
+    } finally {
+      database.close()
+    }
+  })
+  expect(databaseMetadata).toEqual({
+    // Dexie reserves one decimal digit for its schema versions, so logical V2 is stored as native IndexedDB version 20.
+    version: 20,
+    stores: [
+      'actionReceipts',
+      'activitySessions',
+      'categories',
+      'focusSessions',
+      'habitRecords',
+      'habits',
+      'settings',
+      'transactions',
+      'weightEntries',
+    ],
+  })
   await page.goto(routeUrl(testInfo, '/not-a-real-route'))
-  await expect(page.getByRole('heading', { name: '让今天保持清晰' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '今天' })).toBeVisible()
 
   const manifestHref = await page.locator('link[rel="manifest"]').getAttribute('href')
   const manifestUrl = new URL(manifestHref!, baseUrl(testInfo))
@@ -71,15 +104,43 @@ test('serves base-scoped routes, assets, manifest, and worker without runtime er
   expect(pageErrors).toEqual([])
 })
 
+test('persists synthetic Health records locally on the deployed candidate', async ({
+  page,
+}, testInfo) => {
+  const requests: string[] = []
+  const privateMarker = 'SYNTHETIC_DEPLOYED_HEALTH_MARKER_84be'
+  page.on('request', (request) => requests.push(request.url()))
+  await page.goto(routeUrl(testInfo, '/health'))
+  await expect(page.getByRole('heading', { name: '健康' })).toBeVisible()
+
+  await page.getByRole('button', { name: '添加健康记录' }).click()
+  await page.getByRole('button', { name: /记录体重/ }).click()
+  await page.getByLabel('体重（公斤）').fill('67.8')
+  await page.getByLabel('备注（可选）').fill(privateMarker)
+  await page.getByRole('button', { name: '保存' }).click()
+  await page.getByRole('button', { name: '添加健康记录' }).click()
+  await page.getByRole('button', { name: /记录运动/ }).click()
+  await page.getByLabel('运动类型').selectOption({ label: '步行' })
+  await page.getByLabel('时长（分钟）').fill('20')
+  await page.getByRole('button', { name: '保存' }).click()
+
+  await page.reload()
+  await expect(page.locator('.weight-overview strong')).toHaveText('67.8')
+  await expect(page.getByText('20 分钟 · 适中', { exact: true })).toBeVisible()
+  for (const value of requests) {
+    expect(value).not.toContain(privateMarker)
+  }
+})
+
 test('keeps synthetic records local and durable across an online reload', async ({
   page,
 }, testInfo) => {
   const requests: string[] = []
   page.on('request', (request) => requests.push(request.url()))
   await page.goto(routeUrl(testInfo, '/finance'))
-  await expect(page.getByText('这个时间范围还没有账目。新增一笔，就从这里开始。')).toBeVisible()
+  await expect(page.getByText('这一天还没有账目。点按右上角即可记一笔。')).toBeVisible()
 
-  await page.getByRole('button', { name: '新增' }).click()
+  await page.getByRole('button', { name: '新增交易' }).click()
   await page.getByLabel('金额（CNY）').fill('3.21')
   await page.getByRole('combobox', { name: '分类' }).selectOption({ label: '餐饮' })
   await page.getByRole('button', { name: '保存' }).click()
@@ -129,7 +190,7 @@ test('mutates and preserves local data after the deployed app goes offline', asy
   await context.setOffline(true)
   try {
     await expect(page.getByText('当前离线 · 本机数据仍可继续使用')).toBeVisible()
-    await page.getByRole('button', { name: '新增' }).click()
+    await page.getByRole('button', { name: '新增交易' }).click()
     await page.getByLabel('金额（CNY）').fill('6.54')
     await page.getByRole('combobox', { name: '分类' }).selectOption({ label: '餐饮' })
     await page.getByRole('button', { name: '保存' }).click()
@@ -158,7 +219,7 @@ test('reloads the deployed cached shell offline in Chromium', async ({
   try {
     await page.reload()
     await expect(page.getByText('当前离线 · 本机数据仍可继续使用')).toBeVisible()
-    await expect(page.getByRole('heading', { name: '让今天保持清晰' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: '今天' })).toBeVisible()
   } finally {
     await context.setOffline(false)
   }

@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  buildFinanceMonthCalendar,
   expenseByCategory,
   monthlyTrend,
+  moveFinanceMonthSelection,
   rangeForPeriod,
   summarizeTransactions,
 } from '@/features/finance/financeDomain'
@@ -10,6 +12,32 @@ import { createSeedCategories } from '@/data/db/seeds'
 import { buildTransaction, FIXED_NOW } from '../fixtures/builders'
 
 describe('Finance domain projections', () => {
+  it('builds a Monday-first month calendar with exact daily totals and selection', () => {
+    const calendar = buildFinanceMonthCalendar('2026-09-03', '2026-09-03', '2026-09-03', [
+      buildTransaction({ amountMinor: 1_230 }),
+      buildTransaction({
+        id: '00000000-0000-4000-8000-000000000099',
+        type: 'income',
+        categoryId: 'category-finance-income-salary-v1',
+        amountMinor: 2_000,
+      }),
+    ])
+    expect(calendar.leadingBlankCount).toBe(1)
+    expect(calendar.days).toHaveLength(30)
+    expect(calendar.days[2]).toMatchObject({
+      selected: true,
+      today: true,
+      incomeMinor: 2_000,
+      expenseMinor: 1_230,
+      balanceMinor: 770,
+    })
+  })
+
+  it('clamps month navigation to the target month', () => {
+    expect(moveFinanceMonthSelection('2026-01-31', 1)).toBe('2026-02-28')
+    expect(moveFinanceMonthSelection('2024-01-31', 1)).toBe('2024-02-29')
+  })
+
   it('uses Monday-through-Sunday and local month boundaries', () => {
     expect(rangeForPeriod('today', '2026-09-03')).toEqual({
       from: '2026-09-03',

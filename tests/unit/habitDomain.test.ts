@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   calculateHabitStatistics,
   currentMonthCalendar,
+  habitHeatmap,
   isHabitScheduled,
   isHabitVisibleForToday,
 } from '@/features/habits/habitDomain'
@@ -52,5 +53,18 @@ describe('habit schedules and statistics', () => {
     expect(calendar[0]).toMatchObject({ scheduled: false, future: false })
     expect(calendar[1]).toMatchObject({ scheduled: true, future: false })
     expect(calendar[3]).toMatchObject({ scheduled: true, future: true })
+  })
+
+  it('builds fourteen Monday-first heatmap weeks with explicit states', () => {
+    const habit = buildHabit({ startLocalDate: '2026-08-01' })
+    const cells = habitHeatmap(habit, [buildHabitRecord()], '2026-09-03')
+    expect(cells).toHaveLength(98)
+    expect(cells[0]?.localDate).toBe('2026-06-01')
+    expect(cells.find(({ localDate }) => localDate === '2026-09-03')).toMatchObject({
+      completed: true,
+      scheduled: true,
+      future: false,
+    })
+    expect(cells.at(-1)).toMatchObject({ localDate: '2026-09-06', future: true })
   })
 })

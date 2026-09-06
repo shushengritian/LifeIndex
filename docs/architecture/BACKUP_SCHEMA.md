@@ -4,7 +4,7 @@
 
 **Current format version:** 2
 
-**Status:** Format V2 and V0/V1 migrations implemented; browser UI regression/hardening pending
+**Status:** Format V2, V0/V1 migrations, browser UI, and atomic restore verified locally; deployed/physical checks pending
 
 ## 1. File contract
 

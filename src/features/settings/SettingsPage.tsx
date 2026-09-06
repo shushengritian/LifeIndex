@@ -8,7 +8,7 @@ import { CURRENT_DATABASE_VERSION } from '@/data/db/schema'
 import { CategoryRepository } from '@/data/repositories/CategoryRepository'
 import { SettingsRepository } from '@/data/repositories/SettingsRepository'
 import { applyAppearance } from '@/features/settings/appearance'
-import type { Appearance, Category, TransactionType } from '@/shared/domain/types'
+import type { Appearance, Category, CategoryDomain, TransactionType } from '@/shared/domain/types'
 import { useLiveQueryState } from '@/shared/hooks/useLiveQueryState'
 import { logger } from '@/shared/logging/logger'
 import { usePwa } from '@/pwa/PwaContext'
@@ -35,15 +35,18 @@ export function SettingsPage() {
   useDirtyForm(Boolean(preview) || working)
 
   const query = useCallback(async () => {
-    const [appearance, lastExport, financeCategories] = await Promise.all([
-      settings.get('appearance'),
-      settings.get('lastSuccessfulExportAt'),
-      categories.list({ domain: 'finance', includeArchived: true }),
-    ])
+    const [appearance, lastExport, financeCategories, focusCategories, activityCategories] =
+      await Promise.all([
+        settings.get('appearance'),
+        settings.get('lastSuccessfulExportAt'),
+        categories.list({ domain: 'finance', includeArchived: true }),
+        categories.list({ domain: 'focus', includeArchived: true }),
+        categories.list({ domain: 'activity', includeArchived: true }),
+      ])
     return {
       appearance: appearance?.key === 'appearance' ? appearance.value : 'system',
       lastExport: lastExport?.key === 'lastSuccessfulExportAt' ? lastExport.value : undefined,
-      financeCategories,
+      allCategories: [...financeCategories, ...focusCategories, ...activityCategories],
     }
   }, [categories, settings])
   const state = useLiveQueryState(query)
@@ -114,7 +117,7 @@ export function SettingsPage() {
   async function restoreBackup() {
     if (!preview) return
     const confirmed = window.confirm(
-      '这会用预览中的备份替换当前全部 LifeIndex 数据，V1 不会合并。建议先导出当前数据。确认继续？',
+      '这会用预览中的备份替换当前全部 LifeIndex 数据，不会合并。建议先导出当前数据。确认继续？',
     )
     if (!confirmed) return
     setWorking(true)
@@ -164,6 +167,12 @@ export function SettingsPage() {
       ) : null}
       {state.status === 'ready' ? (
         <>
+          <CategoryManager
+            repository={categories}
+            categories={state.data.allCategories}
+            onError={setError}
+          />
+
           <section className="settings-section" aria-labelledby="appearance-title">
             <h2 id="appearance-title">外观</h2>
             <div className="appearance-options">
@@ -182,7 +191,7 @@ export function SettingsPage() {
 
           <section className="settings-section" aria-labelledby="data-safety-title">
             <div className="section-heading">
-              <h2 id="data-safety-title">数据安全</h2>
+              <h2 id="data-safety-title">数据与安全</h2>
               <span>仅存本机</span>
             </div>
             <p>
@@ -228,26 +237,16 @@ export function SettingsPage() {
             ) : null}
           </section>
 
-          <CategoryManager
-            repository={categories}
-            categories={state.data.financeCategories}
-            onError={setError}
-          />
-
-          <section className="settings-section" aria-labelledby="habit-management-title">
-            <h2 id="habit-management-title">习惯管理</h2>
-            <p>新增、修改、暂停或恢复习惯，并查看保留的历史进度。</p>
-            <Link className="settings-link" to="/habits">
-              打开习惯管理
+          <section className="settings-section" aria-labelledby="other-title">
+            <h2 id="other-title">其他</h2>
+            <Link className="settings-link grouped-link" to="/health">
+              <span>健康与习惯管理</span>
+              <strong>›</strong>
             </Link>
-          </section>
-
-          <section className="settings-section" aria-labelledby="about-title">
-            <h2 id="about-title">关于</h2>
             <dl className="about-list">
               <div>
                 <dt>应用版本</dt>
-                <dd>{__APP_VERSION__}</dd>
+                <dd aria-label={`应用版本 ${__APP_VERSION__}`}>{__APP_VERSION__}</dd>
               </div>
               <div>
                 <dt>数据库版本</dt>
@@ -292,6 +291,8 @@ function BackupPreviewPanel({
     ['habits', '习惯'],
     ['habitRecords', '签到'],
     ['focusSessions', '专注'],
+    ['weightEntries', '体重'],
+    ['activitySessions', '运动'],
     ['categories', '分类'],
     ['settings', '设置'],
     ['actionReceipts', '动作回执'],
@@ -335,13 +336,27 @@ function CategoryManager({
   categories: Category[]
   onError: (message: string) => void
 }) {
-  const [type, setType] = useState<TransactionType>('expense')
+  type CategoryGroup = TransactionType | Exclude<CategoryDomain, 'finance'>
+  const groups: Array<{ value: CategoryGroup; label: string }> = [
+    { value: 'expense', label: '支出' },
+    { value: 'income', label: '收入' },
+    { value: 'focus', label: '专注' },
+    { value: 'activity', label: '运动' },
+  ]
+  const [group, setGroup] = useState<CategoryGroup>('expense')
   const [name, setName] = useState('')
   useDirtyForm(name !== '')
+  const domain: CategoryDomain = group === 'expense' || group === 'income' ? 'finance' : group
+  const transactionType = domain === 'finance' ? group : undefined
+  const belongsToGroup = (category: Category) =>
+    category.domain === domain &&
+    (domain !== 'finance' || category.transactionType === transactionType)
   const active = categories.filter(
-    (category) => category.archived === 0 && category.transactionType === type,
+    (category) => category.archived === 0 && belongsToGroup(category),
   )
-  const archived = categories.filter((category) => category.archived === 1)
+  const archived = categories.filter(
+    (category) => category.archived === 1 && belongsToGroup(category),
+  )
 
   async function create(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -351,8 +366,8 @@ function CategoryManager({
     }
     try {
       await repository.create({
-        domain: 'finance',
-        transactionType: type,
+        domain,
+        ...(domain === 'finance' ? { transactionType: transactionType as TransactionType } : {}),
         name: name.trim(),
         icon: 'other',
         color: 'sage',
@@ -379,7 +394,7 @@ function CategoryManager({
   }
 
   async function setArchived(category: Category, value: boolean) {
-    if (value && !window.confirm('归档后，它不会出现在新交易中；历史账目仍会保留。确认归档？'))
+    if (value && !window.confirm('归档后，它不会出现在新的记录中；历史引用仍会保留。确认归档？'))
       return
     try {
       await repository.setArchived(category.id, value)
@@ -403,13 +418,16 @@ function CategoryManager({
 
   return (
     <section className="settings-section" aria-labelledby="category-management-title">
-      <h2 id="category-management-title">记账分类</h2>
+      <h2 id="category-management-title">分类</h2>
       <form className="inline-category-form" onSubmit={(event) => void create(event)}>
         <label>
           类型
-          <select value={type} onChange={(event) => setType(event.target.value as TransactionType)}>
-            <option value="expense">支出</option>
-            <option value="income">收入</option>
+          <select value={group} onChange={(event) => setGroup(event.target.value as CategoryGroup)}>
+            {groups.map(({ value, label }) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
           </select>
         </label>
         <label>
@@ -420,23 +438,18 @@ function CategoryManager({
           新增分类
         </button>
       </form>
-      <div className="segmented-control category-type-tabs">
-        <button
-          type="button"
-          aria-pressed={type === 'expense'}
-          className={type === 'expense' ? 'segment-active' : ''}
-          onClick={() => setType('expense')}
-        >
-          支出分类
-        </button>
-        <button
-          type="button"
-          aria-pressed={type === 'income'}
-          className={type === 'income' ? 'segment-active' : ''}
-          onClick={() => setType('income')}
-        >
-          收入分类
-        </button>
+      <div className="segmented-control category-type-tabs category-domain-tabs">
+        {groups.map(({ value, label }) => (
+          <button
+            key={value}
+            type="button"
+            aria-pressed={group === value}
+            className={group === value ? 'segment-active' : ''}
+            onClick={() => setGroup(value)}
+          >
+            {label}
+          </button>
+        ))}
       </div>
       <ul className="category-list">
         {active.map((category, index) => (
@@ -480,7 +493,7 @@ function CategoryManager({
             {archived.map((category) => (
               <li key={category.id}>
                 <span>
-                  {category.name} · {category.transactionType === 'expense' ? '支出' : '收入'}
+                  {category.name} · {groups.find(({ value }) => value === group)?.label}
                 </span>
                 <button type="button" onClick={() => void setArchived(category, false)}>
                   恢复

@@ -1,6 +1,6 @@
 # LifeIndex V2 Test Plan
 
-**Status:** Data/backup foundation verified; UI, browser, deployed, and physical gates pending
+**Status:** Local V2 candidate verified; remote deployment and physical-iPhone gates pending
 
 **Last updated:** 2026-09-06
 
@@ -24,7 +24,7 @@ V1's final automated/release evidence remains in `docs/releases/v1.0.0.md`; it i
 
 ## 3. Data and migration gate
 
-**Evidence recorded 2026-09-06:** `tests/integration/database.test.ts`, `healthRepositories.test.ts`, `backup.test.ts`, and retained repository tests pass 29/29; the full Vitest suite passes 20 files / 104 tests. ESLint and strict TypeScript pass. Browser/UI claims below remain pending.
+**Evidence recorded 2026-09-06:** `tests/integration/database.test.ts`, `healthRepositories.test.ts`, `health-ui.test.tsx`, `backup.test.ts`, and retained repository tests pass. The current full Vitest suite passes 22 files / 125 tests. Prettier, ESLint, strict TypeScript, and the production build pass. Browser/UI evidence is recorded below; real Pages and physical claims remain pending.
 
 - Fresh V2 creates nine stores, 21 stable categories, and the existing three default Settings rows.
 - Reopen is idempotent and does not overwrite renamed/archived category values.
@@ -82,6 +82,10 @@ V1's final automated/release evidence remains in `docs/releases/v1.0.0.md`; it i
 
 ## 6. Browser/E2E matrix
 
+**Local evidence recorded 2026-09-06:** the production build passes 35 Chromium/Mobile Safari-WebKit scenarios; the single skip is the documented WebKit automation limitation for offline full-page reload. Health create/edit/delete, target set/clear, Activity and Weight persistence, Finance calendar/CRUD, Habit continuity, Focus reconciliation, Settings order/categories/theme, backup replacement, URL Actions, offline mutation, privacy, and accessibility pass in both engines.
+
+The configured-base candidate was also built and served at `/LifeIndex/`; its deployed-smoke suite passes 11 scenarios with the same single WebKit skip. This proves the local artifact's base path, routes, manifest/worker scope, nine-store persistence, Health reload, offline mutation, and fragment privacy, but does not substitute for the real GitHub Pages HTTPS gate.
+
 Run the production build in Chromium and Mobile Safari/WebKit with isolated synthetic profiles:
 
 - first launch and direct navigation to all five routes;
@@ -98,6 +102,8 @@ Run the production build in Chromium and Mobile Safari/WebKit with isolated synt
 The documented Playwright WebKit internal offline-reload limitation may remain an explicit skip only if unchanged and every runnable scenario passes; physical iPhone covers the real behavior.
 
 ## 7. Visual and accessibility gate
+
+**Local evidence recorded 2026-09-06:** Axe reports zero detectable violations on the five ready routes and the Finance/Health sheets. Automated 320 × 568 checks report no horizontal overflow, preserve 44 × 44 main controls and calendar targets, and honor reduced motion. Direct 390 × 844 inspection covers Finance and Health in light appearance and Settings in dark appearance. Physical safe-area/keyboard behavior remains pending.
 
 - 320 × 568 and 390 × 844 light/dark screenshots for every primary destination and sheet.
 - No horizontal overflow or bottom-navigation/safe-area obstruction.

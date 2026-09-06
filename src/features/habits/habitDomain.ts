@@ -89,3 +89,38 @@ export function currentMonthCalendar(habit: Habit, today: string) {
     return { localDate, scheduled: isHabitScheduled(habit, localDate), future: localDate > today }
   })
 }
+
+export interface HabitHeatmapCell {
+  localDate: string
+  scheduled: boolean
+  completed: boolean
+  future: boolean
+}
+
+export function habitHeatmap(
+  habit: Habit,
+  records: readonly HabitRecord[],
+  today: string,
+  weeks = 14,
+): HabitHeatmapCell[] {
+  if (!Number.isInteger(weeks) || weeks < 1 || weeks > 52) {
+    throw new RangeError('Habit heatmap range is invalid')
+  }
+  const parsedToday = parseLocalDateKey(today)
+  if (!parsedToday) throw new RangeError('Habit heatmap date is invalid')
+  const daysFromMonday = (parsedToday.getDay() + 6) % 7
+  const currentWeekStart = addLocalDays(today, -daysFromMonday)
+  const from = addLocalDays(currentWeekStart, -(weeks - 1) * 7)
+  const completed = new Set(records.map(({ localDate }) => localDate))
+
+  // Fixed week columns make long-term rhythm scannable while local-date iteration stays DST-safe.
+  return Array.from({ length: weeks * 7 }, (_, index) => {
+    const localDate = addLocalDays(from, index)
+    return {
+      localDate,
+      scheduled: isHabitScheduled(habit, localDate),
+      completed: completed.has(localDate),
+      future: localDate > today,
+    }
+  })
+}

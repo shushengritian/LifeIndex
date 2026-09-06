@@ -161,7 +161,7 @@ The calendar replaces the Today/Week/Month/History segmented control. Today is r
 
 Calendar behavior:
 
-- Use a Sunday-to-Saturday seven-column grid matching the local calendar.
+- Use a Monday-to-Sunday seven-column grid matching the approved Finance calendar.
 - Every day is a minimum 44 px touch target.
 - A date with records shows a compact daily amount under its day number; income uses an explicit plus sign and expense remains unsigned in the calendar to reduce visual noise.
 - The selected date uses the accent fill and updates the ledger immediately.

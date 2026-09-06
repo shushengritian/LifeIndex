@@ -32,7 +32,7 @@ describe('recoverable feature write failures', () => {
       </AppServicesContext.Provider>,
     )
 
-    await user.click(await screen.findByRole('button', { name: '新增' }))
+    await user.click(await screen.findByRole('button', { name: '新增交易' }))
     const amount = screen.getByLabelText('金额（CNY）')
     await user.type(amount, '19.90')
     await user.selectOptions(screen.getByRole('combobox', { name: '分类' }), [

@@ -1,12 +1,12 @@
 # LifeIndex GitHub Pages Deployment Runbook
 
-**Status:** v1.0.0 deployed and released; physical checks deferred under ADR-0005
+**Status:** v1.0.0 deployed; V2 release candidate preparing for Pages deployment
 
-**Last reviewed:** 2026-09-04
+**Last reviewed:** 2026-09-06
 
 ## 1. Deployment contract
 
-GitHub Pages hosts only the compiled static application shell. Finance records, habits, Focus sessions, settings, action receipts, and backups are never included in the repository or Pages artifact; they remain in each browser profile's IndexedDB unless the user explicitly exports a backup.
+GitHub Pages hosts only the compiled static application shell. Finance, Health/Habit, Focus, settings, action-receipt, and backup records are never included in the repository or Pages artifact; they remain in each browser profile's IndexedDB unless the user explicitly exports a backup.
 
 The Pages URL may expose the application shell to anyone allowed by the selected repository/Pages plan. It is not authenticated storage and must not be described as a private account. Repository visibility, Pages accessibility, owner, name, and license are release decisions made before remote creation.
 
@@ -58,6 +58,10 @@ Current instance: the user created the public [shushengritian/LifeIndex](https:/
 
 ## 4. Live smoke gate
 
+Before the V2 candidate is merged to `main`, the owner must export the currently installed V1 data to Files/iCloud and confirm that the backup exists. This is a safety prerequisite, not migration evidence. The candidate then follows the normal verified workflow; it must never deploy a checked-in `dist` directory or a manual artifact.
+
+The V2 candidate must additionally prove the rendered application version is `2.0.0`, all nine IndexedDB stores open under schema version 2, Finance routes to the semantic month calendar, Health can create/reload synthetic Weight and Activity records, Settings shows its four independent groups, and a V1-format synthetic backup previews/restores as canonical V2. The exact candidate commit, Actions run, Pages deployment, and live smoke results are recorded here before physical acceptance begins.
+
 The `v1.0.0` publication record is maintained in [the release handoff](../releases/v1.0.0.md): application/tag commit `40eb947`, successful full [workflow 33849576847](https://github.com/shushengritian/LifeIndex/actions/runs/33849576847), and [published Release](https://github.com/shushengritian/LifeIndex/releases/tag/v1.0.0). [ADR-0005](../adr/0005-v1-owner-acceptance.md) changes only the owner's physical-acceptance gate; all automated build/deploy/live checks below remain required. The release preserves schema/backup V1, the same URL, and the existing unselected license state. Later evidence-only documentation commits do not move the tag or alter application behavior.
 
 Record the repository, commit SHA, workflow run, deployment URL, time, and result. At the live HTTPS URL verify:
@@ -72,7 +76,7 @@ Record the repository, commit SHA, workflow run, deployment URL, time, and resul
 
 The workflow automates these checks through `pnpm test:deployed` in ephemeral Chromium and Mobile Safari/WebKit profiles. Playwright WebKit's unsupported offline reload remains explicitly skipped, while offline mutation is exercised in both engines and full offline reload in Chromium. The operator still reviews the workflow evidence and live mobile view before M8 closes.
 
-The deployed suite was validated locally against both `/` and `/LifeIndex/` production previews on 2026-09-03: each target passed 9 scenarios with the documented WebKit offline-reload skip. The real HTTPS evidence is recorded separately above; it must not be inferred from local preview results.
+The V1 deployed suite was validated locally against both `/` and `/LifeIndex/` production previews on 2026-09-03: each target passed 9 scenarios with the documented WebKit offline-reload skip. On 2026-09-06, the V2 `2.0.0` candidate's configured `/LifeIndex/` preview passed its expanded suite with 11 passes and the same single WebKit skip. The V2 result includes Health persistence and the nine-store metadata check; Dexie logical schema version 2 appears as native IndexedDB version 20. Real HTTPS evidence must still be recorded after the owner backup gate and production deployment; it is never inferred from local preview results.
 
 The live gate uses synthetic values only. Never upload or paste a real backup into CI, an issue, a workflow artifact, or a screenshot.
 
