@@ -65,7 +65,15 @@ Before the V2 candidate is merged to `main`, the owner must export the currently
 - Application source: `2162c323d1fe4100e917982d3fcea5117b4942bc`, version `2.0.0`, branch `codex/v2-ui-design`.
 - Branch workflow: [34033594594](https://github.com/shushengritian/LifeIndex/actions/runs/34033594594), completed successfully on 2026-09-06.
 - Proof: frozen dependency installation, peer contracts, static/unit/integration/build gate, and production Chromium/WebKit gate all succeeded on Ubuntu.
-- Deployment state: not merged to `main` and not deployed. The existing V1 Pages site remains the production application until the owner confirms the prerequisite backup.
+- Gate result: the owner explicitly confirmed that the V1 backup file exists; the candidate then advanced to the production deployment below.
+
+### First V2 Pages candidate — 2026-09-06
+
+- Candidate source: `55706aa4f5300ec9cbaf7023398ccba9abccd63d`; application source remains `2162c323d1fe4100e917982d3fcea5117b4942bc`, version `2.0.0`.
+- Workflow: [34034416695](https://github.com/shushengritian/LifeIndex/actions/runs/34034416695), completed successfully in 5m 46s.
+- Live URL: [LifeIndex](https://shushengritian.github.io/LifeIndex/).
+- Linux proof: 22 files / 125 Vitest tests, 35 browser passes / 1 documented skip, successful configured `/LifeIndex/` artifact build and deployment, and 11 live passes / 1 documented skip.
+- Manual browser transition: an isolated retained 0.1.1 profile discovered the waiting worker, displayed the explicit update action, updated successfully, and then reported application version 2.0.0 and logical database version 2 with the four approved Settings groups. No personal data was used; this does not substitute for physical-iPhone acceptance.
 
 The V2 candidate must additionally prove the rendered application version is `2.0.0`, all nine IndexedDB stores open under schema version 2, Finance routes to the semantic month calendar, Health can create/reload synthetic Weight and Activity records, Settings shows its four independent groups, and a V1-format synthetic backup previews/restores as canonical V2. The exact candidate commit, Actions run, Pages deployment, and live smoke results are recorded here before physical acceptance begins.
 

@@ -1,6 +1,6 @@
 # LifeIndex V2 Version Plan
 
-**Status:** V2-M5 complete — V2-M6 release candidate preparation in progress
+**Status:** V2-M6 complete — V2-M7 physical-iPhone acceptance in progress
 **Started:** 2026-09-06
 **Target release:** `v2.0.0` after approval, implementation, deployment, and physical-iPhone acceptance
 **Product baseline:** [LifeIndex-Project-Baseline.md](LifeIndex-Project-Baseline.md)
@@ -193,7 +193,7 @@ Each slice includes documentation, comments on key logic, privacy-safe logs, nar
 
 ### V2-M6 — GitHub Pages release candidate
 
-**Status:** In progress — branch CI passed; owner V1 backup required before production merge
+**Status:** Complete — verified Pages candidate deployed on 2026-09-06
 
 - Review the release diff and repository cleanliness.
 - Push the approved commit set to GitHub.
@@ -201,11 +201,11 @@ Each slice includes documentation, comments on key logic, privacy-safe logs, nar
 - Run deployed smoke, installability, deep-link, asset-path, and service-worker update checks.
 - Do not tag the final release yet.
 
-**Progress evidence:** Implementation commit `2162c32` is pushed to `codex/v2-ui-design`. [CI run 34033594594](https://github.com/shushengritian/LifeIndex/actions/runs/34033594594) passed frozen dependency installation, peer contracts, the complete static/unit/integration/build gate, and the production Chromium/WebKit gate. `main` and the live Pages application remain unchanged until the owner confirms a V1 backup exists.
+**Evidence:** Implementation commit `2162c32` passed [branch CI run 34033594594](https://github.com/shushengritian/LifeIndex/actions/runs/34033594594), and the owner explicitly confirmed the V1 backup file exists before production changed. `main` then fast-forwarded without conflict to candidate commit `55706aa`. [Pages run 34034416695](https://github.com/shushengritian/LifeIndex/actions/runs/34034416695) passed 22 files / 125 Vitest tests, 35 browser scenarios with one documented WebKit skip, configured-base artifact deployment, and 11 live HTTPS scenarios with the same skip. An isolated retained V1 browser profile discovered the waiting worker and updated from 0.1.1 to 2.0.0; Settings then reported logical database version 2 and the four approved groups. This browser evidence is not physical-iPhone evidence.
 
 ### V2-M7 — Physical-iPhone acceptance
 
-**Status:** Blocked by V2-M6 and requires owner participation
+**Status:** In progress — verified candidate ready for owner execution
 
 The owner verifies on the installed Home Screen app:
 
@@ -286,6 +286,7 @@ The owner should review the first design against these questions:
 
 | Date | Change |
 | --- | --- |
+| 2026-09-06 | Completed V2-M6/G6: owner confirmed the V1 backup, `main` fast-forwarded to `55706aa`, Pages run 34034416695 deployed successfully, and all 11 runnable live-smoke scenarios passed. Opened physical-iPhone acceptance. |
 | 2026-09-06 | Pushed V2 implementation commit `2162c32`; branch CI run 34033594594 passed all quality and browser gates. Production merge remains behind the owner V1-backup prerequisite. |
 | 2026-09-06 | Completed V2-M5/G5: 125 Vitest checks, 35/1 dual-engine E2E, 11/1 `/LifeIndex/` deployment smoke, accessibility, privacy, offline, backup/migration, and responsive gates pass locally. |
 | 2026-09-06 | Completed V2-M3/M4 implementation; started integrated hardening with 125 Vitest checks, 35 dual-engine browser passes, accessibility checks, and 320/390 visual inspection. |

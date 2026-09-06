@@ -1,6 +1,6 @@
 # LifeIndex V2 Test Plan
 
-**Status:** Local and branch-CI V2 candidate verified; Pages deployment and physical-iPhone gates pending
+**Status:** Local, branch-CI, and live Pages candidate verified; physical-iPhone gate pending
 
 **Last updated:** 2026-09-06
 
@@ -23,6 +23,8 @@ Prove that V2 preserves all V1 local records and critical workflows while adding
 V1's final automated/release evidence remains in `docs/releases/v1.0.0.md`; it is the regression baseline, not V2 proof.
 
 V2 implementation commit `2162c32` passed the complete Ubuntu branch gate in [CI run 34033594594](https://github.com/shushengritian/LifeIndex/actions/runs/34033594594). This is independent remote verification of install, peer, static, unit/integration, build, Chromium, and WebKit checks; it is not Pages or physical-device evidence.
+
+Candidate commit `55706aa` passed [Pages run 34034416695](https://github.com/shushengritian/LifeIndex/actions/runs/34034416695): 22 files / 125 Vitest tests, 35 runnable production browser scenarios, configured `/LifeIndex/` deployment, and 11 runnable live HTTPS scenarios all passed. The two recorded skips are the same documented WebKit offline full-page reload limitation at the local and deployed layers. Physical-iPhone evidence remains separate.
 
 ## 3. Data and migration gate
 

@@ -1,6 +1,6 @@
 # LifeIndex V2 Physical iPhone Acceptance
 
-**Status:** Awaiting verified GitHub Pages candidate and owner execution
+**Status:** Verified GitHub Pages candidate ready; owner execution in progress
 
 **Last updated:** 2026-09-06
 
@@ -15,10 +15,10 @@ Do not record device identifiers, Apple ID, record contents, or backup contents.
 | Date/time zone | TBD |
 | iPhone model family | TBD |
 | iOS/Safari version | TBD |
-| Candidate commit SHA | TBD |
+| Candidate commit SHA | `55706aa4f5300ec9cbaf7023398ccba9abccd63d` |
 | Pages URL | https://shushengritian.github.io/LifeIndex/ |
-| Starting installed version | V1; owner to confirm |
-| Candidate displayed version | TBD |
+| Starting installed version | V1; owner confirmed a backup exists before deployment |
+| Candidate displayed version | `2.0.0` expected; owner to confirm on-device |
 | Final result | Pending |
 
 ## 2. Pre-deployment data-safety prerequisite
@@ -31,6 +31,8 @@ Complete this before the V2 candidate replaces production:
 4. Keep the existing Home Screen app and Safari website data intact.
 
 Pass condition: the owner explicitly confirms a recoverable V1 backup exists. Codex must not infer this from a browser screenshot.
+
+**Result:** Passed on 2026-09-06. The owner explicitly replied that the V1 backup had been exported and the file's existence confirmed before `main` changed.
 
 ## 3. Installed upgrade and V1 data continuity
 
