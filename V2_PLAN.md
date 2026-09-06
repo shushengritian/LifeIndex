@@ -162,6 +162,8 @@ The following are not authorized by the V2 UI refresh and require separate produ
 - Add focused unit/component tests and mobile visual checks.
 - Verify 320 px and 390 px widths, safe areas, light/dark appearance, and reduced motion.
 
+**Progress evidence:** The data-first slice is complete on 2026-09-06: schema V2 retains both Dexie declarations, adds only `weightEntries` and `activitySessions`, seeds six missing stable Activity categories, implements Weight/Activity repositories, and emits/accepts backup V2 with V0/V1 in-memory migrations. A populated real schema-V1 fixture preserves all representative old rows. Focused integration checks pass 29/29; full Vitest passes 20 files / 104 tests; ESLint and strict TypeScript pass. Shared visual system and shell remain in progress.
+
 ### V2-M4 — Vertical feature slices
 
 **Status:** Blocked by V2-M3

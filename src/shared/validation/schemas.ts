@@ -10,7 +10,7 @@ const uuidSchema = z
   .refine((value) => value === value.toLowerCase(), 'UUID must be lowercase')
 const categoryIdSchema = z.union([
   uuidSchema,
-  z.string().regex(/^category-(finance|focus)-[a-z0-9-]+-v1$/),
+  z.string().regex(/^category-(?:(?:finance|focus)-[a-z0-9-]+-v1|activity-[a-z0-9-]+-v2)$/),
 ])
 const normalizedText = (maximum: number) =>
   z
@@ -25,7 +25,7 @@ const timezoneOffsetSchema = z.number().int().min(-840).max(840)
 export const categorySchema = z
   .object({
     id: categoryIdSchema,
-    domain: z.enum(['finance', 'focus']),
+    domain: z.enum(['finance', 'focus', 'activity']),
     transactionType: z.enum(['expense', 'income']).optional(),
     name: normalizedText(40),
     icon: z.enum([
@@ -43,6 +43,11 @@ export const categorySchema = z
       'study',
       'reading',
       'personal',
+      'walking',
+      'running',
+      'cycling',
+      'strength',
+      'yoga',
     ]),
     color: z.enum(['sage', 'blue', 'amber', 'rose', 'violet', 'slate']),
     sortOrder: z.number().int().min(0).max(10_000),
@@ -54,8 +59,10 @@ export const categorySchema = z
   .superRefine((category, context) => {
     const hasValidFinanceType =
       category.domain === 'finance' && category.transactionType !== undefined
-    const hasValidFocusType = category.domain === 'focus' && category.transactionType === undefined
-    if (!hasValidFinanceType && !hasValidFocusType) {
+    const hasValidNonFinanceType =
+      (category.domain === 'focus' || category.domain === 'activity') &&
+      category.transactionType === undefined
+    if (!hasValidFinanceType && !hasValidNonFinanceType) {
       context.addIssue({
         code: 'custom',
         path: ['transactionType'],
@@ -186,6 +193,34 @@ export const focusSessionSchema = z
     }
   })
 
+export const weightEntrySchema = z
+  .object({
+    id: uuidSchema,
+    weightGrams: z.number().int().min(20_000).max(500_000),
+    measuredAt: instantSchema,
+    localDate: localDateSchema,
+    timezoneOffsetMinutes: timezoneOffsetSchema,
+    note: optionalText(280),
+    createdAt: instantSchema,
+    updatedAt: instantSchema,
+  })
+  .strict()
+
+export const activitySessionSchema = z
+  .object({
+    id: uuidSchema,
+    categoryId: categoryIdSchema,
+    durationMinutes: z.number().int().min(1).max(1_440),
+    intensity: z.enum(['light', 'moderate', 'hard']),
+    occurredAt: instantSchema,
+    localDate: localDateSchema,
+    timezoneOffsetMinutes: timezoneOffsetSchema,
+    note: optionalText(280),
+    createdAt: instantSchema,
+    updatedAt: instantSchema,
+  })
+  .strict()
+
 const appearanceSettingSchema = z
   .object({
     key: z.literal('appearance'),
@@ -214,12 +249,20 @@ const exportSettingSchema = z
     updatedAt: instantSchema,
   })
   .strict()
+const weightTargetSettingSchema = z
+  .object({
+    key: z.literal('weightTarget'),
+    value: z.object({ weightGrams: z.number().int().min(20_000).max(500_000) }).strict(),
+    updatedAt: instantSchema,
+  })
+  .strict()
 
 export const settingSchema = z.discriminatedUnion('key', [
   appearanceSettingSchema,
   currencySettingSchema,
   onboardingSettingSchema,
   exportSettingSchema,
+  weightTargetSettingSchema,
 ])
 
 export const actionReceiptSchema = z
@@ -240,5 +283,7 @@ export const backupDataSchema = z
     focusSessions: z.array(focusSessionSchema),
     settings: z.array(settingSchema),
     actionReceipts: z.array(actionReceiptSchema),
+    weightEntries: z.array(weightEntrySchema),
+    activitySessions: z.array(activitySessionSchema),
   })
   .strict()

@@ -1,4 +1,4 @@
-export const CURRENT_DATABASE_VERSION = 1
+export const CURRENT_DATABASE_VERSION = 2
 
 export const databaseSchemaV1 = {
   categories: 'id,[domain+archived],[domain+transactionType+archived],sortOrder,updatedAt',
@@ -10,6 +10,12 @@ export const databaseSchemaV1 = {
   actionReceipts: 'actionId,actionType,handledAt,outcomeEntityId',
 } as const
 
-export const databaseStoreNames = Object.keys(databaseSchemaV1) as Array<
-  keyof typeof databaseSchemaV1
+export const databaseSchemaV2 = {
+  ...databaseSchemaV1,
+  weightEntries: 'id,measuredAt,localDate,updatedAt',
+  activitySessions: 'id,occurredAt,localDate,categoryId,intensity,updatedAt',
+} as const
+
+export const databaseStoreNames = Object.keys(databaseSchemaV2) as Array<
+  keyof typeof databaseSchemaV2
 >

@@ -1,15 +1,17 @@
 import Dexie, { type Table } from 'dexie'
 
 import { createSeedCategories, createSeedSettings, seedCategoryIds } from '@/data/db/seeds'
-import { CURRENT_DATABASE_VERSION, databaseSchemaV1 } from '@/data/db/schema'
+import { CURRENT_DATABASE_VERSION, databaseSchemaV1, databaseSchemaV2 } from '@/data/db/schema'
 import type {
   ActionReceipt,
+  ActivitySession,
   Category,
   FocusSession,
   Habit,
   HabitRecord,
   Setting,
   Transaction,
+  WeightEntry,
 } from '@/shared/domain/types'
 import { AppError } from '@/shared/errors/AppError'
 import { logger } from '@/shared/logging/logger'
@@ -24,10 +26,15 @@ export class LifeIndexDatabase extends Dexie {
   focusSessions!: Table<FocusSession, string>
   settings!: Table<Setting, Setting['key']>
   actionReceipts!: Table<ActionReceipt, string>
+  weightEntries!: Table<WeightEntry, string>
+  activitySessions!: Table<ActivitySession, string>
 
   constructor(name = DEFAULT_DATABASE_NAME) {
     super(name)
-    this.version(CURRENT_DATABASE_VERSION).stores(databaseSchemaV1)
+    // Keep the shipped declaration so Dexie can upgrade an existing V1 database in place.
+    this.version(1).stores(databaseSchemaV1)
+    // V2 is additive: no callback rewrites, clears, or invents values for existing records.
+    this.version(CURRENT_DATABASE_VERSION).stores(databaseSchemaV2)
   }
 
   async initialize(now = new Date()): Promise<void> {

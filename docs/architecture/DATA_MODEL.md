@@ -4,7 +4,7 @@
 
 **Dexie schema version:** 2
 
-**Status:** Approved contract; implementation pending V2-M3
+**Status:** Schema V2, Health repositories, and migration implemented; UI integration pending
 
 ## 1. Shared conventions
 

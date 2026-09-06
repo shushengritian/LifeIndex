@@ -4,7 +4,7 @@
 
 **Current format version:** 2
 
-**Status:** Approved contract; implementation pending V2-M3
+**Status:** Format V2 and V0/V1 migrations implemented; browser UI regression/hardening pending
 
 ## 1. File contract
 

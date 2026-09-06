@@ -1,7 +1,8 @@
-export type CategoryDomain = 'finance' | 'focus'
+export type CategoryDomain = 'finance' | 'focus' | 'activity'
 export type TransactionType = 'expense' | 'income'
 export type HabitStatus = 'active' | 'paused'
 export type FocusStatus = 'active' | 'completed'
+export type ActivityIntensity = 'light' | 'moderate' | 'hard'
 export type Appearance = 'system' | 'light' | 'dark'
 export type ActionType = 'add-transaction' | 'check-habit' | 'start-focus'
 
@@ -77,6 +78,30 @@ export interface FocusSession {
   updatedAt: string
 }
 
+export interface WeightEntry {
+  id: string
+  weightGrams: number
+  measuredAt: string
+  localDate: string
+  timezoneOffsetMinutes: number
+  note?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ActivitySession {
+  id: string
+  categoryId: string
+  durationMinutes: number
+  intensity: ActivityIntensity
+  occurredAt: string
+  localDate: string
+  timezoneOffsetMinutes: number
+  note?: string
+  createdAt: string
+  updatedAt: string
+}
+
 export type Setting =
   | { key: 'appearance'; value: Appearance; updatedAt: string }
   | { key: 'currency'; value: { code: 'CNY' }; updatedAt: string }
@@ -86,6 +111,7 @@ export type Setting =
       updatedAt: string
     }
   | { key: 'lastSuccessfulExportAt'; value: string; updatedAt: string }
+  | { key: 'weightTarget'; value: { weightGrams: number }; updatedAt: string }
 
 export interface ActionReceipt {
   actionId: string
@@ -107,13 +133,15 @@ export interface BackupData {
   focusSessions: FocusSession[]
   settings: Setting[]
   actionReceipts: ActionReceipt[]
+  weightEntries: WeightEntry[]
+  activitySessions: ActivitySession[]
 }
 
 export type BackupCounts = { [Key in keyof BackupData]: number }
 
-export interface LifeIndexBackupV1 {
+export interface LifeIndexBackupV2 {
   format: 'lifeindex-backup'
-  formatVersion: 1
+  formatVersion: 2
   appVersion: string
   exportedAt: string
   source: {

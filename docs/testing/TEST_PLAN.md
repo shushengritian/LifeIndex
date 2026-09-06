@@ -1,6 +1,6 @@
 # LifeIndex V2 Test Plan
 
-**Status:** Approved verification contract; V2 execution pending
+**Status:** Data/backup foundation verified; UI, browser, deployed, and physical gates pending
 
 **Last updated:** 2026-09-06
 
@@ -23,6 +23,8 @@ Prove that V2 preserves all V1 local records and critical workflows while adding
 V1's final automated/release evidence remains in `docs/releases/v1.0.0.md`; it is the regression baseline, not V2 proof.
 
 ## 3. Data and migration gate
+
+**Evidence recorded 2026-09-06:** `tests/integration/database.test.ts`, `healthRepositories.test.ts`, `backup.test.ts`, and retained repository tests pass 29/29; the full Vitest suite passes 20 files / 104 tests. ESLint and strict TypeScript pass. Browser/UI claims below remain pending.
 
 - Fresh V2 creates nine stores, 21 stable categories, and the existing three default Settings rows.
 - Reopen is idempotent and does not overwrite renamed/archived category values.

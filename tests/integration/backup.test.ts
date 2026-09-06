@@ -3,13 +3,15 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { BackupService, MAX_BACKUP_BYTES } from '@/data/backup/BackupService'
 import { LifeIndexDatabase } from '@/data/db/LifeIndexDatabase'
 import type { Clock, IdGenerator } from '@/shared/domain/runtime'
-import type { LifeIndexBackupV1 } from '@/shared/domain/types'
+import type { LifeIndexBackupV2 } from '@/shared/domain/types'
 import { AppError } from '@/shared/errors/AppError'
 import {
+  buildActivitySession,
   buildFocusSession,
   buildHabit,
   buildHabitRecord,
   buildTransaction,
+  buildWeightEntry,
   FIXED_NOW,
 } from '../fixtures/builders'
 
@@ -34,13 +36,25 @@ async function initializeWithSyntheticData(database: LifeIndexDatabase): Promise
   await database.initialize(new Date(FIXED_NOW))
   await database.transaction(
     'rw',
-    database.transactions,
-    database.habits,
-    database.habitRecords,
+    [
+      database.transactions,
+      database.habits,
+      database.habitRecords,
+      database.weightEntries,
+      database.activitySessions,
+      database.settings,
+    ],
     async () => {
       await database.transactions.add(buildTransaction())
       await database.habits.add(buildHabit())
       await database.habitRecords.add(buildHabitRecord())
+      await database.weightEntries.add(buildWeightEntry())
+      await database.activitySessions.add(buildActivitySession())
+      await database.settings.put({
+        key: 'weightTarget',
+        value: { weightGrams: 65_000 },
+        updatedAt: FIXED_NOW,
+      })
     },
   )
 }
@@ -62,6 +76,8 @@ describe('versioned backup and restore', () => {
     const preview = targetService.inspectText(sourceService.serialize(sourceBackup))
     expect(preview.counts.transactions).toBe(1)
     expect(preview.counts.habitRecords).toBe(1)
+    expect(preview.counts.weightEntries).toBe(1)
+    expect(preview.counts.activitySessions).toBe(1)
 
     await targetService.restore(preview.token)
     const restoredBackup = await targetService.createSnapshot('zh-CN')
@@ -92,13 +108,13 @@ describe('versioned backup and restore', () => {
   it.each([
     [
       'a future format version',
-      (backup: LifeIndexBackupV1) => {
-        ;(backup as unknown as { formatVersion: number }).formatVersion = 2
+      (backup: LifeIndexBackupV2) => {
+        ;(backup as unknown as { formatVersion: number }).formatVersion = 3
       },
     ],
     [
       'a duplicate primary key',
-      (backup: LifeIndexBackupV1) => {
+      (backup: LifeIndexBackupV2) => {
         // Counts stay internally consistent so this case reaches the uniqueness invariant.
         backup.data.transactions.push(structuredClone(backup.data.transactions[0]!))
         backup.counts.transactions += 1
@@ -106,7 +122,7 @@ describe('versioned backup and restore', () => {
     ],
     [
       'a duplicate habit and date pair',
-      (backup: LifeIndexBackupV1) => {
+      (backup: LifeIndexBackupV2) => {
         backup.data.habitRecords.push(
           buildHabitRecord({ id: '00000000-0000-4000-8000-000000000103' }),
         )
@@ -115,7 +131,7 @@ describe('versioned backup and restore', () => {
     ],
     [
       'a dangling action receipt',
-      (backup: LifeIndexBackupV1) => {
+      (backup: LifeIndexBackupV2) => {
         backup.data.actionReceipts.push({
           actionId: '00000000-0000-4000-8000-000000000104',
           actionType: 'add-transaction',
@@ -127,7 +143,7 @@ describe('versioned backup and restore', () => {
     ],
     [
       'more than one active focus session',
-      (backup: LifeIndexBackupV1) => {
+      (backup: LifeIndexBackupV2) => {
         const first = buildFocusSession({ id: '00000000-0000-4000-8000-000000000106' })
         const second = buildFocusSession({ id: '00000000-0000-4000-8000-000000000107' })
         // Removing completion fields creates two individually valid active records.
@@ -139,6 +155,18 @@ describe('versioned backup and restore', () => {
         }
         backup.data.focusSessions.push(first, second)
         backup.counts.focusSessions += 2
+      },
+    ],
+    [
+      'an invalid weight value',
+      (backup: LifeIndexBackupV2) => {
+        backup.data.weightEntries[0]!.weightGrams = 10_000
+      },
+    ],
+    [
+      'a dangling Activity category',
+      (backup: LifeIndexBackupV2) => {
+        backup.data.activitySessions[0]!.categoryId = 'category-focus-study-v1'
       },
     ],
   ])('rejects %s without changing current data', async (_label, corrupt) => {
@@ -177,26 +205,28 @@ describe('versioned backup and restore', () => {
     expect((await targetService.createSnapshot('zh-CN')).data).toEqual(before.data)
   })
 
-  it('migrates the supported V0 shape in memory by adding empty action receipts', async () => {
+  it('migrates the supported V0 shape through V1 to V2 without inventing Health data', async () => {
     const database = createDatabase()
     await database.initialize(new Date(FIXED_NOW))
     const service = createService(database)
     const current = await service.createSnapshot('zh-CN')
+    const legacyCategories = current.data.categories.filter(({ domain }) => domain !== 'activity')
+    const legacySettings = current.data.settings.filter(({ key }) => key !== 'weightTarget')
     const legacyCounts = {
-      categories: current.counts.categories,
+      categories: legacyCategories.length,
       transactions: current.counts.transactions,
       habits: current.counts.habits,
       habitRecords: current.counts.habitRecords,
       focusSessions: current.counts.focusSessions,
-      settings: current.counts.settings,
+      settings: legacySettings.length,
     }
     const legacyData = {
-      categories: current.data.categories,
+      categories: legacyCategories,
       transactions: current.data.transactions,
       habits: current.data.habits,
       habitRecords: current.data.habitRecords,
       focusSessions: current.data.focusSessions,
-      settings: current.data.settings,
+      settings: legacySettings,
     }
     const legacy = {
       ...current,
@@ -206,8 +236,39 @@ describe('versioned backup and restore', () => {
     }
 
     const preview = service.inspectText(JSON.stringify(legacy))
-    expect(preview.formatVersion).toBe(1)
+    expect(preview.formatVersion).toBe(2)
     expect(preview.counts.actionReceipts).toBe(0)
+    expect(preview.counts.weightEntries).toBe(0)
+    expect(preview.counts.activitySessions).toBe(0)
+  })
+
+  it('migrates the shipped V1 backup shape to V2 with empty Health collections', async () => {
+    const database = createDatabase()
+    await initializeWithSyntheticData(database)
+    const service = createService(database)
+    const current = await service.createSnapshot('zh-CN')
+    const legacyData = {
+      categories: current.data.categories.filter(({ domain }) => domain !== 'activity'),
+      transactions: current.data.transactions,
+      habits: current.data.habits,
+      habitRecords: current.data.habitRecords,
+      focusSessions: current.data.focusSessions,
+      settings: current.data.settings.filter(({ key }) => key !== 'weightTarget'),
+      actionReceipts: current.data.actionReceipts,
+    }
+    const legacy = {
+      ...current,
+      formatVersion: 1,
+      counts: Object.fromEntries(
+        Object.entries(legacyData).map(([key, values]) => [key, values.length]),
+      ),
+      data: legacyData,
+    }
+
+    const preview = service.inspectText(JSON.stringify(legacy))
+    expect(preview.formatVersion).toBe(2)
+    expect(preview.counts.weightEntries).toBe(0)
+    expect(preview.counts.activitySessions).toBe(0)
   })
 
   it('requires a live, one-time preview token before replacement', async () => {

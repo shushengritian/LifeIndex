@@ -4,7 +4,7 @@ import { LifeIndexDatabase } from '@/data/db/LifeIndexDatabase'
 import { calculateCounts, storeKeys, validateBackup } from '@/data/backup/schema'
 import type { Clock, IdGenerator } from '@/shared/domain/runtime'
 import { cryptoIdGenerator, systemClock } from '@/shared/domain/runtime'
-import type { BackupData, LifeIndexBackupV1 } from '@/shared/domain/types'
+import type { BackupData, LifeIndexBackupV2 } from '@/shared/domain/types'
 import { AppError } from '@/shared/errors/AppError'
 import { logger } from '@/shared/logging/logger'
 
@@ -13,19 +13,19 @@ const PREVIEW_TTL_MILLISECONDS = 15 * 60 * 1000
 
 export interface BackupPreview {
   token: string
-  formatVersion: 1
+  formatVersion: 2
   appVersion: string
   exportedAt: string
-  counts: LifeIndexBackupV1['counts']
+  counts: LifeIndexBackupV2['counts']
   expiresAt: string
 }
 
 export interface RestoreResult {
-  counts: LifeIndexBackupV1['counts']
+  counts: LifeIndexBackupV2['counts']
 }
 
 interface PreviewEntry {
-  backup: LifeIndexBackupV1
+  backup: LifeIndexBackupV2
   expiresAtMilliseconds: number
 }
 
@@ -43,15 +43,15 @@ export class BackupService {
     private readonly idGenerator: IdGenerator = cryptoIdGenerator,
   ) {}
 
-  async createSnapshot(locale = navigator.language || 'zh-CN'): Promise<LifeIndexBackupV1> {
-    logger.info('backup.export.started', { operation: 'snapshot', formatVersion: 1 })
+  async createSnapshot(locale = navigator.language || 'zh-CN'): Promise<LifeIndexBackupV2> {
+    logger.info('backup.export.started', { operation: 'snapshot', formatVersion: 2 })
 
     try {
       const data = await this.readConsistentData()
       const now = this.clock.now()
-      const backup: LifeIndexBackupV1 = {
+      const backup: LifeIndexBackupV2 = {
         format: 'lifeindex-backup',
-        formatVersion: 1,
+        formatVersion: 2,
         appVersion: this.appVersion,
         exportedAt: now.toISOString(),
         source: {
@@ -64,14 +64,14 @@ export class BackupService {
       const canonical = validateBackup(backup)
       logger.info('backup.export.succeeded', {
         operation: 'snapshot',
-        formatVersion: 1,
+        formatVersion: 2,
         count: Object.values(canonical.counts).reduce((sum, count) => sum + count, 0),
       })
       return canonical
     } catch (error) {
       logger.error('backup.export.failed', error, {
         operation: 'snapshot',
-        formatVersion: 1,
+        formatVersion: 2,
         failureClass: 'BackupExport',
       })
       throw error instanceof AppError
@@ -80,12 +80,12 @@ export class BackupService {
     }
   }
 
-  serialize(backup: LifeIndexBackupV1): string {
+  serialize(backup: LifeIndexBackupV2): string {
     return `${JSON.stringify(validateBackup(backup), null, 2)}\n`
   }
 
   inspectText(text: string, byteLength = new TextEncoder().encode(text).byteLength): BackupPreview {
-    logger.info('backup.import.inspectionstarted', { operation: 'inspect', formatVersion: 1 })
+    logger.info('backup.import.inspectionstarted', { operation: 'inspect', formatVersion: 2 })
     if (byteLength > MAX_BACKUP_BYTES) {
       logger.warn('backup.import.rejected', {
         operation: 'inspect',
@@ -118,7 +118,7 @@ export class BackupService {
       })
       return {
         token,
-        formatVersion: 1,
+        formatVersion: 2,
         appVersion: backup.appVersion,
         exportedAt: backup.exportedAt,
         counts: backup.counts,
@@ -138,7 +138,7 @@ export class BackupService {
   }
 
   async restore(token: string): Promise<RestoreResult> {
-    logger.info('backup.restore.started', { operation: 'replace', formatVersion: 1 })
+    logger.info('backup.restore.started', { operation: 'replace', formatVersion: 2 })
     const entry = this.previews.get(token)
     if (!entry || entry.expiresAtMilliseconds < this.clock.now().getTime()) {
       this.previews.delete(token)
@@ -188,6 +188,8 @@ export class BackupService {
       this.database.focusSessions,
       this.database.settings,
       this.database.actionReceipts,
+      this.database.weightEntries,
+      this.database.activitySessions,
     ]
 
     return this.database.transaction('r', tables, async () => ({
@@ -201,10 +203,12 @@ export class BackupService {
         await this.database.actionReceipts.toArray(),
         ({ actionId }) => actionId,
       ),
+      weightEntries: sortByKey(await this.database.weightEntries.toArray(), ({ id }) => id),
+      activitySessions: sortByKey(await this.database.activitySessions.toArray(), ({ id }) => id),
     }))
   }
 
-  private async replaceData(backup: LifeIndexBackupV1): Promise<void> {
+  private async replaceData(backup: LifeIndexBackupV2): Promise<void> {
     const tables: Table[] = storeKeys.map((key) => this.database[key])
     await this.database.transaction('rw', tables, async () => {
       // One transaction makes clear-and-replace all-or-nothing across every business store.
@@ -216,6 +220,8 @@ export class BackupService {
       await this.addIfPresent(this.database.focusSessions, backup.data.focusSessions)
       await this.addIfPresent(this.database.settings, backup.data.settings)
       await this.addIfPresent(this.database.actionReceipts, backup.data.actionReceipts)
+      await this.addIfPresent(this.database.weightEntries, backup.data.weightEntries)
+      await this.addIfPresent(this.database.activitySessions, backup.data.activitySessions)
 
       const actualCounts = calculateCounts({
         categories: await this.database.categories.toArray(),
@@ -225,6 +231,8 @@ export class BackupService {
         focusSessions: await this.database.focusSessions.toArray(),
         settings: await this.database.settings.toArray(),
         actionReceipts: await this.database.actionReceipts.toArray(),
+        weightEntries: await this.database.weightEntries.toArray(),
+        activitySessions: await this.database.activitySessions.toArray(),
       })
       if (storeKeys.some((key) => actualCounts[key] !== backup.counts[key])) {
         throw new AppError('RestoreWrite', 'Restored store counts do not match')

@@ -1,8 +1,17 @@
 import { z } from 'zod'
 
-import type { BackupCounts, BackupData, LifeIndexBackupV1 } from '@/shared/domain/types'
+import type { BackupCounts, BackupData, LifeIndexBackupV2 } from '@/shared/domain/types'
 import { AppError } from '@/shared/errors/AppError'
-import { backupDataSchema } from '@/shared/validation/schemas'
+import {
+  actionReceiptSchema,
+  backupDataSchema,
+  categorySchema,
+  focusSessionSchema,
+  habitRecordSchema,
+  habitSchema,
+  settingSchema,
+  transactionSchema,
+} from '@/shared/validation/schemas'
 
 const storeKeys = [
   'categories',
@@ -12,6 +21,8 @@ const storeKeys = [
   'focusSessions',
   'settings',
   'actionReceipts',
+  'weightEntries',
+  'activitySessions',
 ] as const satisfies ReadonlyArray<keyof BackupData>
 
 const sourceSchema = z
@@ -21,7 +32,7 @@ const sourceSchema = z
   })
   .strict()
 
-const countsSchema = z
+const countsV2Schema = z
   .object({
     categories: z.number().int().nonnegative(),
     transactions: z.number().int().nonnegative(),
@@ -30,8 +41,61 @@ const countsSchema = z
     focusSessions: z.number().int().nonnegative(),
     settings: z.number().int().nonnegative(),
     actionReceipts: z.number().int().nonnegative(),
+    weightEntries: z.number().int().nonnegative(),
+    activitySessions: z.number().int().nonnegative(),
   })
   .strict()
+
+const backupV2Schema = z
+  .object({
+    format: z.literal('lifeindex-backup'),
+    formatVersion: z.literal(2),
+    appVersion: z.string().trim().min(1).max(40),
+    exportedAt: z.iso.datetime({ offset: true }),
+    source: sourceSchema,
+    counts: countsV2Schema,
+    data: backupDataSchema,
+  })
+  .strict()
+
+const legacyIcons = new Set([
+  'utensils',
+  'transport',
+  'shopping',
+  'home',
+  'health',
+  'entertainment',
+  'other',
+  'salary',
+  'bonus',
+  'refund',
+  'work',
+  'study',
+  'reading',
+  'personal',
+])
+
+// These restrictions freeze the shipped V1 unions even though unchanged record schemas are shared.
+const legacyCategorySchema = categorySchema.refine(
+  (category) => category.domain !== 'activity' && legacyIcons.has(category.icon),
+  'Category is not valid in backup V1',
+)
+const legacySettingSchema = settingSchema.refine(
+  (setting) => setting.key !== 'weightTarget',
+  'Setting is not valid in backup V1',
+)
+const legacyDataV1Schema = z
+  .object({
+    categories: z.array(legacyCategorySchema),
+    transactions: z.array(transactionSchema),
+    habits: z.array(habitSchema),
+    habitRecords: z.array(habitRecordSchema),
+    focusSessions: z.array(focusSessionSchema),
+    settings: z.array(legacySettingSchema),
+    actionReceipts: z.array(actionReceiptSchema),
+  })
+  .strict()
+const countsV1Schema = countsV2Schema.omit({ weightEntries: true, activitySessions: true })
 
 const backupV1Schema = z
   .object({
@@ -40,8 +104,8 @@ const backupV1Schema = z
     appVersion: z.string().trim().min(1).max(40),
     exportedAt: z.iso.datetime({ offset: true }),
     source: sourceSchema,
-    counts: countsSchema,
-    data: backupDataSchema,
+    counts: countsV1Schema,
+    data: legacyDataV1Schema,
   })
   .strict()
 
@@ -52,8 +116,8 @@ const backupV0Schema = z
     appVersion: z.string().trim().min(1).max(40),
     exportedAt: z.iso.datetime({ offset: true }),
     source: sourceSchema,
-    counts: countsSchema.omit({ actionReceipts: true }),
-    data: backupDataSchema.omit({ actionReceipts: true }),
+    counts: countsV1Schema.omit({ actionReceipts: true }),
+    data: legacyDataV1Schema.omit({ actionReceipts: true }),
   })
   .strict()
 
@@ -100,6 +164,14 @@ function assertReferences(data: BackupData): void {
     throw new AppError('BackupIntegrity', 'Focus category reference is invalid')
   }
 
+  if (
+    data.activitySessions.some(
+      ({ categoryId }) => categories.get(categoryId)?.domain !== 'activity',
+    )
+  ) {
+    throw new AppError('BackupIntegrity', 'Activity category reference is invalid')
+  }
+
   for (const receipt of data.actionReceipts) {
     const exists =
       receipt.actionType === 'add-transaction'
@@ -111,7 +183,7 @@ function assertReferences(data: BackupData): void {
   }
 }
 
-function assertDomainIntegrity(backup: LifeIndexBackupV1): void {
+function assertDomainIntegrity(backup: LifeIndexBackupV2): void {
   const { data } = backup
   assertCounts(backup.counts, data)
   assertUnique(
@@ -146,6 +218,14 @@ function assertDomainIntegrity(backup: LifeIndexBackupV1): void {
     data.actionReceipts.map(({ actionId }) => actionId),
     'action receipt',
   )
+  assertUnique(
+    data.weightEntries.map(({ id }) => id),
+    'weight entry',
+  )
+  assertUnique(
+    data.activitySessions.map(({ id }) => id),
+    'activity session',
+  )
 
   if (data.focusSessions.filter(({ status }) => status === 'active').length > 1) {
     throw new AppError('BackupIntegrity', 'More than one focus session is active')
@@ -155,11 +235,9 @@ function assertDomainIntegrity(backup: LifeIndexBackupV1): void {
 
 function migrateV0(input: unknown): unknown {
   const legacy = backupV0Schema.safeParse(input)
-  if (!legacy.success) {
-    throw new AppError('Validation', 'Legacy backup validation failed')
-  }
+  if (!legacy.success) throw new AppError('Validation', 'Legacy V0 backup validation failed')
 
-  // V0 predates URL Actions; an empty receipt collection preserves every existing business record.
+  // V0 predates URL Actions; the empty collection preserves every original business record.
   return {
     ...legacy.data,
     formatVersion: 1,
@@ -168,7 +246,20 @@ function migrateV0(input: unknown): unknown {
   }
 }
 
-export function validateBackup(input: unknown): LifeIndexBackupV1 {
+function migrateV1(input: unknown): unknown {
+  const legacy = backupV1Schema.safeParse(input)
+  if (!legacy.success) throw new AppError('Validation', 'Legacy V1 backup validation failed')
+
+  // V1 has no Health measurements; empty collections avoid inventing private values.
+  return {
+    ...legacy.data,
+    formatVersion: 2,
+    counts: { ...legacy.data.counts, weightEntries: 0, activitySessions: 0 },
+    data: { ...legacy.data.data, weightEntries: [], activitySessions: [] },
+  }
+}
+
+export function validateBackup(input: unknown): LifeIndexBackupV2 {
   if (typeof input !== 'object' || input === null) {
     throw new AppError('Validation', 'Backup root must be an object')
   }
@@ -181,18 +272,18 @@ export function validateBackup(input: unknown): LifeIndexBackupV1 {
     throw new AppError('BackupVersion', 'Backup version is missing')
   }
 
-  // Migrations run in memory and flow through the current schema and integrity checks before any write.
-  const migrated = header.formatVersion === 0 ? migrateV0(input) : input
-  if ((migrated as { formatVersion?: unknown }).formatVersion !== 1) {
+  // Each migration is validated at its own frozen boundary before current-schema validation.
+  let migrated: unknown = input
+  if (header.formatVersion === 0) migrated = migrateV0(migrated)
+  if ((migrated as { formatVersion?: unknown }).formatVersion === 1) migrated = migrateV1(migrated)
+  if ((migrated as { formatVersion?: unknown }).formatVersion !== 2) {
     throw new AppError('BackupVersion', 'Backup version is not supported')
   }
 
-  const parsed = backupV1Schema.safeParse(migrated)
-  if (!parsed.success) {
-    throw new AppError('Validation', 'Backup schema validation failed')
-  }
+  const parsed = backupV2Schema.safeParse(migrated)
+  if (!parsed.success) throw new AppError('Validation', 'Backup schema validation failed')
 
-  const backup = parsed.data as LifeIndexBackupV1
+  const backup = parsed.data as LifeIndexBackupV2
   assertDomainIntegrity(backup)
   return backup
 }

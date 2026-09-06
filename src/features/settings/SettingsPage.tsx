@@ -91,14 +91,14 @@ export function SettingsPage() {
     setError('')
     setMessage('')
     setWorking(true)
-    logger.info('backup.file.readstarted', { operation: 'inspect', formatVersion: 1 })
+    logger.info('backup.file.readstarted', { operation: 'inspect', formatVersion: 2 })
     try {
       if (file.size > MAX_BACKUP_BYTES) {
         backup.inspectText('', file.size)
       }
       const inspected = backup.inspectText(await file.text(), file.size)
       setPreview(inspected)
-      logger.info('backup.file.readsucceeded', { operation: 'inspect', formatVersion: 1 })
+      logger.info('backup.file.readsucceeded', { operation: 'inspect', formatVersion: 2 })
     } catch (caught) {
       logger.error('backup.file.readfailed', caught, {
         operation: 'inspect',

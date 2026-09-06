@@ -34,6 +34,8 @@ async function createSyntheticBackupInput(page: import('@playwright/test').Page)
       'focusSessions',
       'settings',
       'actionReceipts',
+      'weightEntries',
+      'activitySessions',
     ] as const
     const database = await new Promise<IDBDatabase>((resolve, reject) => {
       const request = indexedDB.open('LifeIndexDB')
@@ -64,6 +66,8 @@ async function createSyntheticBackupInput(page: import('@playwright/test').Page)
         focusSessions: 'id',
         settings: 'key',
         actionReceipts: 'actionId',
+        weightEntries: 'id',
+        activitySessions: 'id',
       } as const
       for (const name of storeNames) {
         const key = keyByStore[name]
@@ -72,8 +76,8 @@ async function createSyntheticBackupInput(page: import('@playwright/test').Page)
       const exportedAt = new Date().toISOString()
       return JSON.stringify({
         format: 'lifeindex-backup',
-        formatVersion: 1,
-        appVersion: '0.1.0',
+        formatVersion: 2,
+        appVersion: '2.0.0',
         exportedAt,
         source: {
           timezoneOffsetMinutes: new Date().getTimezoneOffset(),

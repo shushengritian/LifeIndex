@@ -8,9 +8,9 @@ Likelihood/impact are low, medium, or high. Plausible personal-data loss/disclos
 
 | ID | Risk | Likelihood | Impact | Mitigation/evidence required | Owner | Status |
 | --- | --- | --- | --- | --- | --- | --- |
-| R2-001 | V1→V2 database open loses or rewrites existing rows | medium | high | additive stores only; real schema-V1 fixture; logical row equality; initialization blocks on failure; iPhone upgrade check | Data/User | open |
-| R2-002 | V1 backup is rejected or restored without new-store consistency | medium | high | frozen V1 schema; pure V1→V2 migration; nine-store current validation/transaction tests | Data | open |
-| R2-003 | Restore clears current data before invalid Health records are rejected | medium | high | complete validation before preview/write; forced nine-store rollback test | Data | open |
+| R2-001 | V1→V2 database open loses or rewrites existing rows | medium | high | additive stores only; real schema-V1 fixture and logical row equality pass; initialization blocks on failure; iPhone upgrade still required | Data/User | automated mitigation verified; physical open |
+| R2-002 | V1 backup is rejected or restored without new-store consistency | medium | high | frozen V1 schema; pure V1→V2 migration; nine-store current validation/transaction tests pass | Data | mitigated automatically; browser/physical pending |
+| R2-003 | Restore clears current data before invalid Health records are rejected | medium | high | pre-write validation and forced nine-store rollback tests pass | Data | mitigated automatically; browser/physical pending |
 | R2-004 | Health values leak through logs, fixtures, URLs, or artifacts | medium | high | logger denylist/allowlist, runtime capture, source/artifact scan, synthetic fixtures | Security | open |
 | R2-005 | V1 source rollback cannot open schema V2 | medium | high | no schema downgrade; retain V2-compatible release/fix path; documented rollback rule | Release/Data | accepted constraint, mitigation open |
 | R2-006 | Calendar/date math assigns records to the wrong day/month/week | medium | high | validated local-date keys, calendar-component iteration, leap/DST/boundary tests | Finance/Health | open |

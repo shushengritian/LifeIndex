@@ -1,4 +1,11 @@
-import type { FocusSession, Habit, HabitRecord, Transaction } from '@/shared/domain/types'
+import type {
+  ActivitySession,
+  FocusSession,
+  Habit,
+  HabitRecord,
+  Transaction,
+  WeightEntry,
+} from '@/shared/domain/types'
 
 export const FIXED_NOW = '2026-09-03T12:00:00.000Z'
 
@@ -62,6 +69,36 @@ export function buildFocusSession(overrides: Partial<FocusSession> = {}): FocusS
     localDate: '2026-09-03',
     timezoneOffsetMinutes: -480,
     createdAt: '2026-09-03T11:35:00.000Z',
+    updatedAt: FIXED_NOW,
+    ...overrides,
+  }
+}
+
+export function buildWeightEntry(overrides: Partial<WeightEntry> = {}): WeightEntry {
+  return {
+    id: '00000000-0000-4000-8000-000000000005',
+    weightGrams: 68_400,
+    measuredAt: FIXED_NOW,
+    localDate: '2026-09-03',
+    timezoneOffsetMinutes: -480,
+    note: '合成测试体重记录',
+    createdAt: FIXED_NOW,
+    updatedAt: FIXED_NOW,
+    ...overrides,
+  }
+}
+
+export function buildActivitySession(overrides: Partial<ActivitySession> = {}): ActivitySession {
+  return {
+    id: '00000000-0000-4000-8000-000000000006',
+    categoryId: 'category-activity-walking-v2',
+    durationMinutes: 35,
+    intensity: 'moderate',
+    occurredAt: FIXED_NOW,
+    localDate: '2026-09-03',
+    timezoneOffsetMinutes: -480,
+    note: '合成测试运动记录',
+    createdAt: FIXED_NOW,
     updatedAt: FIXED_NOW,
     ...overrides,
   }
