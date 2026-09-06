@@ -60,6 +60,13 @@ Current instance: the user created the public [shushengritian/LifeIndex](https:/
 
 Before the V2 candidate is merged to `main`, the owner must export the currently installed V1 data to Files/iCloud and confirm that the backup exists. This is a safety prerequisite, not migration evidence. The candidate then follows the normal verified workflow; it must never deploy a checked-in `dist` directory or a manual artifact.
 
+### V2 branch candidate — 2026-09-06
+
+- Application source: `2162c323d1fe4100e917982d3fcea5117b4942bc`, version `2.0.0`, branch `codex/v2-ui-design`.
+- Branch workflow: [34033594594](https://github.com/shushengritian/LifeIndex/actions/runs/34033594594), completed successfully on 2026-09-06.
+- Proof: frozen dependency installation, peer contracts, static/unit/integration/build gate, and production Chromium/WebKit gate all succeeded on Ubuntu.
+- Deployment state: not merged to `main` and not deployed. The existing V1 Pages site remains the production application until the owner confirms the prerequisite backup.
+
 The V2 candidate must additionally prove the rendered application version is `2.0.0`, all nine IndexedDB stores open under schema version 2, Finance routes to the semantic month calendar, Health can create/reload synthetic Weight and Activity records, Settings shows its four independent groups, and a V1-format synthetic backup previews/restores as canonical V2. The exact candidate commit, Actions run, Pages deployment, and live smoke results are recorded here before physical acceptance begins.
 
 The `v1.0.0` publication record is maintained in [the release handoff](../releases/v1.0.0.md): application/tag commit `40eb947`, successful full [workflow 33849576847](https://github.com/shushengritian/LifeIndex/actions/runs/33849576847), and [published Release](https://github.com/shushengritian/LifeIndex/releases/tag/v1.0.0). [ADR-0005](../adr/0005-v1-owner-acceptance.md) changes only the owner's physical-acceptance gate; all automated build/deploy/live checks below remain required. The release preserves schema/backup V1, the same URL, and the existing unselected license state. Later evidence-only documentation commits do not move the tag or alter application behavior.

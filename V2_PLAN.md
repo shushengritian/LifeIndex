@@ -193,13 +193,15 @@ Each slice includes documentation, comments on key logic, privacy-safe logs, nar
 
 ### V2-M6 — GitHub Pages release candidate
 
-**Status:** In progress — local release candidate ready; owner V1 backup required before production merge
+**Status:** In progress — branch CI passed; owner V1 backup required before production merge
 
 - Review the release diff and repository cleanliness.
 - Push the approved commit set to GitHub.
 - Observe the GitHub Actions Pages workflow.
 - Run deployed smoke, installability, deep-link, asset-path, and service-worker update checks.
 - Do not tag the final release yet.
+
+**Progress evidence:** Implementation commit `2162c32` is pushed to `codex/v2-ui-design`. [CI run 34033594594](https://github.com/shushengritian/LifeIndex/actions/runs/34033594594) passed frozen dependency installation, peer contracts, the complete static/unit/integration/build gate, and the production Chromium/WebKit gate. `main` and the live Pages application remain unchanged until the owner confirms a V1 backup exists.
 
 ### V2-M7 — Physical-iPhone acceptance
 
@@ -284,6 +286,7 @@ The owner should review the first design against these questions:
 
 | Date | Change |
 | --- | --- |
+| 2026-09-06 | Pushed V2 implementation commit `2162c32`; branch CI run 34033594594 passed all quality and browser gates. Production merge remains behind the owner V1-backup prerequisite. |
 | 2026-09-06 | Completed V2-M5/G5: 125 Vitest checks, 35/1 dual-engine E2E, 11/1 `/LifeIndex/` deployment smoke, accessibility, privacy, offline, backup/migration, and responsive gates pass locally. |
 | 2026-09-06 | Completed V2-M3/M4 implementation; started integrated hardening with 125 Vitest checks, 35 dual-engine browser passes, accessibility checks, and 320/390 visual inspection. |
 | 2026-09-06 | Completed V2-M2/G2 and started V2-M3 with the data foundation before visual implementation. |

@@ -1,6 +1,6 @@
 # LifeIndex V2 Test Plan
 
-**Status:** Local V2 candidate verified; remote deployment and physical-iPhone gates pending
+**Status:** Local and branch-CI V2 candidate verified; Pages deployment and physical-iPhone gates pending
 
 **Last updated:** 2026-09-06
 
@@ -21,6 +21,8 @@ Prove that V2 preserves all V1 local records and critical workflows while adding
 | Physical acceptance | Owner's installed iPhone PWA | real upgrade/data continuity, Files handoff, suspension, safe areas |
 
 V1's final automated/release evidence remains in `docs/releases/v1.0.0.md`; it is the regression baseline, not V2 proof.
+
+V2 implementation commit `2162c32` passed the complete Ubuntu branch gate in [CI run 34033594594](https://github.com/shushengritian/LifeIndex/actions/runs/34033594594). This is independent remote verification of install, peer, static, unit/integration, build, Chromium, and WebKit checks; it is not Pages or physical-device evidence.
 
 ## 3. Data and migration gate
 
