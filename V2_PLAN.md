@@ -1,6 +1,6 @@
 # LifeIndex V2 Version Plan
 
-**Status:** Revision 5 approved — V2-M2 requirements and architecture freeze in progress; production implementation remains blocked by G2
+**Status:** Gate G2 passed — V2-M3 data foundation, design system, and application shell in progress
 **Started:** 2026-09-06
 **Target release:** `v2.0.0` after approval, implementation, deployment, and physical-iPhone acceptance
 **Product baseline:** [LifeIndex-Project-Baseline.md](LifeIndex-Project-Baseline.md)
@@ -141,7 +141,7 @@ The following are not authorized by the V2 UI refresh and require separate produ
 
 ### V2-M2 — Requirements and architecture freeze
 
-**Status:** In progress
+**Status:** Complete — product, data, backup, implementation, risk, traceability, and test contracts agree on 2026-09-06
 
 - Update the PRD and information architecture with final approved behavior.
 - Resolve proposed [ADR-0006](docs/adr/0006-v2-health-domain.md) and write any further material decisions.
@@ -149,12 +149,15 @@ The following are not authorized by the V2 UI refresh and require separate produ
 - Design additive IndexedDB and backup-schema migrations for weight and activity records while preserving every V1 store and record; specify forward migration, validation, rollback, and recovery before code.
 - Produce the implementation matrix and traceability map.
 
-**Exit gate G2:** Product, architecture, data safety, and test documents agree on the same scope.
+**Evidence:** PRD and IA define the approved UI behavior; HLD/LLD define module/state/failure boundaries; DATA_MODEL and BACKUP_SCHEMA freeze integer units, additive schema V2, legacy backup migrations, and atomic restore; ADR-0007 accepts the compatibility decision; DEV, TEST_PLAN, traceability, and risk documents use the same nine-store scope.
 
-### V2-M3 — Shared design system and application shell
+**Exit gate G2:** Passed. Product, architecture, data safety, and test documents agree on the same scope.
 
-**Status:** Blocked by G2
+### V2-M3 — Data foundation, shared design system, and application shell
 
+**Status:** In progress
+
+- Implement and verify the additive schema V2, Health types/repositories, backup V2 migration/restore, and stable Activity seeds before Health UI writes exist.
 - Implement tokens, typography, shared primitives, icons, navigation, top bar, sheets, rows, and feedback states.
 - Add focused unit/component tests and mobile visual checks.
 - Verify 320 px and 390 px widths, safe areas, light/dark appearance, and reduced motion.
@@ -268,11 +271,13 @@ The owner should review the first design against these questions:
 | 2026-09-06 | Revision 3 replaces Finance period tabs with a clickable monthly calendar, adds a dedicated habit statistics detail, and moves Appearance into the requested full-width Settings row. | Proposed for G1 |
 | 2026-09-06 | Revision 4 separates Settings into four independent groups: Categories, Appearance, Data & security, and Other. | Proposed for G1 |
 | 2026-09-06 | Revision 5 makes Health the third business domain, combining unchanged Habits with minimal weight and activity records while retaining five bottom destinations. | Accepted at G1; see ADR-0006 |
+| 2026-09-06 | Use additive schema V2 stores, integer grams/minutes, Activity categories, optional target setting, and backup format V2 with V0/V1 in-memory migration. | Accepted at G2; see ADR-0007 |
 
 ## Change log
 
 | Date | Change |
 | --- | --- |
+| 2026-09-06 | Completed V2-M2/G2 and started V2-M3 with the data foundation before visual implementation. |
 | 2026-09-06 | Recorded the owner's approval of Revision 5, completed V2-M1/G1, accepted ADR-0006, and started V2-M2 documentation freeze. |
 | 2026-09-06 | Revised M1 to replace the Habits destination with a lightweight Health overview and recorded the additive data impact in ADR-0006. |
 | 2026-09-06 | Revised M1 Settings so Categories, Appearance, Data & security, and Other are four separate groups. |

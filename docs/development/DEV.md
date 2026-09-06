@@ -2,7 +2,7 @@
 
 **Status:** Active
 
-**Last verified:** 2026-09-04
+**Last verified:** 2026-09-06 for the V2 implementation contract; commands remain inherited from V1
 
 ## 1. Prerequisites
 
@@ -11,7 +11,7 @@
 - Node 20.19.0 or newer (`.nvmrc` records the initially verified 20.19.5)
 - pnpm 11.19.0 as declared by `packageManager`
 
-No environment secret, backend, database server, Apple Developer account, or Xcode project is required.
+No environment secret, backend, database server, Apple Developer account, or Xcode project is required. V2 remains a static local-first PWA; manual Health records do not add HealthKit or a native build.
 
 ## 2. Install and run
 
@@ -62,7 +62,7 @@ LIFEINDEX_BASE_PATH=/REPOSITORY-NAME/ pnpm build
 
 - `src/app`: bootstrap, router, providers, global error/update UI.
 - `src/data`: Dexie schema/migrations, repositories, backup and restore.
-- `src/features`: Today, Finance, Habits, Focus, Settings vertical slices.
+- `src/features`: Today, Finance, Focus, Health, retained Habits primitives, and Settings vertical slices.
 - `src/pwa`: service-worker registration and update/offline client state.
 - `src/shared`: pure domain utilities, safe logging, validation, and UI primitives.
 - `src/styles`: tokens and shared layout.
@@ -100,13 +100,24 @@ Do not create empty folders. Introduce each directory with its first owned imple
 5. Verify current backups still import or add a pure backup migration.
 6. Never delete/recreate a user's database as an automatic recovery strategy.
 
-The first shipped database schema is V1 and therefore has no predecessor database fixture. The supported backup V0 fixture exercises the pure migration pipeline separately; database and backup versions must never be treated as interchangeable.
+V2 is the first in-place database upgrade. It registers the shipped schema V1 and additive schema V2, then proves the transition with a synthetic real V1 database before adding Health records. Backup versions remain independent: format V0 migrates to V1 and format V1 migrates to V2 entirely in memory before current validation. Follow [ADR-0007](../adr/0007-v2-health-storage-and-backup.md), [DATA_MODEL.md](../architecture/DATA_MODEL.md), and [BACKUP_SCHEMA.md](../architecture/BACKUP_SCHEMA.md).
+
+For V2 data changes, use this order:
+
+1. Update types and strict current/legacy validation contracts.
+2. Register the next Dexie schema without removing predecessor declarations.
+3. Add or adjust idempotent public seed definitions only after schema open.
+4. Implement repository reference checks in the same transaction as writes.
+5. Update backup migration/restore across every current store.
+6. Run focused parser/repository/migration/rollback tests before UI work.
+
+Weight is stored as integer grams; Activity duration is integer minutes. Never log either value, activity intensity/category, target, record-local date, or note.
 
 ## 9. Release and rollback
 
 - CI must reproduce install with `pnpm install --frozen-lockfile`.
 - Pages deploys only the generated `dist` artifact after required checks.
-- A source rollback deploys a prior known-good app artifact but does not downgrade or mutate IndexedDB automatically.
+- A source rollback deploys a prior known-good app artifact but does not downgrade or mutate IndexedDB automatically. Once schema V2 has opened, recovery must be a forward-compatible V2 fix; do not redeploy V1 as a claimed data recovery path.
 - If new code cannot safely read an existing schema, stop the release and ship a forward-compatible fix; never instruct users to clear data as the default remedy.
 - `.github/workflows/ci.yml` owns pull-request and non-`main` branch evidence; `.github/workflows/pages.yml` repeats the full gate on `main` before publishing.
 - `docs/operations/DEPLOYMENT.md` is the remote setup, live smoke, and rollback runbook; `docs/operations/IPHONE_ACCEPTANCE.md` retains physical-only checks. ADR-0005 permits owner-accepted `v1.0.0` with those checks deferred, never marked passed. See `docs/releases/v1.0.0.md` and `docs/project/POST_V1_BACKLOG.md` for release scope and follow-ups.

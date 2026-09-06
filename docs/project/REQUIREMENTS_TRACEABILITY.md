@@ -1,43 +1,31 @@
-# LifeIndex V1 Requirements Traceability
+# LifeIndex V2 Requirements Traceability
 
-**Status:** V1 release mapping archived; physical exceptions and follow-ups retained
+**Status:** Approved mapping; implementation and V2 verification pending
 
-**Last updated:** 2026-09-04
+**Last updated:** 2026-09-06
 
-This matrix connects approved product requirements to design, implementation, and verification evidence. `TBD` is intentional before the corresponding milestone; it must be replaced by a real file, test, or accepted exception before V1 release.
+V1 implementation remains the regression base. “Planned” means the design contract exists but V2 source/test evidence is not yet complete.
 
-For `v1.0.0`, physical-evidence gaps below are accepted **deferrals**, not verified tests: [ADR-0005](../adr/0005-v1-owner-acceptance.md) records the owner's explicit approval and [POST_V1_BACKLOG.md](POST_V1_BACKLOG.md) names PV1-01–06. Final version-specific automated evidence belongs in [the release handoff](../releases/v1.0.0.md). Phone-browser opening is the only user-confirmed device result.
+| Requirement | Product/design evidence | Architecture/data evidence | Planned implementation | Planned verification | Status |
+| --- | --- | --- | --- | --- | --- |
+| APP-001–005 | PRD §6.1; IA §§1–2,10 | HLD §§3–5; LLD §§1–3,7–8 | `src/app`, `src/shared/ui`, styles | app/component, dual-engine shell, deployed route smoke | planned |
+| FIN-001–007 | PRD §6.2; IA §4 | HLD §9; LLD §§6,8 | `src/features/finance`; existing repositories | finance domain/unit/integration/E2E | planned |
+| CAT-001 | PRD §6.2; IA §§4,7 | Data model §§3,12; LLD §§4,11 | CategoryRepository, Settings category UI | integration + category E2E | planned |
+| HLT-001–004 | PRD §6.3; IA §6 | HLD §§4,8; LLD §§5,8 | `src/features/health` | independent-state component + Health E2E | planned |
+| WGT-001–005 | PRD §6.4; IA §6 | Data model §7; ADR-0007; LLD §§4–5 | WeightRepository and Health forms/projections | parser/domain/repository/backup/E2E | planned |
+| ACTV-001–004 | PRD §6.5; IA §6 | Data model §§3,8; ADR-0007; LLD §§4–5 | ActivityRepository and Health forms/projections | domain/reference/repository/E2E | planned |
+| HAB-001–006 | PRD §6.6; IA §§3,6 | Data model §5; LLD §5 | retained Habits domain/UI composed by Health | existing regression + heatmap/component/E2E | planned |
+| FOC-001–006 | PRD §6.7; IA §5 | HLD §11; retained LLD state machine | refreshed Focus UI, FocusRepository unchanged | existing unit/integration + refreshed E2E | planned |
+| TOD-001–004 | PRD §6.8; IA §3 | HLD §§4,7 | refreshed Today projection | component + cross-feature E2E | planned |
+| SET-001–005 | PRD §6.9; IA §7 | Data model §§3,9; LLD §11 | SettingsPage and category/target controls | group-order/theme/category/backup tests | planned |
+| BKP-001–006 | PRD §6.10; IA §8 | Backup schema; ADR-0007; HLD §10; LLD §§9–10 | `src/data/backup` | V0/V1/V2 migration, invalid matrix, rollback | planned |
+| PWA-001–005 | PRD §6.11 | HLD §§2,11,14 | retained worker/update code + shell integration | existing PWA tests + dual engine/live/iPhone | planned |
+| URL-001–004 | PRD §6.12; IA §9 | HLD §11 | retained `src/app/actions` | existing parser/service/E2E privacy regression | planned |
+| NFR-DAT/REL | PRD §7 | Data model §§13–14; backup §7; ADR-0007 | additive DB and atomic repositories/restore | schema-V1 upgrade + rollback + iPhone continuity | planned |
+| NFR-PRV/OFF | PRD §7 | HLD §§11–13 | logger/PWA boundaries | source/runtime privacy + offline/live checks | planned |
+| NFR-UX/A11Y | PRD §7; UI spec | IA §§10–12; LLD §§7–8 | tokens/primitives/pages | 320/390 light/dark, axe, touch, reduced motion | planned |
+| NFR-MNT/TST | PRD §7 | HLD §14; LLD §§12–15; DEV; test plan | modular source and scripts | full local/CI/deployed/physical gates | planned |
 
-| Requirement group    | Product evidence           | Design evidence                                                                           | Planned implementation                        | Planned verification                                              | Status               |
-| -------------------- | -------------------------- | ----------------------------------------------------------------------------------------- | --------------------------------------------- | ----------------------------------------------------------------- | -------------------- |
-| APP-001–004          | `docs/product/PRD.md` §6.1 | IA §§1–2, 10; HLD §§3–5; LLD §§1–2, 13                                                    | `src/app`, routing, initialization boundary   | `tests/unit/app.test.tsx`; `tests/e2e/app-shell.spec.ts`          | foundation verified  |
-| FIN-001–006          | PRD §6.2                   | IA §4; UX guide §7; HLD §§4, 7–8; LLD §§3, 5–6                                            | `src/features/finance`, transaction/category repositories | Domain/unit, repository integration, dual-engine Finance E2E      | verified             |
-| CAT-001              | PRD §6.2                   | IA §4; UX guide §7; HLD §§4, 7–8; LLD §§3, 5–6                                            | category repository and Settings lifecycle UI  | Repository integration and dual-engine management E2E             | verified             |
-| HAB-001–006          | PRD §6.3                   | IA §6; UX guide §7; HLD §§4, 7–8; LLD §§3, 5, 7                                           | `src/features/habits`, `HabitRepository`       | Domain/unit, repository integration, dual-engine Habits E2E       | verified             |
-| FOC-001–006          | PRD §6.4                   | IA §5; UX guide §7; HLD §10; LLD §§3, 8                                                   | `src/features/focus`, `FocusRepository`        | Domain/unit, state integration, dual-engine reload/finish E2E      | verified             |
-| TOD-001–003          | PRD §6.5                   | IA §3; UX guide §7; HLD §8; LLD §4                                                        | `src/features/today` independent projections   | Dual-engine cross-feature Today E2E                               | verified             |
-| SET-001–003          | PRD §6.6                   | IA §7; UX guide §7; data model §8                                                         | `src/features/settings`, browser backup adapter | Settings unit/integration and dual-engine appearance/category E2E | verified             |
-| BKP-001–006          | PRD §6.7                   | IA §8; HLD §9; LLD §9; `BACKUP_SCHEMA.md`                                                 | `src/data/backup`, browser adapter, transactional coordinator | Backup integration plus dual-engine export/preview/replace E2E; physical Files acceptance pending | automated verified   |
-| PWA-001–005          | PRD §6.8                   | IA §§1–2, 10; UX guide §§3, 6; HLD §§11, 14; LLD §§11, 15                                 | manifest/icons, `src/sw.ts`, `src/pwa`        | Root/subpath and live 0.1.1 gates; `pwa.test.tsx`, `pwaUpdates.test.ts`, actual browser upgrade; physical iPhone pending | automated verified   |
-| ACT-001–004          | PRD §6.9                   | IA §9; HLD §12; LLD §10; ADR-0003; `docs/operations/PWA_AND_SHORTCUTS.md`                 | `src/app/actions`, `actionReceipts`           | 15 parser/atomic-service checks and dual-engine action-route/privacy E2E | verified             |
-| NFR-DAT/PRV          | PRD §7                     | `SECURITY.md`; HLD §§6–7, 12, 15; LLD §§12–13; ADR-0002                                   | storage/logging boundaries                    | Logger, corruption/rollback, build-artifact, Git-ignore, runtime network/console privacy checks | automated verified   |
-| NFR-OFF/REL          | PRD §7                     | HLD §§5, 9–13; LLD §§8–11, 13; ADR-0004                                                   | service worker, error boundary, DB recovery   | Offline/update/failure paths, real HTTPS smoke, and browser upgrade verified; physical gate pending | partial verification |
-| NFR-UX/A11Y          | PRD §7                     | `docs/design/UX_UI_GUIDE.md`                                                              | design tokens and shared components           | Dual-engine axe, 320 px/touch/reduced-motion automation, light/dark visual checks; physical device pending | automated verified   |
-| NFR-MNT/TST          | PRD §7                     | `AGENTS.md`; HLD §16; LLD §§14–16; `docs/development/DEV.md`; `docs/testing/TEST_PLAN.md` | modular source and quality scripts            | Full local gates and successful Linux/Pages/live run 33833052946 for 0.1.1; final release sign-off pending | automated verified |
+## Verification rule
 
-## Deployment and update-discovery evidence
-
-- Released application `1.0.0` at tag commit `40eb947` passed the final local gates and complete [workflow 33849576847](https://github.com/shushengritian/LifeIndex/actions/runs/33849576847), including 9 exact-version live passes / 1 documented skip. All implementation mappings below remain unchanged from 0.1.1; release metadata and verification comments do not alter business behavior. [Release evidence](../releases/v1.0.0.md) separates this current result from the historical runs below.
-
-- GitHub run [33832099931](https://github.com/shushengritian/LifeIndex/actions/runs/33832099931) verifies the first live application at `60b0676`: clean Linux install, full local gates, base-path build/deployment, and 9 live smoke passes with the documented WebKit offline-reload skip. This supersedes the initial matrix's “remote run/live pending” notes for that commit only.
-- `tests/unit/pwaUpdates.test.ts` maps the 0.1.1 foreground/reconnect discovery change to PWA-001–005 and NFR-OFF/REL: foreground, reconnect, offline/hidden guards, in-flight/cooled-down checks, install/waiting guards, failure retry, and listener cleanup. Existing `tests/unit/pwa.test.tsx` still proves explicit activation and dirty-form blocking.
-- The 0.1.1 source `ff7d443` passed its own complete local and remote gates in [run 33833052946](https://github.com/shushengritian/LifeIndex/actions/runs/33833052946): 92 unit/integration passes, 33 browser passes / 1 documented skip, 9 live passes / 1 documented skip, and a manual dirty-form-safe browser upgrade from 0.1.0. Physical installation, offline relaunch, Files restore, Shortcuts, and the physical two-version update transition remain unverified until user sign-off.
-
-## Release rule
-
-A requirement may be marked `verified` only when:
-
-1. Its implementation path is present.
-2. The mapped automated/manual evidence has passed against the production-intent build.
-3. Product and architecture documents still describe the observed behavior.
-4. Any exception names its user impact, owner, and approval.
+A row becomes `verified` only when its V2 implementation exists, named automated/manual evidence passed against the production-intent candidate, documentation matches observed behavior, and any exception identifies impact/owner/approval. Physical checks remain pending until the owner reports them.

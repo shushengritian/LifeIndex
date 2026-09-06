@@ -1,174 +1,152 @@
-# LifeIndex V1 Test Plan
+# LifeIndex V2 Test Plan
 
-**Status:** V1 release gate recorded; deferred physical follow-ups retained
+**Status:** Approved verification contract; V2 execution pending
 
-**Last updated:** 2026-09-04
+**Last updated:** 2026-09-06
 
 ## 1. Quality objective
 
-Prove that LifeIndex preserves private local data and core daily workflows across normal use, validation failures, iOS-style suspension/reload, offline operation, upgrades, and backup recovery.
-
-Automation is evidence, not a substitute for physical-iPhone acceptance. For `v1.0.0`, [ADR-0005](../adr/0005-v1-owner-acceptance.md) records the owner's explicit acceptance of current delivery with uncompleted physical checks deferred. The later release exception supersedes earlier references to a blocking M9 gate, but does not turn any pending test into a pass or waive automated checks. Named follow-ups remain in `docs/project/POST_V1_BACKLOG.md`.
+Prove that V2 preserves all V1 local records and critical workflows while adding the approved mobile UI, weight/activity records, backup format V2, and additive schema upgrade. Automation provides repeatable evidence; the owner's installed-iPhone report remains required and is not inferred.
 
 ## 2. Test layers
 
-| Layer                         | Tool/environment                 | Primary proof                                                                       |
-| ----------------------------- | -------------------------------- | ----------------------------------------------------------------------------------- |
-| Static                        | Prettier, ESLint, TypeScript     | Formatting, unsafe patterns, strict contracts                                       |
-| Unit                          | Vitest + jsdom                   | Money/date/schedule/streak/statistics/state-machine/schema logic and components     |
-| Integration                   | Vitest + fake-indexeddb          | Dexie indexes, repositories, transactions, migrations, restore rollback             |
-| Browser E2E                   | Playwright Chromium              | Fast end-to-end workflow and offline/service-worker feedback                        |
-| Primary-browser approximation | Playwright Mobile Safari/WebKit  | Touch viewport, WebKit behavior, navigation, IndexedDB and worker scenarios         |
-| Deployed smoke                | Real Pages HTTPS URL             | Base path, manifest, worker scope, reload, assets, offline artifact                 |
-| Physical acceptance           | User's iPhone Safari/Home Screen | Actual install, persistence, suspension, Files/iCloud export/restore, airplane mode |
+| Layer | Environment | Primary proof |
+| --- | --- | --- |
+| Static | Prettier, ESLint, TypeScript | formatting, contracts, unsafe patterns |
+| Unit/component | Vitest + jsdom | parsers, projections, state, forms, navigation, accessibility contracts |
+| Integration | Vitest + fake-indexeddb | V1→V2 upgrade, repositories, references, backup migration/rollback |
+| Browser E2E | Playwright Chromium | production workflows, offline/update, compact UI |
+| WebKit approximation | Playwright Mobile Safari | iOS-like touch/browser behavior |
+| Deployed smoke | Real GitHub Pages HTTPS | exact version, base path, routes, manifest, worker, offline artifact |
+| Physical acceptance | Owner's installed iPhone PWA | real upgrade/data continuity, Files handoff, suspension, safe areas |
 
-## 3. M3 scaffold gate
+V1's final automated/release evidence remains in `docs/releases/v1.0.0.md`; it is the regression baseline, not V2 proof.
 
-- Verified 2026-09-03: dependency peer check has no issue.
-- Verified: app shell unit tests cover default Today and all five destinations.
-- Verified: safe logger tests prove allowlisted context and reject sensitive keys/messages.
-- Verified: production build emits HTML, versioned assets, manifest, and service worker.
-- Verified: four E2E checks load the production preview in Chromium and Mobile Safari/WebKit.
-- Verified: automated accessibility scans report no shell violation in either engine.
+## 3. Data and migration gate
 
-## 4. M4 data-safety matrix
+- Fresh V2 creates nine stores, 21 stable categories, and the existing three default Settings rows.
+- Reopen is idempotent and does not overwrite renamed/archived category values.
+- A schema-V1 fixture with representative rows in all seven stores upgrades in place to version 2.
+- Every pre-upgrade row remains logically equal; new stores are empty; stable Activity categories are added only after open.
+- Forced/open migration failure blocks initialization and never invokes database deletion or clear.
+- Weight accepts exactly 20,000–500,000 integer grams and rejects fractional/out-of-range values.
+- Activity accepts exactly 1–1,440 integer minutes and `light|moderate|hard`.
+- Activity create/update validates category domain/archive policy atomically.
+- CRUD and bounded/date-ordered reads pass for Weight and Activity repositories.
+- Logger capture for every new path contains no IDs, values, dates tied to records, notes, category labels, or payloads.
 
-- Verified: fresh database creates exactly seven V1 stores, 15 stable categories, and 3 typed settings; reopening is idempotent.
-- Verified: category/settings repository success, idempotent, validation, and failure paths emit safe event metadata.
-- Verified: transaction amounts remain exact at minimum, decimal, maximum, sum, and invalid boundaries.
-- Verified: local date keys handle month/year/leap-day and calendar-component iteration.
-- Verified: backup round trip reproduces every canonical store logically.
-- Verified: invalid JSON, oversized input, unsupported future version, count mismatch, invalid fields, duplicate primary/compound keys, dangling entity/action references, and multiple active Focus records start no write and retain current data.
-- Verified: a forced insertion failure during replace aborts all store changes.
-- Verified: supported V0 backup fixture migrates deterministically and preview tokens are cancelable/one-time.
+## 4. Backup gate
 
-## 5. M5 feature matrix
+- Current V2 round trip reproduces all nine stores and optional weight target.
+- V0 migrates through V1 to V2; V1 migrates to V2; both add empty Health collections only.
+- Frozen legacy schemas reject historically invalid unions independently of the current schema.
+- Invalid JSON, oversize, future version, count mismatch, duplicate keys, invalid Health values, dangling Activity category, invalid settings, receipt mismatch, and multiple active Focus rows begin no write.
+- Preview exposes only safe metadata and uses cancelable, expiring, one-time tokens.
+- Forced failure during replacement aborts all nine stores and retains the complete previous snapshot.
+- Serialization ordering is deterministic.
+
+## 5. Unit and component matrix
+
+### Shared shell
+
+- Five destinations are Today/Finance/Focus/Health/Settings in order; `/habits` redirects to `/health`.
+- Internal icons have accessible labels through their controls and no network dependency.
+- Light/dark/system, reduced motion, fatal startup, PWA status, and update/dirty-form behavior remain correct.
 
 ### Finance
 
-- Verified: expense/income create, edit, confirm-delete, and production-preview reload persistence.
-- Verified: category type/reference, archived category history, and selected-period boundaries.
-- Verified: exact income/expense/balance/category/trend totals and zero-filled six-month trend.
-- Verified: an injected IndexedDB write failure preserves the visible Finance draft and commits no partial record.
-- Verified: a representative 500-transaction snapshot restores with stable ordering, count, and exact total.
+- Month grid handles leading/trailing days, leap year, Monday-first weekdays, month change, day clamp, and today/selected state.
+- Daily and monthly totals use exact minor units; empty days omit amounts.
+- Calendar selection changes the ledger without persistence.
+- New/edit sheet keeps drafts on validation/write failure, blocks duplicate save, and closes after commit only.
+- Existing transaction/category/report domain tests remain green.
 
-### Habits
+### Health
 
-- Verified: daily and selected-weekday schedules from start date.
-- Verified: idempotent check-in and undo using the unique compound key.
-- Verified: pause removes current prompts while preserving history and can be reversed.
-- Verified: current/longest streak, month rate, total count, unscheduled dates, and unfinished today.
-- Verified: current-month calendar states and dual-engine create/check/reload/undo journey; broader accessibility states remain in M7.
+- Exact kg text parsing to grams, one-decimal display, boundary values, and invalid separators.
+- Latest/trailing-30-day trend handles 0/1/multiple entries and local-date boundaries.
+- Current Monday–Sunday Activity count/duration and newest ordering.
+- Independent Weight/Activity/Habit loading/error/empty states.
+- Add chooser has exactly Weight/Activity/Habit actions.
+- Habit schedule, check-in/undo, pause, streak, rate, total, and new fourteen-week heatmap states.
+- Save failure keeps Weight/Activity drafts and restores Habit completion state.
 
-### Focus
+### Focus, Today, Settings
 
-- Verified: 25/50/custom bounds and required title.
-- Verified: transactional single-active invariant.
-- Verified: timestamp-derived display, reload resume, and delayed natural completion at the planned endpoint.
-- Verified: early finish, confirm-cancel behavior, sub-second cancellation, and repeated-transition idempotency.
-- Verified: Today/week/month/category summaries plus description-only history edits and confirmed deletion.
+- Existing timestamp-derived Focus state/reload/finish/cancel/history tests remain green with refreshed UI.
+- Today reflects Finance/Habit/Focus mutations and keeps projection failures distinct.
+- Settings renders Categories, Appearance, Data & security, Other in exact order.
+- Activity category lifecycle and optional target persistence are covered.
 
-### Today and Settings
+## 6. Browser/E2E matrix
 
-- Verified: Today projections update after Finance/Habit/Focus mutations and model each read failure independently rather than substituting zero.
-- Verified: one-tap Today habit check-in and two-tap form entry budgets for Finance/Focus.
-- Verified: system/light/dark appearance applies immediately, persists, and is restored from a replacement backup.
-- Verified: category create/rename/reorder/archive/restore and the Habits management route remain usable in both engines.
-- Verified: backup handoff, non-mutating metadata preview, explicit replacement, version/database details, last-export status, and durability/privacy text.
-- Physical-iPhone pending: real Files/iCloud save, selection, and restore handoff; desktop WebKit uses a same-origin synthetic file because Playwright WebKit does not expose a download event.
+Run the production build in Chromium and Mobile Safari/WebKit with isolated synthetic profiles:
 
-### M5 recorded gate
+- first launch and direct navigation to all five routes;
+- legacy `#/habits` redirect;
+- Finance select-day, add, edit, delete, report, reload persistence, and failed-save draft;
+- Health add/edit/delete Weight, set/clear target, trend, add/edit/delete Activity, weekly summary, Activity archive history;
+- existing Habit create/check/reload/undo/pause/detail/heatmap journey inside Health;
+- Focus start/background-like reload/reconcile/finish/history;
+- Settings group order, theme persistence, export, V1 backup preview/migrate/restore, V2 restore;
+- offline launch/reload/mutation where engine support allows;
+- URL Actions remain fragment-private and idempotent;
+- waiting update remains explicit and blocked by dirty forms.
 
-- Static: Prettier, ESLint with zero warnings, and strict TypeScript pass.
-- Unit/integration: 14 files and 58 tests pass.
-- Production: Vite/PWA build passes with route-level chunks; main JavaScript is about 339 kB before gzip.
-- Browser: 16/16 tests pass across Chromium and Mobile Safari/WebKit.
+The documented Playwright WebKit internal offline-reload limitation may remain an explicit skip only if unchanged and every runnable scenario passes; physical iPhone covers the real behavior.
 
-## 6. M6 PWA and URL Action matrix
+## 7. Visual and accessibility gate
 
-- Verified: manifest required fields, original 192/512/maskable icons, Apple touch icon, start URL, scope, colors, and standalone metadata under `/` and synthetic `/LifeIndex/` builds.
-- Verified: Chromium performs initial online control, offline launch/reload/mutation, another offline reload, and persisted read.
-- Verified: Mobile Safari/WebKit mutates while offline and retains data after returning online; its Playwright offline reload raises an internal engine error, so installed iPhone reload remains M9 evidence.
-- Verified: Cache Storage entries are same-origin HTML/manifest/icon/versioned asset paths only, with no action fragment, API, or business-record request.
-- Verified: waiting-worker UI requires an explicit click, dirty forms disable activation, application failures remain retryable, and active Focus state is persisted independently.
-- Verified: action routes exist only after `#`; invalid, canceled, handled, and completed actions replace the current route to remove active fields.
-- Verified: each action rejects unknown/duplicate/malformed fields, previews without mutation, revalidates references, writes entity+receipt atomically, clears the route, and deduplicates retry.
-- Recorded M6 pre-hardening gate: 17 Vitest files / 75 tests pass; browser suite records 25 passed and 1 explicitly skipped WebKit-offline-reload scenario out of 26, with Chromium 13/13 and every runnable Mobile Safari/WebKit scenario green.
+- 320 × 568 and 390 × 844 light/dark screenshots for every primary destination and sheet.
+- No horizontal overflow or bottom-navigation/safe-area obstruction.
+- Main targets at least 44 × 44 CSS px; form text at least 16 px.
+- Calendar selection, signed amounts, completion, trend, and intensity are not color-only.
+- Headings, landmarks, labels, dialog names, error summaries/live regions, focus return, and keyboard order are valid.
+- Axe has no detectable violations on primary ready/empty/form/error states.
+- Reduced motion disables nonessential transitions.
 
-## 7. M7 hardening gate
+## 8. Privacy and artifact gate
 
-- Static and supply chain: peer dependencies, Prettier, ESLint with zero warnings, strict TypeScript, tracked-file credential scan, backup ignore rules, and `pnpm audit --prod` pass with no known production vulnerability.
-- Unit/integration: 18 files and 84 tests pass, including malformed/future/corrupted backup matrices, transactional rollback, storage-failure draft retention, calendar and money boundaries, suspended Focus reconciliation, and repeated action idempotency.
-- Production: root and synthetic `/LifeIndex/` builds pass; the latter emits matching HTML resources, manifest start URL/scope/id, and worker precache paths. No source map or backup-like JSON is shipped.
-- Browser: 33 checks pass and one Playwright WebKit offline-reload scenario is explicitly skipped across 34 Chromium/Mobile Safari checks. Chromium passes full offline reload; every runnable WebKit flow is green.
-- Accessibility/visual: axe reports no detectable violations on every primary route, the Finance entry form, action preview, or dark Settings state. Automated 320 px overflow/touch/reduced-motion checks pass, and manual browser inspection covers 320 × 568 and 390 × 844 light/dark states.
-- Defect found and fixed during hardening: dark-theme accent controls now use a dark foreground, restoring WCAG AA contrast; compact skip, segmented, and category controls meet the 44 px target.
-- Remaining release evidence is intentionally outside M7: live Pages validation and physical-iPhone Safari acceptance in M8–M9.
+- Central logger allowlist and tracked-source scan reject sensitive context.
+- Runtime capture shows no Health/Finance/Habit/Focus values in console/network URLs.
+- Cache Storage contains app-shell resources only.
+- Production artifact contains no source maps, backup-like JSON, IndexedDB export, fixture data, credential, or remote telemetry endpoint.
+- Git status and ignore checks show no backup/personal/generated build files.
 
-## 8. Privacy checks
-
-- Verified: logger tests and runtime capture reject prohibited context and expose no action payload or identifier in console messages.
-- Verified: request capture proves fragment payloads remain absent from network URLs during a complete action flow.
-- Verified: production source maps remain disabled and the artifact contains no backup-like JSON.
-- Verified: fixtures and browser records are explicitly synthetic and non-personal.
-- Verified: backup patterns are ignored by Git; this check repeats before final release.
-
-## 9. Visual/accessibility checks
-
-- Automated and visually inspected: 320 px compact plus current iPhone-class viewport.
-- Automated and visually inspected: light, dark, and reduced-motion preferences.
-- Automated: empty, representative, long Chinese content, validation, storage error, and offline states; update activation remains a physical M9 check.
-- Automated: 44 px touch targets, 16 px form text, safe-area clearance, and no horizontal overflow or hidden bottom content.
-- Automated: headings, landmarks, current navigation state, labels, errors, contrast, and non-color indicators; physical touch/focus feel remains M9 evidence.
-
-## 10. Release commands
-
-Local non-E2E gate:
+## 9. Commands
 
 ```bash
 pnpm peers check
-pnpm quality
-```
-
-Production browser gate:
-
-```bash
+pnpm format:check
+pnpm lint
+pnpm typecheck
+pnpm test
 pnpm build
 pnpm test:e2e
 ```
 
-Deployed HTTPS gate after Pages reports its URL:
+Deployed candidate:
 
 ```bash
-LIFEINDEX_DEPLOYED_URL=https://OWNER.github.io/REPOSITORY/ pnpm test:deployed
+LIFEINDEX_DEPLOYED_URL=https://shushengritian.github.io/LifeIndex/ pnpm test:deployed
 ```
 
-M8 CI runs equivalent frozen-lockfile commands and retains useful reports on failure without uploading personal data.
+The GitHub Pages workflow must reproduce the full configured gate on the exact candidate commit.
 
-## 11. M8 deployed-smoke preparation
+## 10. Physical-iPhone acceptance
 
-- The separate configuration rejects missing targets and insecure non-local HTTP origins before opening a browser.
-- The suite verifies the response, five routes and unknown-route fallback, axe result, manifest base fields/icons, exact worker scope, runtime errors, and unexpected failed requests.
-- Fresh ephemeral profiles prove synthetic Finance persistence without a backend, action-fragment network privacy, and offline mutation in Chromium/WebKit; Chromium additionally reloads the cached shell offline.
-- Local proof on 2026-09-03: both `http://127.0.0.1:4173/` and `http://127.0.0.1:4173/LifeIndex/` record 9 passed and one explicit Playwright WebKit offline-reload skip out of 10 scenarios.
-- Live HTTPS evidence is recorded in §13 after real deployment; physical Safari evidence remains M9-only.
+After the candidate is deployed, the owner explicitly reports:
 
-## 12. Clean-install reproducibility
+- installed V1 updates to V2 and every existing representative record remains present;
+- Health Weight, Activity, and Habit records persist across kill/reopen;
+- Finance and Focus critical paths remain usable;
+- offline cold reopen and offline mutation survive return online;
+- light/dark/system, keyboard, safe areas, touch targets, and Home Screen display feel correct;
+- export to Files/iCloud and V2 import preview/replace work with explicit replacement warning;
+- a subsequent candidate update appears and activates without discarding a dirty form.
 
-- The first Linux CI attempt failed before tests because `sharp@0.33.5` had an unresolved pnpm build-script approval. This is recorded as a real release failure, not a flaky test.
-- The repair explicitly allows only the reviewed sharp version and keeps `strictDepBuilds: true`. On 2026-09-04, a temporary project with copied manifests/lockfile and an empty, separate pnpm store downloaded 542 platform-applicable packages and completed `pnpm install --frozen-lockfile`; the sharp install step completed successfully. No dependency or lockfile version changed.
-- After the repair, peers, formatting, zero-warning lint, strict TypeScript, all 18 files / 84 unit/integration tests, production/PWA build, and the 33-pass/1-documented-skip dual-engine browser gate pass locally. The GitHub Linux run must independently prove its clean install and complete gate before M8 closes.
+Only reported results are marked pass. A defect that risks data loss/privacy or blocks core offline capture blocks `v2.0.0`.
 
-## 13. Installed-update discovery and first live proof
+## 11. Evidence recording
 
-- First live gate: [run 33832099931](https://github.com/shushengritian/LifeIndex/actions/runs/33832099931) completed successfully for `60b0676` (0.1.0): clean Linux install, all static/unit/browser gates, Pages deployment, and 9 deployed checks / 1 documented skipped WebKit reload. The verified URL is `https://shushengritian.github.io/LifeIndex/`.
-- 0.1.1 adds `tests/unit/pwaUpdates.test.ts` with eight cases proving foreground/reconnect discovery, hidden/offline guards, coalescing/cooldown, retry, installing/waiting guards, and cleanup. With the existing four update-UI tests, all 12 focused checks pass. This is not proof of the installed two-version transition, which remains physical M9 acceptance.
-- Local 0.1.1 gate: peers, formatting, lint, types, 19 files / 92 unit/integration tests, production/PWA build, and 33 browser checks / 1 documented skipped WebKit reload pass. The deployed suite additionally compares the rendered app version with the checked-out `package.json`, so a still-cached earlier release cannot satisfy the candidate's deployment check.
-- Current application: [run 33833052946](https://github.com/shushengritian/LifeIndex/actions/runs/33833052946) completed successfully for `ff7d443` (0.1.1) with the same 92-test / 33-browser-pass gates and 9 real HTTPS smoke passes / 1 documented skip. The amended version-aware suite also passed locally before push.
-- Manual browser upgrade from 0.1.0 to 0.1.1 confirms a waiting update, disabled activation while an unsaved synthetic Finance form is dirty, re-enabled activation after cancel, and the displayed version changing only after confirmation. No record was saved. This adds browser evidence, not an iPhone sign-off.
-
-## 14. Evidence recording
-
-Final V1 evidence: [workflow 33849576847](https://github.com/shushengritian/LifeIndex/actions/runs/33849576847) completed successfully for tagged application commit `40eb947` (1.0.0), including 9 live checks / 1 documented skip and exact version validation. The local final gate passed 19 files / 92 unit/integration tests and 33 browser checks / 1 skip, without changing the existing assertions or skip conditions. See [the release record](../releases/v1.0.0.md) for tag/Release verification and the explicitly unavailable supplemental npm advisory recheck. No physical evidence is inferred.
-
-For each verified milestone, `PLAN.md` records commands/results and the corresponding commit. `REQUIREMENTS_TRACEABILITY.md` points to named test files rather than relying on an unqualified “tests passed.” M8/M9 operations guides record deployed and physical evidence separately.
+`V2_PLAN.md` records milestone commands/counts/commits. `REQUIREMENTS_TRACEABILITY.md` maps requirements to named source/tests and changes `planned` to `verified` only after evidence exists. Release notes link the exact GitHub Actions and deployed-smoke runs; iPhone evidence is recorded separately.

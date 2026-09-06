@@ -1,218 +1,194 @@
-# LifeIndex V1 Information Architecture
+# LifeIndex V2 Information Architecture
 
-**Status:** Implementation baseline
+**Status:** Approved and frozen at gate G2
 
-**Date:** 2026-09-03
+**Date:** 2026-09-06
 
 ## 1. Navigation model
 
-LifeIndex uses five stable top-level destinations in a bottom navigation bar:
+LifeIndex uses five persistent bottom destinations in this order:
 
-```text
-LifeIndex
-├── 今天 (Today)
-├── 记账 (Finance)
-├── 专注 (Focus)
-├── 习惯 (Habits)
-└── 设置 (Settings)
-```
+1. Today
+2. Finance
+3. Focus
+4. Health
+5. Settings
 
-Today is the default route and aggregation surface. It owns no business records; every value is derived from Finance, Focus, Habits, or Settings repositories.
+The navigation is shallow. Health contains habits, weight, and activity as sections and detail/entry overlays, not additional bottom destinations. The compact header names the current context; version and product identity move to Settings.
 
-On narrow iPhones the bottom navigation remains visible while primary content scrolls. Creation and editing use full-height sheets/pages rather than tiny desktop-style dialogs. Destructive confirmations may use compact modal sheets.
+The persistent navigation remains visible on destination pages and is hidden only while a modal sheet/dialog needs focused completion. Back/close always returns to the originating destination without losing committed data.
 
 ## 2. Route map
 
-The implementation may refine route syntax, but the information model is:
+Routes use `HashRouter`, so GitHub Pages receives no application fields and direct refresh does not require server rewrites.
 
-```text
-/
-├── today
-├── finance
-│   ├── transactions/new
-│   ├── transactions/:id/edit
-│   ├── history
-│   └── categories
-├── focus
-│   ├── active
-│   ├── sessions/:id/edit
-│   └── history
-├── habits
-│   ├── new
-│   ├── :id
-│   ├── :id/edit
-│   └── calendar
-├── settings
-│   ├── data
-│   ├── appearance
-│   ├── categories
-│   ├── habits
-│   └── about
-└── action
-    ├── add-transaction
-    ├── check-habit
-    └── start-focus
-```
+| Route | Purpose | Compatibility behavior |
+| --- | --- | --- |
+| `#/today` | Daily projection and quick actions | Default route |
+| `#/finance` | Month calendar, totals, selected-day ledger, reports | Retained |
+| `#/finance/new` | Optional addressable finance entry state | May render as sheet over Finance |
+| `#/finance/:id` | Transaction edit/detail | Existing records retained |
+| `#/focus` | Timer/setup/active/history | Retained |
+| `#/health` | Weight, activity, today's habits | Replaces Habits destination |
+| `#/health/weight` | Weight history/target | New |
+| `#/health/activity` | Activity history | New |
+| `#/health/habits/:id` | Habit detail and statistics | Existing Habit identity |
+| `#/settings` | Four grouped Settings sections | Retained |
+| `#/action/:actionType?...` | Existing fragment URL Action preview | Retained; no Health actions |
+| `#/action-result` | Sanitized action outcome | Retained |
+| `#/habits` | Legacy bookmark | Replace-redirects to `#/health` |
 
-GitHub Pages and privacy make hash-based client routes the accepted V1 design. An action looks like `#/action/add-transaction?...`; everything after `#` remains client-side and is not part of the HTTP request.
+Unknown routes replace-redirect to Today. Record-edit routes that reference missing IDs show a safe not-found state and a route back; they never create placeholder data.
 
 ## 3. Today
 
 ### Content priority
 
-1. Current local date and offline/update status only when actionable.
-2. Habit completion strip for habits scheduled today.
-3. Quick actions: add transaction and start focus.
-4. Compact finance and focus summaries.
+1. Local date and compact completion count.
+2. Today's scheduled Health habits as direct check-in rows.
+3. Primary actions: Record transaction and Start focus.
+4. Compact Finance summary row.
+5. Compact Focus summary row.
 
-### States
+Today owns no persistence. It combines bounded repository projections, and each projection represents loading/error independently so a failed read cannot become a false zero.
 
-- First use: gentle explanation plus three clear starting actions.
-- Normal day: summaries with the next useful action.
-- All habits complete: calm completion state, not a celebratory interruption.
-- Active focus session: persistent status and return-to-timer action.
-- Offline: a small status indicator while local actions remain enabled.
+### Interaction
+
+- Habit row: tap once, wait for persistence, then show completed; tap completed row to undo with the same persistence boundary.
+- Record transaction: open Finance quick-entry context.
+- Start focus: open Focus with setup ready.
+- Summary row: navigate to its destination.
 
 ## 4. Finance
 
-### Main screen
+### Main screen hierarchy
 
-- Period selector: Today, Week, Month, History.
-- Selected-period income, expense, and balance.
-- Transaction list, newest first, grouped by local date where useful.
-- Primary add button.
-- Month view may reveal category breakdown and recent trend below the list/summary.
+1. Month title with previous/next controls.
+2. Seven-column monthly calendar.
+3. Small balance, expense, and income values for the visible month.
+4. Selected-date heading and ledger.
+5. Reports disclosure/section for category distribution and six-month trend.
+6. One primary add control in thumb reach.
 
-### Add/edit transaction flow
+Calendar cells show day number and one compact signed daily net amount when records exist. Income/expense distinctions use sign/text as well as color. Selecting a day updates the ledger and selected state. Moving months clamps the selected day to the target month's valid day count; returning to the current month does not silently write a preference.
 
-```text
-Finance/Today quick action
-  -> choose expense or income
-  -> enter amount
-  -> choose matching category
-  -> adjust date/time if needed
-  -> add optional note
-  -> validate
-  -> save to IndexedDB
-  -> show result in selected period
-```
+### Quick-entry sheet
 
-Amount receives input focus first. The last appropriate category may be suggested later only if it does not obscure the current choice. V1 must not auto-save partially completed transactions.
+1. Choose Expense or Income.
+2. Enter amount with large numeric presentation.
+3. Choose a recent-first active category.
+4. Choose local date/time; default is now.
+5. Optionally enter a note.
+6. Save.
+
+The sheet closes only after commit. Validation or persistence failure keeps every non-sensitive draft field in memory and announces the error. Edit uses the same field order; delete is a separate confirmed action.
 
 ### Category lifecycle
 
-- Default categories are available after first initialization.
-- Archive replaces deletion for referenced categories.
-- Archived categories remain visible on historical records but do not appear in new-entry choices by default.
+Finance category groups are Expense and Income. Archived categories remain rendered in historical rows and cannot be selected for new entries. Reorder applies only within one domain/type/archive group.
 
 ## 5. Focus
 
-### Main screen hierarchy
+### Idle hierarchy
 
-1. Active timer or duration presets.
-2. Required title and optional category/note.
-3. Today/week summary.
-4. Recent completed sessions and history link.
+1. Large timer ring/value.
+2. 25-minute, 50-minute, and custom presets.
+3. Title, optional Focus category, optional note.
+4. Start control.
+5. Today/week/month summary and recent completed sessions.
 
-### Timer flow
+### Active and terminal states
 
-```text
-idle
-  -> configure 25 / 50 / custom + title
-  -> start (persist active state first)
-  -> active
-       -> natural completion -> save completed session -> idle
-       -> finish early -> confirm -> save measured session -> idle
-       -> cancel -> confirm -> remove active state -> idle
-```
+- Active: remaining time dominates; background/resume derives from persisted timestamps.
+- Natural completion: finalized at expected end.
+- Early finish: confirmation then finalizes at current time.
+- Cancel: confirmation then removes the active row.
+- History edit changes descriptive fields only; deletion is confirmed.
 
-Returning from background or reloading resolves the display from persisted timestamps before offering any transition. There is no pause/resume interval in V1.
+## 6. Health
 
-## 6. Habits
+### Overview hierarchy
 
-### Main screen
+1. Body-weight block: latest value, neutral trailing-30-day direction, optional target, Record weight.
+2. Activity block: current-week count/duration, recent activities, Record activity.
+3. Today's Habits block: completion count and existing one-tap rows.
+4. A single add control opening Record weight / Record activity / Create habit.
 
-- Today schedule and direct check-in toggles.
-- Completion progress for the local date.
-- Month calendar entry.
-- Active and paused habit management.
+If one source fails, the other Health sections remain usable and the failed source is labeled. No data shows as zero while loading.
 
-### Habit flow
+### Weight flow
 
-```text
-create habit
-  -> name + marker
-  -> every day or selected weekdays
-  -> start date
-  -> active
-  -> save
-```
+The weight sheet contains weight in kilograms, local date/time, optional note, and save. Input converts losslessly to integer grams. History is newest first. Trend uses the latest entry and the earliest entry in the trailing 30 local days; it shows the signed difference or “暂无趋势”. Target editing is optional and independent of entry history.
 
-Daily check-in is reversible. A habit detail view explains the schedule and shows current streak, longest streak, month completion rate, total completions, and a local-date calendar.
+### Activity flow
 
-Pausing a habit preserves records. V1 avoids destructive habit deletion in normal UI; a future maintenance tool can be designed separately if necessary.
+The activity sheet contains an active Activity category, whole-minute duration, light/moderate/hard perceived intensity, local date/time, optional note, and save. Health displays the current Monday–Sunday count and duration plus recent entries. Advanced workout detail is intentionally absent.
+
+### Habits continuity and detail
+
+Existing create/edit/pause/resume and schedule behavior remains. Habit detail displays current/longest streak, total, current-month rate, a fourteen-week heatmap ending in the current week, and recent check-ins. Heatmap cells include non-color accessible labels.
 
 ## 7. Settings
 
-Settings is organized by user intent:
+Settings uses four separate iOS-style full-width groups, in this exact order:
 
-- Data safety: export, restore, last export, schema version, durability explanation.
-- Organization: finance categories and active/paused habits.
-- Appearance: system/light/dark.
-- About: product version, tagline, privacy model, repository link after deployment.
+1. **Categories** — Expense, Income, Focus, Activity management.
+2. **Appearance** — Theme row opening System/Light/Dark choice.
+3. **Data & security** — local-only explanation, export, import preview/replace, last export, database/backup versions.
+4. **Other** — version, usage/help, and support information.
 
-Settings does not contain daily transaction, timer, or check-in actions.
+Appearance is neither nested inside nor visually merged with Categories or Other. Destructive replacement is visually isolated and requires explicit confirmation.
 
-## 8. Backup/restore flow
-
-```text
-select JSON file
-  -> read without mutating IndexedDB
-  -> parse JSON
-  -> validate envelope, version, records, unique keys, references
-       -> invalid: report sanitized errors, current data unchanged
-       -> valid: show backup time and per-store counts
-  -> user confirms replace
-  -> one logical restore transaction
-       -> success: reload repository views and report counts
-       -> failure: roll back and report safe retry guidance
-```
-
-Merge import is intentionally absent from V1 because ambiguous conflict rules put data safety at risk.
-
-## 9. URL Action flow
+## 8. Backup and restore
 
 ```text
-iOS Shortcut opens #/action/<type>?...
-  -> app initializes database
-  -> parser accepts only allowlisted action and fields
-  -> schema validation and canonicalization
-  -> idempotency check
-       -> already handled: show prior outcome without writing
-       -> new: render preview/prefilled form
-  -> user confirms
-  -> repository mutation
-  -> mark action handled
-  -> replace route so refresh cannot replay it
+Settings → Data & security → Import
+  → select bounded JSON
+  → parse/migrate/validate entirely in memory
+  → preview version/time/counts
+  → explicit replace confirmation
+  → one all-store IndexedDB transaction
+  → success and reactive refresh, or rollback and retained-current-data message
 ```
 
-No action may silently mutate data merely because a URL was opened.
+V0 and V1 inputs appear in the preview as canonical V2 after migration. The UI may mention that empty Health collections were added; it must not imply that personal Health values were inferred.
 
-## 10. Global state and recovery
+## 9. URL Actions
 
-- Loading: skeletons reflect final layout and do not block navigation longer than initialization requires.
-- Empty: state names what is absent and offers the next relevant action.
-- Validation error: shown beside the field and summarized for assistive technology.
-- Storage failure: preserve entered form state in memory, avoid false success, provide retry or safe exit.
-- First-load network failure: explain that one online load is required before offline use.
-- Update available: offer an explicit reload after protecting current form/timer state.
+The three V1 fragment actions remain unchanged: add transaction, check habit, start focus. The route shows a preview, validates again on confirmation, writes business record and receipt atomically, then replaces the fragment with a safe destination/result route. Health adds no action in V2.
+
+## 10. Global states and overlays
+
+- **Startup:** loading or explicit initialization/migration failure before routes become writable.
+- **Offline:** non-blocking status; core local actions stay enabled.
+- **Update ready:** explicit activation; blocked while a registered form is dirty.
+- **Sheet/dialog:** focus-contained, keyboard-safe, close confirmation when dirty.
+- **Save pending:** originating action disabled; duplicate submission ignored.
+- **Save failure:** overlay remains open and preserves draft.
+- **Empty:** explains the next primary action without invented zero statistics.
+
+Sheets respect `env(safe-area-inset-bottom)`, use at least 16 px inputs, and degrade to an in-page dialog layout at very small heights.
 
 ## 11. Interaction budget
 
-| Task                                    | Budget from primary destination                            |
-| --------------------------------------- | ---------------------------------------------------------- |
-| Check/uncheck today's habit             | 1 tap                                                      |
-| Open add-transaction form               | 1 tap                                                      |
-| Save a valid common transaction         | No more than 4 purposeful interactions after opening       |
-| Start a preset focus session with title | No more than 3 purposeful interactions after opening Focus |
-| Reach export/restore                    | No more than 2 taps after opening Settings                 |
+| Goal | Expected path |
+| --- | --- |
+| Check/undo today's habit | One tap from Today or Health, plus persistence wait |
+| Record transaction | Open sheet, enter amount/category, save |
+| Select finance history day | One calendar tap |
+| Start preset focus | Open Focus, choose preset/details, start |
+| Record weight | Health add or weight action, value, save |
+| Record activity | Health add or activity action, type/duration/intensity, save |
+| Open habit statistics | Tap habit detail affordance from Health |
+| Change theme | Settings → Appearance → choice |
+| Replace from backup | Settings → import → preview → explicit confirmation |
+
+## 12. Responsive and accessibility rules
+
+- 320 CSS px is the minimum supported width; no horizontal page scroll.
+- Calendar cells may reduce secondary amount type but never below legibility or collapse touch selection.
+- Primary controls are at least 44 × 44 CSS px.
+- Current navigation, selected dates, completion, intensity, and trends use text/shape in addition to color.
+- Focus is restored to a meaningful trigger after closing a sheet/dialog.
+- Reduced motion removes nonessential transforms/animation while preserving state feedback.
+- System, Light, and Dark are complete token themes rather than filter inversions.

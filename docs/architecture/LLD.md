@@ -1,295 +1,235 @@
-# LifeIndex V1 Low-Level Design
+# LifeIndex V2 Low-Level Design
 
-**Status:** Accepted for implementation
+**Status:** Accepted and frozen at gate G2
 
-**Date:** 2026-09-03
+**Date:** 2026-09-06
 
-## 1. Proposed source layout
+## 1. Source layout
 
 ```text
 src/
-├── app/
-│   ├── App.tsx
-│   ├── AppProviders.tsx
-│   ├── AppShell.tsx
-│   └── actions/
+├── app/                       # bootstrap, providers, routes, shell, actions
 ├── data/
-│   ├── db/
-│   │   ├── LifeIndexDatabase.ts
-│   │   ├── schema.ts
-│   │   ├── migrations/
-│   │   └── seeds.ts
-│   ├── repositories/
-│   └── backup/
+│   ├── db/                    # Dexie V1/V2 schemas and seeds
+│   ├── repositories/          # Finance, Focus, Habit, Weight, Activity, Settings
+│   └── backup/                # V0/V1/V2 parsing and atomic restore
 ├── features/
 │   ├── today/
 │   ├── finance/
-│   ├── habits/
 │   ├── focus/
+│   ├── health/                # composition, weight/activity forms and projections
+│   ├── habits/                # retained reusable habit domain/UI
 │   └── settings/
 ├── pwa/
 ├── shared/
 │   ├── domain/
 │   ├── logging/
-│   ├── ui/
+│   ├── ui/                    # icons, sheet/dialog, rows and feedback
 │   └── validation/
-├── styles/
-├── main.tsx
-└── sw.ts
-tests/
-├── fixtures/
-├── integration/
-└── e2e/
+└── styles/
 ```
 
-Create directories only with their first real implementation or test; this diagram defines ownership rather than requiring empty placeholders.
+Directories are introduced with real implementation/tests only.
 
 ## 2. Dependency composition
 
-`main.tsx` installs the earliest safe logger and renders `AppProviders`. In M4 the provider opens one application-lifetime database and blocks normal routing behind explicit loading/failure states. M5 composes the repository set, appearance, and feature query controllers on this verified database boundary; M6 adds live PWA update state.
+`AppProviders` owns one application-lifetime `LifeIndexDatabase`. Repositories may be constructed in a page or service factory from that verified database; table objects never cross into JSX. Clock and ID generators remain injectable.
 
 ```ts
 interface AppServices {
-  categories: CategoryRepository
-  transactions: TransactionRepository
-  habits: HabitRepository
-  focus: FocusRepository
-  settings: SettingsRepository
-  actions: ActionReceiptRepository
-  backup: BackupService
-  logger: SafeLogger
-  clock: Clock
-  idGenerator: IdGenerator
+  database: LifeIndexDatabase
 }
 ```
 
-`Clock` and `IdGenerator` are injectable to make local-date, timer, and idempotency tests deterministic.
+The minimal provider contract is intentional: repositories remain small value objects and integration tests can inject a uniquely named database.
 
-## 3. Repository contracts
-
-### TransactionRepository
+## 3. Database V2 declaration
 
 ```ts
-interface TransactionRepository {
-  create(command: CreateTransaction): Promise<Transaction>
-  update(id: string, command: UpdateTransaction): Promise<Transaction>
+const databaseSchemaV1 = { /* shipped seven-store schema */ }
+
+const databaseSchemaV2 = {
+  ...databaseSchemaV1,
+  weightEntries: 'id,measuredAt,localDate,updatedAt',
+  activitySessions: 'id,occurredAt,localDate,categoryId,intensity,updatedAt',
+}
+
+this.version(1).stores(databaseSchemaV1)
+this.version(2).stores(databaseSchemaV2)
+```
+
+Both declarations remain registered so Dexie can open fresh and V1 databases. No V2 `.upgrade()` row transform is needed because stores are additive. Initialization then inserts missing stable Activity categories in the existing idempotent seed transaction. Logs record schema version, operation, count, and safe failure class.
+
+## 4. Repository contracts
+
+### WeightRepository
+
+```ts
+interface WeightRepository {
+  create(command: SaveWeightEntry): Promise<WeightEntry>
+  update(id: string, command: SaveWeightEntry): Promise<WeightEntry>
   remove(id: string): Promise<void>
-  get(id: string): Promise<Transaction | undefined>
-  list(range: LocalDateRange): Promise<Transaction[]>
+  get(id: string): Promise<WeightEntry | undefined>
+  list(range: LocalDateRange): Promise<WeightEntry[]>
+  latest(): Promise<WeightEntry | undefined>
 }
 ```
 
-Create/update validates the command, resolves the category inside the transaction, checks domain/type, canonicalizes money/date fields, writes, and emits safe lifecycle logs. List returns newest `occurredAt` first.
+Create/update strictly validates grams, instant/local-date/offset consistency fields, and note boundaries. List is newest `measuredAt` first. Delete is idempotent at persistence level but UI requires confirmation.
 
-### HabitRepository
+### ActivityRepository
 
 ```ts
-interface HabitRepository {
-  create(command: CreateHabit): Promise<Habit>
-  update(id: string, command: UpdateHabit): Promise<Habit>
-  setStatus(id: string, status: HabitStatus): Promise<Habit>
-  listAll(): Promise<Habit[]>
-  listScheduled(localDate: string): Promise<Habit[]>
-  checkIn(command: CheckInHabit): Promise<HabitRecord>
-  undoCheckIn(habitId: string, localDate: string): Promise<void>
-  listRecords(habitId: string, range: LocalDateRange): Promise<HabitRecord[]>
+interface ActivityRepository {
+  create(command: SaveActivitySession): Promise<ActivitySession>
+  update(id: string, command: SaveActivitySession): Promise<ActivitySession>
+  remove(id: string): Promise<void>
+  get(id: string): Promise<ActivitySession | undefined>
+  list(range: LocalDateRange): Promise<ActivitySession[]>
 }
 ```
 
-Check-in verifies habit existence/schedule and inserts under the compound unique invariant. A uniqueness race resolves to the existing record and logs an idempotent branch rather than an exception.
+Create/update validates the Activity category inside the same read/write transaction. Archived categories are valid for historical update only when the record already references that category; new/reclassified capture requires active categories. List is newest `occurredAt` first.
 
-### FocusRepository
+### Retained repositories
+
+TransactionRepository, HabitRepository, FocusRepository, CategoryRepository, SettingsRepository, and ActionService retain their V1 contracts. CategoryDomain expands to `activity`; Activity categories have no `transactionType`. Category reorder remains limited to one matching domain/type/archive group.
+
+## 5. Health projections
+
+Pure functions accept already-bounded arrays:
 
 ```ts
-interface FocusRepository {
-  start(command: StartFocus): Promise<FocusSession>
-  getActive(): Promise<FocusSession | undefined>
-  reconcileActive(now: string): Promise<FocusSession | undefined>
-  finishEarly(id: string, now: string): Promise<FocusSession | undefined>
-  cancel(id: string): Promise<void>
-  updateDetails(id: string, command: UpdateFocusDetails): Promise<FocusSession>
-  removeCompleted(id: string): Promise<void>
-  listCompleted(range: LocalDateRange): Promise<FocusSession[]>
+interface WeightTrend {
+  latest?: WeightEntry
+  deltaGrams?: number
+}
+
+interface ActivitySummary {
+  count: number
+  durationMinutes: number
 }
 ```
 
-Start, reconcile, finish, and cancel use write transactions so two UI events cannot create conflicting transitions.
+- `summarizeWeightTrend(entries, today)` finds the latest record and earliest record from `today - 29` through today; a delta exists only with at least two records.
+- `summarizeActivities(entries)` sums whole minutes with safe-integer checking.
+- `parseWeightToGrams(text)` accepts digits plus one decimal separator and at most three decimal kg places, then validates 20,000–500,000 grams without floating-point multiplication.
+- `formatWeightGrams` renders one-decimal kg for the UI while exact grams remain persisted/exported.
+- Habit streak/rate logic is reused unchanged. A new pure fourteen-week projection maps scheduled/completed local dates to accessible heatmap cells.
 
-## 4. Query hooks and reactive updates
+## 6. Finance calendar projection
 
-Each feature owns hooks that subscribe to a repository query using Dexie `liveQuery` or a narrowly wrapped equivalent. Hooks expose `{status, data, error}` and cancel subscriptions on unmount. They never expose a table object.
+`buildMonthCalendar(monthKey, selectedDate, transactions)` returns leading/trailing placeholders plus actual local dates, per-day income/expense/net minor units, today/selected flags, and weekday labels. It uses calendar components, never fixed-duration milliseconds. Month navigation clamps the selected day and issues no database write.
 
-Today hooks combine three independently resolved projections and represent partial read failures explicitly; one failed summary cannot silently show zero.
+The Finance page keeps one month query for calendar/totals/reports and derives the selected-day ledger from that result. Add/edit use the existing TransactionRepository and shared form draft.
 
-## 5. Money and date utilities
+## 7. Routing and shell
 
-### Money
+- Replace `/habits` destination with `/health` and add a replace redirect from `/habits`.
+- Health page is route-lazy-loaded.
+- Optional Health nested routes may begin as page-owned state; any addressable detail route must preserve browser back behavior.
+- Bottom navigation uses an internal allowlisted SVG icon component; no external font/icon network request.
+- The compact header derives its title from the active route and keeps accessible heading order inside pages.
 
-- Form text accepts digits plus one locale decimal separator and at most the currency's minor precision.
-- `parseMoneyToMinor` returns a safe integer or a field error; it never calls floating-point multiplication on the parsed amount.
-- `formatMoney` uses `Intl.NumberFormat` from integer minor units.
-- Finance sums guard `Number.isSafeInteger` after every accumulation.
-
-### Local dates
-
-- `toLocalDateKey(Date)` reads local year/month/day components and pads them.
-- `parseLocalDateKey` validates an actual calendar date, including leap years.
-- Week range has one documented convention: Monday through Sunday for the Chinese UI.
-- Habit date iteration advances calendar components rather than adding 86,400,000 milliseconds across daylight-saving boundaries.
-
-## 6. Finance projections
-
-Pure functions accept records already bounded by repository queries:
-
-- `summarizeTransactions`: income, expense, balance.
-- `groupTransactionsByLocalDate`: newest date/time order.
-- `expenseByCategory`: joins known/archived category labels and returns descending totals.
-- `monthlyTrend`: six local calendar months including the selected month, zero-filling missing months.
-
-Every output carries integer minor units until the rendering boundary.
-
-## 7. Habit schedule and streak algorithm
-
-`isHabitScheduled(habit, localDate)` checks validity, start date, active/paused presentation context, and either daily or weekday membership. Historical statistics use the schedule regardless of current paused status.
-
-Current streak:
-
-1. Begin at today if scheduled; otherwise move backward to the most recent scheduled day.
-2. If that scheduled day lacks a completion, return zero, except a scheduled today may be incomplete without breaking the streak until the day ends; in that case begin with the prior scheduled date.
-3. Move backward through scheduled dates while records exist.
-
-Longest streak scans scheduled dates from habit start through the requested end and resets only on a scheduled missing date. Month completion rate is completed scheduled dates divided by elapsed scheduled dates in that month; future dates are excluded.
-
-## 8. Focus state machine
+## 8. Sheet/dialog state machine
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Idle
-    Idle --> Active: start; persist active row
-    Active --> Active: tick/resume; derive from timestamps
-    Active --> Completed: now >= expectedEnd; atomic reconcile
-    Active --> Completed: confirm early finish
-    Active --> Idle: confirm cancel; delete active row
-    Completed --> Idle: render history/summary
+    [*] --> Closed
+    Closed --> Editing: open with defaults or record
+    Editing --> Editing: validate failure / write failure
+    Editing --> ConfirmDiscard: close while dirty
+    ConfirmDiscard --> Editing: continue
+    ConfirmDiscard --> Closed: discard
+    Editing --> Saving: valid submit
+    Saving --> Editing: repository rejects
+    Saving --> Closed: commit succeeds
 ```
 
-Key transition rules:
+Each form registers a stable dirty token with the PWA provider. `Saving` disables duplicate submit. Success messages never precede commit. Focus returns to the opening control on close. At compact height, the sheet remains scrollable above the safe area and keyboard.
 
-- `start` checks for an active row in the same transaction; if present, returns that existing session and logs an `alreadyactive` branch without writing.
-- `reconcileActive` re-reads the row, returns it when not due, or conditionally changes `status` to completed. A second reconcile sees completed and cannot duplicate it.
-- `finishEarly` rejects/returns no record when the row is absent/completed; duration derives from timestamps and must be at least one second.
-- Natural completion sets `endedAt=expectedEndAt`, `durationSeconds=plannedDurationSeconds`, `completionKind=timer`.
-- Browser intervals update visual state only and are stopped on unmount/visibility transitions.
-
-Every transition emits event name, prior/next status, reason, and a generated operation correlation ID. Business session IDs and title/category/note values are excluded from production logs.
-
-## 9. Backup service
+## 9. Backup V2 types and migration
 
 ```ts
-interface BackupService {
-  createSnapshot(locale?: string): Promise<LifeIndexBackupV1>
-  serialize(backup: LifeIndexBackupV1): string
-  inspectText(text: string, byteLength?: number): BackupPreview
-  restore(previewToken: string): Promise<RestoreResult>
-  cancel(previewToken: string): void
+interface LifeIndexBackupV2 {
+  format: 'lifeindex-backup'
+  formatVersion: 2
+  appVersion: string
+  exportedAt: string
+  source: BackupSource
+  counts: BackupCountsV2
+  data: BackupDataV2
 }
 ```
 
-The preview token references canonical validated data held only in memory for the current app session. `restore` refuses unknown/expired/consumed tokens and revalidates the canonical data. A Settings-owned browser adapter reads bounded `File` input and performs download/share handoff without exposing the database. The detailed algorithm is in `BACKUP_SCHEMA.md`.
+Migration pipeline:
 
-## 10. URL Action parsing and execution
+1. Parse only the common header.
+2. If V0, validate against the frozen V0 schema and add empty `actionReceipts` to create V1.
+3. If V1, validate against the frozen V1 schema and add empty `weightEntries`/`activitySessions` to create V2.
+4. Parse strict V2 fields and run uniqueness, count, state, and reference checks.
+5. Keep canonical data behind a one-time, 15-minute in-memory preview token.
+6. Revalidate before replacing all nine stores in one transaction.
 
-```ts
-type ParsedAction =
-  | { type: 'add-transaction'; actionId: string; draft: TransactionDraft }
-  | { type: 'check-habit'; actionId: string; habitId: string; localDate?: string }
-  | { type: 'start-focus'; actionId: string; draft: FocusDraft }
-```
+Legacy schemas must not reuse a current schema in a way that accidentally requires future fields. Export emits V2 only.
 
-Pipeline:
+## 10. Reference and state validation
 
-1. Match the allowlisted hash route.
-2. Parse `URLSearchParams` from the fragment-local query.
-3. Reject unknown parameters to expose Shortcut mistakes.
-4. Validate/canonicalize with the action schema.
-5. Query `actionReceipts` before rendering.
-6. If handled, render a safe already-completed message and clear route.
-7. Otherwise render a normal feature form/check-in confirmation.
-8. On confirmation, write business entity and receipt in one transaction.
-9. Replace hash with the resulting feature/detail route.
+- Transaction → existing matching Finance category.
+- Focus category → existing Focus category when present.
+- Activity → existing Activity category, archived allowed for historical import.
+- HabitRecord → existing Habit.
+- ActionReceipt → existing transaction/habitRecord/focusSession by action type.
+- At most one active Focus session.
+- Unique primary IDs and unique Habit/date compound keys.
+- Setting keys unique; optional `weightTarget` appears at most once.
 
-The route parser logs action type and failure class only, never raw fragment or field values.
-
-## 11. PWA client contract
+## 11. Settings contract
 
 ```ts
-interface PwaStatus {
-  online: boolean
-  offlineReady: boolean
-  updateReady: boolean
-  applyingUpdate: boolean
-  registrationFailed: boolean
-}
+type Setting =
+  | ExistingV1Settings
+  | { key: 'weightTarget'; value: { weightGrams: number }; updatedAt: string }
 ```
 
-`PwaProvider` exposes `applyUpdate()` and a central dirty-form registry. The update UI checks that registry before posting `SKIP_WAITING`. Active Focus is persisted and does not by itself block an accepted reload. Forms register/unregister dirtiness with stable symbol tokens and clear only after repository success or explicit discard. A body-free, same-origin `HEAD` probe distinguishes true connectivity from a cached shell without transmitting business data.
-
-`watchPwaUpdates` attaches application-lifetime `visibilitychange` and `online` listeners after successful registration. Visible, online clients call `registration.update()` unless another check/install/waiting worker exists or the last successful check is under 60 seconds old. The in-flight flag is released in `finally`; failure is logged without personal values and does not block a later retry. Discovery never calls `SKIP_WAITING` or reloads, so the existing user-confirmation and dirty-form boundary remains authoritative. A cleanup callback removes the listeners for tests or future lifecycle ownership changes.
-
-The custom service worker:
-
-- calls `precacheAndRoute(self.__WB_MANIFEST)`;
-- cleans outdated caches;
-- handles navigations with base-aware precached `index.html`;
-- listens for `SKIP_WAITING`;
-- claims clients only after the approved activation path;
-- adds no business-data or third-party runtime cache.
+Absence of `weightTarget` means no target. It is not seeded. Appearance remains a separate group and still applies immediately. Category management adds Activity as a fourth group.
 
 ## 12. Safe logging
 
-```ts
-type SafeLogContext = Record<string, string | number | boolean | null | undefined>
+New events follow the retained logger contract:
 
-interface SafeLogger {
-  info(event: string, context?: SafeLogContext): void
-  warn(event: string, context?: SafeLogContext): void
-  error(event: string, error: unknown, context?: SafeLogContext): void
-}
-```
+- `weight.create|update|delete|list.*`
+- `activity.create|update|delete|list.*`
+- `health.projection.*`
+- `database.initialization.*` with schema version 2
+- `backup.*` with format version 2
 
-Feature code passes only allowlisted metadata keys such as entity type, operation, prior/next state, counts, versions, duration preset class, and failure class. The logger rejects keys such as `id`, `amount`, `name`, `title`, `note`, `value`, `payload`, and `fragment`, sanitizes error names/codes, and generates a correlation ID. It never stringifies arbitrary objects. Development output may include stack traces for source errors but not objects that contain user commands/records.
+Allowed context includes operation, entity type, count, prior/next state, format/schema version, and failure class. Never pass entity IDs, grams, target, duration, intensity, category/name/title/note values, local dates tied to records, payloads, or fragments.
 
-## 13. Error and UI state handling
+## 13. Error handling
 
-- Repository errors map to safe feature errors at the hook/controller boundary.
-- The app-level error boundary catches render failures and offers reload plus a safe error ID.
-- Database initialization failure renders a dedicated recovery screen and never initializes the normal router with undefined repositories.
-- Validation failures stay in the form and are announced through an error summary/live region.
-- No catch block reports success, silently substitutes zero for failed data, or deletes/recreates IndexedDB.
+- Zod/domain errors map to field or safe form messages.
+- Repository failures preserve the current draft and emit one sanitized failure event.
+- Health section reads fail independently.
+- Database upgrade failure keeps the initialization boundary active and offers retry; it does not create a replacement database.
+- Backup inspect/migrate/validate failure has no write side effect.
+- Atomic restore failure reports that current data was retained.
 
 ## 14. Testing seams
 
-- Clock and ID generator for deterministic time/UUID behavior.
-- Repository interfaces for component tests.
-- Fresh unique database name per integration test.
-- `fake-indexeddb` setup before importing database modules.
-- Synthetic v1/older/invalid backup fixtures generated from builders, never copied from a real export.
-- Playwright production preview project with Mobile Safari emulation, `zh-CN`, and `Asia/Shanghai`.
-- Service-worker tests run serially with isolated browser contexts and clear caches/databases between cases.
+- Injected clock/UUID and unique fake-indexeddb database names.
+- Synthetic schema-V1 database fixture opened by V2 code.
+- Frozen V0/V1 backup builders and current V2 builder.
+- Forced table insertion failure during nine-store restore.
+- Pure calendar, weight parser/trend, activity summary, and heatmap functions.
+- React component tests for navigation, independent Health states, sheets, settings order, and draft retention.
+- Production Playwright at 320 × 568 and iPhone-class WebKit/Chromium viewports.
 
-## 15. Build and configuration
+## 15. Implementation sequence
 
-- `package.json` is ESM and pins pnpm through `packageManager`.
-- `.nvmrc`/engines document the verified Node floor.
-- `vite.config.ts` derives `base` from a validated build environment value and exports the same base to manifest/worker configuration.
-- No runtime secret or `.env` value is required for V1.
-- Application version comes from package metadata at build time and is shown in Settings and backups.
-- Production Content Security Policy is emitted in `index.html`/hosting-compatible metadata and tested against the built app.
-
-## 16. Implementation sequence
-
-1. Create shared types, safe logger, date/money utilities, DB schema, and app initialization.
-2. Implement current-format backup schemas and migration/restore coordinator before broad feature UI.
-3. Deliver Finance, Habits, Focus, Today, and Settings as tested vertical slices.
-4. Add custom worker/update UI and URL Actions after core repositories exist.
-5. Run release hardening, deployed smoke, and physical acceptance.
+1. Add current types, validation, Dexie V2 declaration, seed activity categories, repositories, backup V2 migration, and integration tests.
+2. Add shared visual tokens/icons/sheet and V2 shell.
+3. Implement Today and Finance calendar/entry.
+4. Implement Health weight/activity plus retained Habits/detail.
+5. Refresh Focus and Settings.
+6. Run migration rehearsal, full local/E2E gates, deployed smoke, and owner-led iPhone acceptance.

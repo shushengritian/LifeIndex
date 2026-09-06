@@ -1,245 +1,231 @@
-# LifeIndex V1 Product Requirements Document
+# LifeIndex V2 Product Requirements Document
 
-**Product:** LifeIndex
+**Status:** Approved product scope; frozen at gate G2
 
-**Tagline:** Index your life.
+**Version:** 2.0
 
-**Status:** Owner-accepted V1 baseline; physical-test exception recorded in ADR-0005
+**Date:** 2026-09-06
 
-**Version:** 1.0
-
-**Date:** 2026-09-04
-
-**Source:** `LifeIndex-Project-Baseline.md`
+**Predecessor:** `v1.0.0`; its shipped behavior remains the compatibility baseline
 
 ## 1. Purpose
 
-LifeIndex V1 is a local-first personal life index optimized for one person's daily use on an iPhone. It combines lightweight finance tracking, focus sessions, and habit check-ins into a calm daily view while preserving complete user ownership through versioned JSON backups.
+LifeIndex is a lightweight, local-first iPhone web app for daily finance, focus, and health records. V2 refreshes the mobile UI, replaces the Habits destination with Health, and adds minimal body-weight and activity records without introducing an account, backend, cloud database, or automatic health/payment ingestion.
 
-This document turns the approved product baseline into numbered, testable requirements. It does not approve the later Journal, Writing, Timeline, or Insights modules.
+The approved interaction contract is [V2_UI_INTERACTION.md](../design/V2_UI_INTERACTION.md). This PRD is the implementation authority for V2 behavior; V1 release evidence remains historical and is not reclassified.
 
 ## 2. Product outcome
 
-After adding LifeIndex to the iPhone Home Screen, the user can quickly answer:
+The owner can open the installed Home Screen app and, with little navigation:
 
-- Where did my money go?
-- Where did my time and attention go?
-- What have I kept doing?
-- What is the state of my day?
+- understand today's habit, finance, and focus state;
+- record or review a transaction from a calendar-led Finance screen;
+- record weight, record activity, and complete habits from one Health destination;
+- start or resume a reliable focus timer;
+- understand local-data, backup, appearance, and category controls;
+- update from V1 to V2 without losing or reinterpreting existing records.
 
-The core workflows remain available after the first successful load when the device is offline. All primary records remain in that browser's IndexedDB database unless the user explicitly exports a backup.
+No telemetry is used. Success is established through deterministic tests, deployed smoke checks, and owner-reported physical-iPhone acceptance.
 
 ## 3. Target user and environment
 
 ### Primary user
 
-- One private user who expects to use the product for years.
-- Uses an iPhone as the primary device and launches from a Home Screen icon.
-- Prefers fast capture and clear review over complex configuration.
-- Accepts manual Files/iCloud Drive backup in V1 in exchange for no account or backend.
+- One private owner using personal data.
+- Prefers quick manual capture and a calm visual hierarchy over a comprehensive finance, fitness, or productivity system.
+- Accepts that records are browser-local and protects them with explicit JSON backups.
 
 ### Primary environment
 
-- Mobile Safari and installed Home Screen web-app mode on the user's current iPhone.
-- Chinese interface, `LifeIndex` English brand, device-local calendar/time zone.
-- Default currency `CNY`, stored as an ISO 4217 setting so a later supported change does not require rewriting amounts.
-- HTTPS static hosting on GitHub Pages; localhost is used for development.
-
-The final minimum iOS/Safari version will be recorded after checking the user's device during physical acceptance. Development targets current standards-capable iOS Safari without relying on experimental browser flags.
+- Safari and an installed Home Screen PWA on the owner's iPhone.
+- GitHub Pages at the `/LifeIndex/` project path.
+- Intermittent or absent connectivity after the shell has been cached.
+- Desktop Chromium/WebKit are development and automated-verification environments, not substitutes for physical-iPhone evidence.
 
 ## 4. Scope
 
-### Included in V1
+### Included in V2
 
-- Five primary destinations: Today, Finance, Focus, Habits, Settings.
-- IndexedDB schema, repositories, migrations, and privacy-safe local logging.
-- Versioned JSON export, import preview, replace restore, and rollback on failure.
-- Offline application shell and installed-PWA update handling.
-- Safe URL Actions for selected high-frequency operations.
-- Automated quality gates, GitHub CI, GitHub Pages, and physical-iPhone acceptance.
+- Five destinations: Today, Finance, Focus, Health, Settings.
+- All V1 finance, focus, habit, backup/restore, offline, appearance, category, and URL Action behavior.
+- Calendar-led Finance navigation and bottom-sheet-style quick entry.
+- Health overview containing existing habits plus manual weight and activity records.
+- Optional weight target, neutral recent weight direction, and weekly activity summary.
+- Additive IndexedDB V1-to-V2 migration and backup V0/V1-to-V2 migration.
+- Complete light, dark, system, compact-width, safe-area, reduced-motion, and accessible states.
 
 ### Explicitly excluded
 
-- Native Swift/SwiftUI application, App Store, or Apple Developer Program.
-- Account, authentication, backend, cloud database, real-time cross-device sync, or multi-user use.
-- Complex budgeting, multiple accounts, investments, balance sheets, or accounting reports.
-- Project management features in Focus.
-- Journal, Writing, Timeline, Insights, AI, attachments, photos, or location.
-- Automatic iCloud database synchronization. iCloud Drive is only a user-selected backup destination.
+- Budgets, accounts, wallets, investments, debts, recurring bills, bank/payment imports, and automatic payment recognition.
+- Login, backend, cloud database/sync, shared households, analytics, advertising, or remote AI calls.
+- Native Swift/SwiftUI packaging or direct Apple Health/HealthKit integration.
+- Calories, macros, meal plans, BMI or medical judgments, workout programs, exercises, sets, repetitions, load, rest timers, personal records, wearables, and social fitness.
+- Merge restore, automatic backup upload, and silent/destructive data repair.
+- New iOS Shortcut actions for Health in V2; the three existing fragment URL Actions remain supported.
 
 ## 5. Product principles
 
-When requirements compete, resolve them in this order:
-
-1. Data safety
-2. Fast daily interaction
-3. Offline reliability
-4. Maintainability
-5. Long-term extensibility
-6. Visual quality
-7. Feature quantity
+- **Local-first and explicit:** IndexedDB is business truth; network availability must not gate capture.
+- **One dominant task:** each destination has one clear primary action and restrained secondary detail.
+- **Progress without judgment:** trends describe direction and completion without scoring bodies or days.
+- **Fast but confirmed:** optimistic decoration may begin immediately, but final success appears only after persistence resolves.
+- **Recoverable:** failed saves preserve input; invalid imports cannot mutate current data.
+- **Compatible:** V1 identifiers, records, local dates, amounts, habit semantics, and focus state remain readable.
 
 ## 6. Functional requirements
 
 ### 6.1 Application shell and navigation
 
-| ID      | Requirement                                                                                              | Acceptance criteria                                                                                                                                        |
-| ------- | -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| APP-001 | The application shall show Today, Finance, Focus, Habits, and Settings as the five primary destinations. | All five destinations are reachable in at most one tap from the primary bottom navigation; the active destination is visually and semantically identified. |
-| APP-002 | Today shall be the default destination.                                                                  | A normal launch and a Home Screen launch without a deep action open Today.                                                                                 |
-| APP-003 | The shell shall present loading, initialization failure, and recovery states.                            | A database-open failure never produces a blank screen; the user sees a safe retry/export-support path and a privacy-safe error identifier.                 |
-| APP-004 | Navigation shall work under a GitHub Pages project subpath and after an offline reload.                  | Direct app launch, internal navigation, manifest start URL, and cached reload succeed from the deployed project URL.                                       |
+- **APP-001:** The bottom navigation exposes exactly Today, Finance, Focus, Health, and Settings in that order.
+- **APP-002:** The app uses fragment routes compatible with GitHub Pages and redirects legacy `#/habits` bookmarks to `#/health`.
+- **APP-003:** A compact contextual header replaces the persistent V1 brand/tagline block; version remains discoverable in Settings.
+- **APP-004:** Loading, ready, offline, update-ready, recoverable failure, and fatal initialization states are distinguishable and accessible.
+- **APP-005:** Each primary destination is lazy loaded and remains reachable after a direct reload under `/LifeIndex/`.
 
 ### 6.2 Finance
 
-| ID      | Requirement                                                                       | Acceptance criteria                                                                                                                                        |
-| ------- | --------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| FIN-001 | The user shall create an expense or income transaction.                           | Type, positive amount, category, local date/time, and optional note are accepted; invalid or zero amounts are rejected before storage.                     |
-| FIN-002 | Currency values shall be precise and consistently displayed.                      | Values are stored in integer minor units and rendered using the configured ISO currency; calculations contain no binary floating-point rounding artifacts. |
-| FIN-003 | The user shall edit or delete a transaction.                                      | Edit preserves the record identity and timestamps; delete requires confirmation and removes only the selected record.                                      |
-| FIN-004 | The user shall browse transactions for today, this week, this month, and history. | Each period uses the device-local calendar boundary and displays newest records first with an understandable empty state.                                  |
-| FIN-005 | Finance shall summarize income, expense, and balance.                             | Selected-period totals equal the underlying transactions and update after create/edit/delete without a reload.                                             |
-| FIN-006 | Finance shall show a monthly category breakdown and a restrained recent trend.    | Category values sum to monthly expense; the trend uses existing data and remains legible without a heavy dashboard.                                        |
-| CAT-001 | The user shall manage finance categories.                                         | Default income/expense categories exist; categories can be created, renamed, reordered, or archived. Referenced categories are not destructively removed.  |
+- **FIN-001:** The primary Finance view shows a navigable month calendar; cells display a compact daily net amount only when that day has records.
+- **FIN-002:** Selecting a calendar day updates the ledger below it without mutating data; month navigation selects a valid day in the target month.
+- **FIN-003:** Month balance, expense, and income appear immediately below the calendar in smaller type, using exact integer-minor-unit totals.
+- **FIN-004:** The selected-day ledger groups entries in newest-time order and supports create, edit, and confirmed delete.
+- **FIN-005:** New-entry opens a mobile sheet with expense/income, amount, category, local date/time, and optional note; invalid or failed submissions retain the draft.
+- **FIN-006:** Reports retain category breakdown and six-month trend without adding budgets or accounts.
+- **FIN-007:** Calendar totals, selected-day totals, reports, and restored data include archived referenced categories correctly.
+- **CAT-001:** Settings supports create, rename, reorder, archive, and restore for Finance, Focus, and Activity category groups while preserving historical references.
 
-### 6.3 Habits
+### 6.3 Health overview
 
-| ID      | Requirement                                                | Acceptance criteria                                                                                                                            |
-| ------- | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| HAB-001 | The user shall create and edit a habit.                    | Name, visual marker, schedule, start date, and active state are stored; duplicate names are allowed but empty names are rejected.              |
-| HAB-002 | V1 schedules shall support every day or selected weekdays. | Today shows a habit only when the local date is on/after its start date, it is active, and the weekday is scheduled.                           |
-| HAB-003 | The user shall check in or undo a daily habit completion.  | At most one record exists per habit and local date; repeat taps are idempotent and the displayed state updates immediately.                    |
-| HAB-004 | The user shall pause a habit without losing history.       | Pausing removes future scheduled prompts while past records and statistics remain available.                                                   |
-| HAB-005 | Habits shall provide calendar and progress views.          | The user can inspect daily completion in a monthly calendar and see current streak, longest streak, current-month rate, and total completions. |
-| HAB-006 | Streaks shall respect the habit schedule.                  | Unscheduled dates do not break a streak; calculations use local date keys and have boundary tests.                                             |
+- **HLT-001:** Health shows, in one scroll, current weight direction, weekly activity summary/recent activity, and today's scheduled habits.
+- **HLT-002:** A single add control offers exactly Record weight, Record activity, and Create habit.
+- **HLT-003:** Empty, partial-data, loading, save-pending, and recoverable-error states do not imply zero or success.
+- **HLT-004:** Health presents neutral language and never produces medical, BMI, calorie, or fitness-program judgments.
 
-### 6.4 Focus
+### 6.4 Body weight
 
-| ID      | Requirement                                                                    | Acceptance criteria                                                                                                                                              |
-| ------- | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| FOC-001 | The user shall start a 25-minute, 50-minute, or custom-duration focus session. | A title is required; duration is bounded by documented safe limits; start time and intended duration persist immediately.                                        |
-| FOC-002 | The active timer shall survive background suspension and reload.               | Remaining/elapsed time is derived from persisted timestamps rather than callback counts and is correct after returning from the background or reopening the app. |
-| FOC-003 | The user shall complete, finish early, or cancel the active session.           | Completion/early finish creates one valid history record; cancel requests confirmation and creates none; repeated transitions cannot duplicate a session.        |
-| FOC-004 | Only one focus session may be active.                                          | Starting while active returns the existing session rather than creating a second timer.                                                                          |
-| FOC-005 | The user shall browse and maintain focus history.                              | History is newest-first; the user can edit descriptive fields or delete a record with confirmation without changing measured duration accidentally.              |
-| FOC-006 | Focus shall summarize time and count.                                          | Today/week totals and monthly/category distributions equal stored completed sessions.                                                                            |
+- **WGT-001:** The owner can create, edit, and confirmed-delete a manual weight entry with measured local date/time, weight, and optional note.
+- **WGT-002:** Weight is persisted as integer grams from 20,000 through 500,000 inclusive and displayed in kilograms with one decimal place.
+- **WGT-003:** The overview shows the latest entry and the signed difference from the earliest available entry in the trailing 30 local days; fewer than two entries shows “暂无趋势”.
+- **WGT-004:** An optional target is stored as integer grams; absence is valid and target copy is descriptive, not judgmental.
+- **WGT-005:** Entries are ordered newest first and remain available by local-date range.
 
-V1 does not include pause/resume intervals, task management, team projects, or Pomodoro automation.
+### 6.5 Activity
 
-### 6.5 Today
+- **ACTV-001:** The owner can create, edit, and confirmed-delete an activity with type/category, whole-minute duration, perceived intensity, local date/time, and optional note.
+- **ACTV-002:** Duration is an integer from 1 through 1,440 minutes; intensity is exactly light, moderate, or hard.
+- **ACTV-003:** Activity type references an Activity category; archived types remain readable historically and unavailable for new capture.
+- **ACTV-004:** The overview reports the current Monday–Sunday count and total duration and lists recent activities newest first.
 
-| ID      | Requirement                                                          | Acceptance criteria                                                                                                               |
-| ------- | -------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| TOD-001 | Today shall show the current local date and a concise daily summary. | Income/expense, focus duration/count, and scheduled-habit completion match their source modules for the current local date.       |
-| TOD-002 | Today shall offer high-frequency actions.                            | Add transaction, start focus, and habit check-in are reachable without opening Settings and in no more than two purposeful taps.  |
-| TOD-003 | Today shall remain calm and actionable.                              | It uses progressive disclosure and clear empty states; it does not show unrelated historical dashboards or motivational pressure. |
+### 6.6 Habits inside Health
 
-### 6.6 Settings
+- **HAB-001:** Existing `habits` and `habitRecords` retain their V1 identifiers, fields, schedules, and completion semantics.
+- **HAB-002:** Today's scheduled active habits are one-tap check-in rows with persisted completion feedback and reversible undo.
+- **HAB-003:** Habit create, edit, pause/resume, daily/weekday schedule, and optional note remain available from Health.
+- **HAB-004:** Habit detail shows current streak, longest streak, total completions, current-month completion rate, a fourteen-week heatmap, and recent check-ins.
+- **HAB-005:** Unscheduled dates cannot be accidentally checked in; persistence failure restores the prior visual state.
+- **HAB-006:** Pausing affects future presentation and never deletes or reinterprets history.
 
-| ID      | Requirement                                                                                                        | Acceptance criteria                                                                                                                                 |
-| ------- | ------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| SET-001 | Settings shall expose backup, restore, category management, habit management, appearance, and version information. | Every listed capability has a clear entry and status; no daily capture action exists only in Settings.                                              |
-| SET-002 | The user shall select system, light, or dark appearance.                                                           | Selection applies immediately, persists in IndexedDB settings, and system mode follows the OS preference.                                           |
-| SET-003 | Settings shall show data safety information.                                                                       | The user sees last successful export time when known, schema/app version, local-storage limitations, and a recommendation to keep external backups. |
+### 6.7 Focus
 
-### 6.7 Backup and restore
+- **FOC-001:** Idle Focus leads with a large timer, 25/50/custom presets, and compact title/category/note setup.
+- **FOC-002:** At most one active session exists; start is transactionally idempotent.
+- **FOC-003:** Remaining time is derived from persisted timestamps and reconciles after reload, suspension, or delayed callbacks.
+- **FOC-004:** Natural completion, early finish, and confirmed cancel remain distinct state transitions.
+- **FOC-005:** Completed history supports detail edit and confirmed delete without changing measured duration.
+- **FOC-006:** Today/week/month/category summaries use completed sessions only.
 
-| ID      | Requirement                                                                            | Acceptance criteria                                                                                                                                                         |
-| ------- | -------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| BKP-001 | The user shall export all V1 business data and settings as versioned JSON.             | The file follows `lifeindex-backup-YYYY-MM-DD-HHmm.json`, validates against the documented schema, and includes no cache or log data.                                       |
-| BKP-002 | Export shall work through the iOS browser file/share flow without requiring Shortcuts. | The physical-iPhone checklist confirms a test backup can be saved to Files/iCloud Drive.                                                                                    |
-| BKP-003 | Import shall parse and validate before any current-data mutation.                      | Invalid JSON, unsupported versions, duplicate keys, invalid references, or invalid values produce a preview error and leave current data byte-for-byte logically unchanged. |
-| BKP-004 | V1 restore shall use explicit replace semantics.                                       | A valid import shows version, backup time, and per-entity counts; replacement occurs only after a separate confirmation. Merge restore is documented as out of scope.       |
-| BKP-005 | Restore shall be atomic from the user's perspective.                                   | All records are replaced successfully or the previous database remains available; failure includes a retry-safe message and privacy-safe log.                               |
-| BKP-006 | Backup compatibility shall be testable.                                                | Current round-trip and supported older fixture migrations pass automated tests before release.                                                                              |
+### 6.8 Today
 
-### 6.8 PWA and offline behavior
+- **TOD-001:** Today is a read projection and persists no independent business record.
+- **TOD-002:** It shows today's scheduled Health habits first, with direct check-in, followed by Finance and Focus summary rows.
+- **TOD-003:** “记一笔” and “开始专注” are the two primary quick actions and route to their normal save flows.
+- **TOD-004:** A failed source projection is shown as failed, not converted to a zero value.
 
-| ID      | Requirement                                                          | Acceptance criteria                                                                                                                                                       |
-| ------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| PWA-001 | LifeIndex shall provide an installable manifest and iPhone metadata. | Product name, short name, icons, theme/background color, display mode, start URL, scope, viewport, safe areas, and Apple touch icon are valid under the deployed subpath. |
-| PWA-002 | Core workflows shall work offline after one successful online load.  | In airplane mode the installed app launches, reads existing data, and creates/edits records; changes remain after reopening.                                              |
-| PWA-003 | The service worker shall cache the app shell, not business data.     | Cache inspection contains versioned static assets only; IndexedDB remains the sole business-data source.                                                                  |
-| PWA-004 | Application updates shall be explicit and recoverable.               | When a new worker is ready, the user can apply the update; the app does not silently discard in-progress input or active focus state.                                     |
-| PWA-005 | Offline and update failures shall be understandable.                 | Status messaging distinguishes offline use, first-load network failure, and update failure without blocking valid local operations.                                       |
+### 6.9 Settings
 
-### 6.9 URL Actions and iOS Shortcuts
+- **SET-001:** Settings shows four independent full-width groups in this order: Categories, Appearance, Data & security, Other.
+- **SET-002:** Categories exposes Finance expense/income, Focus, and Activity management without combining it with Appearance.
+- **SET-003:** Appearance offers System, Light, and Dark, applies immediately, and persists in IndexedDB.
+- **SET-004:** Data & security states that records exist only on this device and owns export, import preview, replace confirmation, and last-export status.
+- **SET-005:** Other contains version, usage/help, and existing support information; destructive actions remain isolated and confirmed.
 
-| ID      | Requirement                                                                                         | Acceptance criteria                                                                                                                           |
-| ------- | --------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| ACT-001 | V1 shall support fragment-based action routes for add transaction, habit check-in, and start focus. | Action payload stays after `#`, is parsed client-side, and no sensitive payload appears in an HTTP request.                                   |
-| ACT-002 | Actions shall validate and preview before mutation.                                                 | Invalid values show field errors; valid actions open a confirmation/prefilled UI and do not write until the user confirms.                    |
-| ACT-003 | Actions shall prevent accidental duplicate submission.                                              | A documented action ID/idempotency mechanism prevents repeated launch/refresh from creating duplicate records.                                |
-| ACT-004 | Action state shall be removed after completion or cancellation.                                     | Refreshing the resulting screen does not replay the action; browser history does not retain the active sensitive fragment longer than needed. |
+### 6.10 Backup and restore
+
+- **BKP-001:** Export emits current backup format V2 containing all nine stores, including weight and activity records.
+- **BKP-002:** Import supports V0, V1, and V2; older versions are migrated entirely in memory before current-schema validation.
+- **BKP-003:** Preview reveals only version, export time, and counts and cannot mutate IndexedDB.
+- **BKP-004:** Restore replaces all stores in one transaction after explicit confirmation; any failure aborts the complete replacement.
+- **BKP-005:** Unknown future versions, malformed records, count mismatches, duplicates, invalid state, and dangling references are rejected before writes.
+- **BKP-006:** Backup processing and logs never expose record values or backup bodies.
+
+### 6.11 PWA and offline behavior
+
+- **PWA-001:** The installed shell supports online launch, cached offline launch, and offline writes after initial cache readiness.
+- **PWA-002:** The service worker caches only versioned application-shell assets; IndexedDB records and action fragments never enter Cache Storage.
+- **PWA-003:** An available update requires explicit activation and respects dirty forms.
+- **PWA-004:** A source rollback never attempts to downgrade or clear a V2 database.
+- **PWA-005:** The manifest, worker scope, routes, and assets work at the GitHub Pages `/LifeIndex/` base path.
+
+### 6.12 URL Actions and iOS Shortcuts
+
+- **URL-001:** Existing add-transaction, check-habit, and start-focus actions remain fragment-only, allowlisted, previewed, and explicitly confirmed.
+- **URL-002:** Business mutation and durable receipt are atomic; repeated action UUIDs return the existing result.
+- **URL-003:** Cancel, invalid, completed, and duplicate paths remove sensitive fragment fields from the active route.
+- **URL-004:** V2 adds no automatic payment recognition and no Health action route.
 
 ## 7. Non-functional requirements
 
-| ID           | Requirement                                                  | Acceptance criteria                                                                                                                                           |
-| ------------ | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| NFR-DAT-001  | Business data shall remain local unless the user exports it. | No application request sends records to an API, analytics, error tracker, or log collector.                                                                   |
-| NFR-DAT-002  | Schema evolution shall preserve supported data.              | Each schema version has a documented migration; destructive changes have fixtures and rollback/failure tests.                                                 |
-| NFR-PRV-001  | Logs shall be useful without exposing personal values.       | Logs may contain event names, versions, counts, safe IDs, and error classes; tests/review find no amounts, notes, titles, or backup payloads.                 |
-| NFR-OFF-001  | Offline behavior shall be a release gate.                    | The production artifact passes a cold-online-then-offline launch and mutation scenario.                                                                       |
-| NFR-UX-001   | Daily actions shall be touch-first and fast.                 | Primary targets are at least 44 by 44 CSS pixels, forms avoid horizontal scrolling at 320 CSS pixels, and high-frequency actions meet their tap limits.       |
-| NFR-A11Y-001 | Core flows shall be accessible.                              | Semantic labels, focus order, contrast, non-color state indicators, reduced motion, and screen-reader names pass automated checks plus manual review.         |
-| NFR-REL-001  | Errors shall fail safely.                                    | Database, import, worker, and action failures never produce silent data replacement or an unrecoverable blank screen.                                         |
-| NFR-MNT-001  | The codebase shall remain modular and documented.            | Feature code depends on explicit shared/data interfaces; key branches/transitions have rationale comments and privacy-safe logs; changed docs ship with code. |
-| NFR-TST-001  | Every release shall pass the documented quality gate.        | Format, lint, typecheck, unit/integration, production build, mobile WebKit E2E, and deployed smoke evidence are recorded.                                     |
+- **NFR-DAT:** No V1 record is deleted, rewritten, or assigned invented personal values during database or backup migration.
+- **NFR-PRV:** No remote telemetry; logs exclude IDs, amounts, names, titles, notes, weights, activity details, URLs/fragments, and backup content.
+- **NFR-OFF:** Core reads/writes operate without network after shell installation.
+- **NFR-UX:** Main capture targets are at least 44 × 44 CSS px; forms use at least 16 px text; 320 px width has no horizontal overflow.
+- **NFR-A11Y:** Semantic landmarks, labels, focus states, non-color state indicators, contrast, and reduced-motion behavior meet the existing V1 accessibility floor.
+- **NFR-REL:** Writes acknowledge only after IndexedDB commit; initialization/migration failure blocks normal writes and never auto-clears storage.
+- **NFR-MNT:** Business invariants remain typed, validated, documented, logged safely, and covered by narrow tests.
+- **NFR-TST:** Release requires static, unit, integration, dual-engine E2E, deployed smoke, migration rehearsal, and owner-reported physical-iPhone evidence.
 
 ## 8. Key user journeys
 
-### First launch
+### V1 owner upgrades to V2
 
-1. User opens the HTTPS URL.
-2. App initializes IndexedDB and default categories/settings.
-3. App explains that records stay on this device and recommends adding to Home Screen and creating backups.
-4. User can immediately create a transaction, habit, or focus session without registration.
+1. The waiting worker appears and the owner accepts the update when no dirty form exists.
+2. V2 opens database version 2; Dexie adds the two Health stores without changing seven V1 stores.
+3. Missing stable Activity categories are seeded idempotently.
+4. Existing transactions, habits, habit records, focus sessions, settings, categories, and action receipts remain present.
+5. Health opens with empty weight/activity states and the existing habit records.
 
-### Daily capture
+### Record and review finance
 
-1. User opens Today from the Home Screen.
-2. User sees the day's concise status.
-3. User uses a quick action or the target module.
-4. Mutation is validated and committed locally.
-5. UI acknowledges success without blocking the next action.
+1. Open Finance; current month and today/selected day are visible.
+2. Tap add, enter a transaction in the sheet, and save.
+3. After commit, the sheet closes and the selected calendar day, month totals, and ledger refresh.
+4. Selecting another day changes only the ledger projection.
+
+### Record health context
+
+1. Open Health and tap add.
+2. Choose weight or activity, enter bounded fields, and save.
+3. After commit, latest/trend or weekly activity/recent list refreshes.
+4. Habit check-in remains directly available in the same destination.
 
 ### Backup and recovery
 
-1. User exports a versioned test backup to Files/iCloud Drive.
-2. On restore, the app validates and shows a count preview.
-3. User explicitly confirms replacement.
-4. App replaces all V1 stores atomically and reports the result.
-5. User verifies summary and representative records.
+1. Export a V2 JSON backup to Files/iCloud through the browser handoff.
+2. Select a V0, V1, or V2 backup; inspect non-mutating metadata.
+3. Confirm replacement.
+4. Validation/migration completes before the all-store transaction; failure retains current data.
 
-## 9. Success signals without telemetry
+## 9. Release acceptance
 
-LifeIndex sends no usage analytics. Product success is established through local acceptance evidence:
+V2 may be tagged only when:
 
-- Core capture actions complete without error and within the stated tap limits.
-- The user chooses to launch from the Home Screen in normal use.
-- Automated backup round trips remain green across releases.
-- Physical-iPhone offline and persistence checks pass.
-- No known release-blocking data-loss defect remains.
+- the frozen requirements, implementation, and tests agree;
+- a synthetic V1 database upgrades in place with every original record unchanged;
+- V0/V1/V2 backup tests, invalid-input tests, and forced restore rollback pass;
+- every V2 feature and retained V1 critical workflow passes Chromium and Mobile Safari/WebKit production E2E;
+- the exact release candidate passes GitHub Actions and deployed `/LifeIndex/` smoke checks;
+- the owner explicitly reports the required installed-iPhone upgrade, offline, persistence, appearance, and backup results;
+- no known release-blocking personal-data-loss, privacy, or core offline defect remains.
 
-## 10. Release acceptance
+## 10. Change control
 
-V1 is releasable only when:
-
-- Every included requirement is mapped to design, implementation, and test evidence or has an explicit accepted exception.
-- No open severity-1 data loss/privacy issue or severity-2 core-workflow issue remains.
-- Full local and GitHub CI gates pass from a clean checkout.
-- GitHub Pages passes online, reload, mobile, manifest, service-worker, and offline smoke checks.
-- The user completes the physical-iPhone checklist or explicitly approves a documented release exception. For `v1.0.0`, [ADR-0005](../adr/0005-v1-owner-acceptance.md) records the owner's acceptance of current delivery and deferral of unfinished physical checks; only phone-browser opening is confirmed.
-
-## 11. Decision checkpoints
-
-Resolved in M2:
-
-- React/TypeScript/Vite, pnpm, Dexie 4, Zod, hash routing, custom Workbox service worker, Vitest, and Playwright are the accepted stack; exact package versions are locked by M3 installation.
-- Custom focus duration is 1 minute through 4 hours.
-- Production logs do not contain business entity IDs or user-entered values. They use event names, types, state names, counts, versions, failure classes, and generated correlation IDs.
-
-Still open by named milestone:
-
-- M8: public `shushengritian/LifeIndex` and GitHub Actions Pages are owner-approved. No project license has been selected or added; the administrative decision remains PV1-07.
-- M9: owner's V1 delivery acceptance is recorded in ADR-0005; device/iOS details and the full compatibility result remain explicitly deferred in PV1-01–06, not verified.
+New capabilities discovered during implementation are backlog items unless the owner explicitly changes V2 scope. A persisted-field change requires an ADR, data/backup migration update, and tests before code. Physical-iPhone checks are never inferred from automation or a phone-browser screenshot.

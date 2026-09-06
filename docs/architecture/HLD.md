@@ -1,260 +1,237 @@
-# LifeIndex V1 High-Level Design
+# LifeIndex V2 High-Level Design
 
-**Status:** Accepted for implementation
+**Status:** Accepted and frozen at gate G2
 
-**Date:** 2026-09-03
+**Date:** 2026-09-06
 
 ## 1. Architecture goals
 
-- Keep personal records on the current device and usable offline.
-- Make schema evolution and recovery safer than feature velocity.
-- Keep daily capture fast and feature modules independently understandable.
-- Build one static artifact that works at localhost and a GitHub Pages project subpath.
-- Preserve a small extension surface for future life-index domains without building them in V1.
+- Preserve every V1 business record during an additive V2 upgrade.
+- Keep IndexedDB as the only primary database and preserve offline capture.
+- Add lightweight Health records without coupling Habits, Finance, or Focus persistence.
+- Deliver a calm mobile UI from one static artifact at localhost and the GitHub Pages `/LifeIndex/` subpath.
+- Keep backup validation and atomic recovery ahead of feature velocity.
 
 ## 2. System context
 
 ```mermaid
 flowchart LR
-    User[Private user on iPhone]
+    User[Owner on iPhone]
     Shortcut[iOS Shortcut]
     Pages[GitHub Pages\nstatic app shell]
-    App[LifeIndex PWA]
-    IDB[(IndexedDB\nprimary data)]
-    Cache[(Service Worker Cache\nstatic assets only)]
-    Files[iOS Files / iCloud Drive\nversioned backup]
+    App[LifeIndex V2 PWA]
+    IDB[(IndexedDB V2\nprimary data)]
+    Cache[(Cache Storage\napp shell only)]
+    Files[Files / iCloud Drive\nmanual JSON backup]
 
-    User -->|HTTPS initial load/update| Pages
+    User -->|HTTPS install/update| Pages
     Pages --> App
     User --> App
     Shortcut -->|fragment action URL| App
     App <--> IDB
     App <--> Cache
-    App -->|explicit JSON export| Files
+    App -->|explicit export| Files
     Files -->|user-selected import| App
 ```
 
-GitHub receives static source/artifacts but no application records. Files/iCloud Drive receives data only when the user explicitly exports a backup.
+GitHub hosts application code only. Health, finance, habit, focus, and backup content is never transmitted by application logic.
 
 ## 3. Container view
 
 ```mermaid
 flowchart TB
-    subgraph Browser[Mobile Safari / installed web app]
-        Shell[React app shell and router]
-        Features[Today, Finance, Habits, Focus, Settings]
-        Domain[Domain policies and projections]
-        Repos[Repository interfaces]
-        DB[Dexie database and migrations]
-        Backup[Backup/restore coordinator]
-        Actions[URL Action gateway]
-        Logger[Privacy-safe event logger]
+    subgraph Browser[Safari / installed PWA]
+        Shell[App shell, hash router, shared UI]
+        Features[Today, Finance, Focus, Health, Settings]
+        Domain[Pure projections and invariants]
+        Repos[Repository boundary]
+        DB[Dexie schemas and migration]
+        Backup[Backup validation and restore]
+        Actions[Existing URL Action gateway]
+        Logger[Privacy-safe local logger]
         SW[Custom service worker]
 
         Shell --> Features
         Features --> Domain
         Features --> Repos
-        Actions --> Features
+        Actions --> Repos
         Repos --> DB
         Backup --> DB
-        Domain --> Logger
         Repos --> Logger
         Backup --> Logger
-        SW -. update status .-> Shell
+        SW -. update state .-> Shell
     end
 
-    DB <--> IndexedDB[(IndexedDB)]
-    SW <--> StaticCache[(Cache Storage)]
-    Backup <--> JsonFile[Versioned JSON file]
+    DB <--> IndexedDB[(LifeIndexDB)]
+    SW <--> StaticCache[(Static cache)]
+    Backup <--> JsonFile[Backup V2 JSON]
 ```
 
 ## 4. Module boundaries
 
-| Module              | Owns                                                                                      | Must not own                              |
-| ------------------- | ----------------------------------------------------------------------------------------- | ----------------------------------------- |
-| `app`               | Bootstrap, dependency composition, hash router, global boundaries, update/offline banners | Business records or statistics rules      |
-| `features/today`    | Read-only daily projections and quick-action composition                                  | Independent Today persistence             |
-| `features/finance`  | Transaction/category commands, lists, finance summaries                                   | Raw Dexie access or floating-point money  |
-| `features/habits`   | Habit lifecycle, check-in, schedules, streaks/calendar                                    | UTC-derived calendar-day behavior         |
-| `features/focus`    | Timer configuration/state transitions, session history/statistics                         | Callback-count-based elapsed time         |
-| `features/settings` | Data safety, organization links, appearance, version display                              | Hidden daily capture actions              |
-| `data/db`           | Dexie stores, versions, migrations, transaction primitives                                | UI messages or feature rendering          |
-| `data/repositories` | Typed persistence APIs and query boundaries                                               | Presentation state                        |
-| `data/backup`       | Envelope validation, migrations, referential checks, atomic replace                       | Automatic cloud upload or merge semantics |
-| `app/actions`       | Fragment parsing, allowlist, validation, preview commands, receipt lookup                 | Silent business mutation                  |
-| `pwa`               | Worker registration, update readiness, online/offline status                              | Business-data caching                     |
-| `shared`            | Types, dates, money, validation helpers, logger, UI primitives                            | Feature-specific rules                    |
+| Module | Owns | Must not own |
+| --- | --- | --- |
+| `app` | bootstrap, providers, routes, compact shell, global recovery | domain records or statistics |
+| `features/today` | daily read projection and quick routing | independent Today persistence |
+| `features/finance` | calendar/ledger UI, transaction projections and commands | float money or raw table access |
+| `features/health` | Health composition, weight/activity UI and projections | changing Habit semantics or medical advice |
+| `features/habits` | reusable Habit lifecycle, check-in, streak/heatmap | weight/activity records |
+| `features/focus` | timer setup, transitions, history and summaries | interval-based business time |
+| `features/settings` | category/appearance/data-safety/other groups | hidden capture or cloud sync |
+| `data/db` | schema versions, additive upgrade, table ownership, seed boundary | UI recovery copy |
+| `data/repositories` | validated commands, referential checks, bounded reads | presentation state |
+| `data/backup` | version migration, current validation, atomic replacement | automatic upload or merge |
+| `app/actions` | retained allowlisted fragment actions and receipts | Health actions in V2 |
+| `pwa` | shell cache, update/offline state | business-data caching |
+| `shared` | typed values, dates, money/weight parsing, logging, UI primitives | feature policy that belongs to a domain |
 
-Dependencies flow inward from views to feature/domain contracts and from repositories to the storage adapter. Feature modules do not import one another's components; Today composes read-model interfaces.
+Features may compose repository results but do not import another feature's page component. Health may reuse Habit presentation primitives and pure habit-domain functions; the persisted Habit model remains owned by its existing repository.
 
-## 5. Startup flow
+## 5. Startup and database upgrade
 
 ```mermaid
 sequenceDiagram
     participant U as User
-    participant A as App shell
-    participant D as Database
-    participant R as Router/actions
-    participant S as Service worker
+    participant A as App provider
+    participant D as Dexie
+    participant S as Seed coordinator
+    participant R as Router
 
-    U->>A: Launch
-    A->>A: Install error/log boundary
+    U->>A: Launch V2
     A->>D: Open LifeIndexDB
-    D->>D: Apply required schema upgrades
-    alt database ready
-        D-->>A: Repositories ready
-        A->>R: Resolve hash route/action
-        A->>S: Register worker and subscribe to status
-        A-->>U: Render destination
-    else open or migration failure
-        D-->>A: Typed safe error
-        A-->>U: Recovery screen; no false success
+    alt existing V1
+        D->>D: Add weightEntries and activitySessions stores
+        D->>D: Commit schema version 2
+    else fresh install
+        D->>D: Create all V2 stores
     end
+    D-->>S: Database ready
+    S->>S: Insert only missing stable categories/settings
+    S-->>A: Initialization complete
+    A->>R: Render route
 ```
 
-Default seed data is inserted idempotently only after the schema is ready. Seed failure aborts initialization rather than leaving a partially assumed setup.
+The V1-to-V2 upgrade contains no row transformation, clear, delete, or default personal value. Dexie owns upgrade atomicity. If open/upgrade/seed fails, normal routes remain blocked, the database is not deleted, and a typed safe recovery state is shown.
 
 ## 6. Data architecture
 
 - Database: `LifeIndexDB`.
-- Current Dexie schema: version 1.
-- Stores: `categories`, `transactions`, `habits`, `habitRecords`, `focusSessions`, `settings`, `actionReceipts`.
-- IDs: random UUID strings generated with `crypto.randomUUID()`.
-- Audit timestamps: UTC ISO 8601 strings.
-- Human calendar semantics: `YYYY-MM-DD` local date keys computed from the user's local date input.
-- Money: positive integer minor units plus the application currency setting.
-- No logs, caches, derived totals, or chart points are persisted as business truth.
+- Dexie schema: version 2.
+- V1 stores retained exactly: `categories`, `transactions`, `habits`, `habitRecords`, `focusSessions`, `settings`, `actionReceipts`.
+- V2 additive stores: `weightEntries`, `activitySessions`.
+- Weight: integer grams; UI renders kilograms.
+- Activity duration: integer minutes; category references `domain=activity`.
+- Local-calendar behavior: `YYYY-MM-DD` keys plus captured UTC instant and timezone offset.
+- Derived totals, trends, heatmap cells, and chart points are never persisted as truth.
 
-Details and indexes are normative in `DATA_MODEL.md`.
+Normative fields, indexes, and invariants are in [DATA_MODEL.md](DATA_MODEL.md). [ADR-0007](../adr/0007-v2-health-storage-and-backup.md) records the compatibility decision.
 
-## 7. Write path
+## 7. Write and read paths
 
 ```text
-view input
-  -> Zod command validation/canonicalization
-  -> pure domain invariant
-  -> feature repository interface
-  -> Dexie transaction
-  -> privacy-safe success/failure event
-  -> reactive query refresh
+form input
+  → canonical parser/schema
+  → repository command
+  → reference check inside Dexie transaction
+  → IndexedDB commit
+  → privacy-safe result event
+  → live-query refresh
 ```
 
-The UI acknowledges success only after the IndexedDB transaction resolves. A failed write preserves safe form state in memory and never updates the view as if persistence succeeded.
+The UI disables duplicate submission and displays final success only after commit. Failure keeps the form and draft in memory. Logs identify entity type, operation, state, counts, versions, and failure class only; they exclude values and IDs.
 
-## 8. Read and projection path
+Repositories expose date-range/status/domain queries. Pure feature functions derive:
 
-Repositories expose bounded queries by local date, time range, status, and domain. Feature services calculate totals and streaks as pure projections. Today requests three daily projections; it does not copy records into another store.
+- calendar day nets and monthly Finance summaries;
+- latest/30-day weight direction;
+- Monday–Sunday Activity totals;
+- Habit streaks, rate, and fourteen-week heatmap;
+- timestamp-based Focus status and summaries.
 
-Dexie live queries may notify hooks of relevant changes, but repository interfaces remain the boundary so tests can use in-memory fakes for pure UI cases and `fake-indexeddb` for integration cases.
+Loading and failed reads remain explicit and are not normalized to empty arrays at the UI boundary.
 
-## 9. Backup and restore architecture
+## 8. Health composition
 
-```mermaid
-sequenceDiagram
-    participant U as User
-    participant B as Backup coordinator
-    participant V as Schema/reference validator
-    participant D as Dexie
-
-    U->>B: Select JSON file
-    B->>V: Parse and migrate in memory
-    alt invalid
-        V-->>U: Sanitized validation summary
-    else valid
-        V-->>U: Version/time/count preview
-        U->>B: Confirm replace
-        B->>D: Begin transaction across all stores
-        D->>D: Clear and bulk insert validated snapshot
-        alt any failure
-            D->>D: Abort transaction
-            D-->>U: Existing data retained; retry guidance
-        else committed
-            D-->>U: Restored counts and refresh
-        end
-    end
-```
-
-The backup format and import checks are normative in `BACKUP_SCHEMA.md`. Restore does not merge in V1.
-
-## 10. Focus time architecture
-
-The active session is a persisted `focusSessions` row with `status=active`, `startedAt`, and `plannedDurationSeconds`. The displayed remaining time is recalculated from `now - startedAt`; a one-second UI tick only requests a repaint and is never the time source.
-
-On app resume/start:
-
-- If no active row exists, show idle.
-- If now is before the target end, resume display from timestamps.
-- If now is at/after target end, atomically finalize at the target end unless already completed.
-- Early finish finalizes at the user's current timestamp.
-- Cancel deletes the active row after confirmation.
-
-## 11. Offline and update architecture
-
-The custom service worker precaches `index.html`, hashed JS/CSS, manifest, and required icons. It does not cache IndexedDB records or an API response because no V1 API exists.
-
-The worker lifecycle is surfaced to the app:
-
-- Ready offline: non-blocking confirmation on first cache completion.
-- Update waiting: show prompt.
-- Update discovery: visible online clients check again when returning to the foreground or reconnecting, with duplicate/recent-check suppression; this does not activate the worker.
-- Dirty form: defer activation or request explicit discard/save choice.
-- Active focus: safe because active state is persisted; still avoid surprise reload.
-- Registration/update failure: log safe context and continue online/local operation where possible.
-
-## 12. Security and privacy
-
-- No remote telemetry, analytics, error reporting, or business-data fetch.
-- Content Security Policy limits resources to the static app's needs; no inline executable script.
-- URL Actions live entirely in the fragment, require confirmation, and use durable receipts.
-- Logs allow event names, versions, record counts, action/state types, generated correlation IDs, and sanitized error classes; they exclude business entity IDs and field values.
-- Backups are treated as untrusted input and never rendered as HTML.
-- Test fixtures are synthetic and visually marked as test data.
-
-This is not authenticated software. Anyone with the Pages URL may load a blank app shell and create their own browser-local records.
-
-## 13. Error taxonomy
-
-- `InitializationError`: app/database cannot become ready.
-- `ValidationError`: form, URL Action, or backup violates a schema/invariant.
-- `PersistenceError`: a repository transaction fails.
-- `MigrationError`: database or backup migration cannot preserve a supported version.
-- `RestoreError`: validated restore transaction fails/aborts.
-- `PwaError`: worker registration, caching, or update activation fails.
-
-Errors cross layers as typed safe objects with a correlation ID, operation/event name, and cause class. User copy never includes raw backup content or browser stack traces.
-
-## 14. Deployment architecture
+Health combines three independently queryable sources:
 
 ```mermaid
 flowchart LR
-    Commit[main commit] --> CI[GitHub Actions CI]
-    CI -->|format/lint/type/test/build/E2E pass| Artifact[dist artifact]
-    Artifact --> Deploy[GitHub Pages deploy job]
-    Deploy --> Live[HTTPS project URL]
-    Live --> Smoke[mobile/reload/manifest/worker/offline smoke]
+    Health[Health page]
+    Weight[Weight projection]
+    Activity[Activity projection]
+    Habits[Habit projection]
+    WR[WeightRepository]
+    AR[ActivityRepository]
+    HR[HabitRepository]
+
+    Health --> Weight --> WR
+    Health --> Activity --> AR
+    Health --> Habits --> HR
 ```
 
-The Pages job receives `contents: read`, `pages: write`, and `id-token: write`; CI jobs receive only read access. Generated `dist` is never committed.
+One source failure does not suppress the other sections. Weight and Activity forms use independent repository transactions. The shared Health add chooser only routes to those existing flows or Habit creation.
 
-## 15. Observability without telemetry
+## 9. Finance calendar architecture
 
-The central logger emits structured events to the local browser console. Production defaults to lifecycle, warning, and error events; verbose query/render events remain development-only. Key events include:
+The Finance repository continues to provide bounded local-date records. A pure calendar projection fills the visible month grid, groups transactions by `localDate`, and sums exact integer minor units. Selected date and visible month are ephemeral route/page state; they are not Settings or database records.
 
-- app initialization start/ready/failure
-- database open/version/upgrade success/failure
-- repository mutation start/success/failure by operation and entity type
-- focus state transition
-- backup export/import stage and counts
-- URL Action parsed/rejected/previewed/handled/duplicate
-- service-worker ready/update/error
+The new sheet uses the same validated TransactionRepository as V1. No financial schema change is required.
 
-No production event contains a business entity ID, amount, note, title, habit name, category name, URL fragment, or backup payload.
+## 10. Backup and restore
 
-## 16. Quality strategy
+Export writes format V2 with all nine stores. Import accepts V0, V1, and V2:
 
-- Pure unit tests: dates, money, schedules, streaks, statistics, schemas, state machines.
-- Component tests: forms, errors, navigation, update prompts, accessibility.
-- Repository integration: Dexie over `fake-indexeddb`, transactions, indexes, restore rollback.
-- Production E2E: Chromium for broad feedback and Mobile Safari/WebKit for primary compatibility.
-- Deployed smoke: base path, manifest, worker, reload, offline.
-- Physical acceptance: user's actual iPhone; deferred for owner-accepted `v1.0.0` by [ADR-0005](../adr/0005-v1-owner-acceptance.md), not substituted with automated evidence. The checklist remains a post-V1 follow-up.
+```text
+untrusted bytes
+  → size/JSON/header validation
+  → V0→V1 migration when required
+  → V1→V2 migration when required
+  → strict current V2 schemas
+  → uniqueness/count/reference/state checks
+  → in-memory preview token
+  → explicit user confirmation
+  → one nine-store clear-and-insert transaction
+```
+
+Older migrations add empty `weightEntries` and `activitySessions`; they never infer weight, target, activity, or category values. Restore failure aborts and retains all pre-restore data. The normative envelope is [BACKUP_SCHEMA.md](BACKUP_SCHEMA.md).
+
+## 11. Focus, PWA, and URL Action continuity
+
+- Focus keeps its persisted timestamp state machine and one-active-row invariant.
+- The service worker still precaches only the app shell and exposes ready/update/failure state.
+- Update activation remains explicit and dirty-form aware.
+- Add-transaction, check-habit, and start-focus fragment actions remain atomic with receipts.
+- V2 adds no Health URL action and no network data source.
+
+## 12. Security and privacy
+
+- No remote telemetry, analytics, API, error reporter, or third-party content request.
+- CSP and build artifact remain static-host compatible.
+- Health logs exclude weight, target, intensity, activity/category values, dates tied to records, notes, and IDs.
+- Backup content is untrusted data and is never rendered as HTML or logged.
+- Test fixtures are synthetic and excluded from production artifacts when not required.
+- Anyone may load a blank shell from the public URL, but one browser profile cannot read another profile's IndexedDB through LifeIndex.
+
+## 13. Failure and rollback boundaries
+
+- **Initialization/migration:** block routes; never auto-delete/recreate.
+- **Repository write:** transaction rollback; keep draft and show retry.
+- **Projection read:** section-level error; never false zero.
+- **Restore validation:** no write transaction begins.
+- **Restore write:** all nine stores roll back atomically.
+- **Source rollback after V2 use:** deploy may roll back code, but V1 code is not guaranteed to open schema V2; recovery is a forward-compatible V2 fix, never data clearing.
+- **Service-worker update:** explicit activation and reload; existing IndexedDB remains outside cache lifecycle.
+
+## 14. Deployment and quality
+
+```mermaid
+flowchart LR
+    Commit[Reviewed commit] --> CI[GitHub Actions]
+    CI -->|format/lint/type/unit/integration/build/E2E| Artifact[dist]
+    Artifact --> Pages[GitHub Pages]
+    Pages --> Smoke[version/base/manifest/worker/routes/offline smoke]
+    Smoke --> Phone[Owner iPhone acceptance]
+    Phone --> Release[v2.0.0 tag and release]
+```
+
+No generated `dist`, backup, personal record, credential, or IndexedDB export is committed. Physical-iPhone results are recorded only from the owner.

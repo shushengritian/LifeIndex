@@ -1,35 +1,29 @@
-# LifeIndex V1 Risk Register
+# LifeIndex V2 Risk Register
 
-**Status:** V1 risks archived; ongoing risks and owner-approved deferrals retained
+**Status:** Active for V2 delivery
 
-**Last reviewed:** 2026-09-04
+**Last reviewed:** 2026-09-06
 
-Likelihood and impact use `low`, `medium`, and `high`. Release-blocking risks remain open until mitigation has verified evidence or the owner explicitly accepts a scoped release exception. ADR-0005 accepts deferred physical-device evidence for `v1.0.0`; it does not waive a known critical data-loss/privacy defect. Unverified device behavior remains PV1-01–06, and licensing remains PV1-07 without adding a grant.
+Likelihood/impact are low, medium, or high. Plausible personal-data loss/disclosure and broken core offline capture are release-blocking regardless of likelihood.
 
-| ID    | Risk                                                                                            | Likelihood | Impact | Mitigation and verification                                                                                                          | Owner           | Status |
-| ----- | ----------------------------------------------------------------------------------------------- | ---------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------ | --------------- | ------ |
-| R-001 | Safari data is removed by website-data clearing, app removal, device loss, or storage pressure. | medium     | high   | First-class export/restore, explicit durability copy, last-export status, fixture/round-trip tests, physical Files/iCloud flow.      | Product/Data    | open   |
-| R-002 | A future schema upgrade corrupts or silently drops years of records. | medium | high | Database remains V1 in this release. Backup V0 fixture conversion is separate, not proof of database upgrades. Future schema changes require tested migration/rollback and independent backups. | Data | open for future schema changes |
-| R-003 | Restore clears valid current data before an invalid backup is fully processed.                  | medium     | high   | M7 verifies malformed/future/corrupted rejection before mutation plus forced transactional rollback and unchanged-data assertions.   | Data            | mitigated |
-| R-004 | GitHub Pages subpath breaks routes, assets, manifest start URL, or worker scope.                | medium     | high   | Base-path-aware config, hash routing candidate, artifact inspection, deployed online/offline/reload smoke suite.                     | Platform        | open   |
-| R-005 | Sensitive URL query values reach GitHub or browser/network logs.                                | medium     | high   | Fragment-only fields, strict allowlist, preview, route replacement, and M7 request/console capture prove payloads remain local.       | Security        | mitigated |
-| R-006 | URL Action refresh or repeated Shortcut launch creates duplicate records.                       | medium     | medium | Durable action receipt, atomic write, canonical validation, route cleanup, and repeated-launch tests pass.                           | App/Data        | mitigated |
-| R-007 | iOS suspends callbacks, causing an incorrect focus duration or duplicate completion.            | high       | high   | Timestamp-derived reconciliation, single-active transaction, fake-clock, reload, and repeated-transition tests pass.                 | Focus           | mitigated |
-| R-008 | Local logging exposes amounts, titles, notes, or backup content during troubleshooting.         | medium     | high   | Central allowlisted logger, no remote sink, unit capture, tracked-source scan, and runtime action privacy test pass.                  | Security        | mitigated |
-| R-009 | Service-worker update reload loses an in-progress form or active focus state.                   | medium     | medium | Explicit update prompt, dirty-form guard, active state persisted in IndexedDB, update-transition E2E.                                | Platform        | open   |
-| R-010 | A public static URL is mistaken for private authenticated access.                               | medium     | medium | Confirm Pages access model before remote creation; security/README copy; never include user data in artifacts.                       | Product/Release | open   |
-| R-011 | Accessibility or compact-screen defects block daily use on iPhone.                              | medium     | medium | 320 px layouts, 44 px targets, system fonts, WebKit E2E, automated accessibility and physical-device review.                         | UX/Test         | open   |
-| R-012 | Dependency or browser support changes during a long-lived project.                              | medium     | medium | Lockfile, bounded dependency set, documented browser floor, CI, deliberate upgrade/migration commits.                                | Engineering     | open   |
-| R-013 | GitHub account/authentication is unavailable at deployment time.                                | high       | medium | Complete and verify all local milestones first; request one consolidated auth/repository decision at M8.                             | Release/User    | open   |
-| R-014 | Automated browser evidence is mistaken for physical-iPhone acceptance. | medium | high | Separate device checklist and explicit ADR-0005 owner-approved deferral; only phone-browser opening is confirmed. PV1-01–06 remain unverified. | Test/User | accepted deferral; evidence boundary retained |
+| ID | Risk | Likelihood | Impact | Mitigation/evidence required | Owner | Status |
+| --- | --- | --- | --- | --- | --- | --- |
+| R2-001 | V1→V2 database open loses or rewrites existing rows | medium | high | additive stores only; real schema-V1 fixture; logical row equality; initialization blocks on failure; iPhone upgrade check | Data/User | open |
+| R2-002 | V1 backup is rejected or restored without new-store consistency | medium | high | frozen V1 schema; pure V1→V2 migration; nine-store current validation/transaction tests | Data | open |
+| R2-003 | Restore clears current data before invalid Health records are rejected | medium | high | complete validation before preview/write; forced nine-store rollback test | Data | open |
+| R2-004 | Health values leak through logs, fixtures, URLs, or artifacts | medium | high | logger denylist/allowlist, runtime capture, source/artifact scan, synthetic fixtures | Security | open |
+| R2-005 | V1 source rollback cannot open schema V2 | medium | high | no schema downgrade; retain V2-compatible release/fix path; documented rollback rule | Release/Data | accepted constraint, mitigation open |
+| R2-006 | Calendar/date math assigns records to the wrong day/month/week | medium | high | validated local-date keys, calendar-component iteration, leap/DST/boundary tests | Finance/Health | open |
+| R2-007 | Weight float conversion changes the entered measurement | medium | medium | string-to-integer grams parser; boundary/round-trip tests | Health | open |
+| R2-008 | Activity category archive breaks historical rows | medium | medium | reference-preserving archive, active-only new capture, import/integration/E2E tests | Health/Data | open |
+| R2-009 | Dense calendar/Health content becomes unusable at 320 px | medium | medium | fixed complexity budget, 320/390 screenshots, touch/overflow/axe checks | UX | open |
+| R2-010 | Sheet keyboard/safe-area handling hides save/cancel controls on iPhone | medium | high | scrollable sheet, 16 px inputs, safe-area CSS, WebKit plus physical check | UX/Test | open |
+| R2-011 | Update reload discards a dirty V2 sheet | medium | high | register all sheets in dirty-form guard; update-transition tests; physical check | Platform | open |
+| R2-012 | Focus behavior regresses during visual rewrite | medium | high | repository/state machine unchanged; full existing timer/reload tests | Focus | open |
+| R2-013 | GitHub Pages base path/version cache publishes stale V1 | medium | high | base-aware build, exact rendered-version deployed test, workflow/run verification | Release | open |
+| R2-014 | Automation is mistaken for physical-iPhone proof | medium | high | separate physical checklist; record owner statements only | Test/User | open |
+| R2-015 | Safari site-data clearing/device loss removes all records | medium | high | visible local-only copy, V2 export/restore, owner Files/iCloud acceptance | Product/User | open |
 
-## Severity rules
+## Release rule
 
-- A plausible personal-data loss or disclosure path is release-blocking regardless of frequency.
-- A broken core offline/capture workflow is release-blocking.
-- Cosmetic issues may be deferred only when they do not impair comprehension, accessibility, or safe action.
-- Closed risks retain their evidence link rather than being deleted.
-
-## Final publication evidence
-
-`v1.0.0` is published at `40eb947` after the complete configured quality/build/Pages/live workflow 33849576847 succeeded. R-004's deployed path/scope checks and R-010/R-013's approved publishing route now have concrete release evidence in `docs/releases/v1.0.0.md`; future platform/auth changes remain operational risks. The supplemental current npm advisory query timed out through both package-manager and direct API attempts, so no fresh clean-audit claim is made. Dependencies are unchanged, and PV1-08 records a later advisory recheck. This is an availability limitation, not evidence of a vulnerability.
+Open data-loss, privacy, core offline, or unrecoverable migration risks block deployment/tagging. Cosmetic issues may be deferred only if they do not harm comprehension, accessibility, or safe action, and the deferral is recorded with owner approval.

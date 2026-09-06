@@ -1,24 +1,25 @@
-# LifeIndex V1 Backup Schema
+# LifeIndex V2 Backup Schema
 
 **Format name:** `lifeindex-backup`
 
-**Current format version:** 1
+**Current format version:** 2
 
-**Status:** Automated data and browser handoff flows implemented; physical Files/iCloud acceptance deferred by owner for v1.0.0 under ADR-0005, not passed
+**Status:** Approved contract; implementation pending V2-M3
 
-## 1. File naming and media type
+## 1. File contract
 
-- Filename: `lifeindex-backup-YYYY-MM-DD-HHmm.json` using the user's local export time.
-- Encoding: UTF-8 JSON.
-- Media type when supported: `application/json`.
-- Maximum accepted V1 import size: 50 MiB before parsing. This is deliberately generous for text records while bounding accidental or hostile input.
+- Filename: `lifeindex-backup-YYYY-MM-DD-HHmm.json` in local export time.
+- Encoding/media: UTF-8 JSON / `application/json` when supported.
+- Maximum accepted size: 50 MiB before parsing.
+- Arrays are sorted by primary key for deterministic tests/diffs.
+- Real exports remain ignored and must never become repository fixtures.
 
-## 2. Envelope
+## 2. V2 envelope
 
 ```ts
-interface LifeIndexBackupV1 {
+interface LifeIndexBackupV2 {
   format: 'lifeindex-backup'
-  formatVersion: 1
+  formatVersion: 2
   appVersion: string
   exportedAt: string
   source: {
@@ -33,6 +34,8 @@ interface LifeIndexBackupV1 {
     focusSessions: number
     settings: number
     actionReceipts: number
+    weightEntries: number
+    activitySessions: number
   }
   data: {
     categories: Category[]
@@ -42,138 +45,104 @@ interface LifeIndexBackupV1 {
     focusSessions: FocusSession[]
     settings: Setting[]
     actionReceipts: ActionReceipt[]
+    weightEntries: WeightEntry[]
+    activitySessions: ActivitySession[]
   }
 }
 ```
 
-The record definitions and invariants come from `DATA_MODEL.md`. Arrays are emitted in deterministic primary-key order so test diffs and future integrity mechanisms remain stable.
+Record rules are normative in [DATA_MODEL.md](DATA_MODEL.md).
 
-## 3. Example with synthetic data
+## 3. Export algorithm
 
-```json
-{
-  "format": "lifeindex-backup",
-  "formatVersion": 1,
-  "appVersion": "0.1.0",
-  "exportedAt": "2026-09-03T12:00:00.000Z",
-  "source": {
-    "timezoneOffsetMinutes": -480,
-    "locale": "zh-CN"
-  },
-  "counts": {
-    "categories": 1,
-    "transactions": 0,
-    "habits": 0,
-    "habitRecords": 0,
-    "focusSessions": 0,
-    "settings": 1,
-    "actionReceipts": 0
-  },
-  "data": {
-    "categories": [
-      {
-        "id": "category-finance-expense-food-v1",
-        "domain": "finance",
-        "transactionType": "expense",
-        "name": "餐饮",
-        "icon": "utensils",
-        "color": "sage",
-        "sortOrder": 10,
-        "archived": 0,
-        "createdAt": "2026-09-03T12:00:00.000Z",
-        "updatedAt": "2026-09-03T12:00:00.000Z"
-      }
-    ],
-    "transactions": [],
-    "habits": [],
-    "habitRecords": [],
-    "focusSessions": [],
-    "settings": [
-      {
-        "key": "currency",
-        "value": { "code": "CNY" },
-        "updatedAt": "2026-09-03T12:00:00.000Z"
-      }
-    ],
-    "actionReceipts": []
-  }
-}
+1. Emit `backup.export.started` with format version only.
+2. Read all nine stores in one Dexie read transaction.
+3. Sort each collection by primary key.
+4. Build format V2 with current app version/time/source metadata and computed counts.
+5. Validate through the same strict V2 schema and integrity checks used for import.
+6. Serialize with two-space indentation and hand the Blob to share/download.
+7. After handoff begins, update `lastSuccessfulExportAt`; browser copy says “最近导出”, never “云端已备份”.
+8. Revoke object URLs in `finally` and emit only version/count success or safe failure class.
+
+## 4. Frozen legacy shapes
+
+- **V0:** six original business collections and Settings; no `actionReceipts`.
+- **V1:** seven shipped collections including `actionReceipts`; no Weight or Activity collections; Category domains are Finance/Focus and Settings keys are the V1 union.
+- **V2:** current nine collections and expanded Category/Settings unions.
+
+Legacy Zod schemas are frozen independently. They must not be built by omitting fields from a future `backupDataSchema`, because future union expansion could accidentally reject a historically valid file or accept a historically impossible one.
+
+## 5. Migration pipeline
+
+```text
+V0 --add empty actionReceipts--> V1
+V1 --add empty weightEntries/activitySessions--> V2
+V2 --strict parse/integrity checks--> canonical preview
 ```
 
-All example values are synthetic. Real backups are excluded by `.gitignore` and must never become fixtures.
+Rules:
 
-## 4. Export algorithm
+- Migrations are pure, deterministic, and in memory.
+- V0 first passes its frozen schema, then flows through the V1 step.
+- V1 adds count `0` and empty arrays for both new collections.
+- No migration creates Activity categories, a weight target, weight entries, or activity sessions. Database initialization may separately seed public stable Activity category definitions after restore.
+- `appVersion` is informational and does not select compatibility.
+- Unknown future versions are rejected without mutation.
 
-M4 implements the consistent snapshot, validation, and serialization steps. The Settings browser adapter added in M5 owns the share/download handoff and updates `lastSuccessfulExportAt` only after that handoff begins.
+## 6. Validation before preview
 
-1. Log `backup.export.started` with app/schema versions only.
-2. Open a Dexie read transaction covering every exported store to obtain one consistent snapshot.
-3. Sort each store by primary key.
-4. Validate the in-memory envelope using the current backup schema.
-5. Serialize with two-space indentation for human inspectability.
-6. Create a Blob and invoke the browser share/download path.
-7. After the handoff is initiated successfully, write `lastSuccessfulExportAt` and log counts/version—not record values.
-8. Revoke object URLs in a `finally` path.
+No database write occurs while the service:
 
-Failure before step 6 does not update the last-export setting. Browser APIs cannot prove that the user ultimately retained the file; UI wording must say “最近导出” rather than “云端已备份”.
+1. enforces size and parses JSON;
+2. validates format/header/version;
+3. performs supported migrations;
+4. strictly validates every current V2 field;
+5. validates primary/compound uniqueness;
+6. validates Transaction, Focus, Habit, Activity, and receipt references;
+7. validates at most one active Focus row and typed Settings uniqueness;
+8. recomputes and matches all nine counts.
 
-## 5. Import validation pipeline
+The preview exposes only a random one-time token, canonical format version, source app version, export time, counts, and expiry. It expires after 15 minutes and is process-memory only.
 
-No database write occurs during these stages:
+## 7. Atomic replace restore
 
-1. Reject files over 50 MiB or unsupported media/file shape.
-2. Decode UTF-8 and parse JSON with failure classification.
-3. Validate `format` and integer `formatVersion`.
-4. Migrate supported older backup versions in memory, one pure step at a time.
-5. Validate every field and domain invariant.
-6. Check unique primary and compound keys.
-7. Check all references and action-receipt outcomes.
-8. Recompute counts and reject mismatches.
-9. Produce a safe preview containing only version, export time, and store counts.
+After explicit owner confirmation:
 
-The UI never renders backup strings as HTML and never logs raw validation input.
+1. Resolve and consume only a valid non-expired preview token.
+2. Revalidate the canonical V2 object.
+3. Start one `rw` transaction over all nine stores.
+4. Clear and insert in dependency order: categories, habits, transactions, habitRecords, focusSessions, settings, actionReceipts, weightEntries, activitySessions.
+5. Re-read and compare all counts before commit.
+6. On any exception, abort the transaction and report that existing data was retained.
+7. On success, remove the token and refresh live queries.
 
-## 6. Replace restore
+Failed restore does not run seed repair inside the transaction. Normal initialization on the next load inserts only any missing stable defaults.
 
-After explicit user confirmation:
+## 8. Failure behavior
 
-1. Revalidate the already parsed canonical object immediately before write.
-2. Start one Dexie `rw` transaction over all seven stores.
-3. Clear all seven stores.
-4. Bulk insert arrays in dependency order: categories, habits, transactions, habit records, focus sessions, settings, action receipts.
-5. Let any exception abort and roll back the transaction.
-6. After commit, reopen/reactivate live queries and verify counts.
-7. Report success and log only versions/counts.
+| Failure | User result | Data guarantee |
+| --- | --- | --- |
+| Oversize/unreadable/invalid JSON | Choose a valid LifeIndex JSON backup | No write begun |
+| Unsupported version | Update LifeIndex or select V0–V2 | No write begun |
+| Schema/count/duplicate/reference/state violation | Sanitized invalid-backup message | No write begun |
+| Missing/expired/consumed token | Re-select and preview | No write begun |
+| Quota/table/Dexie failure | Restore failed; current data retained | Nine-store transaction abort |
+| Post-commit render failure | Data restored; reload offered | Committed data remains truth |
 
-The confirmation must state that current LifeIndex data will be replaced and that V1 does not merge. It should recommend exporting the current state first.
+No error copy or log contains record fields, IDs, backup text, or nested validation input.
 
-## 7. Failure behavior
+## 9. Compatibility and rollback
 
-| Failure                          | User-visible result                                               | Data guarantee                          |
-| -------------------------------- | ----------------------------------------------------------------- | --------------------------------------- |
-| File too large or unreadable     | File could not be read; choose a valid LifeIndex JSON backup      | No database write started               |
-| Invalid JSON/schema/version      | Sanitized field/category summary                                  | No database write started               |
-| Duplicate/dangling records       | Counts of invalid relationships, not private values               | No database write started               |
-| Quota/transaction/Dexie failure  | Restore failed and current data was retained; safe retry guidance | Transaction abort required and verified |
-| Post-commit view refresh failure | Data restored; app offers reload and a safe error ID              | Committed data remains authoritative    |
+- Export always emits current V2.
+- Import supports V0, V1, and V2 until a separately approved removal decision.
+- Backup format and database schema versions are independent.
+- A deployed source rollback does not rewrite a V2 backup or downgrade IndexedDB.
+- Merge restore, incremental backups, encryption, scheduled upload, cloud sync, and cache/log/draft export remain excluded.
 
-If a browser defect makes atomic multi-store behavior uncertain in a supported environment, release is blocked until physical evidence and a safer coordinator exist.
+## 10. Required verification
 
-## 8. Compatibility policy
-
-- `formatVersion` changes only for a breaking envelope/data representation change.
-- `appVersion` is informational and does not decide compatibility.
-- Readers accept the current version and every explicitly supported older version with tested migration functions.
-- Unknown future versions are rejected without mutation and the user is told to update LifeIndex.
-- Export always emits only the current version.
-- A migration never invents a personal value; it uses documented neutral defaults or rejects the record.
-
-V1 explicitly supports one synthetic legacy V0 shape. V0 has the same six original business collections but predates `actionReceipts`; migration adds an empty receipt array/count in memory, then runs the complete V1 schema, uniqueness, count, state, and reference checks. No V0 file is written by the application.
-
-## 9. Not included in V1
-
-- Merge/conflict resolution.
-- Incremental or differential backups.
-- Encryption or password protection implemented by LifeIndex.
-- Automatic upload, scheduled cloud backup, or background Files access.
-- Backup of service-worker caches, logs, UI drafts, or derived statistics.
+- Canonical V2 round trip including both new collections and optional target.
+- V0→V1→V2 and V1→V2 deterministic migration with empty Health collections.
+- Counts, duplicate IDs, duplicate Habit/date, invalid grams/duration/intensity, invalid categories, invalid Settings, dangling references, future version, and multiple active Focus rejection before writes.
+- Forced insertion failure proves every pre-restore store remains unchanged.
+- Representative larger snapshot preserves deterministic ordering and exact integer sums.
