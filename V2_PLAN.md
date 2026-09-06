@@ -1,6 +1,6 @@
 # LifeIndex V2 Version Plan
 
-**Status:** Revision 2 draft for owner UI/interaction review — implementation is not authorized yet
+**Status:** Revision 3 draft for owner UI/interaction review — implementation is not authorized yet
 **Started:** 2026-09-06
 **Target release:** `v2.0.0` after approval, implementation, deployment, and physical-iPhone acceptance
 **Product baseline:** [LifeIndex-Project-Baseline.md](LifeIndex-Project-Baseline.md)
@@ -66,16 +66,20 @@ The primary visual references are now **MOZE** and the Chinese app **记账本**
 
 ### Finance
 
+- Replace the Today/Week/Month/History tab strip with a monthly calendar board.
+- Show each recorded day's compact amount directly in its calendar cell and allow the user to select a day.
+- Place the smaller month balance, expense, and income totals immediately below the calendar.
+- Show the selected day's ledger below the month totals and preserve month navigation for history.
 - Introduce a bottom-sheet quick-entry flow for new transactions.
 - Use a large amount display, expense/income toggle, recent-first category grid, date shortcut, and optional note.
-- Group ledger entries by local date with daily totals.
-- Keep period summary and category/trend views available without adding new budget or account concepts.
+- Keep existing category/trend reports below the calendar-ledger flow without adding new budget or account concepts.
 - Preserve input on validation or persistence failure.
 
 ### Habits
 
 - Present scheduled habits as one-tap rows/cards with clear but gentle completion feedback.
-- Keep streak, seven-day rhythm, month calendar, and statistics in habit detail rather than repeating them on every daily row.
+- Show the current streak in the habit list as compact context.
+- Provide one habit-detail screen containing current/longest streak, a fourteen-week completion heatmap, monthly completion rate, total completions, and recent check-ins.
 - Separate active and paused habits without hiding status.
 - Confirm persistence before final completion feedback and roll back the visual state on failure.
 
@@ -90,6 +94,7 @@ The primary visual references are now **MOZE** and the Chinese app **记账本**
 ### Settings
 
 - Reorganize settings into grouped rows: appearance, categories, data and backup, URL Actions/Shortcuts, update state, and about.
+- Present Appearance as a full-width row directly below Categories in “Other management” and directly above “Data & security”; open theme choices from that row.
 - Make “仅保存在此设备” and backup status visible without alarmist language.
 - Keep destructive actions isolated and require confirmation.
 
@@ -126,7 +131,7 @@ The following are not authorized by the V2 UI refresh and require separate produ
 - Define responsive, accessibility, light/dark, state, and motion behavior.
 - Present the design and collect owner changes.
 
-**Evidence:** Revision 2 covers all five destinations and the primary Finance, Habits, and Focus interactions while reducing the number of cards, summary blocks, progress visuals, and secondary states visible at once. Light/dark themes are directly switchable, and demonstrated controls retain the 44 px minimum.
+**Evidence:** Revision 3 covers all five destinations plus a habit-detail view. The Finance calendar supports month navigation and day selection with per-day amounts and selected-day ledger changes. Habit streak, fourteen-week heatmap, four statistics, and recent check-ins are visible. Appearance is a full-width Settings row in the requested order and opens system/light/dark choices. Automated interaction checks cover these paths.
 
 **Exit gate G1:** The owner explicitly replies that the design is approved, or approves it after requested revisions.
 
@@ -230,8 +235,10 @@ The owner should review the first design against these questions:
 - Do both the light and dark themes feel suitable for daily long-term use?
 - Does the MOZE/记账本-inspired hierarchy feel familiar without making LifeIndex look like a large finance system?
 - Is Today ordered correctly, with habits first and finance/focus summaries secondary?
+- Does the Finance calendar make daily amounts and day selection clear enough at iPhone size?
 - Is the finance bottom sheet faster and clearer than the V1 form?
 - Does habit completion feel satisfying without creating pressure?
+- Does the habit detail provide enough streak, heatmap, and statistics context without becoming a dashboard?
 - Is the focus screen quiet enough to support concentration?
 - Are any V1 capabilities missing or unnecessarily harder to reach?
 - Should any proposed interaction be revised before technical documents and code are generated?
@@ -251,11 +258,13 @@ The owner should review the first design against these questions:
 | 2026-09-06 | Keep the first design inside V1 capability and storage boundaries; treat new business features as separate decisions. | Proposed for G1 |
 | 2026-09-06 | Use a finance quick-entry sheet, habit one-tap rows, a timer-led Focus screen, and compact iOS-style settings groups. | Proposed for G1 |
 | 2026-09-06 | Revision 2 makes MOZE and 记账本 the primary references, removes dashboard-like decoration, and provides explicit light/dark themes. | Proposed for G1 |
+| 2026-09-06 | Revision 3 replaces Finance period tabs with a clickable monthly calendar, adds a dedicated habit statistics detail, and moves Appearance into the requested full-width Settings row. | Proposed for G1 |
 
 ## Change log
 
 | Date | Change |
 | --- | --- |
+| 2026-09-06 | Revised M1 with a selectable Finance calendar, per-day amounts, habit streak/heatmap/statistics detail, and reordered Appearance settings. |
 | 2026-09-06 | Revised M1 after owner feedback: narrowed the reference system, simplified Today and Habits, and made both themes directly reviewable. |
 | 2026-09-06 | Completed the M1 self-review for primary interactions, light/dark rendering, and 44 px touch targets; G1 remains awaiting owner review. |
 | 2026-09-06 | Created the V2 version plan and opened V2-M1 design review. |

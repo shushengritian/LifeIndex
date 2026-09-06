@@ -1,7 +1,7 @@
 # LifeIndex V2 UI and Interaction Specification
 
-**Status:** Revision 2 draft for owner review
-**Version:** 0.2
+**Status:** Revision 3 draft for owner review
+**Version:** 0.3
 **Date:** 2026-09-06
 **Implementation authority:** None until the owner approves design gate G1 in [V2_PLAN.md](../../V2_PLAN.md)
 
@@ -144,11 +144,24 @@ This order intentionally prioritizes actions that can be completed today over hi
 ### 6.1 Ledger screen
 
 1. Header with “记账” and a circular add action.
-2. Month summary surface with expense, income, and balance.
-3. Existing period selector: today, week, month, history.
-4. Transactions grouped by local date.
-5. Each date group shows the date, weekday/context, and daily expense total.
-6. Each row shows category icon/color, category, optional note, time, and amount.
+2. Monthly calendar board as the primary navigation surface.
+3. Compact month balance, expense, and income immediately below the calendar.
+4. Selected date heading and selected-day total.
+5. Transactions for the selected day.
+6. Existing category and monthly-trend reports farther down the page.
+
+The calendar replaces the Today/Week/Month/History segmented control. Today is represented by an underline on its date, selecting Today is a normal date selection, and historical access comes from previous/next month navigation.
+
+Calendar behavior:
+
+- Use a Sunday-to-Saturday seven-column grid matching the local calendar.
+- Every day is a minimum 44 px touch target.
+- A date with records shows a compact daily amount under its day number; income uses an explicit plus sign and expense remains unsigned in the calendar to reduce visual noise.
+- The selected date uses the accent fill and updates the ledger immediately.
+- Selecting an adjacent-month day also changes the visible month.
+- A day with no records shows a neutral empty state rather than zero-value transaction rows.
+- Month navigation updates the calendar, month totals, selected date, and ledger as one state transition.
+- Screen reader labels announce date, record state, transaction type, and amount.
 
 Income and expense never rely on red/green alone. The sign, label, and alignment remain available to assistive technology.
 
@@ -176,7 +189,7 @@ Interaction rules:
 ### 6.3 Reports within current scope
 
 - Preserve period totals, category breakdown, and monthly trend.
-- Place reports after the current ledger rather than before entry.
+- Replace the old period tab strip with calendar selection; preserve category breakdown and monthly trend after the selected-day ledger.
 - Do not add budgets, accounts, or spending judgments in this release scope.
 
 ## 7. Habits
@@ -184,17 +197,20 @@ Interaction rules:
 ### 7.1 Daily list
 
 - Header shows “习惯” and today’s completion count.
-- Each active scheduled habit uses a full-width one-tap row.
+- Each active scheduled habit uses one full-width management row with a separate 44 px check-in target.
 - Leading mark uses the habit color/icon; text contains name and schedule context.
 - Completed rows use a calm tint and clear check; incomplete rows remain visually available rather than faded away.
-- Streak and seven-day rhythm are available after opening a habit; they are not repeated on the daily list.
+- Current streak appears as compact text in the row; tapping the descriptive portion opens habit detail.
 
 ### 7.2 Detail
 
-- Existing month calendar remains the main historical view.
-- Statistics retain current streak, longest streak, monthly rate, and total completions.
+- The identity block shows the habit, schedule, start date, and current streak.
+- A fourteen-week heatmap is the main historical view, based only on existing check-in records.
+- Statistics show current streak, longest streak, monthly completion rate, and total completions in one two-by-two group.
+- Recent check-ins show date, completion time, and the corresponding streak day.
 - The display avoids flame, failure, or “broken streak” language.
 - Edit, pause/resume, and delete are secondary actions below progress content.
+- The heatmap and statistics are projections only and require no new persisted fields or schema change.
 
 ### 7.3 Add/edit flow
 
@@ -230,12 +246,11 @@ Interaction rules:
 
 Use familiar inset grouped rows in this order:
 
-1. **Appearance:** an explicit system/light/dark selector and reduced-motion result. Changing the selector previews the theme immediately and persists only after the user chooses it.
-2. **Categories:** finance and focus categories.
-3. **Data & backup:** device-only status, export, import, validation outcome, clear-data action.
-4. **Shortcuts:** existing safe URL Action instructions and PWA/Safari storage warning.
-5. **Updates:** current version, available update, reload action.
-6. **About:** product version, privacy statement, support/recovery links.
+1. **Other management:** Categories first, followed by a full-width Appearance row.
+2. **Data & security:** device-only status, export, import, validation outcome, and clear-data action.
+3. **Other:** Shortcuts, update state, and About.
+
+The Appearance row sits directly below Categories and directly above Data & security. It displays the current value on the trailing side. Tapping it opens a bottom sheet with System, Light, and Dark as three full-width options; changing an option previews the theme immediately and persists only after the user chooses it.
 
 Destructive clear/import replacement actions are visually separated from routine settings.
 
@@ -276,9 +291,12 @@ The first interactive review includes representative data for visual evaluation 
 
 - switching among all five destinations;
 - switching directly between light and dark themes from Settings;
+- opening Appearance from its reordered full-width Settings row;
 - toggling a Today/Habits completion state;
 - opening and closing Finance quick entry;
 - entering an amount, choosing a category, and seeing the saved representative row;
+- navigating Finance months, viewing per-day amounts, selecting a populated date, and selecting an empty date;
+- opening a habit detail with current/longest streak, fourteen-week heatmap, completion rate, total count, and recent check-ins;
 - selecting Focus duration presets;
 - previewing compact/comfortable density, accent color, radius, and navigation label treatment.
 - previewing a MOZE-like airy density and a 记账本-like compact ledger density without changing product scope.
@@ -299,5 +317,6 @@ Only an explicit owner approval authorizes V2-M2 requirements/architecture work 
 
 | Version | Date | Change |
 | --- | --- | --- |
+| 0.3 | 2026-09-06 | Replaced Finance period tabs with a clickable amount calendar and smaller totals below it; added habit streak/heatmap/statistics detail; moved Appearance to a full-width row between Categories and Data & security. |
 | 0.2 | 2026-09-06 | Made MOZE and 记账本 primary references, reduced dashboard-like surfaces, moved habit rhythm to detail, and exposed complete light/dark theme switching. |
 | 0.1 | 2026-09-06 | Initial V2 UI and interaction proposal. |
