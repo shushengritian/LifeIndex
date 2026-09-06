@@ -1,6 +1,6 @@
 # LifeIndex V2 Version Plan
 
-**Status:** Revision 3 draft for owner UI/interaction review — implementation is not authorized yet
+**Status:** Revision 4 draft for owner UI/interaction review — implementation is not authorized yet
 **Started:** 2026-09-06
 **Target release:** `v2.0.0` after approval, implementation, deployment, and physical-iPhone acceptance
 **Product baseline:** [LifeIndex-Project-Baseline.md](LifeIndex-Project-Baseline.md)
@@ -93,8 +93,8 @@ The primary visual references are now **MOZE** and the Chinese app **记账本**
 
 ### Settings
 
-- Reorganize settings into grouped rows: appearance, categories, data and backup, URL Actions/Shortcuts, update state, and about.
-- Present Appearance as a full-width row directly below Categories in “Other management” and directly above “Data & security”; open theme choices from that row.
+- Reorganize Settings into four independent groups in this order: Categories, Appearance, Data & security, and Other.
+- Present Appearance as its own full-width group between Categories and Data & security; open theme choices from its Theme row.
 - Make “仅保存在此设备” and backup status visible without alarmist language.
 - Keep destructive actions isolated and require confirmation.
 
@@ -131,7 +131,7 @@ The following are not authorized by the V2 UI refresh and require separate produ
 - Define responsive, accessibility, light/dark, state, and motion behavior.
 - Present the design and collect owner changes.
 
-**Evidence:** Revision 3 covers all five destinations plus a habit-detail view. The Finance calendar supports month navigation and day selection with per-day amounts and selected-day ledger changes. Habit streak, fourteen-week heatmap, four statistics, and recent check-ins are visible. Appearance is a full-width Settings row in the requested order and opens system/light/dark choices. Automated interaction checks cover these paths.
+**Evidence:** Revision 4 covers all five destinations plus a habit-detail view. The Finance calendar supports month navigation and day selection with per-day amounts and selected-day ledger changes. Habit streak, fourteen-week heatmap, four statistics, and recent check-ins are visible. Settings uses four independent groups—Categories, Appearance, Data & security, and Other—and the Theme row opens system/light/dark choices. Automated interaction checks cover these paths.
 
 **Exit gate G1:** The owner explicitly replies that the design is approved, or approves it after requested revisions.
 
@@ -259,11 +259,13 @@ The owner should review the first design against these questions:
 | 2026-09-06 | Use a finance quick-entry sheet, habit one-tap rows, a timer-led Focus screen, and compact iOS-style settings groups. | Proposed for G1 |
 | 2026-09-06 | Revision 2 makes MOZE and 记账本 the primary references, removes dashboard-like decoration, and provides explicit light/dark themes. | Proposed for G1 |
 | 2026-09-06 | Revision 3 replaces Finance period tabs with a clickable monthly calendar, adds a dedicated habit statistics detail, and moves Appearance into the requested full-width Settings row. | Proposed for G1 |
+| 2026-09-06 | Revision 4 separates Settings into four independent groups: Categories, Appearance, Data & security, and Other. | Proposed for G1 |
 
 ## Change log
 
 | Date | Change |
 | --- | --- |
+| 2026-09-06 | Revised M1 Settings so Categories, Appearance, Data & security, and Other are four separate groups. |
 | 2026-09-06 | Revised M1 with a selectable Finance calendar, per-day amounts, habit streak/heatmap/statistics detail, and reordered Appearance settings. |
 | 2026-09-06 | Revised M1 after owner feedback: narrowed the reference system, simplified Today and Habits, and made both themes directly reviewable. |
 | 2026-09-06 | Completed the M1 self-review for primary interactions, light/dark rendering, and 44 px touch targets; G1 remains awaiting owner review. |

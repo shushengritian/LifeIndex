@@ -1,7 +1,7 @@
 # LifeIndex V2 UI and Interaction Specification
 
-**Status:** Revision 3 draft for owner review
-**Version:** 0.3
+**Status:** Revision 4 draft for owner review
+**Version:** 0.4
 **Date:** 2026-09-06
 **Implementation authority:** None until the owner approves design gate G1 in [V2_PLAN.md](../../V2_PLAN.md)
 
@@ -246,11 +246,12 @@ Interaction rules:
 
 Use familiar inset grouped rows in this order:
 
-1. **Other management:** Categories first, followed by a full-width Appearance row.
-2. **Data & security:** device-only status, export, import, validation outcome, and clear-data action.
-3. **Other:** Shortcuts, update state, and About.
+1. **Categories:** one standalone full-width group for Finance and Focus category management.
+2. **Appearance:** one standalone full-width group containing the Theme row.
+3. **Data & security:** device-only status, export, import, validation outcome, and clear-data action.
+4. **Other:** Shortcuts, update state, and About.
 
-The Appearance row sits directly below Categories and directly above Data & security. It displays the current value on the trailing side. Tapping it opens a bottom sheet with System, Light, and Dark as three full-width options; changing an option previews the theme immediately and persists only after the user chooses it.
+Appearance is not grouped with Categories: it is a separate section between Categories and Data & security. Its Theme row displays the current value on the trailing side. Tapping it opens a bottom sheet with System, Light, and Dark as three full-width options; changing an option previews the theme immediately and persists only after the user chooses it.
 
 Destructive clear/import replacement actions are visually separated from routine settings.
 
@@ -291,7 +292,8 @@ The first interactive review includes representative data for visual evaluation 
 
 - switching among all five destinations;
 - switching directly between light and dark themes from Settings;
-- opening Appearance from its reordered full-width Settings row;
+- viewing Categories, Appearance, Data & security, and Other as four independent Settings groups;
+- opening the Theme chooser from the standalone Appearance group;
 - toggling a Today/Habits completion state;
 - opening and closing Finance quick entry;
 - entering an amount, choosing a category, and seeing the saved representative row;
@@ -317,6 +319,7 @@ Only an explicit owner approval authorizes V2-M2 requirements/architecture work 
 
 | Version | Date | Change |
 | --- | --- | --- |
+| 0.4 | 2026-09-06 | Separated Settings into four independent groups: Categories, Appearance, Data & security, and Other. |
 | 0.3 | 2026-09-06 | Replaced Finance period tabs with a clickable amount calendar and smaller totals below it; added habit streak/heatmap/statistics detail; moved Appearance to a full-width row between Categories and Data & security. |
 | 0.2 | 2026-09-06 | Made MOZE and 记账本 primary references, reduced dashboard-like surfaces, moved habit rhythm to detail, and exposed complete light/dark theme switching. |
 | 0.1 | 2026-09-06 | Initial V2 UI and interaction proposal. |
