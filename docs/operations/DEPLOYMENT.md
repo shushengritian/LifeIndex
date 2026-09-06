@@ -75,6 +75,14 @@ Before the V2 candidate is merged to `main`, the owner must export the currently
 - Linux proof: 22 files / 125 Vitest tests, 35 browser passes / 1 documented skip, successful configured `/LifeIndex/` artifact build and deployment, and 11 live passes / 1 documented skip.
 - Manual browser transition: an isolated retained 0.1.1 profile discovered the waiting worker, displayed the explicit update action, updated successfully, and then reported application version 2.0.0 and logical database version 2 with the four approved Settings groups. No personal data was used; this does not substitute for physical-iPhone acceptance.
 
+### V2 iPhone-polish correction candidate — 2026-09-06
+
+- Trigger: first installed-iPhone review reported add-icon alignment, native date/time width, default-expanded Category management, and ambiguous Health card text actions.
+- Scope: presentation and interaction affordance only; application version, IndexedDB schema V2, backup V2, repositories, and business data remain unchanged.
+- Local proof: formatting, ESLint, strict TypeScript, 22 files / 125 Vitest tests, production build, 37 browser passes / 1 documented skip, configured `/LifeIndex/` build, and 11 local deployed-smoke passes / 1 matching skip.
+- Candidate commit, branch workflow, Pages workflow, and live-smoke evidence: pending push and successful workflows.
+- Release state: do not tag `v2.0.0`; the owner must retest all four corrections in the installed Home Screen app after live deployment.
+
 The V2 candidate must additionally prove the rendered application version is `2.0.0`, all nine IndexedDB stores open under schema version 2, Finance routes to the semantic month calendar, Health can create/reload synthetic Weight and Activity records, Settings shows its four independent groups, and a V1-format synthetic backup previews/restores as canonical V2. The exact candidate commit, Actions run, Pages deployment, and live smoke results are recorded here before physical acceptance begins.
 
 The `v1.0.0` publication record is maintained in [the release handoff](../releases/v1.0.0.md): application/tag commit `40eb947`, successful full [workflow 33849576847](https://github.com/shushengritian/LifeIndex/actions/runs/33849576847), and [published Release](https://github.com/shushengritian/LifeIndex/releases/tag/v1.0.0). [ADR-0005](../adr/0005-v1-owner-acceptance.md) changes only the owner's physical-acceptance gate; all automated build/deploy/live checks below remain required. The release preserves schema/backup V1, the same URL, and the existing unselected license state. Later evidence-only documentation commits do not move the tag or alter application behavior.

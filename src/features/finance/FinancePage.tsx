@@ -23,6 +23,7 @@ import { formatMoney, parseMoneyToMinor } from '@/shared/domain/money'
 import type { Category, Transaction, TransactionType } from '@/shared/domain/types'
 import { useLiveQueryState } from '@/shared/hooks/useLiveQueryState'
 import { logger } from '@/shared/logging/logger'
+import { Icon } from '@/shared/ui/Icon'
 import { Sheet } from '@/shared/ui/Sheet'
 import { useDirtyForm } from '@/pwa/useDirtyForm'
 
@@ -297,7 +298,7 @@ export function FinancePage() {
           aria-label="新增交易"
           onClick={() => setFormMode('new')}
         >
-          ＋
+          <Icon name="add" />
         </button>
       </div>
       {pageError ? (

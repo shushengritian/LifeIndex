@@ -36,8 +36,22 @@ describe('V2 Health user interface', () => {
     const database = await renderPage('health')
     const user = userEvent.setup()
 
-    await user.click(screen.getByRole('button', { name: '添加健康记录' }))
-    await user.click(screen.getByRole('button', { name: /记录体重/ }))
+    const addHealth = screen.getByRole('button', { name: '添加健康记录' })
+    const addWeight = screen.getByRole('button', { name: '记录体重' })
+    const addActivity = screen.getByRole('button', { name: '记录运动' })
+    // Icon-only shortcuts remain explicit to assistive technology without looking like passive copy.
+    expect(addHealth.querySelector('svg')).not.toBeNull()
+    expect(addWeight.querySelector('svg')).not.toBeNull()
+    expect(addActivity.querySelector('svg')).not.toBeNull()
+    expect(addWeight).toHaveTextContent('')
+    expect(addActivity).toHaveTextContent('')
+
+    await user.click(addHealth)
+    await user.click(
+      within(screen.getByRole('dialog', { name: '添加健康记录' })).getByRole('button', {
+        name: /记录体重/,
+      }),
+    )
     await user.type(screen.getByLabelText('体重（公斤）'), '68.4')
     await user.click(screen.getByRole('button', { name: '保存' }))
 
@@ -45,7 +59,11 @@ describe('V2 Health user interface', () => {
     expect(await database.weightEntries.count()).toBe(1)
 
     await user.click(screen.getByRole('button', { name: '添加健康记录' }))
-    await user.click(screen.getByRole('button', { name: /记录运动/ }))
+    await user.click(
+      within(screen.getByRole('dialog', { name: '添加健康记录' })).getByRole('button', {
+        name: /记录运动/,
+      }),
+    )
     await user.selectOptions(screen.getByLabelText('运动类型'), 'category-activity-running-v2')
     await user.clear(screen.getByLabelText('时长（分钟）'))
     await user.type(screen.getByLabelText('时长（分钟）'), '45')
@@ -70,7 +88,11 @@ describe('V2 Health user interface', () => {
     const user = userEvent.setup()
 
     await user.click(screen.getByRole('button', { name: '添加健康记录' }))
-    await user.click(screen.getByRole('button', { name: /记录体重/ }))
+    await user.click(
+      within(screen.getByRole('dialog', { name: '添加健康记录' })).getByRole('button', {
+        name: /记录体重/,
+      }),
+    )
     const weight = screen.getByLabelText('体重（公斤）')
     await user.type(weight, '72.3')
     await user.click(screen.getByRole('button', { name: '保存' }))
@@ -105,6 +127,7 @@ describe('V2 Health user interface', () => {
   })
 
   it('renders the four independent Settings groups in the approved order', async () => {
+    const user = userEvent.setup()
     await renderPage('settings')
     await screen.findByRole('heading', { name: '分类' })
     const settings = await screen.findByRole('heading', { name: '设置' })
@@ -115,5 +138,10 @@ describe('V2 Health user interface', () => {
       .map(({ textContent }) => textContent?.trim())
 
     expect(groupNames).toEqual(['分类', '外观', '数据与安全', '其他'])
+    const categoryRegion = within(page!).getByRole('region', { name: '分类' })
+    const categoryName = within(categoryRegion).getByLabelText('分类名称')
+    expect(categoryName).not.toBeVisible()
+    await user.click(within(categoryRegion).getByText('分类管理', { exact: true }))
+    expect(categoryName).toBeVisible()
   })
 })

@@ -1,9 +1,9 @@
 # LifeIndex V2 UI and Interaction Specification
 
-**Status:** Revision 5 approved by the owner at design gate G1
-**Version:** 0.5
+**Status:** Revision 6 incorporates owner-directed physical-iPhone acceptance corrections
+**Version:** 0.6
 **Date:** 2026-09-06
-**Implementation authority:** Requirements and architecture work authorized; production implementation remains blocked until gate G2 in [V2_PLAN.md](../../V2_PLAN.md)
+**Implementation authority:** V2 implementation and Pages candidate exist; Revision 6 must pass redeployment and owner retest before final release
 
 ## 1. Design intent
 
@@ -81,6 +81,7 @@ Light and dark are complete themes rather than an inverted afterthought. “Foll
 
 - Use one consistent rounded line-icon family; do not use Chinese characters as icons.
 - Keep icon meaning conventional: home/today, wallet/finance, timer/focus, wellbeing-check/health, sliders/settings.
+- Add actions use a geometric SVG plus centered inside a 44 × 44 circular target; glyph baselines are not used for visual alignment.
 - Page transitions: 160–220 ms fade/translate, disabled under reduced motion.
 - Habit success: check draws and row tint settles within 220 ms; no confetti.
 - Sheet transition: bottom slide with opacity scrim; focus remains trapped in the sheet until dismissed.
@@ -93,6 +94,7 @@ The global V1 brand, tagline, and version badge are removed from routine pages. 
 
 - leading area: current date or screen title;
 - trailing area: only one contextual action when needed;
+- Finance and Health trailing add actions use the shared geometric icon and remain optically centered at compact iPhone widths;
 - version moves to Settings > About;
 - local-only status is shown where trust matters, not repeated above every screen.
 
@@ -189,6 +191,7 @@ Interaction rules:
 - Backspace removes one digit; long-press clear is optional and must have an accessible alternative.
 - A category is required. The last recently used category may be highlighted but is not silently submitted when no category is confirmed.
 - Date/time defaults to now and can open the native date/time picker.
+- The native date/time control fills the same form column width as amount, category, and note controls on iOS.
 - Save is disabled while invalid or in progress.
 - On persistence failure, amount, category, date, and note remain in the sheet.
 - Editing an existing transaction reuses the same sheet but exposes delete through a separate overflow/detail action, not beside Save.
@@ -206,11 +209,11 @@ Health replaces Habits as the top-level destination and keeps three related reco
 ### 7.1 Overview
 
 1. Header shows “健康” and one add-record action.
-2. Body-weight block shows the latest value, neutral 30-day direction, target when configured, and “记录体重”.
+2. Body-weight block shows the latest value, neutral 30-day direction, target when configured, and a circular add icon labelled “记录体重” for assistive technology.
 3. Weekly activity section shows count, total duration, and recent sessions.
 4. Today's Habits section shows the completion count and existing one-tap rows.
 
-The add-record sheet offers exactly three routes: Record weight, Record activity, and Create habit. Weight and activity details use route pages or focused sheets rather than expanding the overview into a dashboard.
+The add-record sheet offers exactly three routes: Record weight, Record activity, and Create habit. The Weight and Activity card shortcuts use the same conventional circular add icon, with explicit accessible names, instead of passive-looking “记录” text. Weight and activity details use route pages or focused sheets rather than expanding the overview into a dashboard.
 
 ### 7.2 Habits
 
@@ -276,7 +279,7 @@ Use familiar inset grouped rows in this order:
 3. **Data & security:** device-only status, export, import, validation outcome, and clear-data action.
 4. **Other:** Shortcuts, update state, and About.
 
-Appearance is not grouped with Categories: it is a separate section between Categories and Data & security. Its Theme row displays the current value on the trailing side. Tapping it opens a bottom sheet with System, Light, and Dark as three full-width options; changing an option previews the theme immediately and persists only after the user chooses it.
+Appearance is not grouped with Categories: it is a separate section between Categories and Data & security. Categories initially shows one “分类管理” disclosure row; the create, reorder, rename, archive, and restore editor appears only after explicit expansion. Its collapsed state does not combine Categories with another group. The Appearance Theme row displays the current value on the trailing side. Tapping it opens a bottom sheet with System, Light, and Dark as three full-width options; changing an option previews the theme immediately and persists only after the user chooses it.
 
 Destructive clear/import replacement actions are visually separated from routine settings.
 
@@ -286,6 +289,7 @@ Destructive clear/import replacement actions are visually separated from routine
 - **375–430 px:** reference iPhone layout, 16–20 px inset, four-column category grid.
 - **Above 430 px:** content remains centered with a phone-oriented reading width; do not stretch transaction or Health rows into a desktop dashboard.
 - Bottom sheets account for keyboard height and safe-area bottom inset.
+- Native date/time controls use the same full column width as adjacent fields instead of retaining Safari's intrinsic width.
 - Dynamic Type may increase row height; text is not clipped or replaced with unlabeled icons.
 
 ## 11. Accessibility and feedback
@@ -340,6 +344,7 @@ Design gate G1 was approved by the owner on 2026-09-06 with the instruction “�
 
 | Version | Date | Change |
 | --- | --- | --- |
+| 0.6 | 2026-09-06 | Incorporated first-round iPhone feedback: optically centered geometric add icons, equal-width native date/time controls, a default-collapsed category editor, and icon-only Weight/Activity card actions with accessible labels. |
 | 0.5 | 2026-09-06 | Replaced the Habits destination with Health, combining unchanged Habits with lightweight weight direction and activity history while keeping five bottom destinations. |
 | 0.4 | 2026-09-06 | Separated Settings into four independent groups: Categories, Appearance, Data & security, and Other. |
 | 0.3 | 2026-09-06 | Replaced Finance period tabs with a clickable amount calendar and smaller totals below it; added habit streak/heatmap/statistics detail; moved Appearance to a full-width row between Categories and Data & security. |

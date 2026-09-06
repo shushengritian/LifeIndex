@@ -1,4 +1,4 @@
-export type IconName = 'today' | 'finance' | 'focus' | 'health' | 'settings'
+export type IconName = 'today' | 'finance' | 'focus' | 'health' | 'settings' | 'add'
 
 export function Icon({ name, size = 22 }: { name: IconName; size?: number }) {
   const common = {
@@ -11,6 +11,14 @@ export function Icon({ name, size = 22 }: { name: IconName; size?: number }) {
     strokeLinecap: 'round' as const,
     strokeLinejoin: 'round' as const,
     'aria-hidden': true,
+  }
+  if (name === 'add') {
+    // A geometric SVG plus stays optically centered across Safari font and baseline differences.
+    return (
+      <svg {...common}>
+        <path d="M12 5v14M5 12h14" />
+      </svg>
+    )
   }
   if (name === 'today') {
     return (

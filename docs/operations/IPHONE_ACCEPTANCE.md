@@ -1,6 +1,6 @@
 # LifeIndex V2 Physical iPhone Acceptance
 
-**Status:** Verified GitHub Pages candidate ready; owner execution in progress
+**Status:** First candidate reviewed; four owner-reported UI corrections awaiting redeployment and focused retest
 
 **Last updated:** 2026-09-06
 
@@ -15,7 +15,8 @@ Do not record device identifiers, Apple ID, record contents, or backup contents.
 | Date/time zone | TBD |
 | iPhone model family | TBD |
 | iOS/Safari version | TBD |
-| Candidate commit SHA | `55706aa4f5300ec9cbaf7023398ccba9abccd63d` |
+| First candidate commit SHA | `55706aa4f5300ec9cbaf7023398ccba9abccd63d` |
+| Correction candidate commit SHA | Pending deployment |
 | Pages URL | https://shushengritian.github.io/LifeIndex/ |
 | Starting installed version | V1; owner confirmed a backup exists before deployment |
 | Candidate displayed version | `2.0.0` expected; owner to confirm on-device |
@@ -95,6 +96,24 @@ Pass condition: iOS file handoff, preview, cancel, replacement, invalid-file rej
 
 Pass condition: appearance and layout work on the actual device, and an update cannot discard a dirty form.
 
-## 9. Release sign-off
+## 9. First-review findings and focused correction retest
+
+The owner reported these four findings against the installed first candidate on 2026-09-06. They are not marked passed by browser automation:
+
+| Finding | Implemented correction | Owner retest |
+| --- | --- | --- |
+| Finance and Health top-right add signs are not centered | Shared geometric SVG add icon inside a fixed 44 × 44 circular target | Pending updated Pages candidate |
+| Date/time control width differs from the other fields | Full logical width and zero intrinsic minimum for native date/time controls | Pending updated Pages candidate |
+| Settings Category management should not stay expanded | Category group remains separate; detailed editor is collapsed behind “分类管理” by default | Pending updated Pages candidate |
+| Health Weight and Activity “记录” text does not look clickable | Circular icon-only add controls with VoiceOver labels “记录体重” and “记录运动” | Pending updated Pages candidate |
+
+Focused retest after Codex confirms the corrected Pages deployment:
+
+1. Open Finance and Health and confirm each top-right add icon looks centered inside its circle.
+2. Open Finance entry, Weight entry, and Activity entry; confirm each date/time field has the same width as the other full-width fields.
+3. Open Settings; confirm Categories, Appearance, Data & security, and Other remain separate, while the detailed category editor is initially hidden and opens after tapping “分类管理”.
+4. In Health, confirm the Weight and Activity cards show recognizable circular add icons instead of the ambiguous “记录” text, and both controls open the expected entry sheet.
+
+## 10. Release sign-off
 
 The owner reports each section as pass/fail with a short synthetic-only note. Any data-loss, privacy, migration, offline-capture, blocked-control, or unrecoverable backup defect blocks the `v2.0.0` tag. Only after all required results are recorded may Codex publish the final tag and release notes.

@@ -156,22 +156,31 @@ a:focus-visible {
   letter-spacing: -0.035em;
 }
 
-.round-action {
+.button-primary.compact.round-action {
+  display: grid;
   width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  place-items: center;
   padding: 0;
   border-radius: 50%;
-  font-size: 24px;
-  font-weight: 400;
+  line-height: 0;
 }
 
-.text-action {
+.icon-action {
+  display: grid;
+  width: 44px;
   min-width: 44px;
+  height: 44px;
   min-height: 44px;
-  padding: 0 4px;
-  border: 0;
-  background: transparent;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--divider);
+  border-radius: 50%;
+  background: var(--canvas);
   color: var(--accent);
-  font-weight: 700;
+  line-height: 0;
 }
 
 .page-intro {
@@ -433,6 +442,7 @@ button:disabled {
 
 .sheet-form > label {
   display: grid;
+  min-width: 0;
   gap: 7px;
   color: var(--muted);
   font-size: 14px;
@@ -441,7 +451,10 @@ button:disabled {
 
 .sheet-form input,
 .sheet-form select {
+  display: block;
   width: 100%;
+  min-width: 0;
+  max-width: 100%;
   min-height: 48px;
   padding: 10px 12px;
   border: 1px solid var(--divider);
@@ -449,6 +462,13 @@ button:disabled {
   background: var(--canvas);
   color: var(--text);
   font-size: 16px;
+}
+
+.sheet-form input[type='datetime-local'] {
+  /* iOS gives date controls an intrinsic width unless both logical bounds are explicit. */
+  inline-size: 100%;
+  min-inline-size: 0;
+  max-inline-size: 100%;
 }
 
 .sheet-form .weight-input input {
@@ -1121,6 +1141,51 @@ button:disabled {
 .settings-section > p {
   color: var(--muted);
   line-height: 1.55;
+}
+
+.category-manager-disclosure > summary {
+  display: flex;
+  min-height: 54px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: -4px -6px -6px;
+  padding: 4px 6px 6px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.category-manager-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.category-manager-disclosure > summary > span {
+  display: grid;
+  gap: 3px;
+}
+
+.category-manager-disclosure > summary small {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.disclosure-chevron {
+  color: var(--muted);
+  font-size: 26px;
+  font-weight: 400;
+  line-height: 1;
+  transition: transform 160ms ease;
+}
+
+.category-manager-disclosure[open] .disclosure-chevron {
+  transform: rotate(90deg);
+}
+
+.category-manager-content {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--divider);
 }
 
 .appearance-options {

@@ -2,6 +2,31 @@ import AxeBuilder from '@axe-core/playwright'
 import { expect, test } from '@playwright/test'
 import { Buffer } from 'node:buffer'
 
+async function expectIconCentered(button: import('@playwright/test').Locator) {
+  const offset = await button.evaluate((element) => {
+    const buttonRect = element.getBoundingClientRect()
+    const iconRect = element.querySelector('svg')?.getBoundingClientRect()
+    if (!iconRect) return undefined
+    return {
+      x: iconRect.left + iconRect.width / 2 - (buttonRect.left + buttonRect.width / 2),
+      y: iconRect.top + iconRect.height / 2 - (buttonRect.top + buttonRect.height / 2),
+    }
+  })
+  expect(offset).toBeDefined()
+  expect(Math.abs(offset!.x)).toBeLessThanOrEqual(0.5)
+  expect(Math.abs(offset!.y)).toBeLessThanOrEqual(0.5)
+}
+
+async function expectControlsSameWidth(
+  first: import('@playwright/test').Locator,
+  second: import('@playwright/test').Locator,
+) {
+  const [firstBox, secondBox] = await Promise.all([first.boundingBox(), second.boundingBox()])
+  expect(firstBox).not.toBeNull()
+  expect(secondBox).not.toBeNull()
+  expect(Math.abs(firstBox!.width - secondBox!.width)).toBeLessThanOrEqual(1)
+}
+
 async function readStoreRecords(
   page: import('@playwright/test').Page,
   storeName: string,
@@ -180,7 +205,10 @@ test('creates and persists local weight and Activity records', async ({ page }) 
   await expect(page.getByRole('heading', { name: '健康', exact: true })).toBeVisible()
 
   await page.getByRole('button', { name: '添加健康记录' }).click()
-  await page.getByRole('button', { name: /记录体重/ }).click()
+  await page
+    .getByRole('dialog', { name: '添加健康记录' })
+    .getByRole('button', { name: /记录体重/ })
+    .click()
   await page.getByLabel('体重（公斤）').fill('68.4')
   await page.getByLabel('备注（可选）').fill(privateMarker)
   await page.getByRole('button', { name: '保存' }).click()
@@ -201,7 +229,10 @@ test('creates and persists local weight and Activity records', async ({ page }) 
   await expect(weightRegion.locator('.weight-overview strong')).toHaveText('68.2')
 
   await page.getByRole('button', { name: '添加健康记录' }).click()
-  await page.getByRole('button', { name: /记录运动/ }).click()
+  await page
+    .getByRole('dialog', { name: '添加健康记录' })
+    .getByRole('button', { name: /记录运动/ })
+    .click()
   await page.getByLabel('运动类型').selectOption({ label: '跑步' })
   await page.getByLabel('时长（分钟）').fill('45')
   await page.getByRole('button', { name: '较强' }).click()
@@ -305,6 +336,8 @@ test('persists appearance and manages Finance category lifecycle', async ({ page
   ])
 
   const categoryRegion = page.getByRole('region', { name: '分类' })
+  await expect(categoryRegion.getByLabel('分类名称')).toBeHidden()
+  await categoryRegion.getByText('分类管理', { exact: true }).click()
   await categoryRegion.getByLabel('分类名称').fill('合成旅行')
   await categoryRegion.getByRole('button', { name: '新增分类' }).click()
   let categoryRow = categoryRegion.getByRole('listitem').filter({ hasText: '合成旅行' })
@@ -596,6 +629,8 @@ test('fits long representative content and touch controls at 320 CSS pixels', as
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/#/settings')
   const categoryRegion = page.getByRole('region', { name: '分类' })
+  await expect(categoryRegion.getByLabel('分类名称')).toBeHidden()
+  await categoryRegion.getByText('分类管理', { exact: true }).click()
   await categoryRegion.getByLabel('分类名称').fill('合成很长很长但仍然有效的旅行与家庭生活分类')
   await categoryRegion.getByRole('button', { name: '新增分类' }).click()
   await expect(categoryRegion.getByText('合成很长很长但仍然有效的旅行与家庭生活分类')).toBeVisible()
@@ -655,6 +690,38 @@ test('fits long representative content and touch controls at 320 CSS pixels', as
   // Reduced-motion preference collapses decorative movement without removing state feedback.
   expect(motionDurations.animation).toBeLessThanOrEqual(0.01)
   expect(motionDurations.transition).toBeLessThanOrEqual(0.01)
+})
+
+test('centers add icons and keeps date-time controls full width on iPhone layouts', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/#/finance')
+  const financeAdd = page.getByRole('button', { name: '新增交易' })
+  await expectIconCentered(financeAdd)
+  await financeAdd.click()
+  await expectControlsSameWidth(page.getByLabel('金额（CNY）'), page.getByLabel('日期与时间'))
+  await page.getByRole('button', { name: '取消' }).click()
+
+  await page.goto('/#/health')
+  await expect(page.getByRole('heading', { name: '健康' })).toBeVisible()
+  await expectIconCentered(page.getByRole('button', { name: '添加健康记录' }))
+
+  const weightAdd = page
+    .getByRole('region', { name: '体重' })
+    .getByRole('button', { name: '记录体重' })
+  const activityAdd = page
+    .getByRole('region', { name: '运动' })
+    .getByRole('button', { name: '记录运动' })
+  await expectIconCentered(weightAdd)
+  await expectIconCentered(activityAdd)
+
+  await weightAdd.click()
+  await expectControlsSameWidth(page.getByLabel('体重（公斤）'), page.getByLabel('日期与时间'))
+  await page.getByRole('button', { name: '取消' }).click()
+
+  await activityAdd.click()
+  await expectControlsSameWidth(page.getByLabel('时长（分钟）'), page.getByLabel('日期与时间'))
 })
 
 test('keeps fragment payloads out of requests and privacy-safe runtime logs', async ({ page }) => {

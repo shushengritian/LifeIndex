@@ -17,12 +17,18 @@ All notable LifeIndex changes will be documented here. The project follows Seman
 
 - Bottom navigation is now Today, Finance, Focus, Health, and Settings; legacy Habit bookmarks redirect to Health.
 - Settings now exposes Categories, Appearance, Data & security, and Other as four independent groups.
+- Category management stays in its independent Settings group but its detailed editor is collapsed by default behind an explicit disclosure.
 - Today prioritizes Health habits and the two direct Finance/Focus actions; Focus uses a timer-led presentation while retaining its timestamp state machine.
+
+### Fixed
+
+- Finance and Health circular add controls now use an optically centered geometric icon, including icon-only Weight and Activity card shortcuts with accessible names.
+- Native date/time controls now fill the same form-column width as adjacent inputs on iOS.
 
 ### Verification
 
 - A real synthetic schema-V1 database upgrades in place with every old row preserved and both Health stores initially empty.
-- The local candidate passes static checks, 22 files / 125 Vitest tests, dual-engine production E2E, accessibility, offline, privacy, and 320/390 responsive checks. GitHub Pages and physical-iPhone evidence remain pending.
+- The first candidate passed static checks, 22 files / 125 Vitest tests, dual-engine production E2E, accessibility, offline, privacy, 320/390 responsive checks, and GitHub Pages live smoke. Physical-iPhone review then identified four presentation corrections; their complete local gate now passes 125 Vitest tests, 37 browser scenarios / 1 documented skip, and 11 `/LifeIndex/` smoke scenarios / 1 matching skip. Branch CI, redeployment, and final owner retest remain pending.
 
 ## [1.0.0] - 2026-09-04
 

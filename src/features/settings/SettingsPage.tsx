@@ -419,90 +419,118 @@ function CategoryManager({
   return (
     <section className="settings-section" aria-labelledby="category-management-title">
       <h2 id="category-management-title">分类</h2>
-      <form className="inline-category-form" onSubmit={(event) => void create(event)}>
-        <label>
-          类型
-          <select value={group} onChange={(event) => setGroup(event.target.value as CategoryGroup)}>
+      <details
+        className="category-manager-disclosure"
+        onToggle={(event) => {
+          // Keep the long editor out of the Settings overview, while logging only its UI state.
+          logger.info('settings.categories.visibilitychanged', {
+            toState: event.currentTarget.open ? 'expanded' : 'collapsed',
+          })
+        }}
+      >
+        <summary>
+          <span>
+            <strong>分类管理</strong>
+            <small>支出、收入、专注与运动</small>
+          </span>
+          <strong className="disclosure-chevron" aria-hidden="true">
+            ›
+          </strong>
+        </summary>
+        <div className="category-manager-content">
+          <form className="inline-category-form" onSubmit={(event) => void create(event)}>
+            <label>
+              类型
+              <select
+                value={group}
+                onChange={(event) => setGroup(event.target.value as CategoryGroup)}
+              >
+                {groups.map(({ value, label }) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              分类名称
+              <input
+                value={name}
+                maxLength={40}
+                onChange={(event) => setName(event.target.value)}
+              />
+            </label>
+            <button className="button-primary" type="submit">
+              新增分类
+            </button>
+          </form>
+          <div className="segmented-control category-type-tabs category-domain-tabs">
             {groups.map(({ value, label }) => (
-              <option key={value} value={value}>
+              <button
+                key={value}
+                type="button"
+                aria-pressed={group === value}
+                className={group === value ? 'segment-active' : ''}
+                onClick={() => setGroup(value)}
+              >
                 {label}
-              </option>
+              </button>
             ))}
-          </select>
-        </label>
-        <label>
-          分类名称
-          <input value={name} maxLength={40} onChange={(event) => setName(event.target.value)} />
-        </label>
-        <button className="button-primary" type="submit">
-          新增分类
-        </button>
-      </form>
-      <div className="segmented-control category-type-tabs category-domain-tabs">
-        {groups.map(({ value, label }) => (
-          <button
-            key={value}
-            type="button"
-            aria-pressed={group === value}
-            className={group === value ? 'segment-active' : ''}
-            onClick={() => setGroup(value)}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-      <ul className="category-list">
-        {active.map((category, index) => (
-          <li key={category.id}>
-            <span>{category.name}</span>
-            <div>
-              <button
-                type="button"
-                aria-label={`上移 ${category.name}`}
-                disabled={index === 0}
-                onClick={() => void move(category, -1)}
-              >
-                ↑
-              </button>
-              <button
-                type="button"
-                aria-label={`下移 ${category.name}`}
-                disabled={index === active.length - 1}
-                onClick={() => void move(category, 1)}
-              >
-                ↓
-              </button>
-              <button type="button" onClick={() => void rename(category)}>
-                重命名
-              </button>
-              <button
-                className="text-destructive"
-                type="button"
-                onClick={() => void setArchived(category, true)}
-              >
-                归档
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
-      {archived.length > 0 ? (
-        <details className="archived-categories">
-          <summary>已归档分类（{archived.length}）</summary>
-          <ul>
-            {archived.map((category) => (
+          </div>
+          <ul className="category-list">
+            {active.map((category, index) => (
               <li key={category.id}>
-                <span>
-                  {category.name} · {groups.find(({ value }) => value === group)?.label}
-                </span>
-                <button type="button" onClick={() => void setArchived(category, false)}>
-                  恢复
-                </button>
+                <span>{category.name}</span>
+                <div>
+                  <button
+                    type="button"
+                    aria-label={`上移 ${category.name}`}
+                    disabled={index === 0}
+                    onClick={() => void move(category, -1)}
+                  >
+                    ↑
+                  </button>
+                  <button
+                    type="button"
+                    aria-label={`下移 ${category.name}`}
+                    disabled={index === active.length - 1}
+                    onClick={() => void move(category, 1)}
+                  >
+                    ↓
+                  </button>
+                  <button type="button" onClick={() => void rename(category)}>
+                    重命名
+                  </button>
+                  <button
+                    className="text-destructive"
+                    type="button"
+                    onClick={() => void setArchived(category, true)}
+                  >
+                    归档
+                  </button>
+                </div>
               </li>
             ))}
           </ul>
-        </details>
-      ) : null}
+          {archived.length > 0 ? (
+            <details className="archived-categories">
+              <summary>已归档分类（{archived.length}）</summary>
+              <ul>
+                {archived.map((category) => (
+                  <li key={category.id}>
+                    <span>
+                      {category.name} · {groups.find(({ value }) => value === group)?.label}
+                    </span>
+                    <button type="button" onClick={() => void setArchived(category, false)}>
+                      恢复
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          ) : null}
+        </div>
+      </details>
     </section>
   )
 }

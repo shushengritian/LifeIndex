@@ -1,6 +1,6 @@
 # LifeIndex V2 Version Plan
 
-**Status:** V2-M6 complete — V2-M7 physical-iPhone acceptance in progress
+**Status:** V2-M6 complete — V2-M7 owner-reported UI corrections in progress
 **Started:** 2026-09-06
 **Target release:** `v2.0.0` after approval, implementation, deployment, and physical-iPhone acceptance
 **Product baseline:** [LifeIndex-Project-Baseline.md](LifeIndex-Project-Baseline.md)
@@ -189,7 +189,7 @@ Each slice includes documentation, comments on key logic, privacy-safe logs, nar
 - Verify update recovery, dirty-form protection, direct URL Actions, storage failures, and timer resume after iOS suspension.
 - Complete a migration rehearsal: install V1, create representative data, upgrade to the additive V2 schema, and verify all old and new records plus rollback behavior.
 
-**Evidence:** The final `2.0.0` root-path production build passes 35 Playwright scenarios with one documented WebKit-only offline-reload skip. The GitHub Pages-equivalent `/LifeIndex/` build passes 11 deployed-smoke scenarios with the same single skip, including base-scoped routes/assets/manifest/worker, local Health persistence, offline mutation, and fragment privacy. The full Vitest suite passes 22 files / 125 tests, including populated V1-to-V2 migration and atomic backup rollback. Axe reports no detectable violations on all primary routes and Finance/Health sheets. Automated 320 px checks prove no horizontal overflow and at least 44 × 44 calendar capture targets; direct browser inspection covers 390 px Finance/Health light appearance, Settings dark appearance, and the 320 px Finance first screen. Prettier, ESLint, strict TypeScript, production build, and repository diff checks pass.
+**Evidence:** The current `2.0.0` root-path production build passes 37 Playwright scenarios with one documented WebKit-only offline-reload skip, including the two-engine iPhone-polish scenario added after first owner review. The GitHub Pages-equivalent `/LifeIndex/` build passes 11 deployed-smoke scenarios with the same single skip, including base-scoped routes/assets/manifest/worker, local Health persistence, offline mutation, and fragment privacy. The full Vitest suite passes 22 files / 125 tests, including populated V1-to-V2 migration, atomic backup rollback, icon-only Health actions, and default-collapsed category management. Axe reports no detectable violations on all primary routes and Finance/Health sheets. Automated 320 px checks prove no horizontal overflow and at least 44 × 44 calendar capture targets; the 390 px correction check measures add-icon center offsets at no more than 0.5 px and date/time field width differences at no more than 1 px. Prettier, ESLint, strict TypeScript, production build, and repository diff checks pass.
 
 ### V2-M6 — GitHub Pages release candidate
 
@@ -205,7 +205,16 @@ Each slice includes documentation, comments on key logic, privacy-safe logs, nar
 
 ### V2-M7 — Physical-iPhone acceptance
 
-**Status:** In progress — verified candidate ready for owner execution
+**Status:** In progress — first owner review completed; four UI corrections are being verified for redeployment
+
+The first installed-iPhone review of candidate `55706aa` reported four presentation defects: the Finance and Health header add signs were not optically centered, native date/time controls did not match adjacent field widths, the Settings category editor was expanded by default, and the Health Weight/Activity text actions did not look clearly tappable. The accepted correction keeps product and data scope unchanged:
+
+- use the shared geometric add icon in every affected 44 × 44 circular action;
+- force native date/time controls to fill the same form column as adjacent inputs on iOS;
+- retain Categories as an independent Settings group while collapsing its editor behind an explicit “分类管理” disclosure by default;
+- replace the Weight and Activity card text actions with icon-only add controls that retain explicit assistive labels.
+
+The complete local correction gate passes: formatting, ESLint, strict TypeScript, 22 files / 125 Vitest tests, 37 browser scenarios / 1 documented WebKit skip, production build, and the `/LifeIndex/` artifact's 11 deployed-smoke scenarios / 1 matching skip. It covers optical-center offsets, equal field widths, default collapse/expansion, accessible icon names, and 320 px overflow. A correction is not considered accepted until branch CI and the updated Pages candidate pass and the owner retests these four items on the installed iPhone app.
 
 The owner verifies on the installed Home Screen app:
 
@@ -272,6 +281,7 @@ The owner should review the first design against these questions:
 
 | Date | Decision | Status |
 | --- | --- | --- |
+| 2026-09-06 | Correct the four first-round iPhone UI findings with geometric add icons, equal-width iOS date/time controls, a default-collapsed category editor, and icon-only Health card actions. | Owner-directed; verification in progress |
 | 2026-09-06 | Start V2 with a UI/interaction-first workflow and an owner approval gate before implementation. | Active |
 | 2026-09-06 | Keep the first design inside V1 capability and storage boundaries; treat new business features as separate decisions. | Proposed for G1 |
 | 2026-09-06 | Use a finance quick-entry sheet, habit one-tap rows, a timer-led Focus screen, and compact iOS-style settings groups. | Proposed for G1 |
@@ -286,6 +296,8 @@ The owner should review the first design against these questions:
 
 | Date | Change |
 | --- | --- |
+| 2026-09-06 | Completed the local iPhone-polish correction gate: static/build checks, 125 Vitest tests, 37/1 dual-engine E2E, and 11/1 `/LifeIndex/` smoke all pass; branch CI and redeployment remain. |
+| 2026-09-06 | Recorded four owner-reported V2-M7 UI defects and opened a correction/redeployment cycle without changing schema, business behavior, or release scope. |
 | 2026-09-06 | Completed V2-M6/G6: owner confirmed the V1 backup, `main` fast-forwarded to `55706aa`, Pages run 34034416695 deployed successfully, and all 11 runnable live-smoke scenarios passed. Opened physical-iPhone acceptance. |
 | 2026-09-06 | Pushed V2 implementation commit `2162c32`; branch CI run 34033594594 passed all quality and browser gates. Production merge remains behind the owner V1-backup prerequisite. |
 | 2026-09-06 | Completed V2-M5/G5: 125 Vitest checks, 35/1 dual-engine E2E, 11/1 `/LifeIndex/` deployment smoke, accessibility, privacy, offline, backup/migration, and responsive gates pass locally. |

@@ -1,6 +1,6 @@
 # LifeIndex V2 Test Plan
 
-**Status:** Local, branch-CI, and live Pages candidate verified; physical-iPhone gate pending
+**Status:** First Pages candidate verified; owner-reported UI corrections pass the complete local gate and await branch CI/redeployment
 
 **Last updated:** 2026-09-06
 
@@ -25,6 +25,8 @@ V1's final automated/release evidence remains in `docs/releases/v1.0.0.md`; it i
 V2 implementation commit `2162c32` passed the complete Ubuntu branch gate in [CI run 34033594594](https://github.com/shushengritian/LifeIndex/actions/runs/34033594594). This is independent remote verification of install, peer, static, unit/integration, build, Chromium, and WebKit checks; it is not Pages or physical-device evidence.
 
 Candidate commit `55706aa` passed [Pages run 34034416695](https://github.com/shushengritian/LifeIndex/actions/runs/34034416695): 22 files / 125 Vitest tests, 35 runnable production browser scenarios, configured `/LifeIndex/` deployment, and 11 runnable live HTTPS scenarios all passed. The two recorded skips are the same documented WebKit offline full-page reload limitation at the local and deployed layers. Physical-iPhone evidence remains separate.
+
+After the first owner review, the iPhone-polish correction candidate passed formatting, ESLint, strict TypeScript, 22 files / 125 Vitest tests, production build, 37 runnable Chromium/Mobile Safari-WebKit scenarios, and 11 runnable local `/LifeIndex/` deployed-smoke scenarios. Each browser layer retains only the same documented WebKit offline full-page reload skip. This is local evidence pending branch CI and live Pages redeployment.
 
 ## 3. Data and migration gate
 
@@ -57,6 +59,7 @@ Candidate commit `55706aa` passed [Pages run 34034416695](https://github.com/shu
 
 - Five destinations are Today/Finance/Focus/Health/Settings in order; `/habits` redirects to `/health`.
 - Internal icons have accessible labels through their controls and no network dependency.
+- Finance and Health add controls render geometric SVG icons; the Weight and Activity shortcuts expose accessible names without visible “记录” text.
 - Light/dark/system, reduced motion, fatal startup, PWA status, and update/dirty-form behavior remain correct.
 
 ### Finance
@@ -82,11 +85,12 @@ Candidate commit `55706aa` passed [Pages run 34034416695](https://github.com/shu
 - Existing timestamp-derived Focus state/reload/finish/cancel/history tests remain green with refreshed UI.
 - Today reflects Finance/Habit/Focus mutations and keeps projection failures distinct.
 - Settings renders Categories, Appearance, Data & security, Other in exact order.
+- Category management is collapsed on first render and becomes operable after explicit disclosure expansion.
 - Activity category lifecycle and optional target persistence are covered.
 
 ## 6. Browser/E2E matrix
 
-**Local evidence recorded 2026-09-06:** the production build passes 35 Chromium/Mobile Safari-WebKit scenarios; the single skip is the documented WebKit automation limitation for offline full-page reload. Health create/edit/delete, target set/clear, Activity and Weight persistence, Finance calendar/CRUD, Habit continuity, Focus reconciliation, Settings order/categories/theme, backup replacement, URL Actions, offline mutation, privacy, and accessibility pass in both engines.
+**Local evidence recorded 2026-09-06:** the production build passes 37 Chromium/Mobile Safari-WebKit scenarios; the single skip is the documented WebKit automation limitation for offline full-page reload. Health create/edit/delete, target set/clear, Activity and Weight persistence, Finance calendar/CRUD, Habit continuity, Focus reconciliation, Settings order/categories/theme, backup replacement, URL Actions, offline mutation, privacy, accessibility, add-icon optical centering, native date/time width, and default-collapsed Category management pass in both engines.
 
 The configured-base candidate was also built and served at `/LifeIndex/`; its deployed-smoke suite passes 11 scenarios with the same single WebKit skip. This proves the local artifact's base path, routes, manifest/worker scope, nine-store persistence, Health reload, offline mutation, and fragment privacy, but does not substitute for the real GitHub Pages HTTPS gate.
 
@@ -102,6 +106,8 @@ Run the production build in Chromium and Mobile Safari/WebKit with isolated synt
 - offline launch/reload/mutation where engine support allows;
 - URL Actions remain fragment-private and idempotent;
 - waiting update remains explicit and blocked by dirty forms.
+- at 390 × 844, Finance/Health circular add icon centers differ from their button centers by no more than 0.5 CSS px;
+- Finance, Weight, and Activity native date/time controls differ from their adjacent reference input widths by no more than 1 CSS px.
 
 The documented Playwright WebKit internal offline-reload limitation may remain an explicit skip only if unchanged and every runnable scenario passes; physical iPhone covers the real behavior.
 
@@ -112,6 +118,7 @@ The documented Playwright WebKit internal offline-reload limitation may remain a
 - 320 × 568 and 390 × 844 light/dark screenshots for every primary destination and sheet.
 - No horizontal overflow or bottom-navigation/safe-area obstruction.
 - Main targets at least 44 × 44 CSS px; form text at least 16 px.
+- Category management is collapsed by default; Health card add controls look actionable while retaining VoiceOver names.
 - Calendar selection, signed amounts, completion, trend, and intensity are not color-only.
 - Headings, landmarks, labels, dialog names, error summaries/live regions, focus return, and keyboard order are valid.
 - Axe has no detectable violations on primary ready/empty/form/error states.
@@ -156,6 +163,7 @@ After the candidate is deployed, the owner explicitly reports:
 - light/dark/system, keyboard, safe areas, touch targets, and Home Screen display feel correct;
 - export to Files/iCloud and V2 import preview/replace work with explicit replacement warning;
 - a subsequent candidate update appears and activates without discarding a dirty form.
+- the correction candidate centers Finance/Health add icons, keeps date/time fields full width, initially collapses Category management, and uses icon-only Weight/Activity card actions.
 
 Only reported results are marked pass. A defect that risks data loss/privacy or blocks core offline capture blocks `v2.0.0`.
 

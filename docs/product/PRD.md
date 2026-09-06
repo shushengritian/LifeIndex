@@ -88,7 +88,7 @@ No telemetry is used. Success is established through deterministic tests, deploy
 - **FIN-002:** Selecting a calendar day updates the ledger below it without mutating data; month navigation selects a valid day in the target month.
 - **FIN-003:** Month balance, expense, and income appear immediately below the calendar in smaller type, using exact integer-minor-unit totals.
 - **FIN-004:** The selected-day ledger groups entries in newest-time order and supports create, edit, and confirmed delete.
-- **FIN-005:** New-entry opens a mobile sheet with expense/income, amount, category, local date/time, and optional note; invalid or failed submissions retain the draft.
+- **FIN-005:** New-entry opens a mobile sheet with expense/income, amount, category, local date/time, and optional note; the native date/time control uses the same full form-column width as adjacent controls on iOS, and invalid or failed submissions retain the draft.
 - **FIN-006:** Reports retain category breakdown and six-month trend without adding budgets or accounts.
 - **FIN-007:** Calendar totals, selected-day totals, reports, and restored data include archived referenced categories correctly.
 - **CAT-001:** Settings supports create, rename, reorder, archive, and restore for Finance, Focus, and Activity category groups while preserving historical references.
@@ -96,7 +96,7 @@ No telemetry is used. Success is established through deterministic tests, deploy
 ### 6.3 Health overview
 
 - **HLT-001:** Health shows, in one scroll, current weight direction, weekly activity summary/recent activity, and today's scheduled habits.
-- **HLT-002:** A single add control offers exactly Record weight, Record activity, and Create habit.
+- **HLT-002:** A single header add control offers exactly Record weight, Record activity, and Create habit; the header, Weight, and Activity add controls use recognizable, optically centered icons with explicit accessible names.
 - **HLT-003:** Empty, partial-data, loading, save-pending, and recoverable-error states do not imply zero or success.
 - **HLT-004:** Health presents neutral language and never produces medical, BMI, calorie, or fitness-program judgments.
 
@@ -143,7 +143,7 @@ No telemetry is used. Success is established through deterministic tests, deploy
 ### 6.9 Settings
 
 - **SET-001:** Settings shows four independent full-width groups in this order: Categories, Appearance, Data & security, Other.
-- **SET-002:** Categories exposes Finance expense/income, Focus, and Activity management without combining it with Appearance.
+- **SET-002:** Categories exposes Finance expense/income, Focus, and Activity management without combining it with Appearance; its detailed editor is collapsed by default and opens only from the explicit Category management disclosure.
 - **SET-003:** Appearance offers System, Light, and Dark, applies immediately, and persists in IndexedDB.
 - **SET-004:** Data & security states that records exist only on this device and owns export, import preview, replace confirmation, and last-export status.
 - **SET-005:** Other contains version, usage/help, and existing support information; destructive actions remain isolated and confirmed.
@@ -177,7 +177,7 @@ No telemetry is used. Success is established through deterministic tests, deploy
 - **NFR-DAT:** No V1 record is deleted, rewritten, or assigned invented personal values during database or backup migration.
 - **NFR-PRV:** No remote telemetry; logs exclude IDs, amounts, names, titles, notes, weights, activity details, URLs/fragments, and backup content.
 - **NFR-OFF:** Core reads/writes operate without network after shell installation.
-- **NFR-UX:** Main capture targets are at least 44 × 44 CSS px; forms use at least 16 px text; 320 px width has no horizontal overflow.
+- **NFR-UX:** Main capture targets are at least 44 × 44 CSS px; forms use at least 16 px text; native date/time controls align in width with adjacent inputs on iOS; circular add icons are optically centered; 320 px width has no horizontal overflow.
 - **NFR-A11Y:** Semantic landmarks, labels, focus states, non-color state indicators, contrast, and reduced-motion behavior meet the existing V1 accessibility floor.
 - **NFR-REL:** Writes acknowledge only after IndexedDB commit; initialization/migration failure blocks normal writes and never auto-clears storage.
 - **NFR-MNT:** Business invariants remain typed, validated, documented, logged safely, and covered by narrow tests.

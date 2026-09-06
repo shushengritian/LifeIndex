@@ -114,12 +114,18 @@ test('persists synthetic Health records locally on the deployed candidate', asyn
   await expect(page.getByRole('heading', { name: '健康' })).toBeVisible()
 
   await page.getByRole('button', { name: '添加健康记录' }).click()
-  await page.getByRole('button', { name: /记录体重/ }).click()
+  await page
+    .getByRole('dialog', { name: '添加健康记录' })
+    .getByRole('button', { name: /记录体重/ })
+    .click()
   await page.getByLabel('体重（公斤）').fill('67.8')
   await page.getByLabel('备注（可选）').fill(privateMarker)
   await page.getByRole('button', { name: '保存' }).click()
   await page.getByRole('button', { name: '添加健康记录' }).click()
-  await page.getByRole('button', { name: /记录运动/ }).click()
+  await page
+    .getByRole('dialog', { name: '添加健康记录' })
+    .getByRole('button', { name: /记录运动/ })
+    .click()
   await page.getByLabel('运动类型').selectOption({ label: '步行' })
   await page.getByLabel('时长（分钟）').fill('20')
   await page.getByRole('button', { name: '保存' }).click()

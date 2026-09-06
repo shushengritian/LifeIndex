@@ -24,6 +24,7 @@ import type {
 } from '@/shared/domain/types'
 import { useLiveQueryState } from '@/shared/hooks/useLiveQueryState'
 import { logger } from '@/shared/logging/logger'
+import { Icon } from '@/shared/ui/Icon'
 import { Sheet } from '@/shared/ui/Sheet'
 import { useDirtyForm } from '@/pwa/useDirtyForm'
 
@@ -492,7 +493,7 @@ export function HealthPage() {
           aria-label="添加健康记录"
           onClick={() => openSheet('chooser')}
         >
-          ＋
+          <Icon name="add" />
         </button>
       </div>
       <p className="page-intro">体重、运动与习惯，安静地留在同一条时间线上。</p>
@@ -506,8 +507,13 @@ export function HealthPage() {
       <section className="health-card weight-card" aria-labelledby="weight-title">
         <div className="section-heading">
           <h2 id="weight-title">体重</h2>
-          <button type="button" className="text-action" onClick={() => openSheet('weight')}>
-            记录
+          <button
+            type="button"
+            className="icon-action"
+            aria-label="记录体重"
+            onClick={() => openSheet('weight')}
+          >
+            <Icon name="add" size={20} />
           </button>
         </div>
         {weightState.status === 'loading' ? (
@@ -579,8 +585,13 @@ export function HealthPage() {
       <section className="health-card activity-card" aria-labelledby="activity-title">
         <div className="section-heading">
           <h2 id="activity-title">运动</h2>
-          <button type="button" className="text-action" onClick={() => openSheet('activity')}>
-            记录
+          <button
+            type="button"
+            className="icon-action"
+            aria-label="记录运动"
+            onClick={() => openSheet('activity')}
+          >
+            <Icon name="add" size={20} />
           </button>
         </div>
         {activityState.status === 'loading' ? (
