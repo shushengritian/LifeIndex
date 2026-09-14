@@ -2,6 +2,8 @@
 
 **Status:** Approved product scope; frozen at gate G2
 
+**V2 release amendment (2026-09-14):** [ADR-0008](../adr/0008-v2-automated-acceptance.md) accepts browser automation in place of the physical sign-off in NFR-TST and the release criteria below. Hardware-only evidence remains deferred, not passed.
+
 **Version:** 2.0
 
 **Date:** 2026-09-06
@@ -223,7 +225,7 @@ V2 may be tagged only when:
 - V0/V1/V2 backup tests, invalid-input tests, and forced restore rollback pass;
 - every V2 feature and retained V1 critical workflow passes Chromium and Mobile Safari/WebKit production E2E;
 - the exact release candidate passes GitHub Actions and deployed `/LifeIndex/` smoke checks;
-- the owner explicitly reports the required installed-iPhone upgrade, offline, persistence, appearance, and backup results;
+- the owner-authorized automated acceptance in ADR-0008 passes; outstanding physical-only upgrade, offline, suspension, and Files/iCloud evidence stays deferred;
 - no known release-blocking personal-data-loss, privacy, or core offline defect remains.
 
 ## 10. Change control

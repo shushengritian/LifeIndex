@@ -1,6 +1,8 @@
 # LifeIndex V2 Version Plan
 
-**Status:** V2-M6 complete — V2-M7 owner-reported UI corrections in progress
+**Status:** V2-M7 accepted through automation under ADR-0008; V2-M8 release publication in progress
+
+**2026-09-14 acceptance amendment:** The owner authorized browser automation in place of physical-iPhone sign-off for V2. [ADR-0008](docs/adr/0008-v2-automated-acceptance.md) supersedes physical-only blocking language below. Unperformed device checks remain deferred, not passed.
 **Started:** 2026-09-06
 **Target release:** `v2.0.0` after approval, implementation, deployment, and physical-iPhone acceptance
 **Product baseline:** [LifeIndex-Project-Baseline.md](LifeIndex-Project-Baseline.md)
@@ -205,7 +207,7 @@ Each slice includes documentation, comments on key logic, privacy-safe logs, nar
 
 ### V2-M7 — Physical-iPhone acceptance
 
-**Status:** In progress — corrected Pages candidate ready for the owner's focused iPhone retest
+**Status:** Accepted through automation with physical-only checks deferred under ADR-0008
 
 The first installed-iPhone review of candidate `55706aa` reported four presentation defects: the Finance and Health header add signs were not optically centered, native date/time controls did not match adjacent field widths, the Settings category editor was expanded by default, and the Health Weight/Activity text actions did not look clearly tappable. The accepted correction keeps product and data scope unchanged:
 
@@ -232,7 +234,7 @@ Codex records only results the owner explicitly reports; opening the site on a p
 
 ### V2-M8 — Publish `v2.0.0`
 
-**Status:** Blocked by V2-M7
+**Status:** In progress — final documentation, workflow, tag and Release
 
 - Record physical and automated evidence.
 - Resolve or explicitly accept every release-blocking defect.

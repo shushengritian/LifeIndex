@@ -2,7 +2,11 @@
 
 All notable LifeIndex changes will be documented here. The project follows Semantic Versioning once the first release candidate is created.
 
-## [Unreleased]
+## [2.0.0] - 2026-09-14
+
+### Release acceptance
+
+- Owner authorized browser automation to replace the physical-only release gate under ADR-0008. Hardware-specific checks remain deferred, not passed. Runtime source and database/backup contracts are unchanged from the verified V2 candidate.
 
 ### Added
 

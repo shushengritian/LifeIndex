@@ -1,6 +1,8 @@
 # LifeIndex V2 Requirements Traceability
 
-**Status:** Corrected Pages candidate verified; focused physical UI retest pending
+**Status:** Automated evidence accepted for V2; physical gaps retained as deferred under ADR-0008
+
+The owner accepted browser automation on 2026-09-14; see [ADR-0008](../adr/0008-v2-automated-acceptance.md). Physical-pending rows below describe evidence limitations, not remaining V2 release blockers.
 
 **Last updated:** 2026-09-06
 

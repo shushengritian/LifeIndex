@@ -1,6 +1,8 @@
 # LifeIndex GitHub Pages Deployment Runbook
 
-**Status:** v1.0.0 deployed; V2 release candidate preparing for Pages deployment
+**Status:** V2 deployed; final publication authorized under ADR-0008
+
+The 2026-09-14 owner authorization in [ADR-0008](../adr/0008-v2-automated-acceptance.md) supersedes physical-only publication blockers below. Final publication still requires the normal successful main-push workflow and live checks.
 
 **Last reviewed:** 2026-09-06
 

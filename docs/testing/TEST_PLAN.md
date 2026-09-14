@@ -1,6 +1,8 @@
 # LifeIndex V2 Test Plan
 
-**Status:** Corrected Pages candidate verified; focused physical-iPhone retest pending
+**Status:** Automated release acceptance authorized; physical-only follow-up deferred under ADR-0008
+
+For V2 only, [ADR-0008](../adr/0008-v2-automated-acceptance.md) supersedes the mandatory physical sign-off below. All automated gates remain required; simulated results are never recorded as hardware evidence.
 
 **Last updated:** 2026-09-06
 

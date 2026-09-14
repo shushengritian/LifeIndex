@@ -2,6 +2,8 @@
 
 **Status:** Active
 
+V2 release acceptance follows [ADR-0008](../adr/0008-v2-automated-acceptance.md): browser automation is owner-authorized as the release gate, while physical-only evidence remains deferred.
+
 **Last verified:** 2026-09-06 for the V2 implementation contract; commands remain inherited from V1
 
 ## 1. Prerequisites

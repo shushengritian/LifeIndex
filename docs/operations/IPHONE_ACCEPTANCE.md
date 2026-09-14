@@ -1,6 +1,8 @@
 # LifeIndex V2 Physical iPhone Acceptance
 
-**Status:** Corrected Pages candidate deployed; four-item focused owner retest pending
+**Status:** Physical checks deferred by owner; browser automation accepted for V2 under [ADR-0008](../adr/0008-v2-automated-acceptance.md)
+
+On 2026-09-14 the owner authorized automated acceptance and V2 completion. The checklist below is retained for optional hardware follow-up; its physical-only gates no longer block this release. Unreported physical results remain unverified.
 
 **Last updated:** 2026-09-06
 
