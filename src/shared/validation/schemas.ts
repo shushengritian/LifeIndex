@@ -2,6 +2,11 @@ import { z } from 'zod'
 
 import { isLocalDateKey } from '@/shared/domain/date'
 import { MAX_AMOUNT_MINOR } from '@/shared/domain/money'
+import {
+  cessationPlanSchema,
+  cessationDaySchema,
+  cessationEventSchema,
+} from '@/shared/validation/cessationSchemas'
 
 const instantSchema = z.iso.datetime({ offset: true })
 const localDateSchema = z.string().refine(isLocalDateKey, 'Invalid local calendar date')
@@ -258,6 +263,9 @@ const weightTargetSettingSchema = z
   .strict()
 
 export const settingSchema = z.discriminatedUnion('key', [
+  z
+    .object({ key: z.literal('cessationHidden'), value: z.boolean(), updatedAt: instantSchema })
+    .strict(),
   appearanceSettingSchema,
   currencySettingSchema,
   onboardingSettingSchema,
@@ -276,6 +284,9 @@ export const actionReceiptSchema = z
 
 export const backupDataSchema = z
   .object({
+    cessationPlans: z.array(cessationPlanSchema),
+    cessationDays: z.array(cessationDaySchema),
+    cessationEvents: z.array(cessationEventSchema),
     categories: z.array(categorySchema),
     transactions: z.array(transactionSchema),
     habits: z.array(habitSchema),

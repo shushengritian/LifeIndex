@@ -1,5 +1,7 @@
 # LifeIndex V2 Risk Register
 
+> **2026-09-14 · V2.1 amendment:** V2.1 risks: V3 cannot be downgraded by redeploying V2; require fresh V2 backup before release. Unknown days must never count as complete; checked by shared integrity + tests. Plan zones are fixed to avoid travel regrouping, UI discloses the zone. Current live-query loads cessation collections in memory while visible history is paged by 30; very large personal histories need profiling before claiming scale support. All records stay local; browser eviction and physical-device update behavior remain user-verification risks.
+
 **Status:** Active for V2 delivery
 
 **Last reviewed:** 2026-09-06

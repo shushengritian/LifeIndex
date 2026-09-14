@@ -1,5 +1,7 @@
 # LifeIndex V2 Product Requirements Document
 
+> **2026-09-14 · V2.1 amendment:** V2.1 approved addition: [smoking cessation requirements](SMOKING_CESSATION_PRD.md), implemented locally under Health. No backend, medication, or automatic writes to other domains. The V2 scope below remains the base; V2.1 publication is separately gated.
+
 **Status:** Approved product scope; frozen at gate G2
 
 **V2 release amendment (2026-09-14):** [ADR-0008](../adr/0008-v2-automated-acceptance.md) accepts browser automation in place of the physical sign-off in NFR-TST and the release criteria below. Hardware-only evidence remains deferred, not passed.

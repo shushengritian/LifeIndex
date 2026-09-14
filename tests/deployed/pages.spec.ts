@@ -56,12 +56,16 @@ test('serves base-scoped routes, assets, manifest, and worker without runtime er
     }
   })
   expect(databaseMetadata).toEqual({
-    // Dexie reserves one decimal digit for its schema versions, so logical V2 is stored as native IndexedDB version 20.
-    version: 20,
+    // Pin the release schema explicitly: a healthy old deployment must fail this gate.
+    // Dexie stores logical V3 as native IndexedDB version 30.
+    version: 30,
     stores: [
       'actionReceipts',
       'activitySessions',
       'categories',
+      'cessationDays',
+      'cessationEvents',
+      'cessationPlans',
       'focusSessions',
       'habitRecords',
       'habits',
@@ -102,6 +106,32 @@ test('serves base-scoped routes, assets, manifest, and worker without runtime er
   )
   expect(unexpectedFailures).toEqual([])
   expect(pageErrors).toEqual([])
+})
+
+test('persists synthetic cessation evidence on the deployed V3 candidate', async ({
+  page,
+}, testInfo) => {
+  const requests: string[] = []
+  const marker = 'SYNTHETIC_CESSATION_RELEASE_CHECK'
+  page.on('request', (request) => requests.push(request.url()))
+  await page.goto(routeUrl(testInfo, '/health/cessation'))
+  await page.getByRole('button', { name: '开始计划', exact: true }).click()
+  await page.getByText('原因与节省估算（可选）', { exact: true }).click()
+  await page.getByLabel('为什么想戒烟').fill(marker)
+  await page.getByRole('form').getByRole('button', { name: '开始计划', exact: true }).click()
+  // Wait for committed UI before reload; these records exist only in the isolated test profile.
+  await expect(page.getByRole('status')).toContainText('计划已保存')
+  await page.getByRole('button', { name: '截至现在未吸烟', exact: true }).click()
+  await expect(page.getByRole('button', { name: '更新今日快照', exact: true })).toBeVisible()
+  await page.reload()
+  await expect(page.getByRole('button', { name: '更新今日快照', exact: true })).toBeVisible()
+  await expect(page.getByText(marker, { exact: true })).toBeVisible()
+  await page.getByRole('button', { name: /^记录吸烟/ }).click()
+  await page.getByRole('button', { name: '保存记录', exact: true }).click()
+  await expect(page.getByText('吸烟 1 支', { exact: true })).toBeVisible()
+  await page.reload()
+  await expect(page.getByRole('button', { name: '截至现在未吸烟', exact: true })).toBeDisabled()
+  expect(requests.every((url) => !url.includes(marker))).toBe(true)
 })
 
 test('persists synthetic Health records locally on the deployed candidate', async ({

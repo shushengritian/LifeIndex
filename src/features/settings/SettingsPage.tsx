@@ -94,14 +94,14 @@ export function SettingsPage() {
     setError('')
     setMessage('')
     setWorking(true)
-    logger.info('backup.file.readstarted', { operation: 'inspect', formatVersion: 2 })
+    logger.info('backup.file.readstarted', { operation: 'inspect', formatVersion: 3 })
     try {
       if (file.size > MAX_BACKUP_BYTES) {
         backup.inspectText('', file.size)
       }
       const inspected = backup.inspectText(await file.text(), file.size)
       setPreview(inspected)
-      logger.info('backup.file.readsucceeded', { operation: 'inspect', formatVersion: 2 })
+      logger.info('backup.file.readsucceeded', { operation: 'inspect', formatVersion: 3 })
     } catch (caught) {
       logger.error('backup.file.readfailed', caught, {
         operation: 'inspect',
@@ -293,6 +293,9 @@ function BackupPreviewPanel({
     ['focusSessions', '专注'],
     ['weightEntries', '体重'],
     ['activitySessions', '运动'],
+    ['cessationPlans', '戒烟计划'],
+    ['cessationDays', '无烟日确认'],
+    ['cessationEvents', '戒烟事件'],
     ['categories', '分类'],
     ['settings', '设置'],
     ['actionReceipts', '动作回执'],
@@ -314,7 +317,9 @@ function BackupPreviewPanel({
           </li>
         ))}
       </ul>
-      <p className="restore-warning">确认后会替换当前全部数据，不会合并。</p>
+      <p className="restore-warning">
+        确认后会替换当前全部数据，不会合并。旧备份中的戒烟记录为空，恢复后会移除当前戒烟历史；请先导出当前备份。
+      </p>
       <div className="form-actions">
         <button className="button-secondary" type="button" onClick={onCancel}>
           取消恢复

@@ -24,8 +24,8 @@ afterEach(async () => {
   await Promise.all(openedDatabases.splice(0).map((database) => database.delete()))
 })
 
-describe('LifeIndex database v2', () => {
-  it('creates the nine stores and inserts stable defaults once', async () => {
+describe('LifeIndex database v3', () => {
+  it('creates the twelve stores and inserts stable defaults once', async () => {
     const database = createDatabase()
     await database.initialize(new Date(FIXED_NOW))
 
@@ -86,7 +86,7 @@ describe('LifeIndex database v2', () => {
     await database.initialize(new Date(FIXED_NOW))
 
     // V2 adds stores and public Activity seeds; every V1 row remains logically identical.
-    expect(database.verno).toBe(2)
+    expect(database.verno).toBe(3)
     expect(await database.transactions.get(transaction.id)).toEqual(transaction)
     expect(await database.habits.get(habit.id)).toEqual(habit)
     expect(await database.habitRecords.get(habitRecord.id)).toEqual(habitRecord)

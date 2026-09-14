@@ -1,10 +1,12 @@
 # LifeIndex V2 Data Model
 
+> **2026-09-14 · V2.1 amendment:** V2.1 current local schema is **V3**. The nine-table V2 model below is preserved; `cessationPlans`, `cessationDays`, `cessationEvents` are additive. Settings adds typed `cessationHidden`. See [CESSATION_V3](CESSATION_V3.md) and `src/shared/domain/types.ts` for fields/indexes. No destructive migration.
+
 **Database:** `LifeIndexDB`
 
-**Dexie schema version:** 2
+**Dexie schema version:** 3 (V2 base tables documented below; V3 extension linked above)
 
-**Status:** Schema V2, Health repositories, and migration implemented; UI integration pending
+**Status:** V2 delivered; V3 cessation extension implemented locally, publication pending
 
 ## 1. Shared conventions
 

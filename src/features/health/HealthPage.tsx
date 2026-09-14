@@ -25,6 +25,8 @@ import type {
 import { useLiveQueryState } from '@/shared/hooks/useLiveQueryState'
 import { logger } from '@/shared/logging/logger'
 import { Icon } from '@/shared/ui/Icon'
+import { Link } from 'react-router-dom'
+import { CessationCard } from '@/features/health/cessation/CessationCard'
 import { Sheet } from '@/shared/ui/Sheet'
 import { useDirtyForm } from '@/pwa/useDirtyForm'
 
@@ -657,6 +659,8 @@ export function HealthPage() {
         ) : null}
       </section>
 
+      {/* Optional cessation data stays independent from the existing habits and measurements. */}
+      <CessationCard />
       <section className="health-card habit-card" aria-labelledby="health-habits-title">
         <h2 id="health-habits-title">习惯</h2>
         <HabitsPage key={habitCreateRequest} embedded createRequest={habitCreateRequest} />
@@ -665,6 +669,16 @@ export function HealthPage() {
       {sheet === 'chooser' ? (
         <Sheet title="添加健康记录">
           <div className="health-add-choices">
+            <Link
+              className="button-secondary"
+              to="/health/cessation"
+              onClick={() => {
+                logger.info('health.cessation.opened', { operation: 'open' })
+                closeSheet()
+              }}
+            >
+              戒烟计划与记录
+            </Link>
             <button type="button" onClick={() => openSheet('weight')}>
               <strong>记录体重</strong>
               <span>数值、日期和可选备注</span>

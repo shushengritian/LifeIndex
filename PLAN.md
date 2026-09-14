@@ -2,6 +2,8 @@
 
 > V1 is archived. V2 is also delivered; its completed design and delivery plan is [V2_PLAN.md](V2_PLAN.md). Future feature work requires a new version plan.
 
+> 2026-09-14: [V2.1 plan](V2_1_PLAN.md) tracks lightweight smoking cessation. The owner has authorized direct publication and waived this release's backup prerequisite because there is no data to back up; see ADR-0010. V1/V2 remain archived.
+
 **Status:** Completed — owner-accepted V1 with explicitly deferred physical verification
 **Started:** 2026-09-03
 **Current checkpoint:** v1.0.0 live and published at 40eb947; owner-approved physical-test deferrals archived, no further V1 feature work

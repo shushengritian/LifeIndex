@@ -103,6 +103,7 @@ export interface ActivitySession {
 }
 
 export type Setting =
+  | { key: 'cessationHidden'; value: boolean; updatedAt: string }
   | { key: 'appearance'; value: Appearance; updatedAt: string }
   | { key: 'currency'; value: { code: 'CNY' }; updatedAt: string }
   | {
@@ -126,6 +127,9 @@ export interface LocalDateRange {
 }
 
 export interface BackupData {
+  cessationPlans: CessationPlan[]
+  cessationDays: CessationDay[]
+  cessationEvents: CessationEvent[]
   categories: Category[]
   transactions: Transaction[]
   habits: Habit[]
@@ -139,9 +143,9 @@ export interface BackupData {
 
 export type BackupCounts = { [Key in keyof BackupData]: number }
 
-export interface LifeIndexBackupV2 {
+export interface LifeIndexBackupV3 {
   format: 'lifeindex-backup'
-  formatVersion: 2
+  formatVersion: 3
   appVersion: string
   exportedAt: string
   source: {
@@ -151,3 +155,35 @@ export interface LifeIndexBackupV2 {
   counts: BackupCounts
   data: BackupData
 }
+
+export interface CessationPlan {
+  id: string
+  startAt: string
+  startLocalDate: string
+  timeZone: string
+  endAt?: string
+  endLocalDate?: string
+  reason?: string
+  baseline?: { dailyCount: number; packCount: number; packPriceMinor: number; currency: 'CNY' }
+  createdAt: string
+  updatedAt: string
+}
+export interface CessationDay {
+  id: string
+  planId: string
+  localDate: string
+  kind: 'snapshot' | 'fullDay'
+  reportedAt: string
+  createdAt: string
+  updatedAt: string
+}
+export type CessationTrigger = 'meal' | 'stress' | 'social' | 'boredom' | 'other'
+export type CessationEvent = {
+  id: string
+  planId: string
+  occurredAt: string
+  localDate: string
+  trigger?: CessationTrigger
+  createdAt: string
+  updatedAt: string
+} & ({ kind: 'smoking'; count: number } | { kind: 'craving'; outcome: 'relieved' | 'still' })

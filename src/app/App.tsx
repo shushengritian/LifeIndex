@@ -19,6 +19,11 @@ const FocusPage = lazy(() =>
 const HealthPage = lazy(() =>
   import('@/features/health/HealthPage').then(({ HealthPage }) => ({ default: HealthPage })),
 )
+const CessationPage = lazy(() =>
+  import('@/features/health/cessation/CessationPage').then(({ CessationPage }) => ({
+    default: CessationPage,
+  })),
+)
 const SettingsPage = lazy(() =>
   import('@/features/settings/SettingsPage').then(({ SettingsPage }) => ({
     default: SettingsPage,
@@ -79,6 +84,15 @@ function AppRoutes() {
           }
         />
         <Route path="/habits" element={<Navigate to="/health" replace />} />
+        {/* Cessation remains a Health child; no new bottom-navigation destination. */}
+        <Route
+          path="/health/cessation"
+          element={
+            <LazyRoute>
+              <CessationPage />
+            </LazyRoute>
+          }
+        />
         <Route
           path="/settings"
           element={

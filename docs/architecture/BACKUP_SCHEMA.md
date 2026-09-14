@@ -1,10 +1,12 @@
 # LifeIndex V2 Backup Schema
 
+> **2026-09-14 · V2.1 amendment:** V2.1 current local export is **format V3** (`LifeIndexBackupV3`), database V3. The V2 envelope below is the frozen legacy format, not the current output. V3 adds three cessation arrays and their manifest counts. V0/V1/V2 migrate in memory, then all twelve stores restore atomically. Future versions/settings and inconsistent cessation facts are rejected. Restoring a legacy backup replaces cessation history with empty arrays; preview warns first. See [CESSATION_V3](CESSATION_V3.md).
+
 **Format name:** `lifeindex-backup`
 
-**Current format version:** 2
+**Current format version:** 3 (V2 envelope below is retained as the legacy contract)
 
-**Status:** Format V2, V0/V1 migrations, browser UI, and atomic restore verified locally; deployed/physical checks pending
+**Status:** Format V3, V0/V1/V2 migrations and twelve-store atomic restore implemented locally; V2.1 deployed/physical checks pending
 
 ## 1. File contract
 

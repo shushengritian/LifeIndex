@@ -1,7 +1,9 @@
 import { z } from 'zod'
 
-import type { BackupCounts, BackupData, LifeIndexBackupV2 } from '@/shared/domain/types'
+import type { BackupCounts, BackupData, LifeIndexBackupV3 } from '@/shared/domain/types'
 import { AppError } from '@/shared/errors/AppError'
+import { assertCessationIntegrity } from '@/shared/domain/cessation'
+import { logger } from '@/shared/logging/logger'
 import {
   actionReceiptSchema,
   backupDataSchema,
@@ -23,6 +25,9 @@ const storeKeys = [
   'actionReceipts',
   'weightEntries',
   'activitySessions',
+  'cessationPlans',
+  'cessationDays',
+  'cessationEvents',
 ] as const satisfies ReadonlyArray<keyof BackupData>
 
 const sourceSchema = z
@@ -54,9 +59,23 @@ const backupV2Schema = z
     exportedAt: z.iso.datetime({ offset: true }),
     source: sourceSchema,
     counts: countsV2Schema,
-    data: backupDataSchema,
+    data: backupDataSchema
+      .omit({ cessationPlans: true, cessationDays: true, cessationEvents: true })
+      .extend({
+        settings: z.array(settingSchema.refine((setting) => setting.key !== 'cessationHidden')),
+      }),
   })
   .strict()
+
+const backupV3Schema = backupV2Schema.extend({
+  formatVersion: z.literal(3),
+  counts: countsV2Schema.extend({
+    cessationPlans: z.number().int().nonnegative(),
+    cessationDays: z.number().int().nonnegative(),
+    cessationEvents: z.number().int().nonnegative(),
+  }),
+  data: backupDataSchema,
+})
 
 const legacyIcons = new Set([
   'utensils',
@@ -81,7 +100,7 @@ const legacyCategorySchema = categorySchema.refine(
   'Category is not valid in backup V1',
 )
 const legacySettingSchema = settingSchema.refine(
-  (setting) => setting.key !== 'weightTarget',
+  (setting) => setting.key !== 'weightTarget' && setting.key !== 'cessationHidden',
   'Setting is not valid in backup V1',
 )
 const legacyDataV1Schema = z
@@ -183,9 +202,20 @@ function assertReferences(data: BackupData): void {
   }
 }
 
-function assertDomainIntegrity(backup: LifeIndexBackupV2): void {
+function assertDomainIntegrity(backup: LifeIndexBackupV3): void {
   const { data } = backup
   assertCounts(backup.counts, data)
+  for (const key of ['cessationPlans', 'cessationDays', 'cessationEvents'] as const)
+    assertUnique(
+      data[key].map((record) => record.id),
+      key,
+    )
+  assertCessationIntegrity(
+    data.cessationPlans,
+    data.cessationDays,
+    data.cessationEvents,
+    new Date(backup.exportedAt),
+  )
   assertUnique(
     data.categories.map(({ id }) => id),
     'category',
@@ -259,7 +289,7 @@ function migrateV1(input: unknown): unknown {
   }
 }
 
-export function validateBackup(input: unknown): LifeIndexBackupV2 {
+export function validateBackup(input: unknown): LifeIndexBackupV3 {
   if (typeof input !== 'object' || input === null) {
     throw new AppError('Validation', 'Backup root must be an object')
   }
@@ -276,14 +306,30 @@ export function validateBackup(input: unknown): LifeIndexBackupV2 {
   let migrated: unknown = input
   if (header.formatVersion === 0) migrated = migrateV0(migrated)
   if ((migrated as { formatVersion?: unknown }).formatVersion === 1) migrated = migrateV1(migrated)
-  if ((migrated as { formatVersion?: unknown }).formatVersion !== 2) {
+  if ((migrated as { formatVersion?: unknown }).formatVersion === 2) {
+    const legacy = backupV2Schema.safeParse(migrated)
+    if (!legacy.success) throw new AppError('Validation', 'Legacy V2 backup validation failed')
+    // New collections are empty; migration never infers cessation from old habit records.
+    migrated = {
+      ...legacy.data,
+      formatVersion: 3,
+      counts: { ...legacy.data.counts, cessationPlans: 0, cessationDays: 0, cessationEvents: 0 },
+      data: { ...legacy.data.data, cessationPlans: [], cessationDays: [], cessationEvents: [] },
+    }
+    logger.info('backup.migration.completed', {
+      operation: 'migrate',
+      fromState: 'v2',
+      toState: 'v3',
+    })
+  }
+  if ((migrated as { formatVersion?: unknown }).formatVersion !== 3) {
     throw new AppError('BackupVersion', 'Backup version is not supported')
   }
 
-  const parsed = backupV2Schema.safeParse(migrated)
+  const parsed = backupV3Schema.safeParse(migrated)
   if (!parsed.success) throw new AppError('Validation', 'Backup schema validation failed')
 
-  const backup = parsed.data as LifeIndexBackupV2
+  const backup = parsed.data as LifeIndexBackupV3
   assertDomainIntegrity(backup)
   return backup
 }

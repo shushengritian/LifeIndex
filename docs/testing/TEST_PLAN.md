@@ -1,10 +1,14 @@
 # LifeIndex V2 Test Plan
 
+> **2026-09-14 · V2.1 amendment:** V2.1 adds `tests/integration/cessation.test.ts` and `tests/e2e/cessation.spec.ts`: conflict/rollback, legacy restore, additive schema upgrade, fixed-zone DST, complete/partial-day semantics, history/hiding, 320/390 layouts, light/dark axe checks and offline save. Current evidence/status: [V2_1_PLAN](../../V2_1_PLAN.md). Physical-iPhone and live V2.1 acceptance remain unverified; ADR-0008 applies only to V2.
+
 **Status:** Automated release acceptance authorized; physical-only follow-up deferred under ADR-0008
 
 For V2 only, [ADR-0008](../adr/0008-v2-automated-acceptance.md) supersedes the mandatory physical sign-off below. All automated gates remain required; simulated results are never recorded as hardware evidence.
 
 **Last updated:** 2026-09-06
+
+V2.1 publication gate: `tests/deployed/pages.spec.ts` now asserts app 2.1.0 from package metadata, native IndexedDB 30/twelve stores, and synthetic cessation plan/snapshot/smoking persistence plus privacy. This supplements the eight new local cessation E2E scenarios. G2 is authorized without a backup under ADR-0010; real iPhone evidence is still pending.
 
 ## 1. Quality objective
 

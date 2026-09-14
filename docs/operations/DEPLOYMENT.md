@@ -1,6 +1,10 @@
 # LifeIndex GitHub Pages Deployment Runbook
 
+> **2026-09-14 · V2.1 amendment:** V2.1 is local and unpublished. Before main push/deploy, obtain G2 publication authorization and confirmation of a fresh V2 backup, run normal quality/CI/Pages/live smoke, then record actual iPhone evidence or an explicitly scoped deferral. V3 IndexedDB is not downgraded by deploying V2 assets; do not clear user storage. Legacy restore warns that cessation data is replaced with empty collections. V2's ADR-0008 exemption does not automatically apply to V2.1.
+
 **Status:** V2 deployed and v2.0.0 published under ADR-0008
+
+**V2.1 authorization:** The owner explicitly requested direct publication and confirmed there is no data to back up. [ADR-0010](../adr/0010-v2.1-publication-authorization.md) supersedes the fresh-backup prerequisite above for this release only. Physical-iPhone checks remain post-deployment/unverified. The deployed gate now requires native DB version 30, twelve stores, and cessation persistence/conflict checks; no production records are sent anywhere.
 
 Release tag `v2.0.0` points to `e4cb44c`; [Pages run 34804519803](https://github.com/shushengritian/LifeIndex/actions/runs/34804519803) passed all three jobs before the [Release](https://github.com/shushengritian/LifeIndex/releases/tag/v2.0.0) was published. Later evidence-only main commits retain identical runtime source and the full workflow; do not move the published tag to these archive commits.
 

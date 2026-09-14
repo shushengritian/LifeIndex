@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { BackupService, MAX_BACKUP_BYTES } from '@/data/backup/BackupService'
 import { LifeIndexDatabase } from '@/data/db/LifeIndexDatabase'
 import type { Clock, IdGenerator } from '@/shared/domain/runtime'
-import type { LifeIndexBackupV2 } from '@/shared/domain/types'
+import type { LifeIndexBackupV3 } from '@/shared/domain/types'
 import { AppError } from '@/shared/errors/AppError'
 import {
   buildActivitySession,
@@ -108,13 +108,13 @@ describe('versioned backup and restore', () => {
   it.each([
     [
       'a future format version',
-      (backup: LifeIndexBackupV2) => {
-        ;(backup as unknown as { formatVersion: number }).formatVersion = 3
+      (backup: LifeIndexBackupV3) => {
+        ;(backup as unknown as { formatVersion: number }).formatVersion = 4
       },
     ],
     [
       'a duplicate primary key',
-      (backup: LifeIndexBackupV2) => {
+      (backup: LifeIndexBackupV3) => {
         // Counts stay internally consistent so this case reaches the uniqueness invariant.
         backup.data.transactions.push(structuredClone(backup.data.transactions[0]!))
         backup.counts.transactions += 1
@@ -122,7 +122,7 @@ describe('versioned backup and restore', () => {
     ],
     [
       'a duplicate habit and date pair',
-      (backup: LifeIndexBackupV2) => {
+      (backup: LifeIndexBackupV3) => {
         backup.data.habitRecords.push(
           buildHabitRecord({ id: '00000000-0000-4000-8000-000000000103' }),
         )
@@ -131,7 +131,7 @@ describe('versioned backup and restore', () => {
     ],
     [
       'a dangling action receipt',
-      (backup: LifeIndexBackupV2) => {
+      (backup: LifeIndexBackupV3) => {
         backup.data.actionReceipts.push({
           actionId: '00000000-0000-4000-8000-000000000104',
           actionType: 'add-transaction',
@@ -143,7 +143,7 @@ describe('versioned backup and restore', () => {
     ],
     [
       'more than one active focus session',
-      (backup: LifeIndexBackupV2) => {
+      (backup: LifeIndexBackupV3) => {
         const first = buildFocusSession({ id: '00000000-0000-4000-8000-000000000106' })
         const second = buildFocusSession({ id: '00000000-0000-4000-8000-000000000107' })
         // Removing completion fields creates two individually valid active records.
@@ -159,13 +159,13 @@ describe('versioned backup and restore', () => {
     ],
     [
       'an invalid weight value',
-      (backup: LifeIndexBackupV2) => {
+      (backup: LifeIndexBackupV3) => {
         backup.data.weightEntries[0]!.weightGrams = 10_000
       },
     ],
     [
       'a dangling Activity category',
-      (backup: LifeIndexBackupV2) => {
+      (backup: LifeIndexBackupV3) => {
         backup.data.activitySessions[0]!.categoryId = 'category-focus-study-v1'
       },
     ],
@@ -205,7 +205,7 @@ describe('versioned backup and restore', () => {
     expect((await targetService.createSnapshot('zh-CN')).data).toEqual(before.data)
   })
 
-  it('migrates the supported V0 shape through V1 to V2 without inventing Health data', async () => {
+  it('migrates the supported V0 shape through V1 and V2 to V3 without inventing Health data', async () => {
     const database = createDatabase()
     await database.initialize(new Date(FIXED_NOW))
     const service = createService(database)
@@ -236,13 +236,13 @@ describe('versioned backup and restore', () => {
     }
 
     const preview = service.inspectText(JSON.stringify(legacy))
-    expect(preview.formatVersion).toBe(2)
+    expect(preview.formatVersion).toBe(3)
     expect(preview.counts.actionReceipts).toBe(0)
     expect(preview.counts.weightEntries).toBe(0)
     expect(preview.counts.activitySessions).toBe(0)
   })
 
-  it('migrates the shipped V1 backup shape to V2 with empty Health collections', async () => {
+  it('migrates the shipped V1 backup shape to V3 with empty Health collections', async () => {
     const database = createDatabase()
     await initializeWithSyntheticData(database)
     const service = createService(database)
@@ -266,7 +266,7 @@ describe('versioned backup and restore', () => {
     }
 
     const preview = service.inspectText(JSON.stringify(legacy))
-    expect(preview.formatVersion).toBe(2)
+    expect(preview.formatVersion).toBe(3)
     expect(preview.counts.weightEntries).toBe(0)
     expect(preview.counts.activitySessions).toBe(0)
   })

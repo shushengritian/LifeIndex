@@ -1,5 +1,7 @@
 # LifeIndex V2 Requirements Traceability
 
+> **2026-09-14 · V2.1 amendment:** V2.1 mapping: SQ-01–03 → Health card, CessationPage/PlanForm, CessationRepository; SQ-04–05 → cessation domain + confirmDay/undoDay; smoke/craving → SmokingForm/CravingForm + saveEvent/removeEvent; calendar/estimates/support → CessationPage; backup/privacy → backup schema/service + CESSATION_V3. Integration and E2E cessation suites cover these paths; physical device/online acceptance stays pending in [V2_1_PLAN](../../V2_1_PLAN.md).
+
 **Status:** Automated evidence accepted for V2; physical gaps retained as deferred under ADR-0008
 
 The owner accepted browser automation on 2026-09-14; see [ADR-0008](../adr/0008-v2-automated-acceptance.md). Physical-pending rows below describe evidence limitations, not remaining V2 release blockers.

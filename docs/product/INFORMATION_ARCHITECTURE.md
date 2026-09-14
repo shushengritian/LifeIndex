@@ -1,5 +1,7 @@
 # LifeIndex V2 Information Architecture
 
+> **2026-09-14 · V2.1 amendment:** V2.1 adds a hideable cessation card between Activity and Habits, with hash route `/health/cessation`. The Health add menu always provides access, including when the card is hidden. Existing bottom navigation is unchanged. Plan, smoke, craving, support and management use sheets; calendar is collapsed to seven days by default.
+
 **Status:** Approved and frozen at gate G2
 
 **Date:** 2026-09-06

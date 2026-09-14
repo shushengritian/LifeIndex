@@ -1,5 +1,7 @@
 # LifeIndex V2 Low-Level Design
 
+> **2026-09-14 · V2.1 amendment:** V2.1 implementation: `src/features/health/cessation/` contains page/card/forms and live-query clock hooks; `CessationRepository` owns transactional mutations; `shared/domain/cessation.ts` owns date, summary and integrity rules. See [CESSATION_V3](CESSATION_V3.md) for authoritative state transitions and backup reuse.
+
 **Status:** Accepted and frozen at gate G2
 
 **Date:** 2026-09-06
