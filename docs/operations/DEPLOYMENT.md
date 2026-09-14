@@ -1,10 +1,12 @@
 # LifeIndex GitHub Pages Deployment Runbook
 
-**Status:** V2 deployed; final publication authorized under ADR-0008
+**Status:** V2 deployed and v2.0.0 published under ADR-0008
+
+Release tag `v2.0.0` points to `e4cb44c`; [Pages run 34804519803](https://github.com/shushengritian/LifeIndex/actions/runs/34804519803) passed all three jobs before the [Release](https://github.com/shushengritian/LifeIndex/releases/tag/v2.0.0) was published. Later evidence-only main commits retain identical runtime source and the full workflow; do not move the published tag to these archive commits.
 
 The 2026-09-14 owner authorization in [ADR-0008](../adr/0008-v2-automated-acceptance.md) supersedes physical-only publication blockers below. Final publication still requires the normal successful main-push workflow and live checks.
 
-**Last reviewed:** 2026-09-06
+**Last reviewed:** 2026-09-14
 
 ## 1. Deployment contract
 

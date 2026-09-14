@@ -32,7 +32,7 @@ All notable LifeIndex changes will be documented here. The project follows Seman
 ### Verification
 
 - A real synthetic schema-V1 database upgrades in place with every old row preserved and both Health stores initially empty.
-- The first candidate passed static checks, 22 files / 125 Vitest tests, dual-engine production E2E, accessibility, offline, privacy, 320/390 responsive checks, and GitHub Pages live smoke. Physical-iPhone review then identified four presentation corrections; corrected Pages run 34037198731 passes 125 Vitest tests, 37 browser scenarios / 1 documented skip, and 11 live `/LifeIndex/` smoke scenarios / 1 matching skip without retries. Final owner retest remains pending.
+- The first candidate passed static checks, 22 files / 125 Vitest tests, dual-engine production E2E, accessibility, offline, privacy, 320/390 responsive checks, and GitHub Pages live smoke. Physical-iPhone review then identified four presentation corrections; corrected Pages run 34037198731 passes 125 Vitest tests, 37 browser scenarios / 1 documented skip, and 11 live `/LifeIndex/` smoke scenarios / 1 matching skip without retries. Under ADR-0008, automated acceptance replaces the final owner retest as the release gate; physical-only evidence remains deferred.
 
 ## [1.0.0] - 2026-09-04
 

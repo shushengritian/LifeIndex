@@ -1,6 +1,6 @@
 # LifeIndex V1 Delivery Plan
 
-> V1 is archived. The active V2 design and delivery plan is [V2_PLAN.md](V2_PLAN.md).
+> V1 is archived. V2 is also delivered; its completed design and delivery plan is [V2_PLAN.md](V2_PLAN.md). Future feature work requires a new version plan.
 
 **Status:** Completed — owner-accepted V1 with explicitly deferred physical verification
 **Started:** 2026-09-03

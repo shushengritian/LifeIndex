@@ -1,10 +1,10 @@
 # LifeIndex V2 Version Plan
 
-**Status:** V2-M7 accepted through automation under ADR-0008; V2-M8 release publication in progress
+**Status:** Completed — v2.0.0 published; automated acceptance under ADR-0008, physical-only follow-ups deferred
 
 **2026-09-14 acceptance amendment:** The owner authorized browser automation in place of physical-iPhone sign-off for V2. [ADR-0008](docs/adr/0008-v2-automated-acceptance.md) supersedes physical-only blocking language below. Unperformed device checks remain deferred, not passed.
 **Started:** 2026-09-06
-**Target release:** `v2.0.0` after approval, implementation, deployment, and physical-iPhone acceptance
+**Target release:** `v2.0.0` after approval, implementation, deployment, and automated acceptance under ADR-0008
 **Product baseline:** [LifeIndex-Project-Baseline.md](LifeIndex-Project-Baseline.md)
 **Design specification:** [docs/design/V2_UI_INTERACTION.md](docs/design/V2_UI_INTERACTION.md)
 
@@ -20,7 +20,7 @@ V2 follows a gated sequence:
 4. Produce implementation-ready PRD, IA, HLD, LLD, DEV, migration, and test documentation.
 5. Implement in small vertical slices with automated verification.
 6. Deploy to GitHub Pages.
-7. Complete owner-led physical-iPhone acceptance.
+7. Complete automated acceptance under ADR-0008 and retain physical-only checks as deferred follow-ups.
 8. Publish the final `v2.0.0` release only after the evidence is recorded.
 
 No production UI, business behavior, storage schema, or deployed release is changed before the design approval gate.
@@ -218,7 +218,7 @@ The first installed-iPhone review of candidate `55706aa` reported four presentat
 
 The complete local, branch-CI, and corrected Pages gates pass. Final run 34037198731 covers formatting, ESLint, strict TypeScript, 22 files / 125 Vitest tests, 37 browser scenarios / 1 documented WebKit skip, production deployment, and 11 live-smoke scenarios / 1 matching skip. It covers optical-center offsets, equal field widths, default collapse/expansion, accessible icon names, and 320 px overflow. The correction is not considered physically accepted until the owner retests these four items on the installed iPhone app.
 
-The owner verifies on the installed Home Screen app:
+The following installed Home Screen checks remain optional owner follow-ups, not V2 release blockers:
 
 - existing V1 data remains present after the update;
 - cold start, offline reopen, background/foreground, and display-mode behavior;
@@ -234,7 +234,9 @@ Codex records only results the owner explicitly reports; opening the site on a p
 
 ### V2-M8 — Publish `v2.0.0`
 
-**Status:** In progress — final documentation, workflow, tag and Release
+**Status:** Completed — v2.0.0 published at e4cb44c
+
+**Evidence:** [Release v2.0.0](https://github.com/shushengritian/LifeIndex/releases/tag/v2.0.0) is published as Latest with annotated tag `v2.0.0` pointing to `e4cb44c9a475987499349636f335ccbec84495e3`. [Release-candidate Pages run 34804519803](https://github.com/shushengritian/LifeIndex/actions/runs/34804519803) passed the normal static/build gate, 125 Vitest tests, 37 browser tests / 1 documented skip, deployment, and 11 live tests / 1 matching skip. The final documentation-only archive does not change runtime source and must also pass the normal main-push workflow. See [release notes](docs/releases/v2.0.0.md). No V2 feature work remains; future ideas require a new version plan.
 
 - Record physical and automated evidence.
 - Resolve or explicitly accept every release-blocking defect.
@@ -283,6 +285,7 @@ The owner should review the first design against these questions:
 
 | Date | Decision | Status |
 | --- | --- | --- |
+| 2026-09-14 | Accept browser automation as the V2 release gate; defer unperformed physical-only checks without claiming hardware coverage. | Accepted; ADR-0008 |
 | 2026-09-06 | Correct the four first-round iPhone UI findings with geometric add icons, equal-width iOS date/time controls, a default-collapsed category editor, and icon-only Health card actions. | Owner-directed; verification in progress |
 | 2026-09-06 | Start V2 with a UI/interaction-first workflow and an owner approval gate before implementation. | Active |
 | 2026-09-06 | Keep the first design inside V1 capability and storage boundaries; treat new business features as separate decisions. | Proposed for G1 |
@@ -298,6 +301,7 @@ The owner should review the first design against these questions:
 
 | Date | Change |
 | --- | --- |
+| 2026-09-14 | Completed M7 through owner-authorized automated acceptance and M8 through successful Pages run 34804519803, annotated tag v2.0.0 at e4cb44c, and published Latest Release. Run 34804321921 was superseded/cancelled by an evidence-only correction; it is not used as successful acceptance evidence. |
 | 2026-09-06 | Corrected candidate `09debca` passed branch CI 34036951739 and Pages run 34037198731: 125 Vitest, 37/1 browser, and 11/1 live HTTPS checks passed without retries; opened focused owner retest. |
 | 2026-09-06 | Pages run 34036404483 built and deployed `fc0cd7f`, but the live Health smoke reloaded before its async save assertion reached a committed-UI boundary; opened a test-wait hardening follow-up before accepting deployment evidence. |
 | 2026-09-06 | Completed the local iPhone-polish correction gate: static/build checks, 125 Vitest tests, 37/1 dual-engine E2E, and 11/1 `/LifeIndex/` smoke all pass; branch CI and redeployment remain. |
