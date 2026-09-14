@@ -116,6 +116,12 @@ test('persists synthetic cessation evidence on the deployed V3 candidate', async
   page.on('request', (request) => requests.push(request.url()))
   await page.goto(routeUrl(testInfo, '/health/cessation'))
   await page.getByRole('button', { name: '开始计划', exact: true }).click()
+  // Keep the synthetic plan safely in the past. A minute rollover between page clock capture
+  // and form opening otherwise waits for the 30-second foreground clock refresh at the test deadline.
+  const startField = page.getByLabel('开始日期与时间')
+  const priorDay = new Date(`${await startField.inputValue()}Z`)
+  priorDay.setUTCDate(priorDay.getUTCDate() - 1)
+  await startField.fill(priorDay.toISOString().slice(0, 16))
   await page.getByText('原因与节省估算（可选）', { exact: true }).click()
   await page.getByLabel('为什么想戒烟').fill(marker)
   await page.getByRole('form').getByRole('button', { name: '开始计划', exact: true }).click()

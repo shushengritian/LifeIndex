@@ -6,9 +6,9 @@ LifeIndex is a local-first personal life index for iPhone. The V2 progressive we
 
 ## Project status
 
-V2.1 adds lightweight smoking cessation under Health, with database/backup V3. Publication is authorized and in progress; see [V2.1 plan](V2_1_PLAN.md), [implementation contract](docs/architecture/CESSATION_V3.md), and [this release's no-data backup waiver](docs/adr/0010-v2.1-publication-authorization.md). The last verified live release is V2 until V2.1 deployment succeeds.
+LifeIndex **v2.1.0 is live**: Health now includes lightweight smoking cessation, with database/backup V3. See [release notes](docs/releases/v2.1.0.md), [GitHub Release](https://github.com/shushengritian/LifeIndex/releases/tag/v2.1.0), [V2.1 plan](V2_1_PLAN.md), and [this release's no-data backup waiver](docs/adr/0010-v2.1-publication-authorization.md). Physical-iPhone follow-up remains unverified.
 
-LifeIndex [v2.0.0 is published](https://github.com/shushengritian/LifeIndex/releases/tag/v2.0.0) and live on [GitHub Pages](https://shushengritian.github.io/LifeIndex/). The owner authorized browser automation as the V2 release gate under [ADR-0008](docs/adr/0008-v2-automated-acceptance.md); physical-only checks remain deferred. See [V2 release notes](docs/releases/v2.0.0.md) and [V2_PLAN.md](V2_PLAN.md) for publication evidence.
+Open [LifeIndex on GitHub Pages](https://shushengritian.github.io/LifeIndex/). The previous V2 delivery is archived in [V2 release notes](docs/releases/v2.0.0.md) and [V2_PLAN.md](V2_PLAN.md).
 
 To install, open the live URL in iPhone Safari, choose **Share → Add to Home Screen**, and leave **Open as Web App** enabled if shown. Start from the Home Screen icon and use synthetic data until the [physical acceptance checklist](docs/operations/IPHONE_ACCEPTANCE.md) is complete. No App Store or Apple Developer account is needed.
 

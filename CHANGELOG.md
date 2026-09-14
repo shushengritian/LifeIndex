@@ -2,12 +2,12 @@
 
 All notable LifeIndex changes will be documented here. The project follows Semantic Versioning once the first release candidate is created.
 
-## [2.1.0] - Unreleased
+## [2.1.0] - 2026-09-14
 
 - Add optional Health cessation card, plans/history, explicit smoke-free confirmations, smoking/craving editing, three-minute rest, calendar and official support links.
 - Preserve unknown/partial-day semantics; smoking atomically revokes same-day confirmation without erasing history or writing other domains.
 - Add database/backup V3, immutable plan time zones, legacy V0–V2 migration and twelve-store atomic restore. Old backup restore explicitly replaces cessation history with empty collections.
-- Add Chromium/WebKit, accessibility, offline, date/DST and rollback coverage. Not published; physical iPhone verification pending.
+- Add Chromium/WebKit, accessibility, offline, date/DST and rollback coverage. Published at `fa88297` after workflow 34823957109 passed; physical iPhone verification pending. Cross-platform dark button contrast corrected before deployment; see release notes for the successful live retry and independent clean smoke evidence.
 
 ## [2.0.0] - 2026-09-14
 

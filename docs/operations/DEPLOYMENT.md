@@ -12,6 +12,10 @@ The 2026-09-14 owner authorization in [ADR-0008](../adr/0008-v2-automated-accept
 
 **Last reviewed:** 2026-09-14
 
+### V2.1 published deployment
+
+Tag `v2.1.0` and its published GitHub Release identify `fa882979f42e6b3578fd407de59e1af31c50bfae`. [Run 34823957109](https://github.com/shushengritian/LifeIndex/actions/runs/34823957109) passed build, deploy, and live jobs. Linux evidence: 140 Vitest, 45 browser passes/1 skip; live 12 direct passes, 1 successful retry, 1 skip. Independent HTTPS suite passed 13/1 skip without retries. Initial run 34823308580 failed dark-theme contrast and never deployed. See [v2.1.0 handoff](../releases/v2.1.0.md) for the correction and smoke-fixture timing hardening. Current version is 2.1.0/database 3; earlier V2 sections below are historical evidence. Physical iPhone checks remain pending, not passed.
+
 ## 1. Deployment contract
 
 GitHub Pages hosts only the compiled static application shell. Finance, Health/Habit, Focus, settings, action-receipt, and backup records are never included in the repository or Pages artifact; they remain in each browser profile's IndexedDB unless the user explicitly exports a backup.
