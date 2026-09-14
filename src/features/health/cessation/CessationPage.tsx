@@ -190,7 +190,16 @@ export function CessationPage() {
           <section className="health-card cessation-history" aria-label="戒烟回顾">
             <div className="section-heading">
               <h2>{showCalendar ? '日历回顾' : '最近 7 天'}</h2>
-              <button type="button" onClick={() => setShowCalendar((value) => !value)}>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowCalendar((value) => !value)
+                  logger.info('cessation.calendar.toggled', {
+                    operation: 'toggle',
+                    toState: showCalendar ? 'collapsed' : 'expanded',
+                  })
+                }}
+              >
                 {showCalendar ? '收起日历' : '查看日历'}
               </button>
             </div>

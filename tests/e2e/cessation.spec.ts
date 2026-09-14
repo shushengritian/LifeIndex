@@ -106,6 +106,15 @@ test('cessation has 44px dates, equal native controls and accessible light/dark 
   await page.getByRole('button', { name: '深色', exact: true }).click()
   await page.goto('/#/health/cessation')
   await expect(page.getByRole('heading', { name: '戒烟', exact: true })).toBeVisible()
+  // Assert an explicit themed palette as well as contrast: OS-native button colors differ on Linux WebKit.
+  const palette = await page
+    .getByRole('button', { name: '查看日历', exact: true })
+    .evaluate((element) => {
+      const style = getComputedStyle(element)
+      return { appearance: style.appearance, background: style.backgroundColor }
+    })
+  expect(palette.appearance).toBe('none')
+  expect(palette.background).not.toBe('rgb(192, 192, 192)')
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
 })
 

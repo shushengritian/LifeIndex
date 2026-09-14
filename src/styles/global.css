@@ -25,6 +25,17 @@
 .cessation-page {
   gap: 18px;
 }
+/* Native button palettes differ across WebKit platforms. Set a low-specificity themed
+   baseline so secondary actions stay readable in dark mode without overriding primary/calendar styles. */
+:where(.cessation-page) button {
+  appearance: none;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--divider);
+  border-radius: 10px;
+  min-height: 44px;
+  padding: 8px 12px;
+}
 .cessation-card-time {
   font-size: 26px;
   font-variant-numeric: tabular-nums;
