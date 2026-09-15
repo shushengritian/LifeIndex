@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { cessationSummary } from '@/shared/domain/cessation'
+import { logger } from '@/shared/logging/logger'
 import { useCessation, useCessationNow } from './useCessation'
 
 export function CessationCard() {
@@ -20,7 +21,14 @@ export function CessationCard() {
     <section className="health-card cessation-card" aria-label="戒烟">
       <div className="section-heading">
         <h2>戒烟</h2>
-        <Link className="button-secondary compact" to="/health/cessation">
+        <Link
+          className="button-secondary compact"
+          to="/health/cessation"
+          onClick={() => {
+            // This is navigation only: opening the entry never creates a plan or touches records.
+            logger.info('cessation.entry.opened', { operation: 'navigate' })
+          }}
+        >
           {plan ? '查看戒烟' : '开始计划'}
         </Link>
       </div>

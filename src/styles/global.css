@@ -502,6 +502,35 @@ button:disabled {
   color: var(--text);
 }
 
+/* Navigation keeps link semantics but needs explicit button layout: anchors otherwise
+   retain underlines and top-aligned text inside a minimum-height hit target. */
+a.button-primary,
+a.button-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  text-decoration: none;
+}
+
+/* Hide only the indicator on phone-sized touch devices, never disable scrolling.
+   Desktop/keyboard users retain the standard scrollbar; older iOS may retain its OS overlay. */
+@media (max-width: 600px) and (hover: none) and (pointer: coarse) {
+  html,
+  body,
+  .sheet {
+    scrollbar-width: none;
+  }
+
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar,
+  .sheet::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+}
+
 .period-tabs,
 .segmented-control {
   display: grid;

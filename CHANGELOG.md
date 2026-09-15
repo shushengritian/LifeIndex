@@ -2,6 +2,13 @@
 
 All notable LifeIndex changes will be documented here. The project follows Semantic Versioning once the first release candidate is created.
 
+## [2.1.1] - 2026-09-15
+
+- Center button-styled navigation links and remove underlines, including the Health cessation entry; retain accessible touch targets.
+- Hide page/sheet scroll indicators on narrow touch devices without disabling scrolling; desktop scrollbars remain unchanged. Physical iOS overlay behavior remains unverified.
+- Add Chromium/WebKit coverage for 320/390px button geometry, navigation and scrolling. Local checks: 140 unit/integration and 47 browser tests passed, with one existing WebKit offline-reload skip.
+- No database, backup format, dependency or business-data changes. Owner authorized publication through the existing Pages verification/deployment/smoke workflow.
+
 ## [2.1.0] - 2026-09-14
 
 - Add optional Health cessation card, plans/history, explicit smoke-free confirmations, smoking/craving editing, three-minute rest, calendar and official support links.
