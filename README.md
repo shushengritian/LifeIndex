@@ -6,7 +6,7 @@ LifeIndex is a local-first personal life index for iPhone. The V2 progressive we
 
 ## Project status
 
-LifeIndex **v2.1.0 is live**: Health now includes lightweight smoking cessation, with database/backup V3. See [release notes](docs/releases/v2.1.0.md), [GitHub Release](https://github.com/shushengritian/LifeIndex/releases/tag/v2.1.0), [V2.1 plan](V2_1_PLAN.md), and [this release's no-data backup waiver](docs/adr/0010-v2.1-publication-authorization.md). Physical-iPhone follow-up remains unverified.
+LifeIndex **v2.2.0 (Ocean)** is the current release candidate, with dual themes, two-level Finance categories and database/backup V4. See [release status and update guidance](docs/releases/v2.2.0.md). The owner approved deployment before iPhone acceptance under [ADR-0015](docs/adr/0015-ocean-deploy-before-device-acceptance.md); physical-device and native Shortcut checks remain pending, not passed. The Shortcut installation template is not yet available as a verified release.
 
 Open [LifeIndex on GitHub Pages](https://shushengritian.github.io/LifeIndex/). The previous V2 delivery is archived in [V2 release notes](docs/releases/v2.0.0.md) and [V2_PLAN.md](V2_PLAN.md).
 

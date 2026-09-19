@@ -14,6 +14,8 @@
 
 ## 2. 产品定义
 
+2026-09-20 Ocean 发布顺序补充：用户批准先部署 2.2.0/V4，再在 iPhone 验收。Mac 快捷指令测试不作为发布前置，自动化与线上检查不豁免；原生快捷模板和设备结果仍待验证。见 [ADR-0015](docs/adr/0015-ocean-deploy-before-device-acceptance.md)。
+
 2026-09-14 V2 验收补充：用户授权以浏览器模拟和自动化测试替代本次发布的真机验收门槛，继续完成发布与目标。详见 [ADR-0008](docs/adr/0008-v2-automated-acceptance.md)。真机专属测试保留为延期事项，不记为通过。
 
 2026-09-14 用户批准健康中轻量戒烟子域的代码实现与文档修改，见 [V2.1 计划](V2_1_PLAN.md) 与 [ADR-0009](docs/adr/0009-lightweight-smoking-cessation.md)。本地应用版本为 2.1.0，数据库与备份 V3，技术契约见 [CESSATION_V3](docs/architecture/CESSATION_V3.md)。保留健康、专注、记账轻量定位；上线仍需 G2 发布授权和新的 V2 备份确认。

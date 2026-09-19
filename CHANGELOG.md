@@ -2,6 +2,15 @@
 
 All notable LifeIndex changes will be documented here. The project follows Semantic Versioning once the first release candidate is created.
 
+## [2.2.0] - 2026-09-20
+
+- Introduce the approved Ocean light/dark interface, icon-led controls, guarded editors and application confirmations.
+- Add two-level Finance categories, 42 category icons, daily expense charts, complete Health histories, interactive Habit heatmaps and refined cessation/focus flows.
+- Return Today quick-entry saves and cancellations to their source; preserve ordinary calendar editing context.
+- Upgrade IndexedDB/backup to V4 with tested legacy migration. Remain local-first with no backend or cloud OCR.
+- Owner approved App deployment before physical-iPhone acceptance (ADR-0015). Native screenshot Shortcut testing and installation delivery remain pending; no verified template is advertised.
+- See [release and update guidance](docs/releases/v2.2.0.md). Deployment evidence is recorded separately from device acceptance.
+
 ## [2.1.1] - 2026-09-15
 
 - Center button-styled navigation links and remove underlines, including the Health cessation entry; retain accessible touch targets.
