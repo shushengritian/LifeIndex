@@ -4,6 +4,8 @@
 
 ## 需求与证据
 
+远端候选：`f71fe7fffdf9e0dfdfcb56f53d957cfe67dd5f1c` 的 [CI run 35451922363](https://github.com/shushengritian/LifeIndex/actions/runs/35451922363) 失败：233 项通过，finance-confirmation 的 rejectWrite 尚未绑定（异步分类验证先于 add）。P5-07m 测试等待真实写入边界后注入失败，额外确认无账目落库；CI=true 本地 47 文件/234 项、类型与相关 lint 通过，远端重新验证待新提交触发。没有 main 合并或 Pages 发布。系统和 iPhone 未测项的执行步骤见 [验收单](../operations/OCEAN_DEVICE_ACCEPTANCE.md)。
+
 P5-07k 最新候选全量验证：47 文件/234 项 Vitest 通过；Chromium/WebKit 61 通过、1 原有离线壳重载专项跳过；全仓 lint/类型/格式与脚本检查通过。覆盖 P5-07g～j 的每日支出曲线、习惯详情与热力图、戒烟操作层级和原生时间捕获修复。计划保存本地候选检查点，不等于正式发布；package 仍为 2.1.1，必须在最终发布时选定新版本。
 
 P5-07f 最新回归：完整 Vitest 45 文件/229 项、完整浏览器 57 通过/1 原有专项跳过。之后补强 V3→V4 迁移用例并通过相关 5 项：全部 12 表非空，经实际 initialize 启动后逐表记录不变，parentId 索引存在。该证据不覆盖物理 iPhone 的系统更新或 Safari/PWA 共享存储。

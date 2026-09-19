@@ -1,5 +1,9 @@
 # LifeIndex V1 Delivery Plan
 
+> P5-07m：CI 35451922363 失败（233/234），原因是记账失败注入测试早于异步分类校验后的真实写入；现等待 add spy 后注入失败，并断言零写入。CI=true 本地全量 47 文件/234 项、类型与相关 lint 通过，待新提交远端 CI 验证。没有修改生产保存逻辑或降低检查门槛。
+
+> P5-07l：本地候选 f71fe7f 已推送 origin/codex/g5-ocean-implementation，触发 [CI 35451922363](https://github.com/shushengritian/LifeIndex/actions/runs/35451922363)。依赖安装与 peer 检查已通过；最终失败及修复见 P5-07m。未合并 main、未部署 Pages。剩余系统/手机验收见 [设备验收单](docs/operations/OCEAN_DEVICE_ACCEPTANCE.md)，快捷安装许可仍待回复。
+
 > P5-07k 本地检查点：最新完整 47 文件/234 项 Vitest、61 项浏览器通过/1 原有专项跳过；全仓 lint/类型/格式、3 个快捷构建检查与4个原型行为检查通过。准备在 codex/g5-ocean-implementation 保存实现和文档检查点，不包含 AGENTS.md 独立本地改动、构建/私有数据或原生快捷安装文件；不推送、不标记发布。快捷指令原生安装许可/运行、系统放大与读屏/真机、最终版本/CI/线上验证仍未完成。
 
 > P5-07j 补充：实页复现戒烟原生日期已改但保存初始时间的问题；PlanForm/SmokingForm 改为提交前捕获 FormData 并同步状态供失败重试。2 项新单测+4 项集成通过，实页同输入从错误 0 天变为正确 1 天 11 小时，截图留证。未发布。

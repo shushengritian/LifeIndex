@@ -115,7 +115,7 @@ describe('Finance application confirmations', () => {
 
   it('locks editing and cancellation while a save is pending and retains draft on failure', async () => {
     let rejectWrite!: (reason: Error) => void
-    vi.spyOn(database.transactions, 'add').mockImplementationOnce(
+    const write = vi.spyOn(database.transactions, 'add').mockImplementationOnce(
       () =>
         new Promise((_resolve, reject) => {
           rejectWrite = reject
@@ -125,9 +125,14 @@ describe('Finance application confirmations', () => {
     await user.click(screen.getByRole('button', { name: '保存' }))
     expect(screen.getByRole('button', { name: '取消' })).toBeDisabled()
     expect(screen.getByLabelText('金额（CNY）')).toBeDisabled()
+    // Busy starts before asynchronous category validation; wait for the actual write boundary,
+    // not user.click completion, before injecting a storage failure on slower CI runners.
+    await waitFor(() => expect(write).toHaveBeenCalledTimes(1))
+    console.info('[LifeIndex test] Pending finance write reached; injecting synthetic failure')
     rejectWrite(new Error('SyntheticFailure'))
     expect(await screen.findByRole('alert')).toHaveTextContent('本次输入仍保留')
     expect(screen.getByLabelText('金额（CNY）')).toHaveValue('12.50')
     expect(screen.getByRole('button', { name: '保存' })).toBeEnabled()
+    expect(await database.transactions.count()).toBe(0)
   })
 })
