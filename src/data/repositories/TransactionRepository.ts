@@ -5,6 +5,7 @@ import type { LocalDateRange, Transaction, TransactionType } from '@/shared/doma
 import { AppError } from '@/shared/errors/AppError'
 import { logger } from '@/shared/logging/logger'
 import { transactionSchema } from '@/shared/validation/schemas'
+import { isCategoryAvailable } from '@/shared/domain/categoryHierarchy'
 
 export interface SaveTransactionCommand {
   type: TransactionType
@@ -48,6 +49,10 @@ export class TransactionRepository {
     return this.write('update', {
       ...existing,
       ...command,
+      // Immutable identity also holds for untyped callers and imported command-shaped objects.
+      id: existing.id,
+      createdAt: existing.createdAt,
+      currency: existing.currency,
       updatedAt: this.clock.now().toISOString(),
     })
   }
@@ -137,6 +142,16 @@ export class TransactionRepository {
           const category = await this.database.categories.get(transaction.categoryId)
           if (category?.domain !== 'finance' || category.transactionType !== transaction.type) {
             throw new AppError('Validation', 'Transaction category does not match its type')
+          }
+
+          // Editing may retain the original archived reference, but cannot select another one.
+          const prior =
+            operation === 'update'
+              ? await this.database.transactions.get(transaction.id)
+              : undefined
+          const all = await this.database.categories.toArray()
+          if (!isCategoryAvailable(category, all) && prior?.categoryId !== category.id) {
+            throw new AppError('Validation', 'Transaction category is unavailable')
           }
 
           // Reference validation and write share one transaction so categories cannot change between them.

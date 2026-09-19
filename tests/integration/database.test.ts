@@ -86,7 +86,7 @@ describe('LifeIndex database v3', () => {
     await database.initialize(new Date(FIXED_NOW))
 
     // V2 adds stores and public Activity seeds; every V1 row remains logically identical.
-    expect(database.verno).toBe(3)
+    expect(database.verno).toBe(4)
     expect(await database.transactions.get(transaction.id)).toEqual(transaction)
     expect(await database.habits.get(habit.id)).toEqual(habit)
     expect(await database.habitRecords.get(habitRecord.id)).toEqual(habitRecord)

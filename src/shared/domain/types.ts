@@ -9,6 +9,7 @@ export type ActionType = 'add-transaction' | 'check-habit' | 'start-focus'
 export type HabitSchedule = { type: 'daily' } | { type: 'weekdays'; weekdays: number[] }
 
 export interface Category {
+  parentId?: string
   id: string
   domain: CategoryDomain
   transactionType?: TransactionType
@@ -143,9 +144,9 @@ export interface BackupData {
 
 export type BackupCounts = { [Key in keyof BackupData]: number }
 
-export interface LifeIndexBackupV3 {
+export interface LifeIndexBackupV4 {
   format: 'lifeindex-backup'
-  formatVersion: 3
+  formatVersion: 4
   appVersion: string
   exportedAt: string
   source: {

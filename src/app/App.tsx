@@ -1,5 +1,11 @@
-import { lazy, Suspense, useEffect, type ReactNode } from 'react'
-import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { lazy, Suspense, useEffect, useState, type ReactNode } from 'react'
+import {
+  createHashRouter,
+  createRoutesFromElements,
+  Navigate,
+  Route,
+  RouterProvider,
+} from 'react-router-dom'
 
 import { AppErrorBoundary } from '@/app/AppErrorBoundary'
 import { AppProviders } from '@/app/AppProviders'
@@ -13,11 +19,34 @@ const TodayPage = lazy(() =>
 const FinancePage = lazy(() =>
   import('@/features/finance/FinancePage').then(({ FinancePage }) => ({ default: FinancePage })),
 )
+const FinanceNewPage = lazy(() =>
+  import('@/features/finance/FinancePage').then(({ FinanceNewPage }) => ({
+    default: FinanceNewPage,
+  })),
+)
 const FocusPage = lazy(() =>
   import('@/features/focus/FocusPage').then(({ FocusPage }) => ({ default: FocusPage })),
 )
+const FocusHistoryPage = lazy(() =>
+  import('@/features/focus/FocusPage').then(({ FocusHistoryPage }) => ({
+    default: FocusHistoryPage,
+  })),
+)
 const HealthPage = lazy(() =>
   import('@/features/health/HealthPage').then(({ HealthPage }) => ({ default: HealthPage })),
+)
+const HabitsPage = lazy(() =>
+  import('@/features/habits/HabitsPage').then(({ HabitsPage }) => ({ default: HabitsPage })),
+)
+const WeightHistoryPage = lazy(() =>
+  import('@/features/health/HealthPage').then(({ WeightHistoryPage }) => ({
+    default: WeightHistoryPage,
+  })),
+)
+const ActivityHistoryPage = lazy(() =>
+  import('@/features/health/HealthPage').then(({ ActivityHistoryPage }) => ({
+    default: ActivityHistoryPage,
+  })),
 )
 const CessationPage = lazy(() =>
   import('@/features/health/cessation/CessationPage').then(({ CessationPage }) => ({
@@ -27,6 +56,11 @@ const CessationPage = lazy(() =>
 const SettingsPage = lazy(() =>
   import('@/features/settings/SettingsPage').then(({ SettingsPage }) => ({
     default: SettingsPage,
+  })),
+)
+const SettingsDetailPage = lazy(() =>
+  import('@/features/settings/SettingsPage').then(({ SettingsDetailPage }) => ({
+    default: SettingsDetailPage,
   })),
 )
 const ActionPage = lazy(() =>
@@ -46,9 +80,9 @@ function LazyRoute({ children }: { children: ReactNode }) {
   )
 }
 
-function AppRoutes() {
-  return (
-    <Routes>
+function createAppRouter() {
+  return createHashRouter(
+    createRoutesFromElements(
       <Route element={<AppShell />}>
         <Route index element={<Navigate to="/today" replace />} />
         <Route
@@ -76,6 +110,22 @@ function AppRoutes() {
           }
         />
         <Route
+          path="/finance/new"
+          element={
+            <LazyRoute>
+              <FinanceNewPage />
+            </LazyRoute>
+          }
+        />
+        <Route
+          path="/focus/history"
+          element={
+            <LazyRoute>
+              <FocusHistoryPage />
+            </LazyRoute>
+          }
+        />
+        <Route
           path="/health"
           element={
             <LazyRoute>
@@ -84,6 +134,31 @@ function AppRoutes() {
           }
         />
         <Route path="/habits" element={<Navigate to="/health" replace />} />
+        <Route
+          path="/health/habits"
+          element={
+            <LazyRoute>
+              <HabitsPage />
+            </LazyRoute>
+          }
+        />
+        {/* Histories remain Health children and reuse the same IndexedDB edit paths. */}
+        <Route
+          path="/health/weight-history"
+          element={
+            <LazyRoute>
+              <WeightHistoryPage />
+            </LazyRoute>
+          }
+        />
+        <Route
+          path="/health/activity-history"
+          element={
+            <LazyRoute>
+              <ActivityHistoryPage />
+            </LazyRoute>
+          }
+        />
         {/* Cessation remains a Health child; no new bottom-navigation destination. */}
         <Route
           path="/health/cessation"
@@ -98,6 +173,14 @@ function AppRoutes() {
           element={
             <LazyRoute>
               <SettingsPage />
+            </LazyRoute>
+          }
+        />
+        <Route
+          path="/settings/:section"
+          element={
+            <LazyRoute>
+              <SettingsDetailPage />
             </LazyRoute>
           }
         />
@@ -118,8 +201,25 @@ function AppRoutes() {
           }
         />
         <Route path="*" element={<Navigate to="/today" replace />} />
-      </Route>
-    </Routes>
+      </Route>,
+    ),
+  )
+}
+
+function AppRouter() {
+  // Data-router navigation blocking covers links and POP while retaining all existing hash URLs.
+  const [router, setRouter] = useState<ReturnType<typeof createAppRouter>>()
+  useEffect(() => {
+    // Own history listeners in an effect so StrictMode's discarded render cannot leak a router.
+    const instance = createAppRouter()
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- publish the external router after listener setup
+    setRouter(instance)
+    return () => instance.dispose()
+  }, [])
+  return router ? (
+    <RouterProvider router={router} />
+  ) : (
+    <p className="state-message">正在打开模块…</p>
   )
 }
 
@@ -132,16 +232,14 @@ export function App() {
     <AppErrorBoundary>
       <AppProviders>
         <PwaProvider>
-          <HashRouter>
-            <button
-              className="skip-link"
-              type="button"
-              onClick={() => document.getElementById('main-content')?.focus()}
-            >
-              跳到主要内容
-            </button>
-            <AppRoutes />
-          </HashRouter>
+          <button
+            className="skip-link"
+            type="button"
+            onClick={() => document.getElementById('main-content')?.focus()}
+          >
+            跳到主要内容
+          </button>
+          <AppRouter />
         </PwaProvider>
       </AppProviders>
     </AppErrorBoundary>

@@ -1,0 +1,364 @@
+{
+  "home": [
+    {
+      "width": 320,
+      "theme": "light",
+      "view": "today",
+      "content": 320,
+      "main": 320,
+      "root": 320,
+      "unnamedButtons": 0,
+      "viewport": 320
+    },
+    {
+      "width": 320,
+      "theme": "light",
+      "view": "finance",
+      "content": 320,
+      "main": 320,
+      "root": 320,
+      "unnamedButtons": 0,
+      "viewport": 320
+    },
+    {
+      "width": 320,
+      "theme": "light",
+      "view": "focus",
+      "content": 320,
+      "main": 320,
+      "root": 320,
+      "unnamedButtons": 0,
+      "viewport": 320
+    },
+    {
+      "width": 320,
+      "theme": "light",
+      "view": "health",
+      "content": 320,
+      "main": 320,
+      "root": 320,
+      "unnamedButtons": 0,
+      "viewport": 320
+    },
+    {
+      "width": 320,
+      "theme": "light",
+      "view": "settings",
+      "content": 320,
+      "main": 320,
+      "root": 320,
+      "unnamedButtons": 0,
+      "viewport": 320
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "view": "today",
+      "content": 320,
+      "main": 320,
+      "root": 320,
+      "unnamedButtons": 0,
+      "viewport": 320
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "view": "finance",
+      "content": 320,
+      "main": 320,
+      "root": 320,
+      "unnamedButtons": 0,
+      "viewport": 320
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "view": "focus",
+      "content": 320,
+      "main": 320,
+      "root": 320,
+      "unnamedButtons": 0,
+      "viewport": 320
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "view": "health",
+      "content": 320,
+      "main": 320,
+      "root": 320,
+      "unnamedButtons": 0,
+      "viewport": 320
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "view": "settings",
+      "content": 320,
+      "main": 320,
+      "root": 320,
+      "unnamedButtons": 0,
+      "viewport": 320
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "view": "today",
+      "content": 390,
+      "main": 390,
+      "root": 390,
+      "unnamedButtons": 0,
+      "viewport": 390
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "view": "finance",
+      "content": 390,
+      "main": 390,
+      "root": 390,
+      "unnamedButtons": 0,
+      "viewport": 390
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "view": "focus",
+      "content": 390,
+      "main": 390,
+      "root": 390,
+      "unnamedButtons": 0,
+      "viewport": 390
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "view": "health",
+      "content": 390,
+      "main": 390,
+      "root": 390,
+      "unnamedButtons": 0,
+      "viewport": 390
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "view": "settings",
+      "content": 390,
+      "main": 390,
+      "root": 390,
+      "unnamedButtons": 0,
+      "viewport": 390
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "view": "today",
+      "content": 390,
+      "main": 390,
+      "root": 390,
+      "unnamedButtons": 0,
+      "viewport": 390
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "view": "finance",
+      "content": 390,
+      "main": 390,
+      "root": 390,
+      "unnamedButtons": 0,
+      "viewport": 390
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "view": "focus",
+      "content": 390,
+      "main": 390,
+      "root": 390,
+      "unnamedButtons": 0,
+      "viewport": 390
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "view": "health",
+      "content": 390,
+      "main": 390,
+      "root": 390,
+      "unnamedButtons": 0,
+      "viewport": 390
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "view": "settings",
+      "content": 390,
+      "main": 390,
+      "root": 390,
+      "unnamedButtons": 0,
+      "viewport": 390
+    },
+    {
+      "width": 430,
+      "theme": "light",
+      "view": "today",
+      "content": 430,
+      "main": 430,
+      "root": 430,
+      "unnamedButtons": 0,
+      "viewport": 430
+    },
+    {
+      "width": 430,
+      "theme": "light",
+      "view": "finance",
+      "content": 430,
+      "main": 430,
+      "root": 430,
+      "unnamedButtons": 0,
+      "viewport": 430
+    },
+    {
+      "width": 430,
+      "theme": "light",
+      "view": "focus",
+      "content": 430,
+      "main": 430,
+      "root": 430,
+      "unnamedButtons": 0,
+      "viewport": 430
+    },
+    {
+      "width": 430,
+      "theme": "light",
+      "view": "health",
+      "content": 430,
+      "main": 430,
+      "root": 430,
+      "unnamedButtons": 0,
+      "viewport": 430
+    },
+    {
+      "width": 430,
+      "theme": "light",
+      "view": "settings",
+      "content": 430,
+      "main": 430,
+      "root": 430,
+      "unnamedButtons": 0,
+      "viewport": 430
+    },
+    {
+      "width": 430,
+      "theme": "dark",
+      "view": "today",
+      "content": 430,
+      "main": 430,
+      "root": 430,
+      "unnamedButtons": 0,
+      "viewport": 430
+    },
+    {
+      "width": 430,
+      "theme": "dark",
+      "view": "finance",
+      "content": 430,
+      "main": 430,
+      "root": 430,
+      "unnamedButtons": 0,
+      "viewport": 430
+    },
+    {
+      "width": 430,
+      "theme": "dark",
+      "view": "focus",
+      "content": 430,
+      "main": 430,
+      "root": 430,
+      "unnamedButtons": 0,
+      "viewport": 430
+    },
+    {
+      "width": 430,
+      "theme": "dark",
+      "view": "health",
+      "content": 430,
+      "main": 430,
+      "root": 430,
+      "unnamedButtons": 0,
+      "viewport": 430
+    },
+    {
+      "width": 430,
+      "theme": "dark",
+      "view": "settings",
+      "content": 430,
+      "main": 430,
+      "root": 430,
+      "unnamedButtons": 0,
+      "viewport": 430
+    }
+  ],
+  "details": [
+    {
+      "route": "health&section=habits&habit=1",
+      "main": 320,
+      "root": 320
+    },
+    {
+      "route": "health&section=cessation",
+      "main": 320,
+      "root": 320
+    },
+    {
+      "route": "focus&section=history",
+      "main": 320,
+      "root": 320
+    },
+    {
+      "route": "settings&section=categories&group=income",
+      "main": 320,
+      "root": 320
+    }
+  ],
+  "delivery": [
+    {
+      "width": 320,
+      "theme": "light",
+      "main": 320,
+      "root": 320
+    },
+    {
+      "width": 320,
+      "theme": "dark",
+      "main": 320,
+      "root": 320
+    },
+    {
+      "width": 390,
+      "theme": "light",
+      "main": 390,
+      "root": 390
+    },
+    {
+      "width": 390,
+      "theme": "dark",
+      "main": 390,
+      "root": 390
+    },
+    {
+      "width": 430,
+      "theme": "light",
+      "main": 430,
+      "root": 430
+    },
+    {
+      "width": 430,
+      "theme": "dark",
+      "main": 430,
+      "root": 430
+    }
+  ]
+}

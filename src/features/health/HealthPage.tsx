@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, type FormEvent } from 'react'
+import { useCallback, useMemo, useRef, useState, type FormEvent } from 'react'
 
 import { useAppServices } from '@/app/AppServicesContext'
 import {
@@ -29,6 +29,10 @@ import { Link } from 'react-router-dom'
 import { CessationCard } from '@/features/health/cessation/CessationCard'
 import { Sheet } from '@/shared/ui/Sheet'
 import { useDirtyForm } from '@/pwa/useDirtyForm'
+import { ConfirmDialog } from '@/shared/ui/ConfirmDialog'
+import { HealthHistoryList } from './HealthHistoryList'
+import { WeightTrendChart } from './WeightTrendChart'
+import { CategoryIcon } from '@/shared/ui/CategoryIcon'
 
 type HealthSheet = 'chooser' | 'weight' | 'activity' | 'target'
 
@@ -52,10 +56,12 @@ function WeightForm({
   entry,
   onCancel,
   onSave,
+  onDelete,
 }: {
   entry?: WeightEntry
   onCancel: () => void
   onSave: (command: SaveWeightEntryCommand) => Promise<void>
+  onDelete?: () => void
 }) {
   const [initial] = useState(() => ({
     weight: entry ? editableKilograms(entry.weightGrams) : '',
@@ -69,19 +75,30 @@ function WeightForm({
   const [note, setNote] = useState(initial.note)
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
+  const writeLock = useRef(false)
+  const [discard, setDiscard] = useState(false)
   const dirty =
     weight !== initial.weight || measuredAt !== initial.measuredAt || note !== initial.note
-  useDirtyForm(dirty)
+  // A pending IndexedDB write cannot be discarded by route navigation.
+  useDirtyForm(dirty, saving)
 
   function cancel() {
-    if (dirty && !window.confirm('放弃尚未保存的体重输入？')) return
-    onCancel()
+    if (writeLock.current) {
+      logger.info('health.weight.closeblocked', { operation: 'cancel', reason: 'busy' })
+      return
+    }
+    if (dirty) {
+      logger.info('health.weight.discardrequested', { operation: 'cancel' })
+      setDiscard(true)
+    } else onCancel()
   }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    // The ref locks immediately, before React renders disabled controls.
+    if (writeLock.current) return
     const parsedWeight = parseWeightToGrams(weight)
-    const measuredDate = new Date(measuredAt)
+    const measuredDate = new Date(String(new FormData(event.currentTarget).get('measuredAt')))
     if (!parsedWeight.ok || Number.isNaN(measuredDate.getTime())) {
       logger.warn('health.weight.validationfailed', {
         entityType: 'weightEntry',
@@ -91,7 +108,9 @@ function WeightForm({
       setError('请输入 20–500 公斤之间的有效体重和日期时间。')
       return
     }
+    writeLock.current = true
     setSaving(true)
+    logger.info('health.weight.savestarted', { operation: entry ? 'update' : 'create' })
     setError('')
     try {
       await onSave({
@@ -101,9 +120,15 @@ function WeightForm({
         timezoneOffsetMinutes: measuredDate.getTimezoneOffset(),
         ...(note.trim() ? { note: note.trim() } : {}),
       })
+      logger.info('health.weight.saved', { operation: entry ? 'update' : 'create' })
     } catch {
+      logger.warn('health.weight.savefailed', {
+        operation: entry ? 'update' : 'create',
+        failureClass: 'Write',
+      })
       setError('未能保存，本次输入仍保留。请重试。')
     } finally {
+      writeLock.current = false
       setSaving(false)
     }
   }
@@ -118,6 +143,7 @@ function WeightForm({
         体重（公斤）
         <input
           autoFocus
+          disabled={saving}
           inputMode="decimal"
           value={weight}
           placeholder="0.0"
@@ -128,27 +154,54 @@ function WeightForm({
         日期与时间
         <input
           type="datetime-local"
+          name="measuredAt"
+          disabled={saving}
           value={measuredAt}
           onChange={(event) => setMeasuredAt(event.target.value)}
         />
       </label>
       <label>
         备注（可选）
-        <input value={note} maxLength={280} onChange={(event) => setNote(event.target.value)} />
+        <input
+          disabled={saving}
+          value={note}
+          maxLength={280}
+          onChange={(event) => setNote(event.target.value)}
+        />
       </label>
       {error ? (
         <p className="form-error" role="alert">
           {error}
         </p>
       ) : null}
+      {onDelete && (
+        <button
+          type="button"
+          className="button-secondary text-destructive"
+          disabled={saving}
+          onClick={onDelete}
+        >
+          删除记录
+        </button>
+      )}
       <div className="form-actions">
-        <button className="button-secondary" type="button" onClick={cancel}>
+        <button className="button-secondary" type="button" disabled={saving} onClick={cancel}>
           取消
         </button>
         <button className="button-primary" type="submit" disabled={saving}>
           {saving ? '保存中…' : '保存'}
         </button>
       </div>
+      {discard && (
+        <ConfirmDialog
+          title="放弃体重输入？"
+          description="尚未保存的修改将丢失，已保存的记录不会改变。"
+          confirmLabel="放弃输入"
+          cancelLabel="继续填写"
+          onCancel={() => setDiscard(false)}
+          onConfirm={onCancel}
+        />
+      )}
     </form>
   )
 }
@@ -158,11 +211,13 @@ function ActivityForm({
   session,
   onCancel,
   onSave,
+  onDelete,
 }: {
   categories: Category[]
   session?: ActivitySession
   onCancel: () => void
   onSave: (command: SaveActivitySessionCommand) => Promise<void>
+  onDelete?: () => void
 }) {
   const selectableCategories = categories.filter(
     ({ archived, id }) => archived === 0 || id === session?.categoryId,
@@ -183,23 +238,33 @@ function ActivityForm({
   const [note, setNote] = useState(initial.note)
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
+  const writeLock = useRef(false)
+  const [discard, setDiscard] = useState(false)
   const dirty =
     categoryId !== initial.categoryId ||
     duration !== initial.duration ||
     intensity !== initial.intensity ||
     occurredAt !== initial.occurredAt ||
     note !== initial.note
-  useDirtyForm(dirty)
+  useDirtyForm(dirty, saving)
 
   function cancel() {
-    if (dirty && !window.confirm('放弃尚未保存的运动输入？')) return
-    onCancel()
+    if (writeLock.current) {
+      logger.info('health.activity.closeblocked', { operation: 'cancel', reason: 'busy' })
+      return
+    }
+    if (dirty) {
+      logger.info('health.activity.discardrequested', { operation: 'cancel' })
+      setDiscard(true)
+    } else onCancel()
   }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    // Capture the native picker value even if its final change event has not fired yet.
+    if (writeLock.current) return
     const durationMinutes = Number(duration)
-    const occurredDate = new Date(occurredAt)
+    const occurredDate = new Date(String(new FormData(event.currentTarget).get('occurredAt')))
     if (
       !selectableCategories.some(({ id }) => id === categoryId) ||
       !Number.isInteger(durationMinutes) ||
@@ -215,7 +280,9 @@ function ActivityForm({
       setError('请选择运动类型，并填写 1–1440 分钟和有效日期时间。')
       return
     }
+    writeLock.current = true
     setSaving(true)
+    logger.info('health.activity.savestarted', { operation: session ? 'update' : 'create' })
     setError('')
     try {
       await onSave({
@@ -227,9 +294,15 @@ function ActivityForm({
         timezoneOffsetMinutes: occurredDate.getTimezoneOffset(),
         ...(note.trim() ? { note: note.trim() } : {}),
       })
+      logger.info('health.activity.saved', { operation: session ? 'update' : 'create' })
     } catch {
+      logger.warn('health.activity.savefailed', {
+        operation: session ? 'update' : 'create',
+        failureClass: 'Write',
+      })
       setError('未能保存，本次输入仍保留。请重试。')
     } finally {
+      writeLock.current = false
       setSaving(false)
     }
   }
@@ -244,6 +317,7 @@ function ActivityForm({
         运动类型
         <select
           autoFocus
+          disabled={saving}
           value={categoryId}
           onChange={(event) => setCategoryId(event.target.value)}
         >
@@ -259,6 +333,7 @@ function ActivityForm({
         时长（分钟）
         <input
           type="number"
+          disabled={saving}
           inputMode="numeric"
           min="1"
           max="1440"
@@ -267,7 +342,7 @@ function ActivityForm({
           onChange={(event) => setDuration(event.target.value)}
         />
       </label>
-      <fieldset className="form-fieldset">
+      <fieldset className="form-fieldset" disabled={saving}>
         <legend>体感强度</legend>
         <div className="segmented-control intensity-control">
           {(
@@ -293,27 +368,54 @@ function ActivityForm({
         日期与时间
         <input
           type="datetime-local"
+          name="occurredAt"
+          disabled={saving}
           value={occurredAt}
           onChange={(event) => setOccurredAt(event.target.value)}
         />
       </label>
       <label>
         备注（可选）
-        <input value={note} maxLength={280} onChange={(event) => setNote(event.target.value)} />
+        <input
+          disabled={saving}
+          value={note}
+          maxLength={280}
+          onChange={(event) => setNote(event.target.value)}
+        />
       </label>
       {error ? (
         <p className="form-error" role="alert">
           {error}
         </p>
       ) : null}
+      {onDelete && (
+        <button
+          type="button"
+          className="button-secondary text-destructive"
+          disabled={saving}
+          onClick={onDelete}
+        >
+          删除记录
+        </button>
+      )}
       <div className="form-actions">
-        <button className="button-secondary" type="button" onClick={cancel}>
+        <button className="button-secondary" type="button" disabled={saving} onClick={cancel}>
           取消
         </button>
         <button className="button-primary" type="submit" disabled={saving}>
           {saving ? '保存中…' : '保存'}
         </button>
       </div>
+      {discard && (
+        <ConfirmDialog
+          title="放弃运动输入？"
+          description="尚未保存的修改将丢失，已保存的记录不会改变。"
+          confirmLabel="放弃输入"
+          cancelLabel="继续填写"
+          onCancel={() => setDiscard(false)}
+          onConfirm={onCancel}
+        />
+      )}
     </form>
   )
 }
@@ -332,34 +434,63 @@ function TargetForm({
   const [value, setValue] = useState(targetGrams ? editableKilograms(targetGrams) : '')
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
-  useDirtyForm(value !== (targetGrams ? editableKilograms(targetGrams) : ''))
+  const writeLock = useRef(false)
+  const [confirmation, setConfirmation] = useState<'discard' | 'clear'>()
+  const dirty = value !== (targetGrams ? editableKilograms(targetGrams) : '')
+  useDirtyForm(dirty, saving)
+
+  function cancel() {
+    if (writeLock.current) return
+    if (dirty) {
+      logger.info('health.target.discardrequested', { operation: 'cancel' })
+      setConfirmation('discard')
+    } else onCancel()
+  }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    // Saving and clearing share a lock so competing writes cannot race each other.
+    if (writeLock.current) return
     const parsed = parseWeightToGrams(value)
     if (!parsed.ok) {
+      logger.warn('health.target.validationfailed', {
+        operation: 'save',
+        failureClass: 'Validation',
+      })
       setError('请输入 20–500 公斤之间的目标，或选择清除目标。')
       return
     }
+    writeLock.current = true
     setSaving(true)
+    setError('')
+    logger.info('health.target.savestarted', { operation: 'save' })
     try {
       await onSave(parsed.weightGrams)
+      logger.info('health.target.saved', { operation: 'save' })
     } catch {
+      logger.warn('health.target.savefailed', { operation: 'save', failureClass: 'Write' })
       setError('目标未能保存，原有设置没有改变。')
     } finally {
+      writeLock.current = false
       setSaving(false)
     }
   }
 
   async function clear() {
+    if (writeLock.current) return
+    writeLock.current = true
     setSaving(true)
     setError('')
+    logger.info('health.target.clearstarted', { operation: 'clear' })
     try {
       await onClear()
+      logger.info('health.target.cleared', { operation: 'clear' })
     } catch {
       // Keep the sheet and prior target visible when IndexedDB rejects the delete.
       setError('目标未能清除，原有设置没有改变。')
+      logger.warn('health.target.clearfailed', { operation: 'clear', failureClass: 'Write' })
     } finally {
+      writeLock.current = false
       setSaving(false)
     }
   }
@@ -372,11 +503,12 @@ function TargetForm({
         <input
           autoFocus
           inputMode="decimal"
+          disabled={saving}
           value={value}
           onChange={(event) => setValue(event.target.value)}
         />
       </label>
-      {error ? (
+      {error && confirmation !== 'clear' ? (
         <p className="form-error" role="alert">
           {error}
         </p>
@@ -387,25 +519,58 @@ function TargetForm({
             className="text-destructive"
             type="button"
             disabled={saving}
-            onClick={() => void clear()}
+            onClick={() => {
+              setError('')
+              setConfirmation('clear')
+              logger.info('health.target.clearrequested', { operation: 'clear' })
+            }}
           >
             清除目标
           </button>
         ) : (
           <span />
         )}
-        <button className="button-secondary" type="button" onClick={onCancel}>
+        <button className="button-secondary" type="button" disabled={saving} onClick={cancel}>
           取消
         </button>
         <button className="button-primary" type="submit" disabled={saving}>
           {saving ? '保存中…' : '保存'}
         </button>
       </div>
+      {confirmation && (
+        <ConfirmDialog
+          title={confirmation === 'clear' ? '清除体重目标？' : '放弃目标修改？'}
+          description={
+            confirmation === 'clear'
+              ? '只清除目标，已有体重记录不会改变。'
+              : '尚未保存的目标修改将丢失。'
+          }
+          confirmLabel={confirmation === 'clear' ? '确认清除' : '放弃修改'}
+          cancelLabel="继续编辑"
+          busy={saving}
+          error={confirmation === 'clear' ? error : ''}
+          onCancel={() => {
+            if (!writeLock.current) setConfirmation(undefined)
+          }}
+          onConfirm={() => {
+            if (confirmation === 'clear') void clear()
+            else onCancel()
+          }}
+        />
+      )}
     </form>
   )
 }
 
-export function HealthPage() {
+export function WeightHistoryPage() {
+  return <HealthPage history="weight" />
+}
+
+export function ActivityHistoryPage() {
+  return <HealthPage history="activity" />
+}
+
+export function HealthPage({ history }: { history?: 'weight' | 'activity' }) {
   const { database } = useAppServices()
   const weights = useMemo(() => new WeightRepository(database), [database])
   const activities = useMemo(() => new ActivityRepository(database), [database])
@@ -419,17 +584,22 @@ export function HealthPage() {
   const [editingActivity, setEditingActivity] = useState<ActivitySession>()
   const [habitCreateRequest, setHabitCreateRequest] = useState(0)
   const [pageError, setPageError] = useState('')
+  const [deletion, setDeletion] = useState<{ kind: 'weight' | 'activity'; id: string }>()
+  const [deleting, setDeleting] = useState(false)
+  const deleteLock = useRef(false)
+  useDirtyForm(false, deleting)
 
   const weightQuery = useCallback(async () => {
     const [entries, target] = await Promise.all([
-      weights.list({ from: '1000-01-01', to: today }),
+      // History must remain complete, including future-dated entries that need correction.
+      weights.list({ from: '1000-01-01', to: '9999-12-31' }),
       settings.get('weightTarget'),
     ])
     return {
       entries,
       targetGrams: target?.key === 'weightTarget' ? target.value.weightGrams : undefined,
     }
-  }, [settings, today, weights])
+  }, [settings, weights])
   const activityQuery = useCallback(async () => {
     const [sessions, activityCategories] = await Promise.all([
       activities.list({ from: '1000-01-01', to: '9999-12-31' }),
@@ -452,23 +622,36 @@ export function HealthPage() {
     setEditingActivity(undefined)
   }
 
-  async function removeWeight(entry: WeightEntry) {
-    if (!window.confirm('删除这条体重记录？其他健康记录不会改变。')) return
+  function requestDeletion(kind: 'weight' | 'activity', id: string) {
+    if (deleteLock.current) return
     setPageError('')
-    try {
-      await weights.remove(entry.id)
-    } catch {
-      setPageError('体重记录未能删除，现有数据没有改变。')
-    }
+    setDeletion({ kind, id })
+    logger.info('health.history.deleterequested', { operation: 'delete', entityType: kind })
   }
 
-  async function removeActivity(session: ActivitySession) {
-    if (!window.confirm('删除这条运动记录？其他健康记录不会改变。')) return
+  async function confirmDeletion() {
+    // Keep the confirmation open on failure; the original record remains available for retry.
+    if (!deletion || deleteLock.current) return
+    deleteLock.current = true
+    setDeleting(true)
     setPageError('')
+    logger.info('health.history.deletestarted', { operation: 'delete', entityType: deletion.kind })
     try {
-      await activities.remove(session.id)
+      if (deletion.kind === 'weight') await weights.remove(deletion.id)
+      else await activities.remove(deletion.id)
+      logger.info('health.history.deleted', { operation: 'delete', entityType: deletion.kind })
+      setDeletion(undefined)
+      closeSheet()
     } catch {
-      setPageError('运动记录未能删除，现有数据没有改变。')
+      logger.warn('health.history.deletefailed', {
+        operation: 'delete',
+        entityType: deletion.kind,
+        failureClass: 'Write',
+      })
+      setPageError('记录未能删除，现有数据没有改变。请重试。')
+    } finally {
+      deleteLock.current = false
+      setDeleting(false)
     }
   }
 
@@ -483,188 +666,215 @@ export function HealthPage() {
   const activityNames = new Map(activityData?.categories.map(({ id, name }) => [id, name]) ?? [])
 
   return (
-    <section className="page health-page" aria-labelledby="health-title">
+    <section
+      className={`page health-page${history ? ' health-history-page' : ''}`}
+      aria-labelledby="health-title"
+    >
+      {history && (
+        <Link to="/health" className="button-secondary">
+          返回健康
+        </Link>
+      )}
       <div className="page-heading-row">
         <div>
-          <p className="eyebrow">wellbeing</p>
-          <h1 id="health-title">健康</h1>
+          <h1 id="health-title">
+            {history === 'weight' ? '体重历史' : history === 'activity' ? '运动历史' : '健康'}
+          </h1>
         </div>
         <button
           className="button-primary compact round-action"
           type="button"
           aria-label="添加健康记录"
-          onClick={() => openSheet('chooser')}
+          onClick={() => openSheet(history ?? 'chooser')}
         >
           <Icon name="add" />
         </button>
       </div>
-      <p className="page-intro">体重、运动与习惯，安静地留在同一条时间线上。</p>
+      {!history && <p className="page-intro">体重、运动与习惯，安静地留在同一条时间线上。</p>}
 
-      {pageError ? (
+      {pageError && !deletion ? (
         <p className="form-error global-feedback" role="alert">
           {pageError}
         </p>
       ) : null}
 
-      <section className="health-card weight-card" aria-labelledby="weight-title">
-        <div className="section-heading">
-          <h2 id="weight-title">体重</h2>
-          <button
-            type="button"
-            className="icon-action"
-            aria-label="记录体重"
-            onClick={() => openSheet('weight')}
-          >
-            <Icon name="add" size={20} />
-          </button>
-        </div>
-        {weightState.status === 'loading' ? (
-          <p className="state-message">正在读取体重记录…</p>
-        ) : null}
-        {weightState.status === 'failed' ? (
-          <p className="form-error" role="alert">
-            体重记录暂时无法读取；运动和习惯仍可使用。
-          </p>
-        ) : null}
-        {weightTrend ? (
-          <>
-            <div className="weight-overview">
-              <p>
-                <strong>
-                  {weightTrend.latest ? formatWeightGrams(weightTrend.latest.weightGrams) : '—'}
-                </strong>
-                <span>kg</span>
-              </p>
-              <p>
-                {weightTrend.deltaGrams === undefined
-                  ? '暂无 30 天趋势'
-                  : `近 30 天 ${weightTrend.deltaGrams > 0 ? '+' : ''}${formatWeightGrams(weightTrend.deltaGrams)} kg`}
-              </p>
-            </div>
-            <button className="target-row" type="button" onClick={() => openSheet('target')}>
-              <span>目标</span>
-              <strong>
-                {weightData?.targetGrams
-                  ? `${formatWeightGrams(weightData.targetGrams)} kg`
-                  : '未设置'}{' '}
-                ›
-              </strong>
+      {history !== 'activity' && (
+        <section className="health-card weight-card" aria-labelledby="weight-title">
+          <div className="section-heading">
+            <h2 id="weight-title" className="health-section-label">
+              <span className="category-glyph tone-blue">
+                <CategoryIcon name="heart" />
+              </span>
+              体重
+            </h2>
+            <button
+              type="button"
+              className="icon-action"
+              aria-label="记录体重"
+              onClick={() => openSheet('weight')}
+            >
+              <Icon name="add" size={20} />
             </button>
-            {weightData?.entries.length ? (
-              <ul className="compact-history">
-                {weightData.entries.slice(0, 3).map((entry) => (
-                  <li key={entry.id}>
-                    <span>{entry.localDate}</span>
-                    <strong>{formatWeightGrams(entry.weightGrams)} kg</strong>
-                    <div className="mini-actions">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setEditingWeight(entry)
-                          openSheet('weight')
-                        }}
-                      >
-                        编辑
-                      </button>
-                      <button
-                        className="text-destructive"
-                        type="button"
-                        onClick={() => void removeWeight(entry)}
-                      >
-                        删除
-                      </button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="empty-state">记录第一次体重后，这里会显示方向，不做评价。</p>
-            )}
-          </>
-        ) : null}
-      </section>
+          </div>
+          {weightState.status === 'loading' ? (
+            <p className="state-message">正在读取体重记录…</p>
+          ) : null}
+          {weightState.status === 'failed' ? (
+            <p className="form-error" role="alert">
+              体重记录暂时无法读取；运动和习惯仍可使用。
+            </p>
+          ) : null}
+          {weightTrend ? (
+            <>
+              <div className="weight-overview">
+                <p>
+                  <strong>
+                    {weightTrend.latest ? formatWeightGrams(weightTrend.latest.weightGrams) : '—'}
+                  </strong>
+                  <span>kg</span>
+                </p>
+                <p>
+                  {weightTrend.deltaGrams === undefined
+                    ? '暂无 30 天趋势'
+                    : `近 30 天 ${weightTrend.deltaGrams > 0 ? '+' : ''}${formatWeightGrams(weightTrend.deltaGrams)} kg`}
+                </p>
+              </div>
+              {!history && weightData && weightData.entries.length > 0 && (
+                <WeightTrendChart entries={weightData.entries} today={today} />
+              )}
+              <div className="weight-panel-footer">
+                <button className="target-row" type="button" onClick={() => openSheet('target')}>
+                  <span>目标</span>
+                  <strong>
+                    {weightData?.targetGrams
+                      ? `${formatWeightGrams(weightData.targetGrams)} kg`
+                      : '未设置'}{' '}
+                    ›
+                  </strong>
+                </button>
+                {!history && (
+                  <Link className="button-secondary" to="/health/weight-history">
+                    查看体重历史
+                  </Link>
+                )}
+              </div>
+              {history === 'weight' && weightData?.entries.length ? (
+                <HealthHistoryList
+                  rows={weightData.entries.map((entry) => ({
+                    id: entry.id,
+                    date: entry.localDate,
+                    time: new Date(entry.measuredAt).toLocaleTimeString('zh-CN', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    }),
+                    title: `${formatWeightGrams(entry.weightGrams)} kg`,
+                    subtitle: '体重记录',
+                    icon: 'heart',
+                    color: 'blue',
+                  }))}
+                  onOpen={(id) => {
+                    setEditingWeight(weightData.entries.find((entry) => entry.id === id))
+                    openSheet('weight')
+                  }}
+                />
+              ) : !weightData?.entries.length ? (
+                <p className="empty-state">记录第一次体重后，这里会显示方向，不做评价。</p>
+              ) : null}
+            </>
+          ) : null}
+        </section>
+      )}
 
-      <section className="health-card activity-card" aria-labelledby="activity-title">
-        <div className="section-heading">
-          <h2 id="activity-title">运动</h2>
-          <button
-            type="button"
-            className="icon-action"
-            aria-label="记录运动"
-            onClick={() => openSheet('activity')}
-          >
-            <Icon name="add" size={20} />
-          </button>
-        </div>
-        {activityState.status === 'loading' ? (
-          <p className="state-message">正在读取运动记录…</p>
-        ) : null}
-        {activityState.status === 'failed' ? (
-          <p className="form-error" role="alert">
-            运动记录暂时无法读取；体重和习惯仍可使用。
-          </p>
-        ) : null}
-        {activityData ? (
-          <>
-            <div className="activity-summary" aria-label="本周运动汇总">
-              <p>
-                <strong>{activitySummary.count}</strong>
-                <span>次</span>
-              </p>
-              <p>
-                <strong>{formatActivityDuration(activitySummary.durationMinutes)}</strong>
-                <span>本周累计</span>
-              </p>
-            </div>
-            {activityData.sessions.length ? (
-              <ul className="compact-history activity-history">
-                {activityData.sessions.slice(0, 4).map((session) => (
-                  <li key={session.id}>
-                    <span>
-                      {session.localDate} · {activityNames.get(session.categoryId) ?? '已归档类型'}
-                    </span>
-                    <strong>
-                      {formatActivityDuration(session.durationMinutes)} ·{' '}
-                      {session.intensity === 'light'
-                        ? '轻松'
-                        : session.intensity === 'moderate'
-                          ? '适中'
-                          : '较强'}
-                    </strong>
-                    <div className="mini-actions">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setEditingActivity(session)
-                          openSheet('activity')
-                        }}
-                      >
-                        编辑
-                      </button>
-                      <button
-                        className="text-destructive"
-                        type="button"
-                        onClick={() => void removeActivity(session)}
-                      >
-                        删除
-                      </button>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="empty-state">本周还没有运动记录。一次步行也值得留下。</p>
-            )}
-          </>
-        ) : null}
-      </section>
+      {history !== 'weight' && (
+        <section className="health-card activity-card" aria-labelledby="activity-title">
+          <div className="section-heading">
+            <h2 id="activity-title" className="health-section-label">
+              <span className="category-glyph tone-amber">
+                <CategoryIcon name="activity" />
+              </span>
+              运动
+            </h2>
+            <button
+              type="button"
+              className="icon-action"
+              aria-label="记录运动"
+              onClick={() => openSheet('activity')}
+            >
+              <Icon name="add" size={20} />
+            </button>
+          </div>
+          {activityState.status === 'loading' ? (
+            <p className="state-message">正在读取运动记录…</p>
+          ) : null}
+          {activityState.status === 'failed' ? (
+            <p className="form-error" role="alert">
+              运动记录暂时无法读取；体重和习惯仍可使用。
+            </p>
+          ) : null}
+          {activityData ? (
+            <>
+              <div className="activity-summary" aria-label="本周运动汇总">
+                <p>
+                  <strong>{activitySummary.count}</strong>
+                  <span>次</span>
+                </p>
+                <p>
+                  <strong>{formatActivityDuration(activitySummary.durationMinutes)}</strong>
+                  <span>本周累计</span>
+                </p>
+              </div>
+              {!history && (
+                <Link className="button-secondary" to="/health/activity-history">
+                  查看运动历史
+                </Link>
+              )}
+              {history === 'activity' && activityData.sessions.length ? (
+                <HealthHistoryList
+                  rows={activityData.sessions.map((session) => {
+                    const category = activityData.categories.find(
+                      ({ id }) => id === session.categoryId,
+                    )
+                    return {
+                      id: session.id,
+                      date: session.localDate,
+                      time: new Date(session.occurredAt).toLocaleTimeString('zh-CN', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      }),
+                      title: `${formatActivityDuration(session.durationMinutes)} · ${session.intensity === 'light' ? '轻松' : session.intensity === 'moderate' ? '适中' : '较强'}`,
+                      subtitle: activityNames.get(session.categoryId) ?? '已归档类型',
+                      icon: category?.icon ?? 'activity',
+                      color: category?.color ?? 'sage',
+                    }
+                  })}
+                  onOpen={(id) => {
+                    setEditingActivity(activityData.sessions.find((session) => session.id === id))
+                    openSheet('activity')
+                  }}
+                />
+              ) : !activityData.sessions.length ? (
+                <p className="empty-state">本周还没有运动记录。一次步行也值得留下。</p>
+              ) : null}
+            </>
+          ) : null}
+        </section>
+      )}
 
       {/* Optional cessation data stays independent from the existing habits and measurements. */}
-      <CessationCard />
-      <section className="health-card habit-card" aria-labelledby="health-habits-title">
-        <h2 id="health-habits-title">习惯</h2>
-        <HabitsPage key={habitCreateRequest} embedded createRequest={habitCreateRequest} />
-      </section>
+      {!history && (
+        <>
+          <CessationCard />
+          <section className="health-card habit-card" aria-labelledby="health-habits-title">
+            <h2 id="health-habits-title" className="health-section-label">
+              <span className="category-glyph tone-violet">
+                <CategoryIcon name="leaf" />
+              </span>
+              习惯
+            </h2>
+            <HabitsPage key={habitCreateRequest} embedded createRequest={habitCreateRequest} />
+          </section>
+        </>
+      )}
 
       {sheet === 'chooser' ? (
         <Sheet title="添加健康记录">
@@ -703,11 +913,30 @@ export function HealthPage() {
           </div>
         </Sheet>
       ) : null}
+      {deletion && (
+        <ConfirmDialog
+          title={deletion.kind === 'weight' ? '删除体重记录？' : '删除运动记录？'}
+          description="删除后无法撤销。其他健康记录不会改变。"
+          confirmLabel="删除记录"
+          busy={deleting}
+          error={pageError}
+          onCancel={() => {
+            if (deleteLock.current) return
+            setDeletion(undefined)
+            setPageError('')
+            logger.info('health.history.deletecancelled', { operation: 'delete' })
+          }}
+          onConfirm={() => void confirmDeletion()}
+        />
+      )}
       {sheet === 'weight' && weightData ? (
         <Sheet title={editingWeight ? '编辑体重' : '记录体重'}>
           <WeightForm
             key={editingWeight?.id ?? 'new-weight'}
             {...(editingWeight ? { entry: editingWeight } : {})}
+            {...(editingWeight
+              ? { onDelete: () => requestDeletion('weight', editingWeight.id) }
+              : {})}
             onCancel={closeSheet}
             onSave={async (command) => {
               if (editingWeight) await weights.update(editingWeight.id, command)
@@ -723,6 +952,9 @@ export function HealthPage() {
             key={editingActivity?.id ?? 'new-activity'}
             categories={activityData.categories}
             {...(editingActivity ? { session: editingActivity } : {})}
+            {...(editingActivity
+              ? { onDelete: () => requestDeletion('activity', editingActivity.id) }
+              : {})}
             onCancel={closeSheet}
             onSave={async (command) => {
               if (editingActivity) await activities.update(editingActivity.id, command)

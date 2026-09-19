@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { cessationSummary } from '@/shared/domain/cessation'
 import { logger } from '@/shared/logging/logger'
 import { useCessation, useCessationNow } from './useCessation'
+import { CategoryIcon } from '@/shared/ui/CategoryIcon'
 
 export function CessationCard() {
   const { state, retry } = useCessation(),
@@ -20,7 +21,12 @@ export function CessationCard() {
   return (
     <section className="health-card cessation-card" aria-label="戒烟">
       <div className="section-heading">
-        <h2>戒烟</h2>
+        <h2 className="health-section-label">
+          <span className="category-glyph tone-sage">
+            <CategoryIcon name="heart" />
+          </span>
+          戒烟
+        </h2>
         <Link
           className="button-secondary compact"
           to="/health/cessation"

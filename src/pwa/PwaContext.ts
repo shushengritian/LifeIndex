@@ -5,7 +5,8 @@ import type { PwaState } from '@/pwa/pwaStore'
 export interface PwaContextValue {
   state: PwaState
   dirtyFormCount: number
-  setFormDirty: (token: symbol, dirty: boolean) => void
+  busyFormCount?: number
+  setFormDirty: (token: symbol, dirty: boolean, busy?: boolean) => void
   applyUpdate: () => Promise<void>
 }
 

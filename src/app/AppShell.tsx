@@ -1,13 +1,16 @@
+import { useEffect } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 
 import { PwaStatus } from '@/pwa/PwaStatus'
+import { NavigationGuard } from '@/app/NavigationGuard'
+import { logger } from '@/shared/logging/logger'
 import { Icon, type IconName } from '@/shared/ui/Icon'
 
 const destinations = [
   { to: '/today', label: '今天', icon: 'today' },
-  { to: '/finance', label: '记账', icon: 'finance' },
-  { to: '/focus', label: '专注', icon: 'focus' },
   { to: '/health', label: '健康', icon: 'health' },
+  { to: '/focus', label: '专注', icon: 'focus' },
+  { to: '/finance', label: '记账', icon: 'finance' },
   { to: '/settings', label: '设置', icon: 'settings' },
 ] as const satisfies ReadonlyArray<{ to: string; label: string; icon: IconName }>
 
@@ -21,10 +24,16 @@ function routeTitle(pathname: string): string {
 
 export function AppShell() {
   const location = useLocation()
+  const section = routeTitle(location.pathname)
+  useEffect(() => {
+    // Log only an allowlisted section, never action fragments, record IDs, or draft inputs.
+    logger.info('ui.navigation.entered', { operation: 'navigate', toState: section })
+  }, [section])
   return (
     <div className="app-shell">
+      <NavigationGuard />
       <header className="app-header">
-        <span className="context-title">{routeTitle(location.pathname)}</span>
+        <span className="context-title">{section}</span>
         <span className="local-badge">仅本机</span>
       </header>
 

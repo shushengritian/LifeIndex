@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { BackupService, MAX_BACKUP_BYTES } from '@/data/backup/BackupService'
 import { LifeIndexDatabase } from '@/data/db/LifeIndexDatabase'
 import type { Clock, IdGenerator } from '@/shared/domain/runtime'
-import type { LifeIndexBackupV3 } from '@/shared/domain/types'
+import type { LifeIndexBackupV4 } from '@/shared/domain/types'
 import { AppError } from '@/shared/errors/AppError'
 import {
   buildActivitySession,
@@ -108,13 +108,13 @@ describe('versioned backup and restore', () => {
   it.each([
     [
       'a future format version',
-      (backup: LifeIndexBackupV3) => {
-        ;(backup as unknown as { formatVersion: number }).formatVersion = 4
+      (backup: LifeIndexBackupV4) => {
+        ;(backup as unknown as { formatVersion: number }).formatVersion = 5
       },
     ],
     [
       'a duplicate primary key',
-      (backup: LifeIndexBackupV3) => {
+      (backup: LifeIndexBackupV4) => {
         // Counts stay internally consistent so this case reaches the uniqueness invariant.
         backup.data.transactions.push(structuredClone(backup.data.transactions[0]!))
         backup.counts.transactions += 1
@@ -122,7 +122,7 @@ describe('versioned backup and restore', () => {
     ],
     [
       'a duplicate habit and date pair',
-      (backup: LifeIndexBackupV3) => {
+      (backup: LifeIndexBackupV4) => {
         backup.data.habitRecords.push(
           buildHabitRecord({ id: '00000000-0000-4000-8000-000000000103' }),
         )
@@ -131,7 +131,7 @@ describe('versioned backup and restore', () => {
     ],
     [
       'a dangling action receipt',
-      (backup: LifeIndexBackupV3) => {
+      (backup: LifeIndexBackupV4) => {
         backup.data.actionReceipts.push({
           actionId: '00000000-0000-4000-8000-000000000104',
           actionType: 'add-transaction',
@@ -143,7 +143,7 @@ describe('versioned backup and restore', () => {
     ],
     [
       'more than one active focus session',
-      (backup: LifeIndexBackupV3) => {
+      (backup: LifeIndexBackupV4) => {
         const first = buildFocusSession({ id: '00000000-0000-4000-8000-000000000106' })
         const second = buildFocusSession({ id: '00000000-0000-4000-8000-000000000107' })
         // Removing completion fields creates two individually valid active records.
@@ -159,13 +159,13 @@ describe('versioned backup and restore', () => {
     ],
     [
       'an invalid weight value',
-      (backup: LifeIndexBackupV3) => {
+      (backup: LifeIndexBackupV4) => {
         backup.data.weightEntries[0]!.weightGrams = 10_000
       },
     ],
     [
       'a dangling Activity category',
-      (backup: LifeIndexBackupV3) => {
+      (backup: LifeIndexBackupV4) => {
         backup.data.activitySessions[0]!.categoryId = 'category-focus-study-v1'
       },
     ],
@@ -236,7 +236,7 @@ describe('versioned backup and restore', () => {
     }
 
     const preview = service.inspectText(JSON.stringify(legacy))
-    expect(preview.formatVersion).toBe(3)
+    expect(preview.formatVersion).toBe(4)
     expect(preview.counts.actionReceipts).toBe(0)
     expect(preview.counts.weightEntries).toBe(0)
     expect(preview.counts.activitySessions).toBe(0)
@@ -266,7 +266,7 @@ describe('versioned backup and restore', () => {
     }
 
     const preview = service.inspectText(JSON.stringify(legacy))
-    expect(preview.formatVersion).toBe(3)
+    expect(preview.formatVersion).toBe(4)
     expect(preview.counts.weightEntries).toBe(0)
     expect(preview.counts.activitySessions).toBe(0)
   })

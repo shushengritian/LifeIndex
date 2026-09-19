@@ -1,0 +1,1573 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'none'; img-src 'none'; form-action 'none'; base-uri 'none'"
+    />
+    <title>LifeIndex · G3 视觉样板</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: #e8e7e2;
+        color: #222b29;
+        font:
+          16px/1.5 -apple-system,
+          BlinkMacSystemFont,
+          'PingFang SC',
+          sans-serif;
+      }
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+      button {
+        cursor: pointer;
+      }
+      button:disabled {
+        cursor: default;
+      }
+      button:focus-visible,
+      a:focus-visible,
+      input:focus-visible,
+      select:focus-visible,
+      textarea:focus-visible {
+        outline: 3px solid var(--focus, #237566);
+        outline-offset: 3px;
+      }
+      svg {
+        width: 22px;
+        height: 22px;
+        flex-shrink: 0;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.8;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+      h1 {
+        font-size: 32px;
+        letter-spacing: -1px;
+      }
+      h2 {
+        font-size: 20px;
+        letter-spacing: -0.3px;
+      }
+      h3 {
+        font-size: 16px;
+      }
+      button {
+        transition:
+          background 0.14s,
+          transform 0.14s;
+      }
+      button:not(:disabled):active {
+        transform: scale(0.98);
+      }
+      .studio {
+        max-width: 1340px;
+        margin: 0 auto;
+        padding: 32px 24px 60px;
+      }
+      .studio-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+        gap: 24px;
+        margin-bottom: 28px;
+      }
+      .eyebrow {
+        font-size: 12px;
+        letter-spacing: 2px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+      .intro {
+        font-size: 14px;
+        color: #525e59;
+        margin-top: 10px;
+        max-width: 580px;
+      }
+      .tools {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: end;
+      }
+      .tools label {
+        display: grid;
+        gap: 4px;
+        font-size: 12px;
+        font-weight: 600;
+      }
+      .tools select {
+        border: 1px solid #8c9690;
+        background: #f8f8f4;
+        color: #22332d;
+        border-radius: 10px;
+        padding: 10px;
+        min-height: 44px;
+      }
+      .themes {
+        display: flex;
+        gap: 4px;
+        background: #d5d8d1;
+        border-radius: 12px;
+        padding: 4px;
+      }
+      .themes button {
+        border: 0;
+        padding: 10px 16px;
+        border-radius: 9px;
+        color: #29342e;
+        background: transparent;
+        min-height: 44px;
+      }
+      .themes button[aria-pressed='true'] {
+        background: #fff;
+        box-shadow: 0 2px 5px #0001;
+      }
+      .gallery {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 24px;
+        align-items: start;
+      }
+      .caption {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        margin-bottom: 12px;
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .caption span {
+        font-weight: 400;
+        color: #5c665f;
+      }
+      .product {
+        color-scheme: light;
+        --bg: #f6f7f2;
+        --surface: #fff;
+        --surface2: #eef1eb;
+        --text: #1f3029;
+        --muted: #5e6c63;
+        --line: #dce2d9;
+        --control: #819086;
+        --accent: #276650;
+        --on-accent: #fff;
+        --soft: #e1eee4;
+        --danger: #a23930;
+        --danger-soft: #fae9e5;
+        --warm: #96633a;
+        --warm-soft: #f3ecdf;
+        --focus: #237566;
+        --shadow: 0 12px 32px #13261c10;
+        --gap: 18px;
+        --pad: 18px;
+        color: var(--text);
+        background: var(--bg);
+      }
+      .product[data-theme='dark'] {
+        color-scheme: dark;
+        --bg: #141c18;
+        --surface: #1f2a23;
+        --surface2: #2a362d;
+        --text: #edf2e9;
+        --muted: #afbeaf;
+        --line: #3c4b3e;
+        --control: #879b87;
+        --accent: #acd5b5;
+        --on-accent: #172b1e;
+        --soft: #2b4634;
+        --danger: #ffb4a5;
+        --danger-soft: #4b2b25;
+        --warm: #e0be92;
+        --warm-soft: #3d3427;
+        --focus: #a9dfc4;
+        --shadow: none;
+      }
+      .product.compact {
+        --gap: 12px;
+        --pad: 14px;
+      }
+      .phone {
+        border: 1px solid #939e943d;
+        border-radius: 30px;
+        overflow: hidden;
+        box-shadow: 0 16px 50px #2238290d;
+        position: relative;
+      }
+      .statusbar {
+        height: 40px;
+        padding: 14px 24px 4px;
+        display: flex;
+        justify-content: space-between;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+      }
+      .statusbar svg {
+        width: 16px;
+        height: 16px;
+      }
+      .system {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+      }
+      .app-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 18px var(--pad) 10px;
+        gap: 12px;
+      }
+      .app-header h2 {
+        font-size: 28px;
+        letter-spacing: -0.8px;
+      }
+      .kicker {
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 4px;
+      }
+      .icon-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        border: 1px solid var(--control);
+        background: var(--surface);
+        color: var(--text);
+        border-radius: 14px;
+        padding: 0;
+        flex-shrink: 0;
+      }
+      .icon-button.accent {
+        border-color: var(--accent);
+        background: var(--accent);
+        color: var(--on-accent);
+      }
+      .viewport {
+        height: 666px;
+        overflow: auto;
+        scrollbar-width: thin;
+        scrollbar-color: var(--control) transparent;
+        padding: 8px var(--pad) 20px;
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        padding: var(--pad);
+        margin-top: var(--gap);
+      }
+      .card:first-child {
+        margin-top: 0;
+      }
+      .row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .row > * {
+        min-width: 0;
+      }
+      .sub {
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .small {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .numbers {
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -0.4px;
+      }
+      .nav {
+        height: 80px;
+        padding: 8px 8px 18px;
+        display: flex;
+        gap: 4px;
+        background: var(--surface);
+        border-top: 1px solid var(--line);
+      }
+      .nav button {
+        border: 0;
+        border-radius: 13px;
+        background: transparent;
+        color: var(--muted);
+        flex: 1;
+        min-width: 0;
+        display: grid;
+        place-content: center;
+        justify-items: center;
+        gap: 4px;
+        font-size: 11px;
+        min-height: 50px;
+      }
+      .nav button[aria-current='page'] {
+        background: var(--soft);
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .nav button:disabled {
+        opacity: 1;
+      }
+      .calendar-head {
+        margin-bottom: 16px;
+      }
+      .calendar-head h3 {
+        font-size: 17px;
+      }
+      .month-actions {
+        display: flex;
+        gap: 2px;
+      }
+      .month-actions button {
+        border: 0;
+        border-radius: 10px;
+        background: transparent;
+        color: var(--muted);
+        width: 44px;
+        height: 44px;
+        display: grid;
+        place-items: center;
+      }
+      .week,
+      .days {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 3px;
+        text-align: center;
+      }
+      .week {
+        margin-bottom: 6px;
+      }
+      .week span {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .days button {
+        min-height: 52px;
+        min-width: 0;
+        padding: 5px 0;
+        border: 1px solid transparent;
+        border-radius: 10px;
+        background: transparent;
+        color: var(--text);
+        display: grid;
+        align-content: center;
+        justify-items: center;
+        gap: 3px;
+        font-size: 14px;
+        font-variant-numeric: tabular-nums;
+      }
+      .days button b {
+        font-weight: 500;
+      }
+      .days small {
+        font-size: 11px;
+        line-height: 1.2;
+        white-space: nowrap;
+      }
+      .days button.selected {
+        background: var(--accent);
+        color: var(--on-accent);
+      }
+      .days button.today:not(.selected) {
+        border-color: var(--control);
+      }
+      .days .future {
+        color: var(--muted);
+      }
+      .days .income:not(.selected) {
+        color: var(--accent);
+      }
+      .summary {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+        padding-top: 16px;
+        margin-top: 14px;
+        border-top: 1px solid var(--line);
+      }
+      .summary > div {
+        min-width: 0;
+      }
+      .summary span {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .summary strong {
+        display: block;
+        font-size: 15px;
+        margin-top: 3px;
+        overflow-wrap: anywhere;
+        font-weight: 600;
+      }
+      .summary > div + div {
+        border-left: 1px solid var(--line);
+        padding-left: 8px;
+      }
+      .section-head {
+        margin: 24px 0 8px;
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .section-head h3 {
+        font-size: 17px;
+      }
+      .ledger {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        padding: 0 14px;
+      }
+      .entry {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .entry:last-child {
+        border: 0;
+      }
+      .symbol {
+        width: 40px;
+        height: 40px;
+        border-radius: 13px;
+        display: grid;
+        place-items: center;
+        background: var(--surface2);
+        color: var(--muted);
+        flex-shrink: 0;
+      }
+      .symbol.warm {
+        background: var(--warm-soft);
+        color: var(--warm);
+      }
+      .entry .description {
+        flex: 1;
+        min-width: 0;
+      }
+      .entry strong {
+        font-size: 14px;
+        display: block;
+        overflow-wrap: anywhere;
+      }
+      .entry .money {
+        font-size: 16px;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+      .link-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        color: var(--muted);
+        font-size: 13px;
+        padding-top: 14px;
+        margin-top: 14px;
+        border-top: 1px solid var(--line);
+      }
+      .module-name {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .module-name > svg {
+        color: var(--accent);
+        width: 20px;
+        height: 20px;
+      }
+      .module-name h3 {
+        font-size: 16px;
+      }
+      .module .icon-button {
+        border: 0;
+        background: var(--surface2);
+        color: var(--accent);
+      }
+      .weight-main {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 8px;
+        gap: 8px;
+      }
+      .weight-main strong {
+        font-size: 38px;
+        line-height: 1.15;
+        font-weight: 600;
+        letter-spacing: -1.4px;
+      }
+      .weight-main .unit {
+        font-size: 15px;
+        font-weight: 400;
+        letter-spacing: 0;
+        color: var(--muted);
+        margin-left: 4px;
+      }
+      .spark {
+        width: 112px;
+        height: 48px;
+        stroke-width: 2;
+        color: var(--accent);
+      }
+      .metric-inline {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+        margin: 12px 0 4px;
+      }
+      .metric-inline strong {
+        font-size: 28px;
+        font-weight: 600;
+      }
+      .metric-inline span {
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .metric-inline .divider {
+        margin: 0 10px;
+        color: var(--line);
+      }
+      .pill {
+        background: var(--soft);
+        color: var(--accent);
+        border-radius: 6px;
+        font-size: 11px;
+        padding: 4px 7px;
+        font-weight: 600;
+      }
+      .cessation-desc {
+        margin-top: 14px;
+      }
+      .cessation-desc strong {
+        font-size: 24px;
+        font-weight: 600;
+      }
+      .habit-row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        padding: 14px 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .habit-row:last-child {
+        border: 0;
+        padding-bottom: 0;
+      }
+      .habit-row .text {
+        flex: 1;
+      }
+      .check {
+        min-width: 44px;
+        min-height: 44px;
+        padding: 8px;
+        border: 1px solid var(--control);
+        background: var(--surface);
+        border-radius: 50%;
+        color: var(--accent);
+        display: grid;
+        place-items: center;
+      }
+      .check[aria-pressed='true'] {
+        background: var(--accent);
+        color: var(--on-accent);
+        border-color: var(--accent);
+      }
+      .button {
+        min-height: 48px;
+        border-radius: 13px;
+        padding: 12px 16px;
+        border: 1px solid var(--control);
+        background: var(--surface);
+        color: var(--text);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-size: 15px;
+        font-weight: 600;
+      }
+      .button.primary {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: var(--on-accent);
+      }
+      .button.secondary {
+        background: var(--soft);
+        color: var(--accent);
+        border-color: transparent;
+      }
+      .button.danger {
+        background: var(--danger-soft);
+        color: var(--danger);
+        border-color: var(--danger);
+      }
+      .button:disabled {
+        background: var(--surface2);
+        border-color: var(--line);
+        color: var(--muted);
+      }
+      .full {
+        width: 100%;
+      }
+      .empty {
+        padding: 24px 4px;
+        text-align: center;
+      }
+      .empty p {
+        color: var(--muted);
+        font-size: 14px;
+        margin: 6px 0 16px;
+      }
+      .empty-symbol {
+        margin: 0 auto 12px;
+        width: 48px;
+        height: 48px;
+        border-radius: 16px;
+        background: var(--soft);
+        color: var(--accent);
+        display: grid;
+        place-items: center;
+      }
+      .banner {
+        border: 1px solid var(--control);
+        background: var(--surface);
+        border-radius: 14px;
+        padding: 12px;
+        font-size: 13px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      .banner svg {
+        width: 18px;
+      }
+      .skeleton {
+        height: 14px;
+        width: 60%;
+        margin: 16px 0;
+        background: var(--surface2);
+        border-radius: 6px;
+      }
+      .skeleton.large {
+        height: 170px;
+        width: 100%;
+      }
+      .form-context {
+        height: 66px;
+        padding: 8px var(--pad);
+        opacity: 0.6;
+      }
+      .sheet-stage {
+        height: 666px;
+        overflow: auto;
+        background: var(--surface2);
+        padding: 0 0 0;
+      }
+      .sheet {
+        min-height: 600px;
+        background: var(--surface);
+        border-radius: 26px 26px 0 0;
+        padding: 22px var(--pad);
+        box-shadow: 0 -8px 24px #162b2110;
+      }
+      .sheet .row {
+        margin-bottom: 20px;
+      }
+      .sheet h3 {
+        font-size: 21px;
+        letter-spacing: -0.5px;
+      }
+      .segment {
+        display: flex;
+        background: var(--surface2);
+        border-radius: 11px;
+        padding: 4px;
+        gap: 4px;
+      }
+      .segment button {
+        min-height: 40px;
+        flex: 1;
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .segment button[aria-pressed='true'] {
+        background: var(--surface);
+        color: var(--text);
+        box-shadow: 0 1px 4px #0001;
+      }
+      .amount-label {
+        margin: 22px 0 4px;
+        font-size: 12px;
+        color: var(--muted);
+        display: block;
+      }
+      .amount-field {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        border-bottom: 1px solid var(--control);
+        padding: 0 0 12px;
+      }
+      .amount-field span {
+        font-size: 25px;
+        color: var(--muted);
+      }
+      .amount-field input {
+        border: 0;
+        background: transparent;
+        color: var(--text);
+        width: 100%;
+        min-width: 0;
+        font-size: 40px;
+        font-weight: 500;
+        letter-spacing: -1px;
+        font-variant-numeric: tabular-nums;
+        outline-offset: 1px;
+      }
+      .amount-field input::placeholder {
+        color: var(--muted);
+        opacity: 1;
+      }
+      .field-label {
+        font-size: 13px;
+        font-weight: 600;
+        display: block;
+        margin: 18px 0 8px;
+      }
+      .categories {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 6px;
+      }
+      .category {
+        display: grid;
+        place-items: center;
+        gap: 6px;
+        min-width: 0;
+        min-height: 70px;
+        border: 1px solid var(--control);
+        border-radius: 12px;
+        padding: 8px 2px;
+        background: var(--surface);
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .category[aria-pressed='true'] {
+        background: var(--soft);
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+      .input {
+        width: 100%;
+        min-width: 0;
+        min-height: 48px;
+        border: 1px solid var(--control);
+        border-radius: 11px;
+        padding: 12px;
+        background: var(--surface);
+        color: var(--text);
+        font-size: 16px;
+      }
+      .fields-row {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+      .input::placeholder {
+        color: var(--muted);
+        opacity: 1;
+      }
+      .form-footer {
+        position: sticky;
+        bottom: 0;
+        background: var(--surface);
+        padding: 10px 0 0;
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 10px;
+        margin-top: 22px;
+      }
+      .error {
+        color: var(--danger);
+        font-size: 13px;
+        margin-top: 8px;
+      }
+      .form-alert {
+        border: 1px solid var(--danger);
+        background: var(--danger-soft);
+        padding: 12px;
+        border-radius: 11px;
+        margin-top: 16px;
+        color: var(--danger);
+        font-size: 13px;
+      }
+      .feedback {
+        font-size: 12px;
+        color: var(--muted);
+        padding: 8px var(--pad);
+        min-height: 36px;
+        background: var(--surface);
+        border-top: 1px solid var(--line);
+      }
+      .state-control {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        font-size: 12px;
+        margin: 12px 0;
+      }
+      .state-control select {
+        min-height: 40px;
+        min-width: 0;
+        flex: 1;
+        border: 1px solid #8c9690;
+        background: #f8f8f4;
+        color: #22332d;
+        border-radius: 8px;
+        padding: 8px;
+      }
+      .component-board {
+        margin-top: 32px;
+        border-radius: 20px;
+        padding: 24px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+      }
+      .components {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center;
+        margin: 20px 0;
+      }
+      .icon-grid {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .icon-grid > div {
+        display: grid;
+        gap: 6px;
+        justify-items: center;
+        font-size: 12px;
+        color: var(--muted);
+        min-width: 48px;
+      }
+      .component-note {
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .studio-foot {
+        font-size: 13px;
+        color: #525e59;
+        margin-top: 20px;
+      }
+      .review-dialog {
+        width: min(350px, calc(100% - 32px));
+        border: 1px solid var(--line);
+        padding: 24px;
+        border-radius: 22px;
+        box-shadow: var(--shadow);
+      }
+      .review-dialog::backdrop {
+        background: #14231bb3;
+      }
+      .review-dialog p {
+        margin: 12px 0 20px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .review-dialog .actions {
+        display: grid;
+        gap: 10px;
+      }
+      .hidden {
+        display: none !important;
+      }
+      @media (min-width: 1100px) {
+        .phone {
+          max-width: 414px;
+        }
+      }
+      @media (max-width: 1050px) {
+        .studio-head {
+          align-items: start;
+          flex-direction: column;
+        }
+        .gallery {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .sample:last-child {
+          grid-column: 1/-1;
+          max-width: 414px;
+          width: 100%;
+          justify-self: center;
+        }
+      }
+      @media (max-width: 700px) {
+        .studio {
+          padding: 20px 8px 40px;
+        }
+        .gallery {
+          grid-template-columns: minmax(0, 1fr);
+          gap: 28px;
+        }
+        .sample,
+        .sample:last-child {
+          max-width: 430px;
+          width: 100%;
+          justify-self: center;
+          grid-column: auto;
+        }
+        .studio-head {
+          padding: 0 8px;
+        }
+        .tools {
+          gap: 8px;
+        }
+        .phone {
+          border-radius: 22px;
+        }
+        .product {
+          --pad: 16px;
+        }
+        .viewport {
+          height: 666px;
+        }
+        .component-board {
+          padding: 18px;
+        }
+        .amount-field input {
+          font-size: 36px;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        button {
+          transition: none;
+        }
+        button:not(:disabled):active {
+          transform: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="studio">
+      <header class="studio-head">
+        <div>
+          <p class="eyebrow">LIFEINDEX / DESIGN REVIEW 03</p>
+          <h1>把生活，记得清楚。</h1>
+          <p class="intro">
+            三个高保真样板 · 合成数据 ·
+            审核信息密度、双主题和操作层级。本稿不连接产品存储，也不执行真实记账。
+          </p>
+        </div>
+        <div class="tools">
+          <div class="themes" aria-label="审稿主题">
+            <button data-theme-set="light" aria-pressed="true">浅色</button
+            ><button data-theme-set="dark" aria-pressed="false">深色</button>
+          </div>
+          <label
+            >页面密度<select id="density">
+              <option value="calm">舒展 · 推荐</option>
+              <option value="compact">紧凑 · 更多首屏信息</option>
+            </select></label
+          ><label
+            >首页状态<select id="home-state">
+              <option value="normal">正常数据</option>
+              <option value="empty">空数据</option>
+              <option value="error">读取失败</option>
+              <option value="loading">读取中</option>
+            </select></label
+          >
+        </div>
+      </header>
+      <div class="gallery">
+        <section class="sample">
+          <div class="caption">01 / 记账首页<span>日历 → 月汇总 → 日明细</span></div>
+          <div class="phone product" data-theme="light" id="finance-phone">
+            <div class="statusbar"><span>9:41</span><span class="system">本机演示</span></div>
+            <header class="app-header">
+              <div>
+                <p class="kicker">每一笔，都有迹可循</p>
+                <h2>记账</h2>
+              </div>
+              <button class="icon-button accent" data-open-form aria-label="新增账目"></button>
+            </header>
+            <div class="viewport" id="finance-view"></div>
+            <nav class="nav" aria-label="记账样板导航" data-nav="finance"></nav>
+            <p class="feedback">今天 / 专注 / 设置在 G4 展开，导航仅展示样式。</p>
+          </div>
+        </section>
+        <section class="sample">
+          <div class="caption">02 / 健康首页<span>轻摘要，不堆叠仪表盘</span></div>
+          <div class="phone product" data-theme="light" id="health-phone">
+            <div class="statusbar"><span>9:41</span><span class="system">本机演示</span></div>
+            <header class="app-header">
+              <div>
+                <p class="kicker">照顾自己，从一件小事开始</p>
+                <h2>健康</h2>
+              </div>
+              <span class="pill">仅本机</span>
+            </header>
+            <div class="viewport" id="health-view"></div>
+            <nav class="nav" aria-label="健康样板导航" data-nav="health"></nav>
+            <p class="feedback" id="health-feedback" role="status">
+              趋势与历史入口是视觉样板，详情在 G4 展开。
+            </p>
+          </div>
+        </section>
+        <section class="sample">
+          <div class="caption">03 / 新增记录<span>底部表单与异常状态</span></div>
+          <div class="phone product" data-theme="light" id="form-phone">
+            <div class="statusbar"><span>9:41</span><span class="system">表单样板</span></div>
+            <div class="form-context">
+              <p class="kicker">记账 / 所选日期</p>
+              <h2 id="context-date">9 月 16 日</h2>
+            </div>
+            <div class="sheet-stage">
+              <form class="sheet" id="entry-form" novalidate>
+                <div class="row">
+                  <h3>记一笔</h3>
+                  <button
+                    type="button"
+                    class="icon-button"
+                    id="close-form"
+                    aria-label="关闭记账表单"
+                  ></button>
+                </div>
+                <div class="segment" aria-label="账目类型">
+                  <button type="button" data-type="expense" aria-pressed="true">支出</button
+                  ><button type="button" data-type="income" aria-pressed="false">收入</button>
+                </div>
+                <label class="amount-label" for="amount">金额 · 人民币</label>
+                <div class="amount-field">
+                  <span>¥</span
+                  ><input
+                    id="amount"
+                    name="amount"
+                    inputmode="decimal"
+                    placeholder="0.00"
+                    aria-describedby="amount-error"
+                    autocomplete="off"
+                  />
+                </div>
+                <p class="error hidden" id="amount-error">请输入大于 0 的金额，最多两位小数。</p>
+                <span class="field-label" id="category-label">分类</span>
+                <div
+                  class="categories"
+                  id="categories"
+                  role="group"
+                  aria-labelledby="category-label"
+                ></div>
+                <p class="error hidden" id="category-error">请选择一个分类。</p>
+                <div class="fields-row">
+                  <label class="field-label" for="entry-date">日期与时间</label
+                  ><input
+                    class="input"
+                    type="datetime-local"
+                    id="entry-date"
+                    name="date"
+                    value="2026-09-16T09:41"
+                  />
+                  <p class="error hidden" id="date-error">请选择有效的日期与时间。</p>
+                  <label class="field-label" for="note">备注 <span class="small">可选</span></label
+                  ><input
+                    class="input"
+                    id="note"
+                    name="note"
+                    placeholder="给这一笔留个备注"
+                    maxlength="120"
+                  />
+                </div>
+                <div class="form-alert hidden" role="alert" id="save-error">
+                  未能保存，输入已保留。请重试。
+                </div>
+                <div class="form-footer">
+                  <button type="button" class="button" id="cancel-form">取消</button
+                  ><button class="button primary" id="save-form">保存记录</button>
+                </div>
+              </form>
+              <div class="sheet hidden" id="form-result">
+                <div class="empty">
+                  <div class="empty-symbol" id="result-icon"></div>
+                  <h3 id="result-title">已保存演示记录</h3>
+                  <p id="result-copy">这里只更新审稿状态，不写入真实数据。</p>
+                  <button class="button primary" id="reopen-form">再记一笔</button>
+                </div>
+              </div>
+            </div>
+            <p class="feedback" id="form-feedback" role="status">
+              修改后关闭会确认放弃；保存仅模拟结果。
+            </p>
+          </div>
+          <label class="state-control"
+            >表单状态<select id="form-state">
+              <option value="input">输入中</option>
+              <option value="invalid">字段校验失败</option>
+              <option value="saving">保存中（静态样式）</option>
+              <option value="failure">保存失败</option>
+              <option value="success">保存成功</option>
+              <option value="discard">放弃确认</option>
+            </select></label
+          ><label class="state-control"
+            ><input type="checkbox" id="fail-next" />下一次保存模拟失败（仅审稿）</label
+          >
+        </section>
+      </div>
+      <section class="component-board product" data-theme="light">
+        <div class="row">
+          <div>
+            <p class="kicker">SHARED COMPONENTS</p>
+            <h2>同一种操作，同一种表达。</h2>
+          </div>
+          <span class="pill">样式标本 · 非业务操作</span>
+        </div>
+        <div class="components" id="button-specimens"></div>
+        <div class="icon-grid" id="icon-specimens"></div>
+        <p class="component-note">
+          主按钮强调当前任务，危险动作独立确认；图标使用统一 24px 网格、1.8px
+          圆端线条。实际图标按钮触点不小于 44px。下方为静态状态标本，不执行保存或删除。
+        </p>
+      </section>
+      <p class="studio-foot">
+        G3 待审核：这不是完整产品原型。金额来自固定合成样例；健康趋势、记录数为明确示意；不模拟
+        iPhone 系统栏、键盘或后台。选择“紧凑”只缩减卡片间距，不缩小文字与触点。
+      </p>
+    </main>
+    <dialog
+      class="review-dialog product"
+      data-theme="light"
+      id="discard"
+      aria-labelledby="discard-title"
+    >
+      <h2 id="discard-title">放弃尚未保存的更改？</h2>
+      <p>关闭后，本次输入不会保留。已保存的记录不会受到影响。</p>
+      <div class="actions">
+        <button class="button primary" id="continue-edit">继续编辑</button
+        ><button class="button danger" id="discard-edit">放弃更改</button>
+      </div>
+    </dialog>
+    <script>
+      ;(() => {
+        'use strict'
+        // Original, code-native symbols extend the existing LifeIndex 24px line-icon direction; no external assets or libraries.
+        const paths = {
+          plus: 'M12 5v14M5 12h14',
+          close: 'm6 6 12 12M18 6 6 18',
+          left: 'm14 6-6 6 6 6',
+          right: 'm10 6 6 6-6 6',
+          check: 'm5 12 4 4 10-10',
+          today: 'M7 3v4m10-4v4M4 9h16M5 5h14a1 1 0 0 1 1 1v14H4V6a1 1 0 0 1 1-1m3 10 3 3 5-5',
+          finance: 'M4 6h15v14H4V6Zm0 0 12-3v3m-1 6h5v4h-5z',
+          focus: 'M9 3h6m-3 0v3m5 0 2-2M12 10v5l3 2M20 14a8 8 0 1 1-16 0 8 8 0 0 1 16 0',
+          health: 'M12 20S3 14 3 8a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 6-9 12-9 12m-6-9h3l2-4 2 8 2-4h3',
+          settings:
+            'M9 4h6l1 3 3 1 1 5-2 2-1 4-5 2-4-2-2-4-2-2 1-5 3-1 1-3m6 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0',
+          weight:
+            'M5 3h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2m3 4h8l-1 5H9L8 7m4 0v3',
+          activity: 'm4 15 3-5 5 3 5 1 3 4H4v-3m4-9 2 4m4-4-2 6',
+          leaf: 'M5 19C1 8 12 4 20 4c0 10-5 17-15 15m0 0L16 8',
+          book: 'M12 6v15M3 4c4-1 6 0 9 2 3-2 5-3 9-2v15c-4-1-6 0-9 2-3-2-5-3-9-2V4',
+          food: 'M5 3v7m3-7v7m-3 0h3m-1.5 0v11M18 3c-4 3-4 8 0 8m0-8v18',
+          coffee: 'M4 8h12v8a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V8Zm12 1h2a3 3 0 0 1 0 6h-2M7 3v2m5-2v2',
+          train: 'M6 3h12v15H6V3m0 8h12M9 21l1-3m4 0 1 3M9 15h.1m5.9 0h.1',
+          grid: 'M3 3h7v7H3V3m11 0h7v7h-7V3M3 14h7v7H3v-7m11 0h7v7h-7v-7',
+          edit: 'm4 16 12-12 4 4L8 20H4v-4m9-9 4 4',
+          trash: 'M4 6h16M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7m4-7v7',
+          alert: 'M12 3 2 21h20L12 3m0 6v5m0 3v1',
+          arrow: 'M12 4v16m-6-6 6 6 6-6',
+        }
+        const icon = (n) =>
+          `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${paths[n] || paths.grid}"/></svg>`
+        const q = (id) => document.getElementById(id),
+          log = (event) => console.info('[G3 design]', event)
+        const state = {
+          theme: 'light',
+          month: 8,
+          day: 16,
+          mode: 'normal',
+          type: 'expense',
+          category: '',
+          checked: false,
+          busy: false,
+        }
+        // All numbers are synthetic; this collection is used only for consistent calendar and list presentation.
+        const records = [
+          { day: 5, value: 850000, name: '工资', symbol: 'finance' },
+          { day: 6, value: -42800, name: '生活用品', symbol: 'grid' },
+          { day: 8, value: -12800, name: '餐饮', symbol: 'food' },
+          { day: 10, value: -6800, name: '交通', symbol: 'train' },
+          { day: 12, value: -15600, name: '生活用品', symbol: 'grid' },
+          { day: 15, value: -3800, name: '餐饮', symbol: 'food' },
+          { day: 16, value: -3800, name: '午餐', symbol: 'food' },
+          { day: 16, value: -2600, name: '咖啡', symbol: 'coffee' },
+          { day: 16, value: -1200, name: '地铁', symbol: 'train' },
+        ]
+        const money = (n) =>
+          (Math.abs(n) / 100).toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
+        const form = q('entry-form')
+        let initial = ''
+        function notice(id, text) {
+          q(id).textContent = text
+        }
+        function renderNav() {
+          document.querySelectorAll('[data-nav]').forEach((nav) => {
+            nav.innerHTML = [
+              ['today', '今天'],
+              ['finance', '记账'],
+              ['focus', '专注'],
+              ['health', '健康'],
+              ['settings', '设置'],
+            ]
+              .map(
+                ([key, label]) =>
+                  `<button type="button" disabled ${nav.dataset.nav === key ? 'aria-current="page"' : ''} aria-label="${label}，导航样式展示">${icon(key)}<span>${label}</span></button>`,
+              )
+              .join('')
+          })
+          document.querySelector('[data-open-form]').innerHTML = icon('plus')
+          q('close-form').innerHTML = icon('close')
+        }
+        function finance() {
+          const monthRecords = state.month === 8 && state.mode !== 'empty' ? records : []
+          const totalIn = monthRecords.filter((r) => r.value > 0).reduce((a, r) => a + r.value, 0),
+            totalOut = -monthRecords.filter((r) => r.value < 0).reduce((a, r) => a + r.value, 0)
+          const count = new Date(Date.UTC(2026, state.month + 1, 0)).getUTCDate(),
+            offset = (new Date(Date.UTC(2026, state.month, 1)).getUTCDay() + 6) % 7
+          state.day = Math.min(state.day, count)
+          if (state.mode === 'loading') {
+            q('finance-view').innerHTML =
+              '<div class="card" role="status"><p class="sub">正在读取账目…</p><div class="skeleton"></div><div class="skeleton large"></div><div class="skeleton"></div></div>'
+            return
+          }
+          if (state.mode === 'error') {
+            q('finance-view').innerHTML =
+              `<div class="card"><div class="empty"><div class="empty-symbol">${icon('alert')}</div><h3>暂时无法读取账目</h3><p>这不表示记录已丢失。请重试。</p><button class="button secondary" data-retry>重新读取</button></div></div>`
+            return
+          }
+          const dayRows = monthRecords.filter((r) => r.day === state.day),
+            net = dayRows.reduce((a, r) => a + r.value, 0)
+          q('finance-view').innerHTML =
+            `<section class="card"><div class="row calendar-head"><h3>2026 年 ${state.month + 1} 月</h3><div class="month-actions"><button data-month="-1" aria-label="上个月">${icon('left')}</button><button data-month="1" aria-label="下个月">${icon('right')}</button></div></div><div class="week">${['一', '二', '三', '四', '五', '六', '日'].map((d) => '<span>' + d + '</span>').join('')}</div><div class="days">${'<span></span>'.repeat(offset)}${Array.from(
+              { length: count },
+              (_, i) => {
+                const day = i + 1,
+                  rows = monthRecords.filter((r) => r.day === day),
+                  value = rows.reduce((a, r) => a + r.value, 0)
+                return `<button data-day="${day}" aria-label="${state.month + 1}月${day}日，${rows.length ? '净额' + value / 100 + '元' : '无记录'}" aria-pressed="${day === state.day}" class="${day === state.day ? 'selected' : ''} ${day === 16 && state.month === 8 ? 'today' : ''} ${value > 0 ? 'income' : ''}"><b>${day}</b><small>${rows.length ? (value > 0 ? '+' : '−') + (Math.abs(value) >= 100000 ? (Math.abs(value) / 100000).toFixed(1) + 'k' : Math.abs(value) / 100) : '·'}</small></button>`
+              },
+            ).join(
+              '',
+            )}</div><div class="summary numbers"><div><span>月收入</span><strong>${totalIn ? money(totalIn) : '0.00'}</strong></div><div><span>月支出</span><strong>${totalOut ? money(totalOut) : '0.00'}</strong></div><div><span>月结余</span><strong>${totalIn - totalOut < 0 ? '−' : ''}${money(totalIn - totalOut)}</strong></div></div><p class="small" style="margin-top:10px">人民币 · 日历显示每日净额，k = 千元</p></section><div class="section-head"><h3>${state.month + 1} 月 ${state.day} 日</h3><span class="sub">${dayRows.length ? `${dayRows.length} 笔 · 净额 ${net < 0 ? '−' : '+'}${money(net)}` : '暂无记录'}</span></div>${dayRows.length ? `<div class="ledger">${dayRows.map((r) => `<div class="entry"><span class="symbol ${r.symbol === 'food' || r.symbol === 'coffee' ? 'warm' : ''}">${icon(r.symbol)}</span><div class="description"><strong>${r.name}</strong><span class="small">${r.value > 0 ? '收入' : '支出'} · 合成记录</span></div><span class="money numbers">${r.value > 0 ? '+' : '−'}${money(r.value)}</span></div>`).join('')}</div>` : `<div class="card empty"><div class="empty-symbol">${icon('finance')}</div><h3>这一天，还没有记录</h3><p>从一笔小开销开始。</p><button class="button secondary" data-open-form>${icon('plus')}记一笔</button></div>`}<p class="small" style="margin-top:16px">日明细为展示状态，编辑与完整回顾在 G4 展开。</p>`
+        }
+        function health() {
+          if (state.mode === 'loading') {
+            q('health-view').innerHTML =
+              '<div class="card" role="status"><p class="sub">正在读取健康记录…</p><div class="skeleton large"></div><div class="skeleton"></div></div>'
+            return
+          }
+          if (state.mode === 'error') {
+            q('health-view').innerHTML =
+              `<div class="banner">${icon('alert')}<span>暂时无法读取健康记录，并非没有数据。</span></div><button class="button secondary full" data-retry>重新读取</button>`
+            return
+          }
+          const empty = state.mode === 'empty'
+          q('health-view').innerHTML =
+            `<section class="card module"><div class="row"><div class="module-name">${icon('weight')}<h3>体重</h3></div><button class="icon-button" data-preview="体重记录表单在 G4 展开" aria-label="记录体重">${icon('plus')}</button></div><div class="weight-main"><div><strong class="numbers">${empty ? '—' : '65.2'}<span class="unit">kg</span></strong><p class="small">${empty ? '还没有体重记录' : '最近记录 · 今天 07:30'}</p></div>${empty ? '' : `<svg class="spark" viewBox="0 0 112 48" role="img" aria-label="合成体重趋势示意，无坐标统计"><path d="M2 12 16 17 30 14 44 25 58 21 72 29 86 27 110 34"/><circle cx="110" cy="34" r="2" fill="currentColor"/></svg>`}</div><div class="link-row"><span>${empty ? '记录第一次体重' : '30 天趋势 · 示意'}</span><button class="icon-button" data-preview="完整体重历史与目标在 G4 展开" aria-label="查看完整体重记录">${icon('right')}</button></div></section><section class="card module"><div class="row"><div class="module-name">${icon('activity')}<h3>运动</h3></div><button class="icon-button" data-preview="运动记录表单在 G4 展开" aria-label="记录运动">${icon('plus')}</button></div><div class="metric-inline numbers"><strong>${empty ? '0' : '3'}</strong><span>次</span><span class="divider">/</span><strong>${empty ? '0' : '90'}</strong><span>分钟</span></div><div class="row"><p class="small">${empty ? '一次步行，也值得记下' : '本周累计 · 合成示例'}</p><button class="icon-button" data-preview="完整运动历史在 G4 展开" aria-label="查看完整运动记录">${icon('right')}</button></div></section><section class="card module"><div class="row"><div class="module-name">${icon('leaf')}<h3>戒烟</h3></div>${empty ? '' : '<span class="pill">进行中</span>'}</div>${empty ? `<p class="sub cessation-desc">按需开启，记录自己的节奏。</p><button class="button secondary full" style="margin-top:14px" data-preview="开始计划表单在 G4 展开">${icon('plus')}开始计划</button>` : `<div class="cessation-desc"><strong class="numbers">12 天</strong><p class="small">计划已开始 · 不代表连续无烟</p></div><div class="link-row"><span>今天：未记录</span><button class="icon-button" data-preview="戒烟详情与事实状态在 G4 展开" aria-label="查看戒烟计划">${icon('right')}</button></div>`}</section><section class="card module"><div class="row"><div class="module-name">${icon('book')}<h3>今日习惯</h3></div><span class="small">${empty ? '0/0' : state.checked ? '2/2' : '1/2'}</span></div>${empty ? `<div class="empty"><p>一个小习惯，就够开始。</p><button class="button secondary" data-preview="创建习惯在 G4 展开">${icon('plus')}创建习惯</button></div>` : `<div class="habit-row"><span class="symbol">${icon('book')}</span><div class="text"><h3>阅读</h3><p class="small">每天 · ${state.checked ? '已完成' : '待打卡'}</p></div><button class="check" aria-label="${state.checked ? '撤销阅读打卡' : '完成阅读打卡'}" aria-pressed="${state.checked}" data-check>${state.checked ? icon('check') : icon('plus')}</button></div><div class="habit-row"><span class="symbol">${icon('activity')}</span><div class="text"><h3>拉伸</h3><p class="small">每天 · 已完成（示例）</p></div><span class="pill">已完成</span></div><p class="small" style="margin-top:14px">连续天数与热力图在习惯详情，G4 展开。</p>`}</section>`
+        }
+        function categories() {
+          const choices =
+            state.type === 'expense'
+              ? [
+                  ['food', '餐饮'],
+                  ['coffee', '饮品'],
+                  ['train', '交通'],
+                  ['grid', '其他'],
+                ]
+              : [
+                  ['finance', '工资'],
+                  ['grid', '其他收入'],
+                ]
+          q('categories').innerHTML = choices
+            .map(
+              ([key, label]) =>
+                `<button type="button" class="category" aria-label="分类：${label}" aria-pressed="${state.category === label}" data-category="${label}">${icon(key)}${label}</button>`,
+            )
+            .join('')
+        }
+        const snapshot = () =>
+          JSON.stringify([
+            q('amount').value,
+            q('entry-date').value,
+            q('note').value,
+            state.category,
+            state.type,
+          ])
+        function clearErrors() {
+          ;['amount-error', 'category-error', 'date-error', 'save-error'].forEach((id) =>
+            q(id).classList.add('hidden'),
+          )
+          ;['amount', 'entry-date'].forEach((id) => q(id).removeAttribute('aria-invalid'))
+        }
+        function busy(on) {
+          state.busy = on
+          form.querySelectorAll('button,input').forEach((el) => (el.disabled = on))
+          q('save-form').innerHTML = on ? '保存中…' : icon('check') + '保存记录'
+          log(on ? 'form.saving' : 'form.ready')
+        }
+        function result(saved) {
+          form.classList.add('hidden')
+          q('form-result').classList.remove('hidden')
+          q('result-icon').innerHTML = icon(saved ? 'check' : 'close')
+          q('result-title').textContent = saved ? '已保存演示记录' : '已关闭表单'
+          q('result-copy').textContent = saved
+            ? '仅展示成功状态，不会写入真实数据。'
+            : '未保存的输入已放弃。'
+          notice('form-feedback', saved ? '演示保存成功 · 未写入产品数据库' : '演示表单已关闭')
+          log(saved ? 'form.success' : 'form.closed')
+        }
+        function openForm(reset = true) {
+          form.classList.remove('hidden')
+          q('form-result').classList.add('hidden')
+          if (reset) {
+            q('amount').value = ''
+            q('note').value = ''
+            state.category = ''
+            q('entry-date').value =
+              `2026-${String(state.month + 1).padStart(2, '0')}-${String(state.day).padStart(2, '0')}T09:41`
+            q('context-date').textContent = `${state.month + 1} 月 ${state.day} 日`
+            categories()
+            clearErrors()
+            busy(false)
+            initial = snapshot()
+          }
+          q('form-state').value = 'input'
+          log('form.opened')
+        }
+        function closeForm() {
+          if (state.busy) {
+            log('form.exit.blocked')
+            return
+          }
+          if (snapshot() !== initial) {
+            q('discard').showModal()
+            q('continue-edit').focus()
+            log('form.discard.requested')
+          } else result(false)
+        }
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault()
+          if (state.busy) return
+          log('form.submit')
+          clearErrors()
+          const validAmount =
+            /^\d+(\.\d{1,2})?$/.test(q('amount').value) && Number(q('amount').value) > 0
+          if (!validAmount) {
+            q('amount-error').classList.remove('hidden')
+            q('amount').setAttribute('aria-invalid', 'true')
+          }
+          if (!state.category) q('category-error').classList.remove('hidden')
+          const validDate = Boolean(q('entry-date').value)
+          if (!validDate) {
+            q('date-error').classList.remove('hidden')
+            q('entry-date').setAttribute('aria-invalid', 'true')
+          }
+          if (!validAmount || !state.category || !validDate) {
+            ;(!validAmount
+              ? q('amount')
+              : !validDate
+                ? q('entry-date')
+                : q('categories').querySelector('button')
+            ).focus()
+            log('form.validation.failed')
+            return
+          }
+          busy(true)
+          // The review-state selector must not replace an in-flight synthetic operation.
+          q('form-state').disabled = true
+          try {
+            await new Promise((resolve) => setTimeout(resolve, 700))
+            if (q('fail-next').checked) {
+              q('fail-next').checked = false
+              throw new Error('SyntheticFailure')
+            }
+            busy(false)
+            result(true)
+          } catch {
+            busy(false)
+            q('save-error').classList.remove('hidden')
+            notice('form-feedback', '模拟保存失败，输入已保留')
+            log('form.save.failed')
+          } finally {
+            q('form-state').disabled = false
+          }
+        })
+        document.addEventListener('click', (e) => {
+          const b = e.target.closest('button')
+          if (!b) return
+          if (b.dataset.themeSet) {
+            state.theme = b.dataset.themeSet
+            document.querySelectorAll('.product').forEach((el) => (el.dataset.theme = state.theme))
+            document
+              .querySelectorAll('[data-theme-set]')
+              .forEach((el) => el.setAttribute('aria-pressed', el.dataset.themeSet === state.theme))
+            log('theme.changed')
+          } else if (b.hasAttribute('data-open-form')) {
+            if (snapshot() !== initial && !form.classList.contains('hidden')) {
+              notice('form-feedback', '已有未保存输入，请先保存或取消，再从选中日期新增。')
+            } else openForm()
+            q('form-phone').scrollIntoView({ block: 'start', behavior: 'instant' })
+            q('amount').focus()
+          } else if (b.dataset.day) {
+            state.day = Number(b.dataset.day)
+            finance()
+            log('calendar.selected')
+          } else if (b.dataset.month) {
+            state.month = Math.min(11, Math.max(0, state.month + Number(b.dataset.month)))
+            finance()
+            log('calendar.month.changed')
+          } else if (b.dataset.category) {
+            state.category = b.dataset.category
+            categories()
+            log('form.category.changed')
+          } else if (b.dataset.type) {
+            state.type = b.dataset.type
+            state.category = ''
+            document
+              .querySelectorAll('[data-type]')
+              .forEach((el) => el.setAttribute('aria-pressed', el.dataset.type === state.type))
+            categories()
+            log('form.type.changed')
+          } else if (b.hasAttribute('data-check')) {
+            state.checked = !state.checked
+            health()
+            notice(
+              'health-feedback',
+              state.checked ? '合成阅读习惯已打卡，可再次点击撤销' : '合成阅读打卡已撤销',
+            )
+            log('habit.toggled')
+          } else if (b.dataset.preview) {
+            notice('health-feedback', b.dataset.preview + '；当前仅审核入口样式。')
+            log('preview.limit.shown')
+          } else if (b.hasAttribute('data-retry')) {
+            state.mode = 'normal'
+            q('home-state').value = 'normal'
+            finance()
+            health()
+            log('read.retry')
+          }
+        })
+        q('close-form').onclick = closeForm
+        q('cancel-form').onclick = closeForm
+        q('continue-edit').onclick = () => {
+          q('discard').close()
+          q('amount').focus()
+          log('form.discard.cancelled')
+        }
+        q('discard-edit').onclick = () => {
+          q('discard').close()
+          result(false)
+          log('form.discard.accepted')
+        }
+        q('discard').addEventListener('cancel', () => log('form.discard.escape'))
+        // Escape is scoped to this form showcase and cannot close another sample or bypass a pending save.
+        form.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            e.preventDefault()
+            closeForm()
+          }
+        })
+        q('reopen-form').onclick = () => openForm()
+        q('density').onchange = (e) => {
+          document
+            .querySelectorAll('.product')
+            .forEach((el) => el.classList.toggle('compact', e.target.value === 'compact'))
+          log('density.changed')
+        }
+        q('home-state').onchange = (e) => {
+          state.mode = e.target.value
+          finance()
+          health()
+          log('read.state.changed')
+        }
+        q('form-state').onchange = (e) => {
+          const mode = e.target.value
+          openForm(false)
+          clearErrors()
+          busy(false)
+          e.target.value = mode
+          if (mode === 'invalid') {
+            q('amount-error').classList.remove('hidden')
+            q('amount').setAttribute('aria-invalid', 'true')
+          }
+          if (mode === 'saving') busy(true)
+          if (mode === 'failure') q('save-error').classList.remove('hidden')
+          if (mode === 'success') result(true)
+          if (mode === 'discard') {
+            q('discard').showModal()
+            q('continue-edit').focus()
+          }
+          log('form.sample.changed')
+        }
+        q('button-specimens').innerHTML =
+          `<span class="button primary">${icon('plus')}主操作</span><span class="button secondary">次操作</span><span class="button">取消</span><span class="button danger">${icon('trash')}删除记录</span><button class="button" disabled>暂不可用</button><span class="button primary">保存中…</span><span class="button secondary">${icon('check')}已保存</span><span class="button danger">${icon('alert')}保存失败</span>`
+        q('icon-specimens').innerHTML = [
+          ['plus', '新增'],
+          ['close', '关闭'],
+          ['edit', '编辑'],
+          ['trash', '删除'],
+          ['weight', '体重'],
+          ['activity', '运动'],
+          ['leaf', '戒烟'],
+          ['book', '习惯'],
+          ['arrow', '导出'],
+          ['check', '完成'],
+        ]
+          .map(([key, name]) => `<div>${icon(key)}<span>${name}</span></div>`)
+          .join('')
+        renderNav()
+        finance()
+        health()
+        categories()
+        openForm()
+        log('prototype.ready')
+      })()
+    </script>
+  </body>
+</html>

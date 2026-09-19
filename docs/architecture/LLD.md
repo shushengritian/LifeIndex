@@ -1,5 +1,7 @@
 # LifeIndex V2 Low-Level Design
 
+> 2026-09-19：Ocean 阶段 5 的组件、分类、备份与测试契约见 [REDESIGN_LLD](REDESIGN_LLD.md)，历史 V2 规格保留。
+
 > **2026-09-14 · V2.1 amendment:** V2.1 implementation: `src/features/health/cessation/` contains page/card/forms and live-query clock hooks; `CessationRepository` owns transactional mutations; `shared/domain/cessation.ts` owns date, summary and integrity rules. See [CESSATION_V3](CESSATION_V3.md) for authoritative state transitions and backup reuse.
 
 **Status:** Accepted and frozen at gate G2

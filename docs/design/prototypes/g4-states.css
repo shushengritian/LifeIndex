@@ -1,0 +1,159 @@
+/* Inherit the approved Ocean palette; review tools stay separate from product actions. */
+body {
+  height: auto;
+  min-height: 100%;
+  font-size: 16px;
+}
+main {
+  max-width: 460px;
+  margin: auto;
+  overflow: visible;
+  padding: 28px 20px 40px;
+}
+h1 {
+  font-size: 28px;
+}
+h2 {
+  font-size: 19px;
+}
+.intro,
+footer p {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.65;
+}
+section {
+  padding: 24px 0;
+  border-bottom: 1px solid var(--line);
+}
+.sectionhead {
+  margin: 0 0 14px;
+  gap: 12px;
+}
+.badge {
+  font-size: 12px;
+  color: var(--muted);
+}
+.notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: var(--soft);
+  padding: 14px;
+  border-radius: 14px;
+  margin-top: 14px;
+  font-size: 15px;
+}
+.notice .icon {
+  color: var(--accent);
+  margin-top: 2px;
+}
+.actions {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  gap: 10px;
+  margin-top: 18px;
+}
+.actions button {
+  font-size: 15px;
+  min-height: 48px;
+  height: auto;
+  padding: 12px;
+}
+.test-tools {
+  margin-top: 18px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.test-tools summary {
+  min-height: 44px;
+  padding: 10px 0;
+  cursor: pointer;
+}
+.test-tools label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+}
+.test-tools input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--accent);
+}
+.test-tools button {
+  display: block;
+}
+.preview {
+  margin: 18px 0 10px;
+  padding: 8px 16px;
+  background: var(--surface);
+  border-radius: 14px;
+}
+.preview div {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 10px 0;
+}
+.preview dt {
+  color: var(--muted);
+  font-size: 14px;
+}
+.preview dd {
+  margin: 0;
+  font-weight: 550;
+  overflow-wrap: anywhere;
+}
+.helper {
+  font-size: 12px;
+}
+#action-status,
+#update-status {
+  margin-top: 14px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+footer {
+  margin-top: 28px;
+}
+a {
+  color: var(--accent);
+  text-underline-offset: 4px;
+}
+a:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 4px;
+}
+footer a {
+  display: inline-block;
+  min-height: 44px;
+  padding: 10px 0;
+}
+footer p {
+  font-size: 12px;
+}
+.state-title {
+  display: block;
+  font-size: 17px;
+  margin-bottom: 4px;
+}
+.state-copy {
+  display: block;
+  color: var(--muted);
+  font-size: 14px;
+}
+@media (max-width: 350px) {
+  main {
+    padding-inline: 16px;
+  }
+  .actions {
+    grid-template-columns: 1fr;
+  }
+  .badge {
+    max-width: 90px;
+  }
+  .pagehead {
+    gap: 10px;
+  }
+}

@@ -1,5 +1,7 @@
 # LifeIndex V2 High-Level Design
 
+> 2026-09-19：已授权 Ocean 阶段 5，当前增量设计见 [REDESIGN_HLD](REDESIGN_HLD.md)。下文为历史 V2 基线，不代表新版迁移已实现。
+
 > **2026-09-14 · V2.1 amendment:** V2.1 local implementation extends Health with an isolated cessation repository and three IndexedDB stores. [CESSATION_V3](CESSATION_V3.md) defines the current extension to this V2 baseline. No services or dependencies added.
 
 **Status:** Accepted and frozen at gate G2

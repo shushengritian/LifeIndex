@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 
 import { useAppServices } from '@/app/AppServicesContext'
@@ -11,22 +12,27 @@ import { parseActionRoute, type ParsedAction } from '@/app/actions/actionParser'
 import { formatMoney } from '@/shared/domain/money'
 import type { ActionType } from '@/shared/domain/types'
 import { logger } from '@/shared/logging/logger'
+import { TransactionActionEditor } from './TransactionActionEditor'
+import { usePwa } from '@/pwa/PwaContext'
 
 type PageState =
   | { status: 'checking' }
   | {
       status: 'ready'
       actionId: string
+      action: ParsedAction
       inspection: Extract<ActionInspection, { status: 'ready' }>
     }
   | {
       status: 'submitting'
       actionId: string
+      action: ParsedAction
       inspection: Extract<ActionInspection, { status: 'ready' }>
     }
   | {
       status: 'failed'
       actionId: string
+      action: ParsedAction
       inspection: Extract<ActionInspection, { status: 'ready' }>
     }
 
@@ -50,6 +56,21 @@ export function ActionPage() {
   const navigate = useNavigate()
   const parsed = useMemo(() => parseActionRoute(actionType, search), [actionType, search])
   const [state, setState] = useState<PageState>({ status: 'checking' })
+  const { setFormDirty } = usePwa()
+  const guard = useRef(Symbol('shortcut-write'))
+  const writeLock = useRef(false)
+  const generation = useRef(0)
+
+  useEffect(() => {
+    const token = guard.current
+    generation.current += 1
+    return () => {
+      // A committed transaction cannot be aborted by unmounting; its stale completion must not navigate a new page.
+      generation.current += 1
+      writeLock.current = false
+      setFormDirty(token, false)
+    }
+  }, [parsed, setFormDirty])
 
   useEffect(() => {
     if (!parsed.ok) {
@@ -57,6 +78,8 @@ export function ActionPage() {
       navigate('/action-result?status=invalid', { replace: true })
       return
     }
+    // Transaction drafts have their own editable preview and recover invalid categories without losing input.
+    if (parsed.action.type === 'add-transaction') return
 
     let active = true
     void service
@@ -67,7 +90,12 @@ export function ActionPage() {
           navigate(`/action-result?status=handled&type=${parsed.action.type}`, { replace: true })
           return
         }
-        setState({ status: 'ready', actionId: parsed.action.actionId, inspection })
+        setState({
+          status: 'ready',
+          actionId: parsed.action.actionId,
+          action: parsed.action,
+          inspection,
+        })
       })
       .catch(() => {
         if (!active) return
@@ -79,7 +107,17 @@ export function ActionPage() {
     }
   }, [navigate, parsed, service])
 
-  if (!parsed.ok || state.status === 'checking' || state.actionId !== parsed.action.actionId) {
+  if (parsed.ok && parsed.action.type === 'add-transaction') {
+    return (
+      <TransactionActionEditor
+        key={`${actionType}:${search}`}
+        action={parsed.action}
+        service={service}
+      />
+    )
+  }
+  // A reused actionId does not imply identical payload: never expose an old inspection for a new parsed action.
+  if (!parsed.ok || state.status === 'checking' || state.action !== parsed.action) {
     return (
       <section className="page action-page" aria-labelledby="action-loading-title">
         <p className="eyebrow">shortcut</p>
@@ -90,17 +128,55 @@ export function ActionPage() {
   }
 
   async function execute(action: ParsedAction) {
-    if (state.status === 'checking') return
-    setState({ status: 'submitting', actionId: action.actionId, inspection: state.inspection })
+    if (state.status === 'checking' || state.action !== action || writeLock.current) {
+      logger.info('action.preview.submitignored', { operation: 'save', actionType: action.type })
+      return
+    }
+    const attempt = generation.current
+    writeLock.current = true
+    // Register synchronously before awaiting IndexedDB, including the gap before React paints disabled buttons.
+    flushSync(() => {
+      setFormDirty(guard.current, true, true)
+      setState({
+        status: 'submitting',
+        actionId: action.actionId,
+        action,
+        inspection: state.inspection,
+      })
+    })
+    logger.info('action.preview.savestarted', { operation: 'save', actionType: action.type })
     try {
       const result = await service.execute(action)
+      if (generation.current !== attempt) {
+        logger.info('action.preview.completiondetached', {
+          operation: 'save',
+          actionType: action.type,
+        })
+        return
+      }
+      // Release this guard before successful navigation; other in-flight forms retain their own tokens.
+      flushSync(() => setFormDirty(guard.current, false))
+      logger.info('action.preview.saved', { operation: 'save', actionType: action.type })
       if (result.status === 'handled') {
         navigate(`/action-result?status=handled&type=${action.type}`, { replace: true })
       } else {
         navigate(result.destination, { replace: true })
       }
-    } catch {
-      setState({ status: 'failed', actionId: action.actionId, inspection: state.inspection })
+    } catch (error) {
+      logger.error('action.preview.savefailed', error, {
+        operation: 'save',
+        actionType: action.type,
+      })
+      if (generation.current !== attempt) return
+      setFormDirty(guard.current, false)
+      setState({
+        status: 'failed',
+        actionId: action.actionId,
+        action,
+        inspection: state.inspection,
+      })
+    } finally {
+      if (generation.current === attempt) writeLock.current = false
     }
   }
 
@@ -121,7 +197,9 @@ export function ActionPage() {
         <button
           type="button"
           className="button-secondary"
+          disabled={state.status === 'submitting'}
           onClick={() => {
+            if (writeLock.current) return
             logger.info('action.preview.cancelled', {
               operation: 'cancel',
               actionType: parsed.action.type,

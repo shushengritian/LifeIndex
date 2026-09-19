@@ -12,17 +12,17 @@ export function backupFilename(exportedAt: string): string {
 }
 
 export async function exportBackupToDevice(service: BackupService): Promise<string> {
-  logger.info('backup.handoff.started', { operation: 'export', formatVersion: 3 })
+  logger.info('backup.handoff.started', { operation: 'export', formatVersion: 4 })
   const backup = await service.createSnapshot(navigator.language || 'zh-CN')
   const filename = backupFilename(backup.exportedAt)
   const file = new File([service.serialize(backup)], filename, { type: 'application/json' })
 
   try {
     if (navigator.share && navigator.canShare?.({ files: [file] })) {
-      logger.info('backup.handoff.shareselected', { operation: 'share', formatVersion: 3 })
+      logger.info('backup.handoff.shareselected', { operation: 'share', formatVersion: 4 })
       await navigator.share({ files: [file], title: 'LifeIndex 备份' })
     } else {
-      logger.info('backup.handoff.downloadselected', { operation: 'download', formatVersion: 3 })
+      logger.info('backup.handoff.downloadselected', { operation: 'download', formatVersion: 4 })
       const url = URL.createObjectURL(file)
       const anchor = document.createElement('a')
       try {
@@ -35,12 +35,12 @@ export async function exportBackupToDevice(service: BackupService): Promise<stri
         URL.revokeObjectURL(url)
       }
     }
-    logger.info('backup.handoff.succeeded', { operation: 'export', formatVersion: 3 })
+    logger.info('backup.handoff.succeeded', { operation: 'export', formatVersion: 4 })
     return backup.exportedAt
   } catch (error) {
     logger.error('backup.handoff.failed', error, {
       operation: 'export',
-      formatVersion: 3,
+      formatVersion: 4,
       failureClass: 'BackupExport',
     })
     throw error

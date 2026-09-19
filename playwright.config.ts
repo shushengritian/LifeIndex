@@ -24,7 +24,8 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'pnpm preview --host 127.0.0.1 --port 4173',
+    // Use the installed preview binary; tests must not trigger pnpm's dependency reinstall/update checks.
+    command: 'node node_modules/vite/bin/vite.js preview --host 127.0.0.1 --port 4173',
     port: 4173,
     reuseExistingServer: !process.env.CI,
   },

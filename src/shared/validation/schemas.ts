@@ -2,6 +2,7 @@ import { z } from 'zod'
 
 import { isLocalDateKey } from '@/shared/domain/date'
 import { MAX_AMOUNT_MINOR } from '@/shared/domain/money'
+import { categoryIconIds } from '@/shared/domain/categoryIcons'
 import {
   cessationPlanSchema,
   cessationDaySchema,
@@ -27,7 +28,8 @@ const normalizedText = (maximum: number) =>
 const optionalText = (maximum: number) => normalizedText(maximum).optional()
 const timezoneOffsetSchema = z.number().int().min(-840).max(840)
 
-export const categorySchema = z
+// Frozen category boundary for shipped V0–V3 backup formats.
+export const categorySchemaV3 = z
   .object({
     id: categoryIdSchema,
     domain: z.enum(['finance', 'focus', 'activity']),
@@ -73,6 +75,26 @@ export const categorySchema = z
         path: ['transactionType'],
         message: 'Category type mismatch',
       })
+    }
+  })
+
+export const categorySchema = z
+  .object({
+    ...categorySchemaV3.shape,
+    icon: z.union([categorySchemaV3.shape.icon, z.enum(categoryIconIds)]),
+    parentId: categoryIdSchema.optional(),
+  })
+  .strict()
+  .superRefine((category, context) => {
+    if ((category.domain === 'finance') !== (category.transactionType !== undefined)) {
+      context.addIssue({
+        code: 'custom',
+        path: ['transactionType'],
+        message: 'Category type mismatch',
+      })
+    }
+    if (category.parentId && (category.domain !== 'finance' || category.parentId === category.id)) {
+      context.addIssue({ code: 'custom', path: ['parentId'], message: 'Invalid category parent' })
     }
   })
 

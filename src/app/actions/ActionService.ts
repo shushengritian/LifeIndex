@@ -1,6 +1,7 @@
 import { LifeIndexDatabase } from '@/data/db/LifeIndexDatabase'
 import { isHabitScheduled } from '@/features/habits/habitDomain'
 import { toLocalDateKey } from '@/shared/domain/date'
+import { categoryDisplayName, isCategoryAvailable } from '@/shared/domain/categoryHierarchy'
 import type { Clock, IdGenerator } from '@/shared/domain/runtime'
 import { cryptoIdGenerator, systemClock } from '@/shared/domain/runtime'
 import type {
@@ -25,7 +26,12 @@ export type ActionDestination = '/finance' | '/habits' | '/focus'
 
 export type ActionInspection =
   | { status: 'handled'; destination: ActionDestination }
-  | { status: 'ready'; referenceLabel: string; alreadySatisfied: boolean }
+  | {
+      status: 'ready'
+      referenceLabel: string
+      alreadySatisfied: boolean
+      categoryUnavailable?: boolean
+    }
 
 export interface ActionExecutionResult {
   status: 'created' | 'handled'
@@ -45,7 +51,7 @@ export class ActionService {
     private readonly idGenerator: IdGenerator = cryptoIdGenerator,
   ) {}
 
-  async inspect(action: ParsedAction): Promise<ActionInspection> {
+  async inspect(action: ParsedAction, allowCategoryRepair = false): Promise<ActionInspection> {
     logger.info('action.inspect.started', { operation: 'inspect', actionType: action.type })
     try {
       const receipt = await this.database.actionReceipts.get(action.actionId)
@@ -62,16 +68,30 @@ export class ActionService {
       let referenceLabel: string
       let alreadySatisfied = false
       if (action.type === 'add-transaction') {
+        const categories = await this.database.categories.toArray()
         const category = await this.database.categories.get(action.draft.categoryId)
         if (
           !category ||
-          category.archived === 1 ||
+          !isCategoryAvailable(category, categories) ||
           category.domain !== 'finance' ||
           category.transactionType !== action.draft.type
         ) {
+          // Only the editable transaction preview may recover; execute still rejects invalid references atomically.
+          if (allowCategoryRepair) {
+            logger.info('action.inspect.repairrequired', {
+              operation: 'inspect',
+              actionType: action.type,
+            })
+            return {
+              status: 'ready',
+              referenceLabel: '请选择有效分类',
+              alreadySatisfied: false,
+              categoryUnavailable: true,
+            }
+          }
           throw new AppError('Validation', 'Action category is unavailable')
         }
-        referenceLabel = category.name
+        referenceLabel = categoryDisplayName(category.id, categories)
       } else if (action.type === 'check-habit') {
         const habit = await this.database.habits.get(action.habitId)
         if (!habit || habit.status !== 'active' || !isHabitScheduled(habit, action.localDate)) {
@@ -143,7 +163,7 @@ export class ActionService {
         const category = await this.database.categories.get(action.draft.categoryId)
         if (
           !category ||
-          category.archived === 1 ||
+          !isCategoryAvailable(category, await this.database.categories.toArray()) ||
           category.domain !== 'finance' ||
           category.transactionType !== action.draft.type
         ) {

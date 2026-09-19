@@ -1,0 +1,864 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'none'; img-src 'none'; form-action 'none'; base-uri 'none'"
+    />
+    <title>LifeIndex · MOZE 参考精修 R2</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      :root {
+        font:
+          16px/1.5 -apple-system,
+          BlinkMacSystemFont,
+          'PingFang SC',
+          sans-serif;
+        color: #2c2d36;
+        background: #eeeef2;
+      }
+      body {
+        margin: 0;
+      }
+      button,
+      input,
+      select {
+        font: inherit;
+      }
+      button,
+      a {
+        -webkit-tap-highlight-color: transparent;
+      }
+      button {
+        cursor: pointer;
+      }
+      button:disabled {
+        cursor: default;
+        opacity: 0.5;
+      }
+      button:active:not(:disabled) {
+        transform: scale(0.97);
+      }
+      a {
+        color: inherit;
+        text-underline-offset: 4px;
+      }
+      button:focus-visible,
+      a:focus-visible,
+      input:focus-visible,
+      select:focus-visible {
+        outline: 3px solid #8172cf;
+        outline-offset: 3px;
+      }
+      ::selection {
+        background: #e5def9;
+        color: #35265e;
+      }
+      svg {
+        width: 24px;
+        height: 24px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.7;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        flex-shrink: 0;
+      }
+      h1,
+      h2,
+      p {
+        margin: 0;
+      }
+      button {
+        transition:
+          background 140ms,
+          transform 140ms;
+      }
+      .studio {
+        max-width: 1030px;
+        margin: auto;
+        padding: 56px 40px;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 390px;
+        gap: 80px;
+        align-items: start;
+      }
+      .review {
+        padding-top: 48px;
+      }
+      .review h1 {
+        font-size: 32px;
+        line-height: 1.3;
+        letter-spacing: -0.025em;
+        font-weight: 600;
+      }
+      .review > p {
+        margin: 20px 0 32px;
+        color: #60616e;
+        max-width: 32ch;
+      }
+      .review dl {
+        margin: 32px 0;
+      }
+      .review dt {
+        font-weight: 600;
+        margin-top: 24px;
+      }
+      .review dd {
+        margin: 6px 0;
+        color: #60616e;
+        font-size: 14px;
+      }
+      .controls {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .controls label {
+        font-size: 13px;
+        display: grid;
+        gap: 6px;
+      }
+      .controls select {
+        padding: 10px 12px;
+        background: #fff;
+        color: #2c2d36;
+        border: 1px solid #8d8c99;
+        border-radius: 8px;
+      }
+      .review small {
+        display: block;
+        color: #60616e;
+        margin-top: 24px;
+        line-height: 1.7;
+      }
+      .app {
+        --bg: #fff;
+        --ink: #292a35;
+        --muted: #6b6c7a;
+        --line: #e9e9f0;
+        --soft: #f5f5f9;
+        --accent: #7560b4;
+        --on: #fff;
+        --selected: #eee9f8;
+        --warm: #826044;
+        --income: #316957;
+        --food-bg: #f7eddf;
+        --coffee-bg: #f0e9e3;
+        --travel-bg: #e8edf7;
+        --travel: #506796;
+        --icon-radius: 13px;
+        background: var(--bg);
+        color: var(--ink);
+        border-radius: 28px;
+        overflow: hidden;
+        box-shadow: 0 18px 60px #26213914;
+        position: relative;
+        color-scheme: light;
+        font-variant-numeric: tabular-nums;
+        height: 844px;
+        display: flex;
+        flex-direction: column;
+      }
+      .app[data-theme='dark'] {
+        --bg: #20212a;
+        --ink: #f0eff6;
+        --muted: #b0b1c0;
+        --line: #393a49;
+        --soft: #292a35;
+        --accent: #c3aff1;
+        --on: #302443;
+        --selected: #393047;
+        --warm: #dbba99;
+        --income: #b4d5ba;
+        --food-bg: #3a3025;
+        --coffee-bg: #342d28;
+        --travel-bg: #283343;
+        --travel: #b7c8e9;
+        color-scheme: dark;
+      }
+      /* The app owns scrolling so its navigation stays visible without covering records. */
+      .app-scroll {
+        min-height: 0;
+        flex: 1;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: none;
+      }
+      .app-scroll::-webkit-scrollbar {
+        display: none;
+      }
+      .app-scroll:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: -3px;
+      }
+      .app button {
+        color: inherit;
+      }
+      .app-header {
+        padding: 18px 24px 12px;
+        flex-shrink: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .app-header h2 {
+        font-size: 26px;
+        font-weight: 650;
+        letter-spacing: -0.02em;
+      }
+      .add {
+        width: 44px;
+        height: 44px;
+        border: 0;
+        border-radius: 14px;
+        background: var(--accent);
+        color: var(--on) !important;
+        display: grid;
+        place-items: center;
+      }
+      .calendar {
+        padding: 0 16px 8px;
+      }
+      .month-head {
+        display: flex;
+        align-items: center;
+        padding: 0 0 8px;
+        gap: 4px;
+      }
+      .month-head h3 {
+        margin: 0 auto;
+        font-size: 17px;
+        font-weight: 600;
+      }
+      .month-head h3 span {
+        font-size: 12px;
+        color: var(--muted);
+        font-weight: 400;
+        margin-left: 8px;
+      }
+      .icon-btn {
+        border: 0;
+        background: transparent;
+        width: 44px;
+        height: 44px;
+        display: grid;
+        place-items: center;
+        border-radius: 10px;
+      }
+      .icon-btn:hover {
+        background: var(--soft);
+      }
+      .icon-btn svg {
+        width: 18px;
+        height: 18px;
+      }
+      .week,
+      .days {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 2px;
+      }
+      .week {
+        padding-bottom: 8px;
+        color: var(--muted);
+        text-align: center;
+        font-size: 11px;
+      }
+      .day {
+        border: 0;
+        background: transparent;
+        border-radius: 10px;
+        min-width: 0;
+        min-height: 48px;
+        padding: 4px 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 1px;
+        position: relative;
+      }
+      .day .date {
+        font-size: 15px;
+        font-weight: 500;
+        width: 26px;
+        height: 26px;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+      }
+      .day .net {
+        font-size: 10px;
+        line-height: 13px;
+        min-height: 13px;
+        color: var(--muted);
+        white-space: nowrap;
+      }
+      .day:hover {
+        background: var(--soft);
+      }
+      .day[aria-pressed='true'] {
+        background: var(--selected);
+      }
+      .day[aria-pressed='true'] .date {
+        background: var(--accent);
+        color: var(--on);
+      }
+      .day[aria-pressed='true'] .net {
+        color: var(--ink);
+        font-weight: 600;
+      }
+      .day[data-income='true'] .net {
+        color: var(--income);
+      }
+      .day[data-today='true']:not([aria-pressed='true']) .date {
+        text-decoration: underline;
+        text-underline-offset: 4px;
+      }
+      .legend {
+        text-align: left;
+        color: var(--muted);
+        font-size: 10px;
+        padding: 4px 8px 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .return-date {
+        border: 0;
+        background: transparent;
+        color: var(--accent) !important;
+        min-height: 44px;
+        padding: 0 8px;
+        font-size: 12px;
+        border-radius: 8px;
+      }
+      .return-date:hover {
+        background: var(--selected);
+      }
+      .return-date:disabled {
+        visibility: hidden;
+      }
+      .summary {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+        margin: 0;
+        padding: 14px 24px;
+        background: var(--soft);
+      }
+      .summary dt {
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 5px;
+      }
+      .summary dd {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        overflow-wrap: anywhere;
+      }
+      .summary div:last-child {
+        text-align: right;
+      }
+      .summary div:nth-child(2) {
+        text-align: center;
+      }
+      .summary .currency {
+        font-size: 11px;
+        font-weight: 400;
+        margin-right: 3px;
+      }
+      .records {
+        padding: 18px 24px 16px;
+        min-height: 236px;
+      }
+      .records-head {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+      .records-head h3 {
+        font-size: 17px;
+        font-weight: 600;
+        margin: 0;
+      }
+      .records-head span {
+        font-size: 11px;
+        color: var(--muted);
+        margin-left: auto;
+      }
+      .record {
+        display: grid;
+        grid-template-columns: 40px minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .record:last-child {
+        border: 0;
+      }
+      .record svg {
+        width: 22px;
+        height: 22px;
+      }
+      .category-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: var(--icon-radius);
+        background: var(--food-bg);
+        color: var(--warm);
+        display: grid;
+        place-items: center;
+      }
+      .category-icon[data-category='coffee'] {
+        background: var(--coffee-bg);
+      }
+      .category-icon[data-category='train'] {
+        background: var(--travel-bg);
+        color: var(--travel);
+      }
+      .category-icon[data-category='wallet'] {
+        background: var(--selected);
+        color: var(--accent);
+      }
+      .record strong {
+        font-size: 15px;
+        font-weight: 500;
+        display: block;
+        overflow-wrap: anywhere;
+      }
+      .record small {
+        display: block;
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+      .amount {
+        text-align: right;
+        font-size: 16px;
+        font-weight: 550;
+        letter-spacing: -0.02em;
+      }
+      .amount[data-income='true'] {
+        color: var(--income);
+      }
+      .amount .cents {
+        font-size: 12px;
+        font-weight: 400;
+        color: var(--muted);
+      }
+      .empty {
+        text-align: center;
+        padding: 32px 8px;
+      }
+      .empty p {
+        font-size: 14px;
+        color: var(--muted);
+        margin-bottom: 12px;
+      }
+      .inline-action {
+        border: 0;
+        background: var(--selected);
+        color: var(--accent) !important;
+        font-size: 13px;
+        border-radius: 10px;
+        padding: 12px 18px;
+        min-height: 44px;
+      }
+      .bottom-nav {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        padding: 10px 12px max(12px, env(safe-area-inset-bottom));
+        border-top: 1px solid var(--line);
+        background: var(--bg);
+        flex-shrink: 0;
+      }
+      .nav-item {
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        gap: 4px;
+        font-size: 11px;
+        color: var(--muted);
+        min-height: 48px;
+        justify-content: center;
+      }
+      .nav-item[aria-current='page'] {
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .nav-item[aria-current='page'] svg {
+        stroke-width: 2.1;
+      }
+      .nav-item[aria-current='page'] {
+        background: var(--selected);
+        border-radius: 12px;
+      }
+      .nav-item svg {
+        width: 22px;
+        height: 22px;
+      }
+      .state-note {
+        font-size: 12px;
+        color: var(--muted);
+        padding: 0 24px 16px;
+      }
+      .state-note:empty {
+        display: none;
+      }
+      .loading {
+        height: 30px;
+        background: var(--soft);
+        border-radius: 6px;
+        margin: 16px 0;
+      }
+      .read-state {
+        padding: 24px 0;
+      }
+      .read-state p {
+        color: var(--muted);
+        font-size: 14px;
+        margin-bottom: 12px;
+      }
+      @media (max-width: 760px) {
+        .studio {
+          padding: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 0;
+          align-items: center;
+        }
+        .app {
+          order: 0;
+          width: 100%;
+          max-width: 430px;
+          border-radius: 0;
+          box-shadow: none;
+          height: 100svh;
+          height: 100dvh;
+          min-height: 0;
+          display: flex;
+          flex-direction: column;
+        }
+        .review {
+          order: 1;
+          padding: 32px 24px;
+          width: 100%;
+          max-width: 430px;
+        }
+        .review h1 {
+          font-size: 24px;
+        }
+        .review dl {
+          display: none;
+        }
+        .bottom-nav {
+          margin-top: auto;
+        }
+        .app-header {
+          padding-top: max(20px, env(safe-area-inset-top));
+        }
+        .records {
+          flex: 1;
+        }
+        .review > p {
+          margin: 12px 0 20px;
+        }
+        .review small {
+          font-size: 12px;
+        }
+      }
+      @media (max-width: 350px) {
+        .app-header {
+          padding-inline: 16px;
+        }
+        .calendar {
+          padding-inline: 6px;
+        }
+        .summary {
+          padding-inline: 16px;
+        }
+        .records {
+          padding-inline: 16px;
+        }
+        .summary dd {
+          font-size: 14px;
+        }
+        .amount {
+          font-size: 14px;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        button {
+          transition: none;
+        }
+        button:active:not(:disabled) {
+          transform: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="studio">
+      <aside class="review">
+        <h1>让记录本身<br />成为主角。</h1>
+        <p>LifeIndex 记账首页 · G3 精修 R2<br />参考 MOZE，保留轻量与克制。</p>
+        <div class="controls">
+          <label
+            >外观<select id="theme">
+              <option value="light">浅色</option>
+              <option value="dark">深色</option>
+            </select></label
+          ><label
+            >展示状态<select id="state">
+              <option value="normal">示例记录</option>
+              <option value="empty">整月为空</option>
+              <option value="loading">正在读取</option>
+              <option value="error">读取失败</option>
+            </select></label
+          >
+        </div>
+        <dl>
+          <dt>一张连续的页面</dt>
+          <dd>日历、汇总和明细以留白分组，不再分别装进圆角卡片。</dd>
+          <dt>安静但明确的操作</dt>
+          <dd>统一新增按钮；分类用少量柔和色彩辅助识别，不引入复杂财务功能。</dd>
+          <dt>有秩序的数字</dt>
+          <dd>日历看每日净额，汇总看当月全貌，明细保留完整金额。</dd>
+        </dl>
+        <a href="g3-finance-r1.html">对比上一版单页</a>
+        <small
+          >仅为设计审稿，所有金额均为合成数据。可切换月份、日期与展示状态；新增入口链接到上一版表单样板。底栏仅展示视觉，不是产品导航。无本地数据访问、无保存、无发布。</small
+        >
+      </aside>
+      <article class="app" data-theme="light" aria-label="记账首页设计样板">
+        <header class="app-header">
+          <h2>记账</h2>
+          <button class="add" aria-label="新增记账表单样板" id="add">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+          </button>
+        </header>
+        <div class="app-scroll" tabindex="0" role="region" aria-label="记账内容，可滚动">
+          <section class="calendar" aria-label="账目日历">
+            <div class="month-head">
+              <button class="icon-btn" id="prev" aria-label="上个月">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6" /></svg>
+              </button>
+              <h3 id="month"></h3>
+              <button class="icon-btn" id="next" aria-label="下个月">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m10 6 6 6-6 6" /></svg>
+              </button>
+            </div>
+            <div class="week" aria-hidden="true">
+              <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span
+              ><span>六</span><span>日</span>
+            </div>
+            <div class="days" id="days"></div>
+            <div class="legend">
+              <span>每日净额 · k = 千元</span
+              ><button class="return-date" id="return-date" disabled>回到 9/16</button>
+            </div>
+          </section>
+          <dl class="summary" id="summary"></dl>
+          <section class="records" aria-label="所选日期明细" aria-live="polite">
+            <div class="records-head">
+              <h3 id="selected"></h3>
+              <span id="daily-total"></span>
+            </div>
+            <div id="records"></div>
+          </section>
+          <p class="state-note" id="notice" role="status"></p>
+        </div>
+        <nav class="bottom-nav" aria-label="主导航视觉示例">
+          <span class="nav-item" data-icon="today">今天</span
+          ><span class="nav-item" data-icon="wallet" aria-current="page">记账</span
+          ><span class="nav-item" data-icon="timer">专注</span
+          ><span class="nav-item" data-icon="heart">健康</span
+          ><span class="nav-item" data-icon="settings">设置</span>
+        </nav>
+      </article>
+    </main>
+    <script>
+      // Isolated review fixtures: never connect to production storage or register a service worker.
+      const fixtures = [
+        { day: 5, cents: 850000, name: '工资', time: '09:00', icon: 'wallet' },
+        { day: 6, cents: -42800, name: '日常采购', time: '14:20', icon: 'bag' },
+        { day: 8, cents: -12800, name: '生活用品', time: '18:00', icon: 'bag' },
+        { day: 10, cents: -6800, name: '晚餐', time: '18:30', icon: 'food' },
+        { day: 12, cents: -15600, name: '日常采购', time: '15:00', icon: 'bag' },
+        { day: 15, cents: -3800, name: '午餐', time: '12:10', icon: 'food' },
+        { day: 16, cents: -3800, name: '午餐', time: '12:30', icon: 'food' },
+        { day: 16, cents: -2600, name: '咖啡', time: '14:15', icon: 'coffee' },
+        { day: 16, cents: -1200, name: '地铁', time: '18:40', icon: 'train' },
+      ]
+      const paths = {
+        today: 'M5 5h14v15H5zM8 3v4m8-4v4M5 10h14m-10 5 2 2 4-4',
+        wallet: 'M4 6h15v14H4zM4 6V4h12m-1 8h5v4h-5z',
+        timer: 'M9 3h6M12 3v3m5 1 2-2M12 11v4l3 2M20 14a8 8 0 1 1-16 0 8 8 0 0 1 16 0',
+        heart: 'M12 20S3 15 3 8a5 5 0 0 1 9-3 5 5 0 0 1 9 3c0 7-9 12-9 12M7 12h3l2-4 2 7 2-3h2',
+        settings:
+          'm9 3-1 3-3 1-2 3 2 2-1 3 3 2 2 3h4l1-3 3-1 2-3-2-2 1-3-3-2-2-3zM15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0',
+        food: 'M5 3v6c0 3 5 3 5 0V3M7.5 3v18M18 3c-4 4-4 9 0 9V3v18',
+        coffee: 'M4 7h13v7a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zM17 8h2a3 3 0 0 1 0 6h-2M8 3v1m5-1v1',
+        train: 'M6 3h12v15H6zM6 11h12M9 6v2m6-2v2M9 15h.01M15 15h.01M8 18l-2 3m10-3 2 3',
+        bag: 'M5 7h14l1 14H4zM8 7V5a4 4 0 0 1 8 0v2',
+      }
+      const el = (id) => document.getElementById(id),
+        svg = (name) =>
+          `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${paths[name]}"/></svg>`
+      const money = (cents) =>
+        (Math.abs(cents) / 100).toLocaleString('en-US', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })
+      let monthIndex = 8,
+        year = 2026,
+        day = 16,
+        state = 'normal'
+      const log = (event, details = {}) => console.info('[LifeIndex design review]', event, details)
+      function render() {
+        // Loading and failures must never masquerade as an empty ledger or a genuine zero balance.
+        const unavailable = state === 'loading' || state === 'error'
+        const rows =
+          !unavailable && state === 'normal' && year === 2026 && monthIndex === 8 ? fixtures : []
+        el('month').innerHTML = `${monthIndex + 1} 月<span>${year}</span>`
+        const count = new Date(year, monthIndex + 1, 0).getDate(),
+          offset = (new Date(year, monthIndex, 1).getDay() + 6) % 7
+        el('days').replaceChildren()
+        for (let n = 0; n < offset; n++) {
+          el('days').append(document.createElement('span'))
+        }
+        for (let n = 1; n <= count; n++) {
+          const daily = rows.filter((r) => r.day === n),
+            net = daily.reduce((sum, r) => sum + r.cents, 0)
+          const compact =
+            (net < 0 ? '−' : '+') +
+            (Math.abs(net) >= 100000
+              ? `${(Math.abs(net) / 100000).toFixed(1)}k`
+              : (Math.abs(net) / 100).toString())
+          const button = document.createElement('button')
+          button.className = 'day'
+          button.type = 'button'
+          button.setAttribute('aria-pressed', String(n === day))
+          button.dataset.today = String(year === 2026 && monthIndex === 8 && n === 16)
+          button.dataset.income = String(net > 0)
+          button.setAttribute(
+            'aria-label',
+            `${monthIndex + 1}月${n}日${unavailable ? '，数据不可用' : daily.length ? `，净额${net < 0 ? '负' : '正'}${money(net)}元` : '，无记录'}`,
+          )
+          button.innerHTML = `<span class="date">${n}</span><span class="net">${daily.length ? compact : ''}</span>`
+          button.addEventListener('click', () => {
+            day = n
+            log('date_selection_changed')
+            render()
+            el('days').querySelector('[aria-pressed="true"]').focus({ preventScroll: true })
+          })
+          el('days').append(button)
+        }
+        const income = rows.filter((r) => r.cents > 0).reduce((s, r) => s + r.cents, 0),
+          expense = -rows.filter((r) => r.cents < 0).reduce((s, r) => s + r.cents, 0)
+        el('summary').innerHTML = [
+          ['本月收入', income],
+          ['本月支出', expense],
+          ['本月结余', income - expense],
+        ]
+          .map(
+            ([label, value]) =>
+              `<div><dt>${label}</dt><dd>${unavailable ? '—' : `<span class="currency">¥</span>${value < 0 ? '−' : ''}${money(value)}`}</dd></div>`,
+          )
+          .join('')
+        const selected = rows.filter((r) => r.day === day),
+          dailyNet = selected.reduce((s, r) => s + r.cents, 0)
+        el('selected').textContent = `${monthIndex + 1} 月 ${day} 日`
+        el('return-date').disabled = year === 2026 && monthIndex === 8 && day === 16
+        el('daily-total').textContent = selected.length
+          ? `${selected.length} 笔 · 净额 ${dailyNet < 0 ? '−' : '+'}${money(dailyNet)}`
+          : ''
+        if (state === 'loading') {
+          el('records').innerHTML =
+            '<div class="read-state" role="status"><p>正在读取记录…</p><div class="loading"></div><div class="loading"></div></div>'
+        } else if (state === 'error') {
+          el('records').innerHTML =
+            '<div class="read-state" role="alert"><p>记录读取失败，请重试。</p><button class="inline-action" id="retry">重新读取</button></div>'
+          el('retry').onclick = () => {
+            state = 'normal'
+            el('state').value = state
+            log('read_retry')
+            render()
+            el('state').focus()
+          }
+        } else if (!selected.length) {
+          el('records').innerHTML =
+            '<div class="empty"><p>这一天，还没有记录。</p><button class="inline-action" id="empty-add">记一笔</button></div>'
+          el('empty-add').onclick = openForm
+        } else {
+          el('records').innerHTML = selected
+            .map((r) => {
+              const [integer, decimal] = money(r.cents).split('.')
+              // Category color aids scanning; labels and signed amounts retain meaning without color.
+              return `<div class="record"><span class="category-icon" data-category="${r.icon}">${svg(r.icon)}</span><div><strong>${r.name}</strong><small>${r.cents > 0 ? '收入' : '支出'} · ${r.time}</small></div><div class="amount" data-income="${r.cents > 0}">${r.cents < 0 ? '−' : '+'}${integer}<span class="cents">.${decimal}</span></div></div>`
+            })
+            .join('')
+        }
+      }
+      function openForm() {
+        log('form_sample_requested')
+        el('notice').replaceChildren()
+        const link = document.createElement('a')
+        link.href = 'g3-visual.html'
+        link.textContent = '打开上一版新增账目表单样板（不保存数据）'
+        el('notice').append(link)
+        link.focus()
+      }
+      // Month changes clamp selection to a valid calendar day; no persistence or private values in logs.
+      function moveMonth(delta) {
+        const target = new Date(year, monthIndex + delta, 1)
+        year = target.getFullYear()
+        monthIndex = target.getMonth()
+        day = Math.min(day, new Date(year, monthIndex + 1, 0).getDate())
+        log('month_selection_changed')
+        render()
+      }
+      el('prev').onclick = () => moveMonth(-1)
+      el('next').onclick = () => moveMonth(1)
+      el('add').onclick = openForm
+      // The reference date is explicitly fixed, not a claim about the user's actual current day.
+      el('return-date').onclick = () => {
+        year = 2026
+        monthIndex = 8
+        day = 16
+        log('reference_date_restored')
+        render()
+        el('days').querySelector('[aria-pressed="true"]').focus({ preventScroll: true })
+      }
+      el('theme').onchange = (e) => {
+        document.querySelector('.app').dataset.theme = e.target.value
+        log('theme_changed', { theme: e.target.value })
+      }
+      el('state').onchange = (e) => {
+        state = e.target.value
+        log('display_state_changed', { state })
+        render()
+      }
+      document
+        .querySelectorAll('[data-icon]')
+        .forEach((item) => item.insertAdjacentHTML('afterbegin', svg(item.dataset.icon)))
+      try {
+        render()
+        log('prototype_ready')
+      } catch {
+        log('prototype_render_failed')
+        el('records').textContent = '样板加载失败，请刷新重试。'
+      }
+    </script>
+  </body>
+</html>

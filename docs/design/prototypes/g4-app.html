@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'none'; img-src 'none'; form-action 'none'; base-uri 'none'"
+    />
+    <title>LifeIndex · G4 五页交互原型</title>
+    <link rel="stylesheet" href="g3-ocean.css" />
+    <link rel="stylesheet" href="g4-app.css?review=category-drilldown" />
+    <script defer src="g4-focus.js"></script>
+    <script defer src="g4-icon-library.js"></script>
+    <script defer src="g4-categories.js?review=icon-library"></script>
+    <script defer src="g4-cessation.js"></script>
+    <script defer src="g4-app.js?review=icon-library"></script>
+    <script defer src="g4-accessibility.js?review=d2-2"></script>
+  </head>
+  <body>
+    <div class="app">
+      <div class="statusbar" aria-hidden="true">
+        <span>9:41</span><span class="island"></span
+        ><span class="device-status">▂▄▆ <span class="battery"></span></span>
+      </div>
+      <main id="screen" tabindex="-1"></main>
+      <nav id="nav" aria-label="主导航"></nav>
+      <div id="toast" role="status" aria-live="polite"></div>
+    </div>
+    <dialog id="editor" aria-labelledby="editor-title">
+      <form id="record-form" novalidate></form>
+    </dialog>
+    <dialog id="confirmation" aria-labelledby="confirmation-title">
+      <div id="confirmation-content"></div>
+    </dialog>
+  </body>
+</html>

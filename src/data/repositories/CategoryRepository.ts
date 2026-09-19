@@ -5,8 +5,10 @@ import type { Category, CategoryDomain, TransactionType } from '@/shared/domain/
 import { AppError } from '@/shared/errors/AppError'
 import { logger } from '@/shared/logging/logger'
 import { categorySchema } from '@/shared/validation/schemas'
+import { assertCategoryHierarchy, isCategoryAvailable } from '@/shared/domain/categoryHierarchy'
 
 export interface CreateCategoryCommand {
+  parentId?: string
   domain: CategoryDomain
   transactionType?: TransactionType
   name: string
@@ -50,6 +52,11 @@ export class CategoryRepository {
         })
         if (!parsed.success) throw new AppError('Validation', 'Category validation failed')
         const category = parsed.data as Category
+        const all = await this.database.categories.toArray()
+        assertCategoryHierarchy([...all, category])
+        if (!isCategoryAvailable(category, all)) {
+          throw new AppError('Validation', 'Category parent is unavailable')
+        }
 
         // Computing sort order and insertion together prevents concurrent creates from sharing a slot.
         await this.database.categories.add(category)
@@ -83,6 +90,10 @@ export class CategoryRepository {
         const parsed = categorySchema.safeParse({
           ...existing,
           ...command,
+          // Runtime callers cannot move an existing category or change its historical domain.
+          domain: existing.domain,
+          transactionType: existing.transactionType,
+          parentId: existing.parentId,
           updatedAt: this.clock.now().toISOString(),
         })
         if (!parsed.success) throw new AppError('Validation', 'Category validation failed')
@@ -172,6 +183,7 @@ export class CategoryRepository {
             (category) =>
               category.domain !== first.domain ||
               category.transactionType !== first.transactionType ||
+              category.parentId !== first.parentId ||
               category.archived !== first.archived,
           )
         ) {
@@ -217,8 +229,10 @@ export class CategoryRepository {
             .toArray(),
         ),
       )
+      const all = await this.database.categories.toArray()
       const result = grouped
         .flat()
+        .filter((category) => filter.includeArchived || isCategoryAvailable(category, all))
         .filter(({ transactionType }) =>
           filter.transactionType === undefined ? true : transactionType === filter.transactionType,
         )

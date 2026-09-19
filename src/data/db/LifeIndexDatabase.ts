@@ -6,6 +6,7 @@ import {
   databaseSchemaV1,
   databaseSchemaV2,
   databaseSchemaV3,
+  databaseSchemaV4,
 } from '@/data/db/schema'
 import type {
   ActionReceipt,
@@ -47,7 +48,8 @@ export class LifeIndexDatabase extends Dexie {
     // V2 is additive: no callback rewrites, clears, or invents values for existing records.
     this.version(2).stores(databaseSchemaV2)
     // Retain both shipped declarations; new stores start empty, never inferred from Habits.
-    this.version(CURRENT_DATABASE_VERSION).stores(databaseSchemaV3)
+    this.version(3).stores(databaseSchemaV3)
+    this.version(CURRENT_DATABASE_VERSION).stores(databaseSchemaV4)
   }
 
   async initialize(now = new Date()): Promise<void> {

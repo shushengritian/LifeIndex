@@ -1,5 +1,7 @@
 # LifeIndex Development Guide
 
+> 2026-09-19：当前 Ocean 正式实施进度与验证见 [阶段 5 DEV](REDESIGN_DEV.md)。用户已授权代码修改但未授权发布；不沿用旧版本的真机延期。
+
 > **2026-09-14 · V2.1 amendment:** V2.1 local branch: `codex/v2.1-smoking-cessation`, app 2.1.0, database/backup V3, no dependency changes. [CESSATION_V3](../architecture/CESSATION_V3.md) governs implementation. If the local pnpm wrapper attempts an unsolicited reinstall/no-TTY failure, use existing pinned `node_modules/.bin/{prettier,eslint,tsc,vitest,vite,playwright}` binaries for equivalent gates; do not reinstall or change the lockfile to bypass it. Publication is not authorized by local implementation approval.
 
 **Status:** Active

@@ -1,5 +1,7 @@
 # LifeIndex GitHub Pages Deployment Runbook
 
+> **2026-09-19 · Ocean candidate (not deployed):** ADR-0014 authorizes the complete redesign and normal GitHub/Pages delivery. The current source uses database/backup V4 while package metadata remains 2.1.1 pending release freeze. Follow [G5 release audit](../project/G5_RELEASE_AUDIT.md); the historical V2/V2.1 status below is not evidence that this candidate was released. `pnpm quality` now includes native-shortcut authoring checks (`pnpm test:shortcut`); those checks do not sign/install a shortcut or prove iOS behavior. Signing stays an explicit macOS operation on public templates only.
+
 > **2026-09-14 · V2.1 amendment:** V2.1 is local and unpublished. Before main push/deploy, obtain G2 publication authorization and confirmation of a fresh V2 backup, run normal quality/CI/Pages/live smoke, then record actual iPhone evidence or an explicitly scoped deferral. V3 IndexedDB is not downgraded by deploying V2 assets; do not clear user storage. Legacy restore warns that cessation data is replaced with empty collections. V2's ADR-0008 exemption does not automatically apply to V2.1.
 
 **Status:** V2 deployed and v2.0.0 published under ADR-0008
@@ -136,3 +138,10 @@ The live gate uses synthetic values only. Never upload or paste a real backup in
 - [Vite public base path](https://vite.dev/guide/build#public-base-path)
 
 Action releases were checked against their official pages on 2026-09-03 and pinned by full commit SHA in workflow source: `actions/checkout` v7.0.1, `pnpm/setup` v2.1.0, `actions/configure-pages` v6.0.0, `actions/upload-pages-artifact` v5.0.0, and `actions/deploy-pages` v5.0.1. Updating a pin requires another release/source review.
+# G5 子路径候选预验收（P5-07d）
+
+2026-09-19：当前源码使用 `LIFEINDEX_BASE_PATH=/LifeIndex/` 构建到独立临时目录，保留项目根路径 `dist` 不变；本机预览后，以 `LIFEINDEX_DEPLOYED_URL=http://127.0.0.1:4187/LifeIndex/` 运行 `playwright.deployed.config.ts`，13 通过、1 原有 WebKit 离线壳重载专项跳过。候选仍是包版本 2.1.1，不是已冻结的新发行版。
+
+部署健康测试已跟随批准的首页/完整历史分工：等待表单提交结束，再进入运动历史检查持久化，刷新后返回健康检查体重。不为旧测试恢复首页明细；日志仅报告合成检查数量。
+
+该证据只证明本机候选的子路径契约、V4、离线写入、隐私和刷新持久化。发布后必须对真实 Pages URL 再运行，不可用此结果宣称 GitHub CI/部署成功。WebKit 的专项跳过也不等于真机通过或本轮发布豁免。

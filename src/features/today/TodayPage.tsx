@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 
 import { useAppServices } from '@/app/AppServicesContext'
@@ -7,10 +7,15 @@ import { HabitRepository } from '@/data/repositories/HabitRepository'
 import { TransactionRepository } from '@/data/repositories/TransactionRepository'
 import { summarizeTransactions } from '@/features/finance/financeDomain'
 import { formatFocusDuration, summarizeFocus } from '@/features/focus/focusDomain'
+import { useFocusCompletion } from '@/features/focus/useFocusCompletion'
 import { formatMoney } from '@/shared/domain/money'
 import type { Habit, HabitRecord } from '@/shared/domain/types'
 import { useCurrentLocalDate } from '@/shared/hooks/useCurrentLocalDate'
 import { useLiveQueryState } from '@/shared/hooks/useLiveQueryState'
+import { Icon } from '@/shared/ui/Icon'
+import { CategoryIcon } from '@/shared/ui/CategoryIcon'
+import { useDirtyForm } from '@/pwa/useDirtyForm'
+import { logger } from '@/shared/logging/logger'
 
 function formatToday(date: Date): string {
   return new Intl.DateTimeFormat('zh-CN', {
@@ -28,6 +33,9 @@ export function TodayPage() {
   const now = new Date()
   const today = useCurrentLocalDate()
   const [habitError, setHabitError] = useState('')
+  const [habitBusy, setHabitBusy] = useState(false)
+  const habitLock = useRef(false)
+  useDirtyForm(false, habitBusy)
 
   const financeQuery = useCallback(
     () => transactions.list({ from: today, to: today }),
@@ -55,13 +63,19 @@ export function TodayPage() {
   const habitState = useLiveQueryState(habitQuery)
   const focusState = useLiveQueryState(focusQuery)
 
-  useEffect(() => {
-    // Reconcile once on entry so an iOS-suspended timer becomes an accurate Today record.
-    void focus.reconcileActive(new Date().toISOString())
-  }, [focus])
+  // Today and Focus share recovery semantics for sessions that expired while iOS suspended the app.
+  const completion = useFocusCompletion(
+    focus,
+    focusState.status === 'ready' ? focusState.data.active : undefined,
+  )
 
   async function toggleHabit(habit: Habit, record: HabitRecord | undefined) {
+    // Today uses the same single-write semantics as Health; a double tap must not undo itself.
+    if (habitLock.current) return
+    habitLock.current = true
+    setHabitBusy(true)
     setHabitError('')
+    logger.info('today.habit.started', { operation: record ? 'undo' : 'checkin' })
     try {
       if (record) await habits.undoCheckIn(habit.id, today)
       else {
@@ -73,16 +87,74 @@ export function TodayPage() {
           timezoneOffsetMinutes: capturedAt.getTimezoneOffset(),
         })
       }
+      logger.info('today.habit.saved', { operation: record ? 'undo' : 'checkin' })
     } catch {
+      logger.warn('today.habit.failed', {
+        operation: record ? 'undo' : 'checkin',
+        failureClass: 'Write',
+      })
       setHabitError('签到状态未能更新，请重试。')
+    } finally {
+      habitLock.current = false
+      setHabitBusy(false)
     }
   }
 
   return (
     <section className="page today-page" aria-labelledby="today-title">
-      <p className="eyebrow">{formatToday(now)}</p>
       <h1 id="today-title">今天</h1>
-      <p className="page-intro">先完成眼前的小事，记录会在本机安静累积。</p>
+      <p className="today-date">{formatToday(now)}</p>
+      <section className="daily-intro" aria-label="开始今天的记录">
+        <h2>从一笔记录开始</h2>
+        <p>把花费、专注和日常，留在今天。</p>
+        <Link className="button-primary today-record-action" to="/finance/new">
+          <Icon name="add" />
+          记一笔
+        </Link>
+      </section>
+      <Link
+        to="/focus"
+        className="today-focus-entry"
+        aria-label={
+          focusState.status === 'ready' && focusState.data.active ? '继续本次专注' : '开始专注'
+        }
+      >
+        <span className="category-glyph tone-violet">
+          <CategoryIcon name="timer" />
+        </span>
+        <span>
+          <strong>
+            {focusState.status === 'ready' && focusState.data.active
+              ? '继续本次专注'
+              : '给自己一段专注时间'}
+          </strong>
+          <small>
+            {focusState.status === 'failed'
+              ? '状态暂时无法读取，打开后重试'
+              : focusState.status === 'loading'
+                ? '正在读取本地计时状态…'
+                : focusState.data.active
+                  ? completion.error
+                    ? '本次专注待保存，点击返回'
+                    : '计时仍在进行，点击返回'
+                  : '25 分钟，专心做一件事'}
+          </small>
+        </span>
+        <span aria-hidden="true">›</span>
+      </Link>
+      {completion.error && (
+        <div role="alert" className="form-error">
+          <p>{completion.error}</p>
+          <button
+            className="button-primary"
+            disabled={completion.busy}
+            onClick={() => void completion.retry()}
+          >
+            重试保存专注
+          </button>
+        </div>
+      )}
+      {completion.busy && <p role="status">正在保存本次专注…</p>}
 
       <section className="content-section" aria-labelledby="today-habit-title">
         <div className="section-heading">
@@ -120,6 +192,7 @@ export function TodayPage() {
                   <button
                     type="button"
                     aria-pressed={Boolean(record)}
+                    disabled={habitBusy}
                     onClick={() => void toggleHabit(habit, record)}
                   >
                     <span className={`habit-marker marker-${habit.color}`} aria-hidden="true">
@@ -134,11 +207,6 @@ export function TodayPage() {
           </ul>
         ) : null}
       </section>
-
-      <div className="quick-actions today-primary-actions" aria-label="快捷操作">
-        <Link to="/finance">记一笔</Link>
-        <Link to="/focus">开始专注</Link>
-      </div>
 
       <div className="today-summary-grid">
         <section aria-labelledby="today-finance-title">
@@ -167,7 +235,7 @@ export function TodayPage() {
             </p>
           ) : null}
           {focusState.status === 'ready' ? (
-            <TodayFocus active={focusState.data.active} completed={focusState.data.completed} />
+            <TodayFocus completed={focusState.data.completed} />
           ) : null}
         </section>
       </div>
@@ -184,26 +252,17 @@ function TodayFinance({
   return (
     <div className="today-card-values">
       <p>
-        <span>收入</span>
-        <strong>{formatMoney(summary.incomeMinor)}</strong>
-      </p>
-      <p>
         <span>支出</span>
-        <strong>{formatMoney(summary.expenseMinor)}</strong>
+        <strong>{records.length ? formatMoney(summary.expenseMinor) : '尚无记录'}</strong>
       </p>
-      <p>
-        <span>结余</span>
-        <strong>{formatMoney(summary.balanceMinor)}</strong>
-      </p>
+      <small>{records.length} 笔收支</small>
     </div>
   )
 }
 
 function TodayFocus({
-  active,
   completed,
 }: {
-  active?: Awaited<ReturnType<FocusRepository['getActive']>>
   completed: Awaited<ReturnType<FocusRepository['listCompleted']>>
 }) {
   const summary = summarizeFocus(completed)
@@ -213,21 +272,7 @@ function TodayFocus({
         <span>已完成</span>
         <strong>{formatFocusDuration(summary.durationSeconds)}</strong>
       </p>
-      <p>
-        <span>次数</span>
-        <strong>{summary.count}</strong>
-      </p>
-      {active ? (
-        <p className="active-inline">
-          <span>进行中</span>
-          <strong>{active.title}</strong>
-        </p>
-      ) : (
-        <p>
-          <span>进行中</span>
-          <strong>无</strong>
-        </p>
-      )}
+      <small>{summary.count} 次</small>
     </div>
   )
 }

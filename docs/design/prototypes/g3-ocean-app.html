@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'none'; img-src 'none'; form-action 'none'; base-uri 'none'"
+    />
+    <title>LifeIndex · 海蓝设计样板</title>
+    <link rel="stylesheet" href="g3-ocean.css" />
+    <script defer src="g3-ocean.js"></script>
+  </head>
+  <body>
+    <div class="app">
+      <div class="statusbar" aria-hidden="true">
+        <span>9:41</span><span class="island"></span
+        ><span class="device-status">▂▄▆ <span class="battery"></span></span>
+      </div>
+      <main id="screen" tabindex="-1"></main>
+      <nav id="nav" aria-label="主导航"></nav>
+      <div id="toast" role="status" aria-live="polite"></div>
+    </div>
+    <dialog id="editor" aria-labelledby="editor-title">
+      <form id="record-form" novalidate></form>
+    </dialog>
+    <dialog id="confirmation" aria-labelledby="confirmation-title">
+      <div id="confirmation-content"></div>
+    </dialog>
+  </body>
+</html>

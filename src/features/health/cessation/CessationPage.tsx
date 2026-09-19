@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   cessationDayStatus,
@@ -17,10 +17,13 @@ import {
 import type { CessationEvent } from '@/shared/domain/types'
 import { Sheet } from '@/shared/ui/Sheet'
 import { Icon } from '@/shared/ui/Icon'
+import { CategoryIcon } from '@/shared/ui/CategoryIcon'
 import { logger } from '@/shared/logging/logger'
 import { useCessation, useCessationNow } from './useCessation'
 import { CravingForm, PlanForm, SmokingForm, ReasonForm } from './CessationForms'
 import { triggerNames } from './cessationPresentation'
+import { ConfirmDialog } from '@/shared/ui/ConfirmDialog'
+import { useDirtyForm } from '@/pwa/useDirtyForm'
 
 type Panel = 'plan' | 'smoking' | 'craving' | 'manage' | 'support' | 'reason'
 export function CessationPage() {
@@ -36,6 +39,15 @@ export function CessationPage() {
   const [busy, setBusy] = useState(false),
     [message, setMessage] = useState(''),
     [error, setError] = useState('')
+  const writeLock = useRef(false)
+  const [confirmation, setConfirmation] = useState<{
+    title: string
+    description: string
+    label: string
+    action: () => Promise<void>
+    success: string
+  }>()
+  useDirtyForm(false, busy)
   const data = state.data,
     plan =
       data?.plans.find((plan) => plan.id === planId) ??
@@ -63,6 +75,7 @@ export function CessationPage() {
   const cells: string[] = []
   for (let day = first; day <= last; day = addLocalDays(day, 1)) cells.push(day)
   function open(next: Panel) {
+    if (writeLock.current) return
     setError('')
     setPanel(next)
     logger.info('cessation.panel.opened', { operation: next })
@@ -73,20 +86,27 @@ export function CessationPage() {
     logger.info('cessation.panel.closed', { operation: 'close' })
   }
   async function mutate(action: () => Promise<void>, success: string) {
-    if (busy) return
+    // Mutation commands share a synchronous lock and navigation guard until storage settles.
+    if (writeLock.current) return false
+    writeLock.current = true
     setBusy(true)
     setError('')
     setMessage('')
+    logger.info('cessation.ui.operationstarted', { operation: 'change' })
     try {
       await action()
       setMessage(success)
+      logger.info('cessation.ui.operationsaved', { operation: 'change' })
+      return true
     } catch {
       setError('操作未完成，原有记录保持不变。请检查日期和计划范围，或重试。')
       logger.warn('cessation.ui.operationfailed', {
         operation: 'change',
         failureClass: 'ValidationOrWrite',
       })
+      return false
     } finally {
+      writeLock.current = false
       setBusy(false)
     }
   }
@@ -126,7 +146,7 @@ export function CessationPage() {
   return (
     <section className="page cessation-page" aria-labelledby="cessation-title">
       {heading}
-      {error ? (
+      {error && !confirmation ? (
         <p role="alert" className="form-error">
           {error}
         </p>
@@ -171,20 +191,31 @@ export function CessationPage() {
                     )
                   }
                 >
+                  <Icon name="check" size={18} />
                   {todayStatus === '截至记录时未吸烟' ? '更新今日快照' : '截至现在未吸烟'}
                 </button>
-                <button className="button-secondary" type="button" onClick={() => open('craving')}>
-                  我想抽烟
+              </div>
+              <p className="muted">只记录此刻，不代表全天。</p>
+              <div className="cessation-action-pair">
+                <button
+                  className="button-secondary"
+                  type="button"
+                  disabled={busy}
+                  onClick={() => open('smoking')}
+                >
+                  <Icon name="add" size={18} />
+                  记录吸烟
+                </button>
+                <button
+                  className="button-secondary"
+                  type="button"
+                  disabled={busy}
+                  onClick={() => open('craving')}
+                >
+                  <CategoryIcon name="leaf" size={18} />
+                  记录烟瘾
                 </button>
               </div>
-              <button
-                className="cessation-record-link"
-                type="button"
-                onClick={() => open('smoking')}
-              >
-                <Icon name="add" size={18} />
-                记录吸烟<span>如实记录，不清空努力</span>
-              </button>
             </>
           ) : null}
           <section className="health-card cessation-history" aria-label="戒烟回顾">
@@ -346,48 +377,43 @@ export function CessationPage() {
               <ul className="cessation-event-list">
                 {dayEvents.slice(0, limit).map((event) => (
                   <li key={event.id}>
-                    <div>
-                      <strong>
-                        {event.kind === 'smoking'
-                          ? `吸烟 ${event.count} 支`
-                          : event.outcome === 'relieved'
-                            ? '烟瘾 · 缓解了'
-                            : '烟瘾 · 还想抽'}
-                      </strong>
-                      <p>
-                        {new Intl.DateTimeFormat('zh-CN', {
-                          timeZone: plan.timeZone,
-                          timeStyle: 'short',
-                        }).format(new Date(event.occurredAt))}
-                        {event.trigger ? ` · ${triggerNames[event.trigger]}` : ''}
-                      </p>
-                    </div>
-                    <div>
-                      {
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setEditing(event)
-                            open(event.kind === 'smoking' ? 'smoking' : 'craving')
-                          }}
-                        >
-                          编辑
-                        </button>
-                      }
-                      <button
-                        type="button"
-                        disabled={busy}
-                        onClick={() => {
-                          if (window.confirm('删除这条记录？不会自动恢复无烟确认。'))
-                            void mutate(
-                              () => repository.removeEvent(event.id),
-                              '记录已删除，未自动创建无烟确认。',
-                            )
-                        }}
+                    <button
+                      type="button"
+                      className="cessation-event-open"
+                      disabled={busy}
+                      aria-label={`编辑${event.kind === 'smoking' ? '吸烟' : '烟瘾'}记录`}
+                      onClick={() => {
+                        setEditing(event)
+                        open(event.kind === 'smoking' ? 'smoking' : 'craving')
+                        logger.info('cessation.event.opened', {
+                          operation: 'edit',
+                          entityType: event.kind,
+                        })
+                      }}
+                    >
+                      <span
+                        className={`category-glyph tone-${event.kind === 'smoking' ? 'amber' : 'sage'}`}
                       >
-                        删除
-                      </button>
-                    </div>
+                        <CategoryIcon name={event.kind === 'smoking' ? 'activity' : 'leaf'} />
+                      </span>
+                      <div>
+                        <strong>
+                          {event.kind === 'smoking'
+                            ? `吸烟 ${event.count} 支`
+                            : event.outcome === 'relieved'
+                              ? '烟瘾 · 缓解了'
+                              : '烟瘾 · 还想抽'}
+                        </strong>
+                        <p>
+                          {new Intl.DateTimeFormat('zh-CN', {
+                            timeZone: plan.timeZone,
+                            timeStyle: 'short',
+                          }).format(new Date(event.occurredAt))}
+                          {event.trigger ? ` · ${triggerNames[event.trigger]}` : ''}
+                        </p>
+                      </div>
+                      <Icon name="next" size={18} />
+                    </button>
                   </li>
                 ))}
               </ul>
@@ -402,10 +428,14 @@ export function CessationPage() {
           </section>
         </>
       ) : (
-        <section className="health-card">
+        <section className="cessation-empty-state">
+          <span className="category-glyph tone-sage">
+            <CategoryIcon name="leaf" size={28} />
+          </span>
           <h2>从这一刻开始</h2>
           <p>记录自己的节奏。需要帮助时，随时回来。</p>
           <button type="button" className="button-primary" onClick={() => open('plan')}>
+            <Icon name="add" size={18} />
             开始计划
           </button>
         </section>
@@ -438,6 +468,32 @@ export function CessationPage() {
                       : '计划管理'
           }
         >
+          {editing && (panel === 'smoking' || panel === 'craving') && (
+            <button
+              type="button"
+              className="button-secondary text-destructive"
+              disabled={busy}
+              onClick={() => {
+                // Destruction belongs to the selected detail, never an adjacent history-row action.
+                const eventId = editing.id
+                setError('')
+                setConfirmation({
+                  title: '删除戒烟记录？',
+                  description: '删除后无法撤销，也不会自动恢复无烟确认。',
+                  label: '删除记录',
+                  action: async () => {
+                    await repository.removeEvent(eventId)
+                    close()
+                  },
+                  success: '记录已删除，未自动创建无烟确认。',
+                })
+                logger.info('cessation.ui.deleterequested', { operation: 'delete' })
+              }}
+            >
+              <Icon name="trash" size={18} />
+              删除记录
+            </button>
+          )}
           {panel === 'plan' ? (
             <PlanForm
               onClose={close}
@@ -505,11 +561,18 @@ export function CessationPage() {
                   type="button"
                   disabled={busy}
                   onClick={() => {
-                    if (window.confirm('结束本次计划并保留历史？未来计划将被取消。'))
-                      void mutate(async () => {
+                    setError('')
+                    setConfirmation({
+                      title: future ? '取消未来计划？' : '结束本次计划？',
+                      description: '历史记录仍保留。结束后不可在本计划新增吸烟或烟瘾事件。',
+                      label: future ? '确认取消计划' : '确认结束',
+                      action: async () => {
                         await repository.end(plan.id)
                         close()
-                      }, '计划已结束，历史仍保留。')
+                      },
+                      success: '计划已结束，历史仍保留。',
+                    })
+                    logger.info('cessation.ui.endrequested', { operation: 'end' })
                   }}
                 >
                   {future ? '取消未来计划' : '结束本次计划'}
@@ -572,6 +635,26 @@ export function CessationPage() {
           ) : null}
         </Sheet>
       ) : null}
+      {confirmation && (
+        <ConfirmDialog
+          title={confirmation.title}
+          description={confirmation.description}
+          confirmLabel={confirmation.label}
+          busy={busy}
+          error={error}
+          onCancel={() => {
+            if (!writeLock.current) {
+              setConfirmation(undefined)
+              setError('')
+            }
+          }}
+          onConfirm={() => {
+            void mutate(confirmation.action, confirmation.success).then((saved) => {
+              if (saved) setConfirmation(undefined)
+            })
+          }}
+        />
+      )}
     </section>
   )
 }

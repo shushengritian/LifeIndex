@@ -1,0 +1,776 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="referrer" content="no-referrer" />
+    <title>LifeIndex · 五款获奖 App 真实界面参考板</title>
+    <style>
+      /* This is a static research document, isolated from LifeIndex runtime and storage.
+   Keep source imagery uncropped; preserve the distinction between official art and live testing. */
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: auto;
+        scroll-padding-top: 20px;
+      }
+      body {
+        margin: 0;
+        background: #f8f8f6;
+        color: #222;
+        font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Segoe UI', sans-serif;
+        line-height: 1.65;
+      }
+      main {
+        max-width: 1440px;
+        margin: auto;
+        padding: 40px 32px 64px;
+      }
+      h1 {
+        font-size: 32px;
+        letter-spacing: -0.025em;
+        line-height: 1.3;
+        margin: 0 0 12px;
+      }
+      h2 {
+        font-size: 28px;
+        line-height: 1.35;
+        margin: 0 0 10px;
+      }
+      h3 {
+        font-size: 17px;
+        margin: 22px 0 6px;
+      }
+      p {
+        margin: 8px 0 14px;
+        max-width: 76ch;
+      }
+      a {
+        color: #244ea1;
+        text-underline-offset: 4px;
+      }
+      a:hover {
+        text-decoration-thickness: 2px;
+      }
+      a:focus-visible,
+      summary:focus-visible,
+      video:focus-visible {
+        outline: 3px solid #244ea1;
+        outline-offset: 5px;
+      }
+      ::selection {
+        background: #cfe1ff;
+        color: #111;
+      }
+      .muted,
+      figcaption {
+        color: #555;
+      }
+      .intro {
+        max-width: 90ch;
+      }
+      .index {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 18px;
+        margin: 28px 0 20px;
+      }
+      .index a {
+        color: inherit;
+        text-decoration: none;
+        display: block;
+      }
+      .index img {
+        width: 100%;
+        height: 340px;
+        object-fit: contain;
+        background: #f9f9fb;
+      }
+      .index b {
+        display: block;
+        font-size: 18px;
+        margin-top: 10px;
+      }
+      .index small {
+        display: block;
+        color: #555;
+      }
+      .note {
+        padding: 16px 0;
+        border-top: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
+      }
+      .detail {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(300px, 0.9fr);
+        gap: 44px;
+        padding: 48px 0;
+        border-bottom: 1px solid #ccc;
+      }
+      .detail > div {
+        min-width: 0;
+      }
+      .media {
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+      figure {
+        margin: 0;
+        flex: 1;
+        min-width: 200px;
+        max-width: 470px;
+      }
+      figure img {
+        display: block;
+        width: 100%;
+        height: 610px;
+        object-fit: contain;
+        background: #f9f9fb;
+      }
+      figcaption {
+        font-size: 12px;
+        margin-top: 8px;
+      }
+      video {
+        width: 100%;
+        max-height: 540px;
+        background: #f9f9fb;
+      }
+      details {
+        margin-top: 22px;
+      }
+      summary {
+        cursor: pointer;
+        padding: 10px 0;
+        color: #244ea1;
+      }
+      .rating {
+        font-size: 14px;
+        color: #555;
+      }
+      .verdict {
+        font-size: 19px;
+        font-weight: 600;
+      }
+      .choice {
+        padding-top: 36px;
+      }
+      .choice ol {
+        padding-left: 24px;
+      }
+      footer {
+        margin-top: 40px;
+        color: #555;
+        font-size: 13px;
+      }
+      .comparison {
+        overflow: auto;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+      td,
+      th {
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+        padding: 12px 14px;
+        min-width: 105px;
+      }
+      th {
+        font-weight: 600;
+      }
+      .extra img {
+        height: 480px;
+      }
+      .extra {
+        margin-top: 20px;
+      }
+      .back {
+        display: inline-block;
+        padding: 10px 0;
+      }
+      @media (max-width: 900px) {
+        main {
+          padding: 28px 20px;
+        }
+        .index {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+        .index img {
+          height: 300px;
+        }
+        .detail {
+          grid-template-columns: 1fr;
+          gap: 24px;
+        }
+        .detail figure {
+          max-width: 420px;
+        }
+        figure img {
+          height: 550px;
+        }
+      }
+      @media (max-width: 520px) {
+        h1 {
+          font-size: 26px;
+        }
+        .index {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 16px 10px;
+        }
+        .index img {
+          height: 260px;
+        }
+        .index b {
+          font-size: 16px;
+        }
+        h2 {
+          font-size: 25px;
+        }
+        .detail {
+          padding: 32px 0;
+        }
+        .media {
+          gap: 24px;
+        }
+        figure {
+          min-width: 100%;
+        }
+        figure img {
+          height: auto;
+          max-height: 620px;
+        }
+        main {
+          padding: 24px 16px;
+        }
+        .extra img {
+          height: auto;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          scroll-behavior: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main id="top">
+      <header>
+        <h1>先看真实产品，再决定 LifeIndex 的样子。</h1>
+        <p class="intro">
+          五款 2025–2026 Apple Design Awards 获奖
+          App。对比信息布局、视觉语言和操作表达，不拼贴成新设计。<strong
+            >本轮停在参考选型，G3 仍待你确认。</strong
+          >
+        </p>
+        <p class="muted">
+          研究日期：2026-09-18 · 手机界面来自 Apple / 开发者官方素材 · 不是 AI 仿图，也不是本次
+          iPhone 实测
+        </p>
+      </header>
+      <nav class="index" aria-label="五款应用快速对比">
+        <a href="#A"
+          ><img
+            src="https://www.apple.com/newsroom/images/2026/06/apple-reveals-winners-of-the-2026-apple-design-awards/article/Apple-WWDC26-Apple-Design-Awards-Tide-Guide_inline.jpg.large.jpg"
+            alt="Tide Guide 官方手机界面"
+          /><b>A · Tide Guide</b><small>数据优先 · 深色仪表</small
+          ><small>2026 · 视觉与图像</small></a
+        >
+        <a href="#B"
+          ><img
+            src="https://www.apple.com/newsroom/images/2026/06/apple-reveals-winners-of-the-2026-apple-design-awards/article/Apple-WWDC26-Apple-Design-Awards-Moonlitt-Moon-Phase-Tracker_inline.jpg.large.jpg"
+            alt="Moonlitt 官方手机界面"
+          /><b>B · Moonlitt</b><small>沉浸焦点 · 场景化控制</small><small>2026 · 交互</small></a
+        >
+        <a href="#C"
+          ><img
+            src="https://framerusercontent.com/images/mG7Df1O5jISgy7XrGDQq7UJbE.png?scale-down-to=2048&amp;width=1206&amp;height=2622"
+            alt="CapWords 官方手机界面"
+          /><b>C · CapWords</b><small>生活手账 · 轻量趣味</small><small>2025 · 趣味</small></a
+        >
+        <a href="#D"
+          ><img
+            src="https://www.apple.com/newsroom/images/2026/06/apple-reveals-winners-of-the-2026-apple-design-awards/article/Apple-WWDC26-Apple-Design-Awards-grug_inline.jpg.large.jpg"
+            alt="grug 官方手机界面"
+          /><b>D · grug</b><small>手绘极简 · 情绪陪伴</small><small>2026 · 趣味</small></a
+        >
+        <a href="#E"
+          ><img
+            src="https://www.apple.com/newsroom/videos/2025/autoplay/06/apple-wwdc25-design-awards-watch-duty/posters/Apple-WWDC25-Design-Awards-Watch-Duty.jpg.large_2x.jpg"
+            alt="Watch Duty 官方手机界面"
+          /><b>E · Watch Duty</b><small>实用清晰 · 内容驱动</small><small>2025 · 社会影响</small></a
+        >
+      </nav>
+      <p class="note">
+        先凭直觉选两款，再往下看拆解。图片完整保留：部分含官方手机机框或宣传背景。点击图片可查看原图；C、E
+        下方有官方视频。图片和视频需要联网，资源打不开时可使用旁边的来源链接。
+      </p>
+      <section class="detail" id="A" aria-labelledby="title-A">
+        <div class="media">
+          <figure>
+            <a
+              href="https://www.apple.com/newsroom/images/2026/06/apple-reveals-winners-of-the-2026-apple-design-awards/article/Apple-WWDC26-Apple-Design-Awards-Tide-Guide_inline.jpg.large.jpg"
+              target="_blank"
+              rel="noreferrer"
+              ><img
+                src="https://www.apple.com/newsroom/images/2026/06/apple-reveals-winners-of-the-2026-apple-design-awards/article/Apple-WWDC26-Apple-Design-Awards-Tide-Guide_inline.jpg.large.jpg"
+                alt="A1 · 按日期组织的潮汐图表页 · Apple 官方展示图"
+            /></a>
+            <figcaption>A1 · 按日期组织的潮汐图表页 · Apple 官方展示图 · 点击原图放大</figcaption>
+          </figure>
+        </div>
+        <div>
+          <h2 id="title-A">A · Tide Guide</h2>
+          <p class="verdict">数据优先 · 深色仪表</p>
+          <p>
+            <a
+              href="https://www.apple.com/newsroom/2026/06/apple-reveals-winners-of-the-2026-apple-design-awards/"
+              target="_blank"
+              rel="noreferrer"
+              >Apple Design Awards 2026 · 视觉与图像获奖</a
+            >
+          </p>
+          <p class="rating">
+            <a
+              href="https://apps.apple.com/us/app/tide-guide-charts-tables/id1406371071"
+              target="_blank"
+              rel="noreferrer"
+              >美区 App Store：4.7 / 约 9,900 条</a
+            >（总分满分 5；评分不是 UI 专项评分）
+          </p>
+          <h3>看哪里</h3>
+          <p>
+            日期是骨架，曲线是主角，图标与数值形成紧凑的辅助层。底部导航与内容分离，但没有把每个数值都装进大卡片。
+          </p>
+          <h3>我建议借鉴什么</h3>
+          <p>记账的日历与每日收支层级；健康的体重趋势。学信息密度与图表标注，不照搬海洋主题。</p>
+          <h3>不应该照搬什么</h3>
+          <p>不要把所有页面做成深色天气仪表盘；财务数字仍需比装饰图形更醒目。</p>
+          <details open>
+            <summary>用户认可：证据与边界</summary>
+            <p>
+              Captain_Jeremy（2023-09-18）赞赏外观、自定义与快速查看信息，也提出希望固定首选指标。注意：这是较早的
+              UI 评价，不等于对 2026 版本的实测。
+            </p>
+            <p class="muted">
+              有具体 UI 好评，但样本较旧。
+              <a
+                href="https://apps.apple.com/us/app/tide-guide-charts-tables/id1406371071"
+                target="_blank"
+                rel="noreferrer"
+                >查看评价原文</a
+              >
+            </p>
+          </details>
+
+          <p class="muted">
+            图片出处：<a
+              href="https://www.apple.com/newsroom/2026/06/apple-reveals-winners-of-the-2026-apple-design-awards/"
+              target="_blank"
+              rel="noreferrer"
+              >Apple Newsroom</a
+            >
+          </p>
+          <a class="back" href="#top">返回五款对比 ↑</a>
+        </div>
+      </section>
+      <section class="detail" id="B" aria-labelledby="title-B">
+        <div class="media">
+          <figure>
+            <a
+              href="https://www.apple.com/newsroom/images/2026/06/apple-reveals-winners-of-the-2026-apple-design-awards/article/Apple-WWDC26-Apple-Design-Awards-Moonlitt-Moon-Phase-Tracker_inline.jpg.large.jpg"
+              target="_blank"
+              rel="noreferrer"
+              ><img
+                src="https://www.apple.com/newsroom/images/2026/06/apple-reveals-winners-of-the-2026-apple-design-awards/article/Apple-WWDC26-Apple-Design-Awards-Moonlitt-Moon-Phase-Tracker_inline.jpg.large.jpg"
+                alt="B1 · 月亮轨迹与时间标注 · Apple 官方展示图"
+            /></a>
+            <figcaption>B1 · 月亮轨迹与时间标注 · Apple 官方展示图 · 点击原图放大</figcaption>
+          </figure>
+        </div>
+        <div>
+          <h2 id="title-B">B · Moonlitt</h2>
+          <p class="verdict">沉浸焦点 · 场景化控制</p>
+          <p>
+            <a
+              href="https://www.apple.com/newsroom/2026/06/apple-reveals-winners-of-the-2026-apple-design-awards/"
+              target="_blank"
+              rel="noreferrer"
+              >Apple Design Awards 2026 · 交互获奖</a
+            >
+          </p>
+          <p class="rating">
+            <a
+              href="https://apps.apple.com/us/app/moonlitt-moon-phase-tracker/id6444718902"
+              target="_blank"
+              rel="noreferrer"
+              >美区 App Store：4.7 / 869 条</a
+            >（总分满分 5；评分不是 UI 专项评分）
+          </p>
+          <h3>看哪里</h3>
+          <p>一个全屏主场景，少量悬浮控件，时间标记直接附着在对象上。主内容不被一层层面板打断。</p>
+          <h3>我建议借鉴什么</h3>
+          <p>专注进行中的单一焦点；健康详情页的主趋势。把主要操作放在任务附近。</p>
+          <h3>不应该照搬什么</h3>
+          <p>不复制摄影背景和重透明玻璃到记账列表；可读性和 PWA 性能优先。</p>
+          <details open>
+            <summary>用户认可：证据与边界</summary>
+            <p>
+              商店可见评论肯定月相与事件信息的实用性；本轮没有找到足够直接、具体的用户 UI
+              赞誉。交互质量的强证据来自 Apple 的获奖说明，不拿总分冒充 UI 评分。
+            </p>
+            <p class="muted">
+              专业交互认可强；用户 UI 专项证据有限。
+              <a
+                href="https://apps.apple.com/us/app/moonlitt-moon-phase-tracker/id6444718902"
+                target="_blank"
+                rel="noreferrer"
+                >查看评价原文</a
+              >
+            </p>
+          </details>
+
+          <p class="muted">
+            图片出处：<a
+              href="https://www.apple.com/newsroom/2026/06/apple-reveals-winners-of-the-2026-apple-design-awards/"
+              target="_blank"
+              rel="noreferrer"
+              >Apple Newsroom</a
+            >
+          </p>
+          <a class="back" href="#top">返回五款对比 ↑</a>
+        </div>
+      </section>
+      <section class="detail" id="C" aria-labelledby="title-C">
+        <div class="media">
+          <figure>
+            <a
+              href="https://framerusercontent.com/images/mG7Df1O5jISgy7XrGDQq7UJbE.png?scale-down-to=2048&amp;width=1206&amp;height=2622"
+              target="_blank"
+              rel="noreferrer"
+              ><img
+                src="https://framerusercontent.com/images/mG7Df1O5jISgy7XrGDQq7UJbE.png?scale-down-to=2048&amp;width=1206&amp;height=2622"
+                alt="C1 · 单日词语收藏 · 开发者官网手机截图"
+            /></a>
+            <figcaption>C1 · 单日词语收藏 · 开发者官网手机截图 · 点击原图放大</figcaption>
+          </figure>
+        </div>
+        <div>
+          <h2 id="title-C">C · CapWords</h2>
+          <p class="verdict">生活手账 · 轻量趣味</p>
+          <p>
+            <a
+              href="https://www.apple.com/newsroom/2025/06/apple-unveils-winners-and-finalists-of-the-2025-apple-design-awards/"
+              target="_blank"
+              rel="noreferrer"
+              >Apple Design Awards 2025 · 趣味获奖</a
+            >
+          </p>
+          <p class="rating">
+            <a
+              href="https://apps.apple.com/us/app/capwords-ai-language-tutor/id6738896465"
+              target="_blank"
+              rel="noreferrer"
+              >美区 App Store：4.7 / 513 条</a
+            >（总分满分 5；评分不是 UI 专项评分）
+          </p>
+          <h3>看哪里</h3>
+          <p>
+            真实对象变成视觉内容，日期和留白组织页面。趣味来自素材与完成反馈，而非把普通文字按钮一律换成图标。
+          </p>
+          <h3>我建议借鉴什么</h3>
+          <p>健康打卡完成后的轻反馈；日历回顾中的少量视觉锚点。保留成人工具的克制。</p>
+          <h3>不应该照搬什么</h3>
+          <p>不把记账分类做成满屏贴纸；不复制其插画、照片或品牌资产。</p>
+          <details open>
+            <summary>用户认可：证据与边界</summary>
+            <p>
+              Jeff RR（2025-09-02）明确赞赏美感和动画；Rafael David
+              González（2025-06-04）肯定制作闪卡的简单流程。它在这组中有较直接的视觉与操作好评。
+            </p>
+            <p class="muted">
+              有具体视觉、动画和易用性好评。
+              <a
+                href="https://apps.apple.com/us/app/capwords-ai-language-tutor/id6738896465"
+                target="_blank"
+                rel="noreferrer"
+                >查看评价原文</a
+              >
+            </p>
+          </details>
+          <details>
+            <summary>C2 · 查看拍摄确认界面</summary>
+            <div class="extra">
+              <figure>
+                <a
+                  href="https://framerusercontent.com/images/kEhswH2ti1L5L23WQxr5uPtYPM.png?scale-down-to=2048&amp;width=1206&amp;height=2622"
+                  target="_blank"
+                  rel="noreferrer"
+                  ><img
+                    src="https://framerusercontent.com/images/kEhswH2ti1L5L23WQxr5uPtYPM.png?scale-down-to=2048&amp;width=1206&amp;height=2622"
+                    alt="C2 · 拍摄后的确认与取消 · 开发者官网手机截图"
+                /></a>
+                <figcaption>C2 · 拍摄后的确认与取消 · 开发者官网手机截图 · 点击原图放大</figcaption>
+              </figure>
+            </div>
+          </details>
+          <details>
+            <summary>C · 播放 Apple 官方交互演示</summary>
+            <!-- Native controls keep playback explicit: no autoplay, analytics, or application state. --><video
+              controls
+              playsinline
+              preload="none"
+              poster="https://www.apple.com/newsroom/videos/2025/autoplay/06/apple-wwdc25-design-awards-capwords/posters/Apple-WWDC25-Design-Awards-CapWords.jpg.large_2x.jpg"
+            >
+              <source
+                src="https://www.apple.com/newsroom/videos/2025/autoplay/06/apple-wwdc25-design-awards-capwords/large_2x.mp4"
+                type="video/mp4"
+              />
+            </video>
+            <p class="muted">
+              获奖时的官方演示，可能与当前商店版本不同。<a
+                href="https://www.apple.com/newsroom/videos/2025/autoplay/06/apple-wwdc25-design-awards-capwords/large_2x.mp4"
+                target="_blank"
+                rel="noreferrer"
+                >单独打开视频</a
+              >
+            </p>
+          </details>
+          <p class="muted">
+            图片出处：<a href="https://capwords.app/" target="_blank" rel="noreferrer"
+              >CapWords 官网</a
+            >
+          </p>
+          <a class="back" href="#top">返回五款对比 ↑</a>
+        </div>
+      </section>
+      <section class="detail" id="D" aria-labelledby="title-D">
+        <div class="media">
+          <figure>
+            <a
+              href="https://www.apple.com/newsroom/images/2026/06/apple-reveals-winners-of-the-2026-apple-design-awards/article/Apple-WWDC26-Apple-Design-Awards-grug_inline.jpg.large.jpg"
+              target="_blank"
+              rel="noreferrer"
+              ><img
+                src="https://www.apple.com/newsroom/images/2026/06/apple-reveals-winners-of-the-2026-apple-design-awards/article/Apple-WWDC26-Apple-Design-Awards-grug_inline.jpg.large.jpg"
+                alt="D1 · 每日内容与日期导航 · Apple 官方展示图"
+            /></a>
+            <figcaption>D1 · 每日内容与日期导航 · Apple 官方展示图 · 点击原图放大</figcaption>
+          </figure>
+        </div>
+        <div>
+          <h2 id="title-D">D · grug</h2>
+          <p class="verdict">手绘极简 · 情绪陪伴</p>
+          <p>
+            <a
+              href="https://www.apple.com/newsroom/2026/06/apple-reveals-winners-of-the-2026-apple-design-awards/"
+              target="_blank"
+              rel="noreferrer"
+              >Apple Design Awards 2026 · 趣味获奖</a
+            >
+          </p>
+          <p class="rating">
+            <a
+              href="https://apps.apple.com/us/app/grug/id6751649802"
+              target="_blank"
+              rel="noreferrer"
+              >美区 App Store：4.8 / 约 3,100 条</a
+            >（总分满分 5；评分不是 UI 专项评分）
+          </p>
+          <h3>看哪里</h3>
+          <p>
+            统一的手绘笔触、短文案和一整块颜色构成个性。内容很少，但每个元素属于同一种视觉语言。
+          </p>
+          <h3>我建议借鉴什么</h3>
+          <p>专注完成页或戒烟鼓励的语气与节奏；在一个关键时刻表达温度。</p>
+          <h3>不应该照搬什么</h3>
+          <p>不把全 App 字体改成手写体，不把金融数值和中文正文牺牲给个性。</p>
+          <details open>
+            <summary>用户认可：证据与边界</summary>
+            <p>
+              ItsJustOwen007（页面显示 May
+              21）明确称赞简单有效，并提到交互和设计超出预期；Greatapptbh（Jun
+              3）肯定易懂表达与个性化绘画。页面未显示年份，不补写。
+            </p>
+            <p class="muted">
+              有明确设计、交互及简单易懂的好评。
+              <a
+                href="https://apps.apple.com/us/app/grug/id6751649802"
+                target="_blank"
+                rel="noreferrer"
+                >查看评价原文</a
+              >
+            </p>
+          </details>
+
+          <p class="muted">
+            图片出处：<a
+              href="https://www.apple.com/newsroom/2026/06/apple-reveals-winners-of-the-2026-apple-design-awards/"
+              target="_blank"
+              rel="noreferrer"
+              >Apple Newsroom</a
+            >
+          </p>
+          <a class="back" href="#top">返回五款对比 ↑</a>
+        </div>
+      </section>
+      <section class="detail" id="E" aria-labelledby="title-E">
+        <div class="media">
+          <figure>
+            <a
+              href="https://www.apple.com/newsroom/videos/2025/autoplay/06/apple-wwdc25-design-awards-watch-duty/posters/Apple-WWDC25-Design-Awards-Watch-Duty.jpg.large_2x.jpg"
+              target="_blank"
+              rel="noreferrer"
+              ><img
+                src="https://www.apple.com/newsroom/videos/2025/autoplay/06/apple-wwdc25-design-awards-watch-duty/posters/Apple-WWDC25-Design-Awards-Watch-Duty.jpg.large_2x.jpg"
+                alt="E1 · 地图与明确工具入口 · Apple 官方视频封面"
+            /></a>
+            <figcaption>E1 · 地图与明确工具入口 · Apple 官方视频封面 · 点击原图放大</figcaption>
+          </figure>
+        </div>
+        <div>
+          <h2 id="title-E">E · Watch Duty</h2>
+          <p class="verdict">实用清晰 · 内容驱动</p>
+          <p>
+            <a
+              href="https://www.apple.com/newsroom/2025/06/apple-unveils-winners-and-finalists-of-the-2025-apple-design-awards/"
+              target="_blank"
+              rel="noreferrer"
+              >Apple Design Awards 2025 · 社会影响获奖</a
+            >
+          </p>
+          <p class="rating">
+            <a
+              href="https://apps.apple.com/us/app/watch-duty-wildfire-floods/id1574452924"
+              target="_blank"
+              rel="noreferrer"
+              >美区 App Store：4.9 / 约 51,000 条</a
+            >（总分满分 5；评分不是 UI 专项评分）
+          </p>
+          <h3>看哪里</h3>
+          <p>
+            地图承担主要信息，工具按钮同时保留图标和文字，底部搜索有明确入口。不是最装饰化的一款，而是操作清晰的对照样本。
+          </p>
+          <h3>我建议借鉴什么</h3>
+          <p>健康记录和设置中的可发现性；图标与文字共同说明操作；状态不能只靠颜色。</p>
+          <h3>不应该照搬什么</h3>
+          <p>不引入地图或警报式视觉；社会影响奖不能描述成视觉大奖。</p>
+          <details open>
+            <summary>用户认可：证据与边界</summary>
+            <p>
+              CuriosityDrawsMe（2025-01-09）肯定点击图标后能获得清晰信息；MoBubs（2024-09-21）认可事件和图层间切换容易。肯定的是理解与操作，不是华丽视觉。
+            </p>
+            <p class="muted">
+              有具体操作好评；获奖类别不是视觉。
+              <a
+                href="https://apps.apple.com/us/app/watch-duty-wildfire-floods/id1574452924"
+                target="_blank"
+                rel="noreferrer"
+                >查看评价原文</a
+              >
+            </p>
+          </details>
+
+          <details>
+            <summary>E · 播放 Apple 官方交互演示</summary>
+            <!-- Native controls keep playback explicit: no autoplay, analytics, or application state. --><video
+              controls
+              playsinline
+              preload="none"
+              poster="https://www.apple.com/newsroom/videos/2025/autoplay/06/apple-wwdc25-design-awards-watch-duty/posters/Apple-WWDC25-Design-Awards-Watch-Duty.jpg.large_2x.jpg"
+            >
+              <source
+                src="https://www.apple.com/newsroom/videos/2025/autoplay/06/apple-wwdc25-design-awards-watch-duty/large_2x.mp4"
+                type="video/mp4"
+              />
+            </video>
+            <p class="muted">
+              获奖时的官方演示，可能与当前商店版本不同。<a
+                href="https://www.apple.com/newsroom/videos/2025/autoplay/06/apple-wwdc25-design-awards-watch-duty/large_2x.mp4"
+                target="_blank"
+                rel="noreferrer"
+                >单独打开视频</a
+              >
+            </p>
+          </details>
+          <p class="muted">
+            图片出处：<a
+              href="https://www.apple.com/newsroom/2025/06/apple-unveils-winners-and-finalists-of-the-2025-apple-design-awards/"
+              target="_blank"
+              rel="noreferrer"
+              >Apple Newsroom</a
+            >
+          </p>
+          <a class="back" href="#top">返回五款对比 ↑</a>
+        </div>
+      </section>
+      <section class="choice">
+        <h2>我的判断：先选一种主语言，不混成五种风格。</h2>
+        <p>
+          对 LifeIndex 而言，我建议先在 A 的「数据秩序」与 C 的「生活感」之间选择主方向。B、D
+          更适合专注或完成反馈中的局部体验；E
+          用来检验操作是否一眼可懂。以下是设计推断，不是已经批准的方案。
+        </p>
+        <div class="comparison">
+          <table>
+            <thead>
+              <tr>
+                <th>参考</th>
+                <th>最适合借鉴</th>
+                <th>不适合作为</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>A · Tide Guide</td>
+                <td>记账 / 体重趋势的信息结构</td>
+                <td>全应用统一的海洋配色</td>
+              </tr>
+              <tr>
+                <td>B · Moonlitt</td>
+                <td>专注过程的视觉焦点</td>
+                <td>高密度账目列表模板</td>
+              </tr>
+              <tr>
+                <td>C · CapWords</td>
+                <td>健康记录的生活感与反馈</td>
+                <td>满屏拟物贴纸系统</td>
+              </tr>
+              <tr>
+                <td>D · grug</td>
+                <td>鼓励、完成、短暂反思</td>
+                <td>金额与统计的排版规范</td>
+              </tr>
+              <tr>
+                <td>E · Watch Duty</td>
+                <td>操作可发现性 / 状态语义</td>
+                <td>品牌美术方向</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>你只需要回答这三句</h3>
+        <ol>
+          <li>最喜欢：__ 和 __。</li>
+          <li>最不喜欢：__；不喜欢的是 __。</li>
+          <li>更希望每天打开时感觉：清晰利落 / 温暖轻松 / 安静沉浸，或用你自己的话描述。</li>
+        </ol>
+        <p>
+          也可以直接说「喜欢 A 的布局、C 的按钮，不喜欢 D 的手绘」。你选定后，再整理 LifeIndex
+          的视觉原则和完整核心流程；不会据此直接开发或发布。
+        </p>
+      </section>
+      <footer>
+        研究用途，图像版权归原作者与各应用所有；没有将第三方资产加入生产应用。截图不能证明实际动效、触觉、可达性与性能，官方视频也不等于独立可用性测试。评分为研究时美区商店快照；少量公开评论存在选择偏差。Impeccable
+        仅手动辅助梳理，未运行引擎。
+      </footer>
+    </main>
+  </body>
+</html>

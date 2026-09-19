@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, type FormEvent } from 'react'
+import { useCallback, useMemo, useRef, useState, type FormEvent } from 'react'
 
 import { useAppServices } from '@/app/AppServicesContext'
 import { CategoryRepository } from '@/data/repositories/CategoryRepository'
@@ -24,7 +24,12 @@ import type { Category, Transaction, TransactionType } from '@/shared/domain/typ
 import { useLiveQueryState } from '@/shared/hooks/useLiveQueryState'
 import { logger } from '@/shared/logging/logger'
 import { Icon } from '@/shared/ui/Icon'
+import { CategoryIcon } from '@/shared/ui/CategoryIcon'
+import { FinanceCategoryPicker } from './FinanceCategoryPicker'
+import { DailyExpenseChart } from './DailyExpenseChart'
+import { isCategoryAvailable, categoryDisplayName } from '@/shared/domain/categoryHierarchy'
 import { Sheet } from '@/shared/ui/Sheet'
+import { ConfirmDialog } from '@/shared/ui/ConfirmDialog'
 import { useDirtyForm } from '@/pwa/useDirtyForm'
 
 function toDateTimeLocalInput(date: Date): string {
@@ -97,31 +102,49 @@ function TransactionForm({
   const matchingCategories = categories.filter(
     (category) =>
       category.transactionType === type &&
-      (category.archived === 0 || category.id === transaction?.categoryId),
+      (isCategoryAvailable(category, categories) || category.id === transaction?.categoryId),
   )
   const [categoryId, setCategoryId] = useState(initialValues.categoryId)
   const [occurredAt, setOccurredAt] = useState(initialValues.occurredAt)
   const [note, setNote] = useState(initialValues.note)
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
+  const saveLock = useRef(false)
+  const [confirmDiscard, setConfirmDiscard] = useState(false)
   const dirty =
     type !== initialValues.type ||
     amount !== initialValues.amount ||
     categoryId !== initialValues.categoryId ||
     occurredAt !== initialValues.occurredAt ||
     note !== initialValues.note
-  useDirtyForm(dirty)
+  useDirtyForm(dirty, saving)
 
   function cancel() {
-    if (dirty && !window.confirm('放弃尚未保存的记账输入？')) return
+    if (saveLock.current) return
+    logger.info('finance.form.exitrequested', {
+      reason: dirty ? 'dirty' : 'clean',
+      operation: 'close',
+    })
+    if (dirty) {
+      setConfirmDiscard(true)
+      return
+    }
     onCancel()
   }
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    // Synchronous guard protects against two submissions before React renders disabled controls.
+    if (saveLock.current) {
+      logger.info('finance.form.submitblocked', { reason: 'busy', operation: 'save' })
+      return
+    }
     setError('')
     const parsedAmount = parseMoneyToMinor(amount)
-    const selectedDate = new Date(occurredAt)
+    // Native date pickers can defer change until blur; submit the current control value, not stale state.
+    const selectedDate = new Date(
+      String(new FormData(event.currentTarget).get('occurredAt') ?? occurredAt),
+    )
     const selectedCategory = matchingCategories.find(({ id }) => id === categoryId)
     if (!parsedAmount.ok || !selectedCategory || Number.isNaN(selectedDate.getTime())) {
       logger.warn('finance.form.validationfailed', {
@@ -132,7 +155,9 @@ function TransactionForm({
       return
     }
 
+    saveLock.current = true
     setSaving(true)
+    logger.info('finance.form.savestarted', { operation: transaction ? 'update' : 'create' })
     try {
       await onSave({
         type,
@@ -144,8 +169,10 @@ function TransactionForm({
         ...(note.trim() ? { note: note.trim() } : {}),
       })
     } catch {
+      logger.warn('finance.form.savefailed', { operation: 'save', failureClass: 'DatabaseWrite' })
       setError('未能保存，本次输入仍保留。请重试。')
     } finally {
+      saveLock.current = false
       setSaving(false)
     }
   }
@@ -155,6 +182,13 @@ function TransactionForm({
       className="sheet-form finance-sheet-form"
       onSubmit={(event) => void submit(event)}
       aria-label={transaction ? '编辑交易' : '新增交易'}
+      aria-busy={saving}
+      onKeyDown={(event) => {
+        if (event.key === 'Escape' && !confirmDiscard) {
+          event.preventDefault()
+          cancel()
+        }
+      }}
     >
       <div className="segmented-control" aria-label="交易类型">
         {(['expense', 'income'] as const).map((value) => (
@@ -163,6 +197,7 @@ function TransactionForm({
             type="button"
             className={type === value ? 'segment-active' : ''}
             aria-pressed={type === value}
+            disabled={saving}
             onClick={() => {
               setType(value)
               setCategoryId('')
@@ -176,6 +211,7 @@ function TransactionForm({
         金额（CNY）
         <input
           autoFocus
+          disabled={saving}
           inputMode="decimal"
           value={amount}
           onChange={(event) => setAmount(event.target.value)}
@@ -183,29 +219,33 @@ function TransactionForm({
           aria-describedby={error ? 'finance-form-error' : undefined}
         />
       </label>
-      <label>
-        分类
-        <select value={categoryId} onChange={(event) => setCategoryId(event.target.value)}>
-          <option value="">请选择</option>
-          {matchingCategories.map((category) => (
-            <option key={category.id} value={category.id}>
-              {category.name}
-              {category.archived ? '（已归档）' : ''}
-            </option>
-          ))}
-        </select>
-      </label>
+      <FinanceCategoryPicker
+        categories={categories}
+        type={type}
+        value={categoryId}
+        originalId={transaction?.categoryId}
+        disabled={saving}
+        onChange={setCategoryId}
+      />
       <label>
         日期与时间
         <input
           type="datetime-local"
+          name="occurredAt"
+          disabled={saving}
           value={occurredAt}
           onChange={(event) => setOccurredAt(event.target.value)}
+          onInput={(event) => setOccurredAt(event.currentTarget.value)}
         />
       </label>
       <label>
         备注（可选）
-        <input value={note} maxLength={280} onChange={(event) => setNote(event.target.value)} />
+        <input
+          disabled={saving}
+          value={note}
+          maxLength={280}
+          onChange={(event) => setNote(event.target.value)}
+        />
       </label>
       {error ? (
         <p className="form-error" id="finance-form-error" role="alert">
@@ -213,26 +253,47 @@ function TransactionForm({
         </p>
       ) : null}
       <div className="form-actions">
-        <button type="button" className="button-secondary" onClick={cancel}>
+        <button type="button" className="button-secondary" disabled={saving} onClick={cancel}>
           取消
         </button>
         <button type="submit" className="button-primary" disabled={saving}>
           {saving ? '保存中…' : '保存'}
         </button>
       </div>
+      {confirmDiscard ? (
+        <ConfirmDialog
+          title="放弃这次输入？"
+          description="尚未保存的内容将丢失，已有账目不会改变。"
+          confirmLabel="放弃输入"
+          cancelLabel="继续填写"
+          onCancel={() => setConfirmDiscard(false)}
+          onConfirm={onCancel}
+        />
+      ) : null}
     </form>
   )
 }
 
-export function FinancePage() {
+export function FinanceNewPage() {
+  return <FinancePage initialNew />
+}
+
+export function FinancePage({ initialNew = false }: { initialNew?: boolean }) {
   const { database } = useAppServices()
   const transactions = useMemo(() => new TransactionRepository(database), [database])
   const categories = useMemo(() => new CategoryRepository(database), [database])
   const today = toLocalDateKey(new Date())
   const [selectedDate, setSelectedDate] = useState(today)
-  const [formMode, setFormMode] = useState<'closed' | 'new'>('closed')
+  // The Today shortcut opens the existing guarded editor; ordinary calendar navigation stays closed.
+  const [formMode, setFormMode] = useState<'closed' | 'new'>(initialNew ? 'new' : 'closed')
   const [editing, setEditing] = useState<Transaction>()
   const [pageError, setPageError] = useState('')
+  const [deleteTarget, setDeleteTarget] = useState<Transaction>()
+  const [deleting, setDeleting] = useState(false)
+  const deleteLock = useRef(false)
+  const [notice, setNotice] = useState('')
+  const [savedDate, setSavedDate] = useState<string>()
+  useDirtyForm(false, deleting)
   const monthRange = useMemo(
     () => ({ from: startOfLocalMonth(selectedDate), to: endOfLocalMonth(selectedDate) }),
     [selectedDate],
@@ -258,18 +319,30 @@ export function FinancePage() {
   async function save(command: SaveTransactionCommand) {
     if (editing) await transactions.update(editing.id, command)
     else await transactions.create(command)
-    setSelectedDate(command.localDate)
+    // Saving elsewhere must not silently move the calendar the user was browsing.
+    setSavedDate(command.localDate !== selectedDate ? command.localDate : undefined)
     setEditing(undefined)
     setFormMode('closed')
+    setNotice(command.localDate !== selectedDate ? '账目已保存到其他日期' : '账目已保存')
+    logger.info('finance.form.saved', { operation: 'save' })
   }
 
   async function remove(transaction: Transaction) {
-    if (!window.confirm('确认删除这条交易？此操作不会影响其他记录。')) return
+    if (deleteLock.current) return
+    deleteLock.current = true
+    setDeleting(true)
     setPageError('')
     try {
       await transactions.remove(transaction.id)
+      setDeleteTarget(undefined)
+      setNotice('账目已删除')
+      logger.info('finance.delete.completed', { operation: 'delete' })
     } catch {
+      logger.warn('finance.delete.failed', { operation: 'delete', failureClass: 'DatabaseWrite' })
       setPageError('未能删除，现有记录没有被更改。')
+    } finally {
+      deleteLock.current = false
+      setDeleting(false)
     }
   }
 
@@ -289,7 +362,6 @@ export function FinancePage() {
     <section className="page finance-page" aria-labelledby="finance-title">
       <div className="page-heading-row">
         <div>
-          <p className="eyebrow">calendar</p>
           <h1 id="finance-title">记账</h1>
         </div>
         <button
@@ -301,7 +373,24 @@ export function FinancePage() {
           <Icon name="add" />
         </button>
       </div>
-      {pageError ? (
+      <p className="finance-feedback" role="status">
+        {notice}
+      </p>
+      {savedDate ? (
+        <button
+          type="button"
+          className="finance-saved-link"
+          onClick={() => {
+            logger.info('finance.savedrecord.viewed', { operation: 'navigate' })
+            setSelectedDate(savedDate)
+            setSavedDate(undefined)
+            setNotice('已显示保存日期的账目')
+          }}
+        >
+          查看记录
+        </button>
+      ) : null}
+      {pageError && !deleteTarget ? (
         <p className="form-error" role="alert">
           {pageError}
         </p>
@@ -326,7 +415,11 @@ export function FinancePage() {
             setFormMode('closed')
             setEditing(transaction)
           }}
-          onDelete={(transaction) => void remove(transaction)}
+          onDelete={(transaction) => {
+            setPageError('')
+            setDeleteTarget(transaction)
+            logger.info('finance.delete.requested', { operation: 'delete' })
+          }}
         />
       ) : null}
       {isFormOpen && state.status === 'ready' ? (
@@ -343,6 +436,20 @@ export function FinancePage() {
             onSave={save}
           />
         </Sheet>
+      ) : null}
+      {deleteTarget ? (
+        <ConfirmDialog
+          title="删除这条账目？"
+          description="删除后无法撤销，其他记录不会改变。"
+          confirmLabel="删除账目"
+          busy={deleting}
+          error={pageError}
+          onCancel={() => {
+            setDeleteTarget(undefined)
+            setPageError('')
+          }}
+          onConfirm={() => void remove(deleteTarget)}
+        />
       ) : null}
     </section>
   )
@@ -376,7 +483,9 @@ function FinanceContent({
   const selectedTransactions = monthTransactions.filter(
     ({ localDate }) => localDate === selectedDate,
   )
-  const categoryNames = new Map(categories.map(({ id, name }) => [id, name]))
+  const categoryNames = new Map(
+    categories.map(({ id }) => [id, categoryDisplayName(id, categories)]),
+  )
   const breakdown = expenseByCategory(monthTransactions, categories)
   const trend = monthlyTrend(trendTransactions, selectedDate)
   const trendMaximum = Math.max(...trend.map(({ expenseMinor }) => expenseMinor), 1)
@@ -461,6 +570,8 @@ function FinanceContent({
         </p>
       </div>
 
+      <DailyExpenseChart transactions={monthTransactions} selectedDate={selectedDate} />
+
       <section className="content-section selected-ledger" aria-labelledby="transaction-list-title">
         <div className="section-heading">
           <h2 id="transaction-list-title">{formatSelectedDate(selectedDate)}</h2>
@@ -469,30 +580,42 @@ function FinanceContent({
         {selectedTransactions.length === 0 ? (
           <p className="empty-state">这一天还没有账目。点按右上角即可记一笔。</p>
         ) : (
-          <ul className="record-list">
+          <ul className="finance-records">
             {selectedTransactions.map((transaction) => (
               <li key={transaction.id}>
-                <div className="record-main">
-                  <span>{categoryNames.get(transaction.categoryId) ?? '已归档分类'}</span>
+                <button
+                  type="button"
+                  className="finance-record-open"
+                  onClick={() => onEdit(transaction)}
+                  aria-label={`编辑 ${categoryNames.get(transaction.categoryId) ?? '账目'} ${formatMoney(transaction.amountMinor)}`}
+                >
+                  <span className={`finance-record-symbol transaction-${transaction.type}`}>
+                    <CategoryIcon
+                      name={
+                        categories.find(({ id }) => id === transaction.categoryId)?.icon ?? 'other'
+                      }
+                    />
+                  </span>
+                  <span className="finance-record-copy">
+                    <strong>{categoryNames.get(transaction.categoryId) ?? '已归档分类'}</strong>
+                    <span>
+                      {formatTransactionTime(transaction)}
+                      {transaction.note ? ` · ${transaction.note}` : ''}
+                    </span>
+                  </span>
                   <strong className={`numeric transaction-${transaction.type}`}>
                     {transaction.type === 'expense' ? '−' : '+'}
                     {formatMoney(transaction.amountMinor)}
                   </strong>
-                </div>
-                <p>
-                  {formatTransactionTime(transaction)}
-                  {transaction.note ? ` · ${transaction.note}` : ''}
-                </p>
-                <div className="row-actions">
-                  <button type="button" onClick={() => onEdit(transaction)}>
-                    编辑
-                  </button>
+                </button>
+                <div className="finance-record-actions">
                   <button
                     type="button"
                     className="text-destructive"
+                    aria-label="删除"
                     onClick={() => onDelete(transaction)}
                   >
-                    删除
+                    <Icon name="trash" size={18} />
                   </button>
                 </div>
               </li>

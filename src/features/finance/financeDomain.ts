@@ -59,13 +59,13 @@ export function expenseByCategory(
   categories: readonly Category[],
 ): Array<{ categoryId: string; name: string; amountMinor: number }> {
   const categoryNames = new Map(categories.map(({ id, name }) => [id, name]))
+  const parents = new Map(categories.map(({ id, parentId }) => [id, parentId ?? id]))
   const totals = new Map<string, number>()
   for (const transaction of transactions) {
     if (transaction.type !== 'expense') continue
-    totals.set(
-      transaction.categoryId,
-      sumMoneyMinor([totals.get(transaction.categoryId) ?? 0, transaction.amountMinor]),
-    )
+    // Attribute each record once to its root, including records saved directly on that root.
+    const rootId = parents.get(transaction.categoryId) ?? transaction.categoryId
+    totals.set(rootId, sumMoneyMinor([totals.get(rootId) ?? 0, transaction.amountMinor]))
   }
   return [...totals.entries()]
     .map(([categoryId, amountMinor]) => ({

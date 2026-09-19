@@ -1,23 +1,25 @@
 :root {
   color-scheme: light;
-  color: #20231f;
-  background: #f4f3ee;
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', sans-serif;
+  color: var(--text);
+  background: var(--canvas);
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Segoe UI', sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
-  --canvas: #f5f5f2;
+  /* Ocean semantic mapping preserves existing consumers during incremental page migration. */
+  --canvas: #f1f6fb;
   --surface: #ffffff;
-  --surface-muted: #eceee9;
-  --text: #1c201d;
-  --muted: #69706a;
-  --accent: #426b57;
+  --surface-muted: #e5eef7;
+  --text: #172c46;
+  --muted: #516982;
+  --accent: #126590;
   --on-accent: #ffffff;
-  --accent-soft: #dfe9e2;
-  --positive: #4f7658;
-  --warning: #9a6b2f;
-  --destructive: #a14343;
-  --divider: #dadbd4;
-  --shadow: 0 12px 32px rgb(45 52 44 / 8%);
+  --accent-soft: #dceefa;
+  --positive: #197b70;
+  --warning: #a85820;
+  --destructive: #ae354b;
+  --divider: #cfdeec;
+  --nav: #edf4fb;
+  --shadow: 0 12px 32px rgb(16 31 53 / 8%);
 }
 
 /* Health's cessation child reuses the shared tokens and sheets; its calendar expands on
@@ -58,6 +60,44 @@
 .cessation-actions > button {
   flex: 1;
   white-space: nowrap;
+}
+.cessation-actions button,
+.cessation-action-pair button,
+.cessation-empty-state > button {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+.cessation-action-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.cessation-empty-state {
+  padding: 32px 0;
+  text-align: center;
+}
+.cessation-empty-state > .category-glyph {
+  margin: 0 auto 16px;
+  width: 56px;
+  height: 56px;
+}
+.cessation-event-open {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 0;
+  border: 0;
+  background: transparent;
+  text-align: start;
+}
+.cessation-event-open > div {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .cessation-record-link {
   display: flex;
@@ -224,8 +264,11 @@ a {
 }
 
 button:focus-visible,
-a:focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--accent) 65%, white);
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--accent);
   outline-offset: 3px;
 }
 
@@ -304,6 +347,35 @@ a:focus-visible {
   font-variant-numeric: tabular-nums;
 }
 
+.daily-expense-chart {
+  margin: 16px 0 0;
+  padding: 14px 0;
+  border-block: 1px solid var(--divider);
+}
+
+.daily-expense-chart figcaption,
+.daily-expense-axis {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.daily-expense-axis span:nth-child(2) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+.daily-expense-chart svg {
+  display: block;
+  width: 100%;
+  height: 80px;
+  margin-block: 8px;
+}
+
 .app-content {
   padding: 8px 20px calc(104px + env(safe-area-inset-bottom));
 }
@@ -373,6 +445,86 @@ a:focus-visible {
 .today-primary-actions {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   margin-top: 18px;
+}
+
+/* Today is an action-first projection, not a second dashboard of every module's metrics. */
+.today-date {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+.daily-intro {
+  padding-block: 22px 18px;
+}
+.daily-intro h2 {
+  margin: 0;
+  font-size: 23px;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+.daily-intro p {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 8px 0 20px;
+}
+.daily-intro .today-record-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 54px;
+  width: 100%;
+  text-decoration: none;
+}
+.today-focus-entry {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 76px;
+  padding: 14px;
+  background: var(--surface);
+  border-radius: 16px;
+  text-decoration: none;
+  color: var(--text);
+}
+.today-focus-entry > span:nth-child(2) {
+  display: grid;
+  gap: 5px;
+  flex: 1;
+  min-width: 0;
+}
+.today-focus-entry strong {
+  font-size: 15px;
+  font-weight: 600;
+}
+.today-focus-entry small {
+  color: var(--muted);
+  font-size: 12px;
+}
+.today-page .today-summary-grid {
+  padding-top: 18px;
+  margin-top: 22px;
+  border-top: 1px solid var(--divider);
+  gap: 22px;
+}
+.today-page .today-summary-grid > section {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+.today-page .today-summary-grid h2 {
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 500;
+}
+.today-page .today-card-values strong {
+  font-size: 23px;
+  font-weight: 550;
+  overflow-wrap: anywhere;
+}
+.today-page .today-card-values small {
+  color: var(--muted);
 }
 
 .quick-actions a {
@@ -642,6 +794,130 @@ a.button-secondary {
   gap: 16px;
 }
 
+/* Confirmations use the native top layer, so they also isolate an open editing sheet. */
+.confirm-dialog {
+  width: min(380px, calc(100% - 32px));
+  max-height: calc(100dvh - 48px);
+  overflow: auto;
+  padding: 24px;
+  border: 0;
+  border-radius: 20px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 16px 60px #0005;
+}
+.confirm-dialog::backdrop {
+  background: #050d1b99;
+}
+.confirm-dialog .text-destructive {
+  color: var(--destructive);
+}
+.confirm-dialog h2 {
+  margin: 0 0 12px;
+  font-size: 20px;
+}
+.confirm-dialog p {
+  color: var(--muted);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.confirm-dialog .form-actions {
+  flex-wrap: wrap;
+}
+.finance-feedback:empty {
+  display: none;
+}
+.finance-feedback {
+  color: var(--accent);
+  font-size: 14px;
+}
+
+/* Ledger rows use separators and one primary edit target; delete remains a distinct 44px action. */
+.finance-records {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.finance-records > li {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--divider);
+}
+.finance-record-open {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  min-height: 72px;
+  padding: 12px 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  text-align: start;
+}
+.finance-record-symbol {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: var(--accent-soft);
+}
+.finance-record-copy {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+.finance-record-copy > strong {
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.finance-record-copy > span {
+  color: var(--muted);
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.finance-record-open > .numeric {
+  font-size: 15px;
+  overflow-wrap: anywhere;
+  max-width: 112px;
+}
+.finance-record-actions button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--destructive);
+}
+.finance-record-open:active {
+  background: var(--accent-soft);
+}
+.finance-saved-link {
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 650;
+}
+.finance-sheet-form .form-actions {
+  position: sticky;
+  bottom: 0;
+  padding-block: 12px;
+  background: var(--surface);
+}
+.finance-sheet-form .form-actions > button {
+  flex: 1;
+  min-height: 50px;
+}
+
 .sheet-form > label {
   display: grid;
   min-width: 0;
@@ -737,10 +1013,9 @@ a.button-secondary {
 
 .finance-calendar-card {
   margin-top: 18px;
-  padding: 12px;
-  border: 1px solid var(--divider);
-  border-radius: 20px;
-  background: var(--surface);
+  padding: 0;
+  border: 0;
+  background: transparent;
 }
 
 .month-navigation {
@@ -892,6 +1167,78 @@ a.button-secondary {
   font-size: 18px;
 }
 
+/* Ocean Health uses one weight surface followed by quieter, separated daily-life sections. */
+.health-page:not(.health-history-page) .health-card:not(.weight-card) {
+  padding: 16px 0;
+  border: 0;
+  border-bottom: 1px solid var(--divider);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.health-page:not(.health-history-page) .weight-card {
+  border: 0;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: none;
+  background: linear-gradient(155deg, var(--surface-muted), var(--surface));
+}
+.health-section-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.health-page .activity-summary p {
+  padding: 8px 0;
+  background: transparent;
+  border-radius: 0;
+}
+.health-page .activity-summary {
+  margin-left: 49px;
+}
+.weight-trend-chart {
+  margin: 14px 0 0;
+}
+.weight-trend-chart svg {
+  display: block;
+  width: 100%;
+  height: 104px;
+}
+.weight-trend-chart figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 8px;
+  color: var(--muted);
+  font-size: 10px;
+}
+.weight-panel-footer {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  border-top: 1px solid var(--divider);
+  margin-top: 10px;
+}
+.weight-panel-footer .target-row {
+  flex: 1;
+  width: auto;
+  min-width: 125px;
+  border: 0;
+  margin: 0;
+  gap: 8px;
+}
+.weight-panel-footer .button-secondary {
+  padding-inline: 0;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font-size: 13px;
+}
+.health-history-page .weight-panel-footer {
+  display: none;
+}
+
 .weight-overview {
   display: flex;
   align-items: flex-end;
@@ -971,6 +1318,92 @@ a.button-secondary {
   list-style: none;
 }
 
+/* Date headings carry the grouping; one full-width target opens the protected editor. */
+.health-history-list {
+  border-top: 0;
+}
+
+.habit-form-fields,
+.draft-form-fields {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* The modal is the only container surface; statistics use dividers rather than nested cards. */
+.sheet .progress-panel {
+  margin: 0 0 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+.sheet .habit-stats article {
+  padding: 12px 0;
+  border: 0;
+  border-bottom: 1px solid var(--divider);
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+.health-page .health-history-list li {
+  display: block;
+  padding: 0;
+}
+.health-history-page .health-card {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.health-history-page .section-heading,
+.health-history-page .weight-overview,
+.health-history-page .target-row,
+.health-history-page .activity-summary {
+  display: none;
+}
+.health-history-list h3 {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  margin: 26px 0 4px;
+}
+.health-history-open {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 68px;
+  padding: 12px 0;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+}
+.health-history-copy {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  gap: 5px;
+  overflow-wrap: anywhere;
+}
+.health-history-copy strong {
+  font-size: 15px;
+  font-weight: 550;
+  font-variant-numeric: tabular-nums;
+}
+.health-history-copy small {
+  font-size: 12px;
+  color: var(--muted);
+}
+.sheet-form .text-destructive {
+  color: var(--destructive);
+}
+
 .compact-history li {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -1024,32 +1457,96 @@ a.button-secondary {
   font-size: 13px;
 }
 
+.habit-management-list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0;
+}
+
+.habit-management-open {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 16px 0;
+  border: 0;
+  border-bottom: 1px solid var(--divider);
+  border-radius: 0;
+  background: transparent;
+  text-align: start;
+}
+
+.habit-management-copy {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.habit-management-copy strong,
+.habit-management-copy small {
+  display: block;
+}
+
+.habit-management-copy small {
+  margin-top: 4px;
+  color: var(--muted);
+}
+
+.habit-detail-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.habit-detail-actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.habit-heatmap-scroll {
+  overflow-x: auto;
+  padding: 4px;
+}
+
 .habit-heatmap {
   display: grid;
-  grid-auto-columns: minmax(7px, 1fr);
+  grid-auto-columns: 44px;
   grid-auto-flow: column;
-  grid-template-rows: repeat(7, 11px);
+  grid-template-rows: repeat(7, 44px);
   gap: 4px;
-  overflow: hidden;
+  width: max-content;
 }
 
 .heatmap-cell {
   display: block;
-  border-radius: 3px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 1px dashed var(--divider);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 12px;
   background: var(--surface-muted);
 }
 
+.heatmap-cell[aria-pressed='true'] {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
 .heatmap-scheduled {
+  border-style: solid;
   box-shadow: inset 0 0 0 1px var(--divider);
 }
 
 .heatmap-complete {
   background: var(--positive);
+  color: var(--surface);
   box-shadow: none;
 }
 
 .heatmap-future {
-  opacity: 0.38;
+  border-style: dashed;
 }
 
 .recent-checkins {
@@ -1235,7 +1732,141 @@ a.button-secondary {
 }
 
 .focus-start-form {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   box-shadow: none;
+}
+
+/* Ocean's open arc replaces the old boxed progress ring, matching the approved focus stage. */
+.focus-stage {
+  position: relative;
+  width: 100%;
+  min-height: 294px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at 50% 100%, var(--accent-soft), transparent 68%);
+  text-align: center;
+}
+
+.focus-orbit {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.focus-stage > span,
+.focus-stage > small {
+  color: var(--muted);
+  font-size: 12px;
+  z-index: 1;
+}
+
+.focus-clock {
+  font-size: clamp(52px, 16vw, 64px);
+  font-weight: 300;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.4;
+  z-index: 1;
+}
+
+.focus-clock.long {
+  font-size: clamp(38px, 12vw, 52px);
+}
+
+.focus-extras summary {
+  min-height: 44px;
+  align-content: center;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.focus-extras label {
+  display: grid;
+  gap: 8px;
+  margin-block: 12px;
+}
+
+.focus-page .active-focus {
+  padding: 0;
+  margin-top: 12px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.focus-page .focus-summary {
+  border-block: 1px solid var(--divider);
+  padding-block: 16px;
+}
+
+.focus-page .focus-summary article {
+  border: 0;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.focus-page .record-list li {
+  display: grid;
+  grid-template-columns: 39px minmax(0, 1fr);
+  gap: 4px 12px;
+}
+
+.focus-page .record-list .category-glyph {
+  grid-row: span 3;
+}
+
+.focus-page .record-list p,
+.focus-page .record-list .row-actions {
+  grid-column: 2;
+}
+
+.focus-facts {
+  margin: 0;
+  padding-block: 8px;
+  border-block: 1px solid var(--divider);
+}
+
+/* The sheet supplies the surface; its editor must not render a second nested card. */
+.focus-details-form {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+.focus-details-form .text-destructive {
+  color: var(--destructive);
+}
+
+.focus-facts > div {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 12px;
+  padding-block: 8px;
+}
+
+.focus-facts dt {
+  color: var(--muted);
+}
+
+.focus-facts dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
 }
 
 .focus-timer-ring {
@@ -1329,6 +1960,126 @@ a.button-secondary {
   background: color-mix(in srgb, var(--surface) 94%, transparent);
 }
 
+/* Settings use grouped rows; details own full-page focus without nesting modal cards. */
+.settings-page .settings-section {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.settings-detail-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.settings-detail-heading h1 {
+  margin: 0;
+}
+.settings-detail {
+  margin-top: 24px;
+}
+.settings-row,
+.settings-theme-options button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 76px;
+  padding: 14px 0;
+  color: var(--text);
+  text-decoration: none;
+  text-align: left;
+  border: 0;
+  border-bottom: 1px solid var(--divider);
+  border-radius: 0;
+  background: transparent;
+}
+.settings-row > svg {
+  flex-shrink: 0;
+  color: var(--muted);
+}
+.settings-row-meta {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.settings-row-meta strong,
+.settings-row-meta small {
+  display: block;
+}
+.settings-row-meta strong {
+  font-size: 16px;
+  font-weight: 550;
+}
+.settings-row-meta small {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.settings-row:hover,
+.settings-theme-options button:hover {
+  background: var(--surface-muted);
+}
+.settings-page .settings-group-note {
+  margin-top: 12px;
+  font-size: 14px;
+}
+.settings-theme-options button {
+  min-height: 96px;
+}
+.settings-theme-swatch {
+  display: grid;
+  align-content: center;
+  gap: 7px;
+  width: 56px;
+  height: 64px;
+  flex-shrink: 0;
+  padding: 10px;
+  border: 1px solid var(--divider);
+  border-radius: 12px;
+  background: #f5f8fc;
+}
+.settings-theme-swatch i {
+  height: 6px;
+  border-radius: 3px;
+  background: #94a9c0;
+}
+.settings-theme-swatch i:last-child {
+  width: 65%;
+}
+.settings-theme-swatch.dark {
+  background: #121f32;
+}
+.settings-theme-swatch.system {
+  background: linear-gradient(90deg, #f5f8fc 50%, #121f32 50%);
+}
+.settings-theme-check {
+  width: 24px;
+  flex-shrink: 0;
+  color: var(--accent);
+}
+.settings-steps {
+  padding-left: 24px;
+  line-height: 1.7;
+}
+.settings-steps li + li {
+  margin-top: 12px;
+}
+.settings-about-mark {
+  padding: 24px 0;
+  color: var(--accent);
+}
+.settings-about-mark h2 {
+  margin-bottom: 4px;
+  color: var(--text);
+}
+.settings-about-mark p {
+  margin: 0;
+  color: var(--muted);
+}
+
 .settings-section h2,
 .settings-section h3,
 .settings-section > p {
@@ -1355,6 +2106,15 @@ a.button-secondary {
   padding: 4px 6px 6px;
   cursor: pointer;
   list-style: none;
+}
+
+.category-manager-disclosure > summary > span:not(.category-glyph) {
+  flex: 1;
+  min-width: 0;
+}
+.category-manager-disclosure > summary > svg {
+  flex-shrink: 0;
+  color: var(--muted);
 }
 
 .category-manager-disclosure > summary::-webkit-details-marker {
@@ -2011,9 +2771,7 @@ a.button-secondary {
   margin: 0 auto;
   padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
   border-top: 1px solid color-mix(in srgb, var(--divider) 75%, transparent);
-  background: color-mix(in srgb, var(--surface) 88%, transparent);
-  -webkit-backdrop-filter: blur(22px);
-  backdrop-filter: blur(22px);
+  background: var(--nav);
 }
 
 .nav-item {
@@ -2082,41 +2840,39 @@ a.button-secondary {
 
 :root[data-theme='dark'] {
   color-scheme: dark;
-  color: #f3f2ec;
-  background: #151713;
-  --canvas: #151713;
-  --surface: #20231e;
-  --surface-muted: #292d27;
-  --text: #f3f2ec;
-  --muted: #aeb4aa;
-  --accent: #78b596;
-  /* Dark foreground keeps the light sage accent above WCAG AA contrast. */
-  --on-accent: #151713;
-  --accent-soft: #263c31;
-  --positive: #82be8c;
-  --warning: #d4a55d;
-  --destructive: #e07a7a;
-  --divider: #373b34;
+  --canvas: #101f35;
+  --surface: #1a2d45;
+  --surface-muted: #243b55;
+  --text: #edf4ff;
+  --muted: #a9bdd4;
+  --accent: #71d5ff;
+  /* The bright Ocean action surface needs dark text, not the light-theme white. */
+  --on-accent: #10243a;
+  --accent-soft: #23445d;
+  --positive: #7edbca;
+  --warning: #ffba7a;
+  --destructive: #ffb3b6;
+  --divider: #354c64;
+  --nav: #14283f;
   --shadow: 0 12px 32px rgb(0 0 0 / 20%);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     color-scheme: dark;
-    color: #f3f2ec;
-    background: #151713;
-    --canvas: #151713;
-    --surface: #20231e;
-    --surface-muted: #292d27;
-    --text: #f3f2ec;
-    --muted: #aeb4aa;
-    --accent: #78b596;
-    --on-accent: #151713;
-    --accent-soft: #263c31;
-    --positive: #82be8c;
-    --warning: #d4a55d;
-    --destructive: #e07a7a;
-    --divider: #373b34;
+    --canvas: #101f35;
+    --surface: #1a2d45;
+    --surface-muted: #243b55;
+    --text: #edf4ff;
+    --muted: #a9bdd4;
+    --accent: #71d5ff;
+    --on-accent: #10243a;
+    --accent-soft: #23445d;
+    --positive: #7edbca;
+    --warning: #ffba7a;
+    --destructive: #ffb3b6;
+    --divider: #354c64;
+    --nav: #14283f;
     --shadow: 0 12px 32px rgb(0 0 0 / 20%);
   }
 }
@@ -2174,4 +2930,189 @@ a.button-secondary {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+/* Shared category surfaces mirror the approved G4 geometry, with no database-driven styles. */
+.category-icon-picker,
+.category-color-picker {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+.category-icon-picker legend,
+.category-color-picker legend {
+  margin-bottom: 12px;
+}
+.category-manager-content button:not(.button-primary),
+.category-editor button:not(.button-primary),
+.category-icon-picker button {
+  color: var(--text);
+  background: var(--surface-muted);
+  border: 1px solid var(--divider);
+  border-radius: 12px;
+  padding: 8px 12px;
+}
+.category-manager-content .category-open {
+  background: transparent;
+  border: 0;
+}
+.category-icon-preview,
+.category-detail-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.icon-group-tabs {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+.icon-group-tabs button {
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-height: 44px;
+}
+.category-icon-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.category-icon-grid button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-height: 72px;
+  padding: 10px 4px;
+  font-size: 14px;
+}
+.category-icon-grid button[aria-pressed='true'],
+.icon-group-tabs button[aria-pressed='true'],
+.category-color-picker button[aria-pressed='true'] {
+  background: var(--accent-soft);
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+.category-color-picker {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.category-color-picker button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+}
+.category-glyph {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 39px;
+  height: 39px;
+  border-radius: 13px;
+  flex-shrink: 0;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+}
+.tone-blue {
+  color: var(--accent);
+}
+.tone-sage {
+  color: var(--positive);
+}
+.tone-amber {
+  color: light-dark(#865512, #f1c073);
+}
+.tone-rose {
+  color: var(--destructive);
+}
+.tone-violet {
+  color: light-dark(#76549d, #c7a8ee);
+}
+.tone-slate {
+  color: var(--muted);
+}
+.category-drilldown-list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0;
+}
+.category-drilldown-list li {
+  border-bottom: 1px solid var(--divider);
+  padding: 10px 0;
+}
+.category-open {
+  display: flex;
+  width: 100%;
+  gap: 12px;
+  align-items: center;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  min-height: 58px;
+  overflow-wrap: anywhere;
+}
+.category-open span:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+}
+.category-row-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+.category-row-actions button {
+  font-size: 14px;
+  min-height: 44px;
+}
+.category-editor .form-actions {
+  position: sticky;
+  bottom: 0;
+  background: var(--surface);
+  padding-block: 12px;
+}
+.finance-category-picker {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.finance-category-picker legend {
+  margin-bottom: 12px;
+}
+.finance-category-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.finance-category-grid button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 72px;
+  min-width: 0;
+  padding: 8px 3px;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid transparent;
+  border-radius: 12px;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.finance-category-grid button[aria-pressed='true'] {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+.finance-subcategories {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--divider);
+}
+.finance-subcategories > p {
+  font-size: 14px;
+  color: var(--muted);
 }

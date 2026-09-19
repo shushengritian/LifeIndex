@@ -147,7 +147,7 @@ test('creates, persists, edits, and deletes a local transaction', async ({ page 
   await addTransaction.focus()
   await addTransaction.press('Enter')
   await page.getByLabel('金额（CNY）').fill('12.30')
-  await page.getByRole('combobox', { name: '分类' }).selectOption({ label: '餐饮' })
+  await page.getByRole('button', { name: '一级分类 餐饮', exact: true }).click()
   await page.getByRole('button', { name: '保存' }).click()
   await expect(page.getByText('−¥12.30')).toBeVisible()
   await expect(addTransaction).toBeFocused()
@@ -158,13 +158,16 @@ test('creates, persists, edits, and deletes a local transaction', async ({ page 
 
   await page.reload()
   await expect(page.getByText('−¥12.30')).toBeVisible()
-  await page.getByRole('button', { name: '编辑' }).click()
+  await page.getByRole('button', { name: '编辑 餐饮 ¥12.30', exact: true }).click()
   await page.getByLabel('金额（CNY）').fill('20.00')
   await page.getByRole('button', { name: '保存' }).click()
   await expect(page.getByText('−¥20.00')).toBeVisible()
 
-  page.once('dialog', (dialog) => dialog.accept())
   await page.getByRole('button', { name: '删除' }).click()
+  await page
+    .getByRole('dialog', { name: '删除这条账目？' })
+    .getByRole('button', { name: '删除账目', exact: true })
+    .click()
   await expect(page.getByText('这一天还没有账目。点按右上角即可记一笔。')).toBeVisible()
 })
 
@@ -221,12 +224,19 @@ test('creates and persists local weight and Activity records', async ({ page }) 
   await expect(weightRegion.getByRole('button', { name: /65\.0 kg/ })).toBeVisible()
   await weightRegion.getByRole('button', { name: /65\.0 kg/ }).click()
   await page.getByRole('button', { name: '清除目标' }).click()
+  await page
+    .getByRole('dialog', { name: '清除体重目标？' })
+    .getByRole('button', { name: '确认清除' })
+    .click()
   await expect(weightRegion.getByRole('button', { name: /未设置/ })).toBeVisible()
 
-  await weightRegion.getByRole('button', { name: '编辑' }).click()
+  await page.getByRole('link', { name: '查看体重历史' }).click()
+  await weightRegion.getByRole('button', { name: /^编辑/ }).click()
   await page.getByLabel('体重（公斤）').fill('68.2')
   await page.getByRole('button', { name: '保存' }).click()
   await expect(weightRegion.locator('.weight-overview strong')).toHaveText('68.2')
+
+  await page.getByRole('link', { name: '返回健康' }).click()
 
   await page.getByRole('button', { name: '添加健康记录' }).click()
   await page
@@ -237,26 +247,40 @@ test('creates and persists local weight and Activity records', async ({ page }) 
   await page.getByLabel('时长（分钟）').fill('45')
   await page.getByRole('button', { name: '较强' }).click()
   await page.getByRole('button', { name: '保存' }).click()
+  await expect(page.getByText('45 分钟', { exact: true })).toBeVisible()
+  await page.getByRole('link', { name: '查看运动历史' }).click()
   await expect(page.getByText('45 分钟 · 较强', { exact: true })).toBeVisible()
 
   const activityRegion = page.getByRole('region', { name: '运动' })
-  await activityRegion.getByRole('button', { name: '编辑' }).click()
+  await activityRegion.getByRole('button', { name: /^编辑/ }).click()
   await page.getByLabel('时长（分钟）').fill('50')
   await page.getByRole('button', { name: '轻松' }).click()
   await page.getByRole('button', { name: '保存' }).click()
   await expect(page.getByText('50 分钟 · 轻松', { exact: true })).toBeVisible()
 
   await page.reload()
-  await expect(weightRegion.locator('.weight-overview strong')).toHaveText('68.2')
   await expect(page.getByText('50 分钟 · 轻松', { exact: true })).toBeVisible()
   expect(await readStoreRecords(page, 'weightEntries')).toHaveLength(1)
   expect(await readStoreRecords(page, 'activitySessions')).toHaveLength(1)
 
-  page.once('dialog', (dialog) => dialog.accept())
-  await weightRegion.getByRole('button', { name: '删除' }).click()
+  await page.getByRole('link', { name: '返回健康' }).click()
+  await expect(weightRegion.locator('.weight-overview strong')).toHaveText('68.2')
+  await page.getByRole('link', { name: '查看体重历史' }).click()
+  await weightRegion.getByRole('button', { name: /^编辑/ }).click()
+  await page.getByRole('button', { name: '删除记录', exact: true }).click()
+  await page
+    .getByRole('dialog', { name: '删除体重记录？' })
+    .getByRole('button', { name: '删除记录' })
+    .click()
   await expect(weightRegion.getByText(/记录第一次体重/)).toBeVisible()
-  page.once('dialog', (dialog) => dialog.accept())
-  await activityRegion.getByRole('button', { name: '删除' }).click()
+  await page.getByRole('link', { name: '返回健康' }).click()
+  await page.getByRole('link', { name: '查看运动历史' }).click()
+  await activityRegion.getByRole('button', { name: /^编辑/ }).click()
+  await page.getByRole('button', { name: '删除记录', exact: true }).click()
+  await page
+    .getByRole('dialog', { name: '删除运动记录？' })
+    .getByRole('button', { name: '删除记录' })
+    .click()
   await expect(activityRegion.getByText(/本周还没有运动记录/)).toBeVisible()
   expect(await readStoreRecords(page, 'weightEntries')).toHaveLength(0)
   expect(await readStoreRecords(page, 'activitySessions')).toHaveLength(0)
@@ -271,6 +295,7 @@ test('restores an active focus timer after reload and saves one early finish', a
   await expect(page.getByRole('heading', { name: '专注' })).toBeVisible()
 
   await page.getByLabel('专注标题').fill('合成专注会话')
+  await page.getByText('分类与备注（可选）', { exact: true }).click()
   await page.getByRole('combobox', { name: '分类（可选）' }).selectOption({ label: '工作' })
   await page.getByRole('button', { name: '开始专注' }).click()
   await expect(page.getByRole('heading', { name: '合成专注会话' })).toBeVisible()
@@ -279,9 +304,14 @@ test('restores an active focus timer after reload and saves one early finish', a
   await page.reload()
   await expect(page.getByRole('heading', { name: '合成专注会话' })).toBeVisible()
   await page.waitForTimeout(1_100)
-  page.once('dialog', (dialog) => dialog.accept())
   await page.getByRole('button', { name: '提前结束' }).click()
+  await page
+    .getByRole('dialog', { name: '提前结束专注？' })
+    .getByRole('button', { name: '结束并保存' })
+    .click()
 
+  await expect(page.getByRole('button', { name: '开始专注' })).toBeVisible()
+  await page.getByRole('link', { name: '查看专注历史' }).click()
   const history = page.getByRole('region', { name: '最近记录' })
   await expect(history.getByText('合成专注会话')).toBeVisible()
   await expect(history.getByText(/提前结束/)).toBeVisible()
@@ -292,10 +322,11 @@ test('keeps Today calm while reflecting cross-feature local changes', async ({ p
   await expect(page.getByRole('heading', { name: '今天' })).toBeVisible()
 
   await page.getByRole('link', { name: '记一笔' }).click()
-  await page.getByRole('button', { name: '新增交易' }).click()
   await page.getByLabel('金额（CNY）').fill('8.80')
-  await page.getByRole('combobox', { name: '分类' }).selectOption({ label: '餐饮' })
+  await page.getByRole('button', { name: '一级分类 餐饮', exact: true }).click()
   await page.getByRole('button', { name: '保存' }).click()
+  // Wait for the committed editor boundary before navigating; busy guards intentionally reject early clicks.
+  await expect(page.getByRole('dialog')).toHaveCount(0)
   await page.getByRole('link', { name: /今天/ }).click()
   await expect(
     page.getByRole('region', { name: '今日账目' }).getByText('¥8.80', { exact: true }),
@@ -306,17 +337,21 @@ test('keeps Today calm while reflecting cross-feature local changes', async ({ p
   await page.getByRole('button', { name: /创建习惯/ }).click()
   await page.getByLabel('习惯名称').fill('合成今日习惯')
   await page.getByRole('button', { name: '保存' }).click()
+  await expect(page.getByRole('dialog')).toHaveCount(0)
   await page.getByRole('link', { name: /今天/ }).click()
+  await expect(page).toHaveURL(/#\/today$/)
   await page.getByRole('button', { name: /合成今日习惯.*点按完成/ }).click()
   await expect(page.getByText('1/1')).toBeVisible()
 
   await page.getByRole('link', { name: '开始专注' }).click()
   await page.getByLabel('专注标题').fill('合成今日专注')
   await page.getByRole('button', { name: '开始专注' }).click()
+  await expect(page.getByRole('button', { name: '提前结束' })).toBeEnabled()
   await page.getByRole('link', { name: /今天/ }).click()
-  await expect(
-    page.getByRole('region', { name: '今日专注' }).getByText('合成今日专注'),
-  ).toBeVisible()
+  // Today exposes the running-state entry; the title remains in the Focus detail.
+  await expect(page.getByRole('link', { name: '继续本次专注', exact: true })).toBeVisible()
+  await page.getByRole('link', { name: '继续本次专注', exact: true }).click()
+  await expect(page.getByText('合成今日专注', { exact: true })).toBeVisible()
 })
 
 test('persists appearance and manages Finance category lifecycle', async ({ page }) => {
@@ -324,6 +359,7 @@ test('persists appearance and manages Finance category lifecycle', async ({ page
   await expect(page.getByRole('heading', { name: '设置' })).toBeVisible()
 
   const darkAppearance = page.getByRole('button', { name: '深色' })
+  await page.getByRole('link', { name: '主题外观', exact: true }).click()
   await darkAppearance.click()
   await expect.poll(() => page.locator('html').getAttribute('data-theme')).toBe('dark')
   // The theme is applied optimistically; aria-pressed changes only after the IndexedDB live query
@@ -331,6 +367,7 @@ test('persists appearance and manages Finance category lifecycle', async ({ page
   await expect(darkAppearance).toHaveAttribute('aria-pressed', 'true')
   await page.reload()
   await expect.poll(() => page.locator('html').getAttribute('data-theme')).toBe('dark')
+  await page.getByRole('link', { name: '返回设置', exact: true }).click()
   await expect(page.getByRole('heading', { name: '分类' })).toBeVisible()
   expect(await page.locator('.settings-section h2').allTextContents()).toEqual([
     '分类',
@@ -342,28 +379,33 @@ test('persists appearance and manages Finance category lifecycle', async ({ page
   const categoryRegion = page.getByRole('region', { name: '分类' })
   await expect(categoryRegion.getByLabel('分类名称')).toBeHidden()
   await categoryRegion.getByText('分类管理', { exact: true }).click()
-  await categoryRegion.getByLabel('分类名称').fill('合成旅行')
   await categoryRegion.getByRole('button', { name: '新增分类' }).click()
+  await page.getByRole('dialog', { name: '新增分类' }).getByLabel('分类名称').fill('合成旅行')
+  await page.getByRole('button', { name: '保存分类' }).click()
   let categoryRow = categoryRegion.getByRole('listitem').filter({ hasText: '合成旅行' })
   await expect(categoryRow).toBeVisible()
 
-  page.once('dialog', (dialog) => dialog.accept('合成出行'))
-  await categoryRow.getByRole('button', { name: '重命名' }).click()
+  await categoryRow.getByRole('button', { name: '合成旅行', exact: true }).click()
+  await page.getByRole('button', { name: '编辑一级分类' }).click()
+  await page.getByRole('dialog', { name: '编辑分类' }).getByLabel('分类名称').fill('合成出行')
+  await page.getByRole('button', { name: '保存分类' }).click()
+  await page.getByRole('button', { name: '返回一级分类' }).click()
   categoryRow = categoryRegion.getByRole('listitem').filter({ hasText: '合成出行' })
   await expect(categoryRow).toBeVisible()
 
-  page.once('dialog', (dialog) => dialog.accept())
-  await categoryRow.getByRole('button', { name: '归档' }).click()
+  await categoryRow.getByRole('button', { name: '归档 合成出行' }).click()
+  await page
+    .getByRole('dialog', { name: '归档这个分类？' })
+    .getByRole('button', { name: '归档分类' })
+    .click()
   await categoryRegion.getByText(/已归档分类/).click()
   const archivedRow = categoryRegion.getByRole('listitem').filter({ hasText: '合成出行' })
   await expect(archivedRow).toBeVisible()
   await archivedRow.getByRole('button', { name: '恢复' }).click()
 
-  await page.getByRole('link', { name: /记账/ }).click()
+  await page.getByRole('link', { name: '记账', exact: true }).click()
   await page.getByRole('button', { name: '新增交易' }).click()
-  await expect(
-    page.getByRole('combobox', { name: '分类' }).getByRole('option', { name: '合成出行' }),
-  ).toBeAttached()
+  await expect(page.getByRole('button', { name: '一级分类 合成出行' })).toBeAttached()
 })
 
 test('exports, previews, and replaces data from a downloaded backup', async ({
@@ -372,7 +414,7 @@ test('exports, previews, and replaces data from a downloaded backup', async ({
   await page.goto('/#/finance')
   await page.getByRole('button', { name: '新增交易' }).click()
   await page.getByLabel('金额（CNY）').fill('11.11')
-  await page.getByRole('combobox', { name: '分类' }).selectOption({ label: '餐饮' })
+  await page.getByRole('button', { name: '一级分类 餐饮', exact: true }).click()
   await page.getByRole('button', { name: '保存' }).click()
 
   await page.getByRole('link', { name: /设置/ }).click()
@@ -380,6 +422,7 @@ test('exports, previews, and replaces data from a downloaded backup', async ({
     testInfo.project.name === 'mobile-safari' ? await createSyntheticBackupInput(page) : undefined
   const downloadEvent =
     testInfo.project.name === 'chromium' ? page.waitForEvent('download') : undefined
+  await page.getByRole('link', { name: '导出备份', exact: true }).click()
   await page.getByRole('button', { name: '导出完整备份' }).click()
   const download = downloadEvent ? await downloadEvent : undefined
   if (download) {
@@ -389,21 +432,25 @@ test('exports, previews, and replaces data from a downloaded backup', async ({
   if (download) expect(chromiumBackupPath).toBeTruthy()
   await expect(page.getByText(/备份文件已交给系统/)).toBeVisible()
 
-  await page.getByRole('link', { name: /记账/ }).click()
+  await page.getByRole('link', { name: '记账', exact: true }).click()
   await page.getByRole('button', { name: '新增交易' }).click()
   await page.getByLabel('金额（CNY）').fill('22.22')
-  await page.getByRole('combobox', { name: '分类' }).selectOption({ label: '交通' })
+  await page.getByRole('button', { name: '一级分类 交通', exact: true }).click()
   await page.getByRole('button', { name: '保存' }).click()
 
   await page.getByRole('link', { name: /设置/ }).click()
+  await page.getByRole('link', { name: '从备份恢复', exact: true }).click()
   await page.getByLabel('选择备份文件').setInputFiles(chromiumBackupPath ?? webkitBackup!)
   const preview = page.getByRole('group', { name: '恢复预览' })
   await expect(preview).toContainText('账目1')
-  page.once('dialog', (dialog) => dialog.accept())
   await preview.getByRole('button', { name: '确认替换' }).click()
+  await page
+    .getByRole('dialog', { name: '替换全部本地数据？' })
+    .getByRole('button', { name: '替换并恢复' })
+    .click()
   await expect(page.getByText('恢复完成。全部模块已从这份备份重新读取。')).toBeVisible()
 
-  await page.getByRole('link', { name: /记账/ }).click()
+  await page.getByRole('link', { name: '记账', exact: true }).click()
   await expect(page.getByText('−¥11.11')).toBeVisible()
   await expect(page.getByText('−¥22.22')).toHaveCount(0)
 })
@@ -466,7 +513,7 @@ test('previews, commits, and durably deduplicates a transaction URL action', asy
   await page.goto(actionUrl)
 
   await expect(page.getByRole('heading', { name: '新增账目' })).toBeVisible()
-  await expect(page.getByText('¥35.10')).toBeVisible()
+  await expect(page.getByLabel('金额（CNY）')).toHaveValue('35.10')
   expect(await readStoreRecords(page, 'transactions')).toHaveLength(0)
   await page.getByRole('button', { name: '确认新增账目' }).click()
   await expect(page).toHaveURL(/#\/finance$/)
@@ -533,7 +580,7 @@ test('creates and persists local data after the browser goes offline', async ({
     await expect(page.getByText('当前离线 · 本机数据仍可继续使用')).toBeVisible()
     await page.getByRole('button', { name: '新增交易' }).click()
     await page.getByLabel('金额（CNY）').fill('6.66')
-    await page.getByRole('combobox', { name: '分类' }).selectOption({ label: '餐饮' })
+    await page.getByRole('button', { name: '一级分类 餐饮', exact: true }).click()
     await page.getByRole('button', { name: '保存' }).click()
     await expect(page.getByText('−¥6.66')).toBeVisible()
   } finally {
@@ -561,7 +608,7 @@ test('reloads the cached application shell and persisted data offline in Chromiu
     await expect(page.getByText('当前离线 · 本机数据仍可继续使用')).toBeVisible()
     await page.getByRole('button', { name: '新增交易' }).click()
     await page.getByLabel('金额（CNY）').fill('7.77')
-    await page.getByRole('combobox', { name: '分类' }).selectOption({ label: '餐饮' })
+    await page.getByRole('button', { name: '一级分类 餐饮', exact: true }).click()
     await page.getByRole('button', { name: '保存' }).click()
     await expect(page.getByText('−¥7.77')).toBeVisible()
     await page.reload()
@@ -575,11 +622,12 @@ test('rejects an invalid backup in the UI without changing current records', asy
   await page.goto('/#/finance')
   await page.getByRole('button', { name: '新增交易' }).click()
   await page.getByLabel('金额（CNY）').fill('9.99')
-  await page.getByRole('combobox', { name: '分类' }).selectOption({ label: '餐饮' })
+  await page.getByRole('button', { name: '一级分类 餐饮', exact: true }).click()
   await page.getByRole('button', { name: '保存' }).click()
   await expect(page.getByText('−¥9.99')).toBeVisible()
 
   await page.getByRole('link', { name: '设置', exact: true }).click()
+  await page.getByRole('link', { name: '从备份恢复', exact: true }).click()
   await page.getByLabel('选择备份文件').setInputFiles({
     name: 'synthetic-invalid.json',
     mimeType: 'application/json',
@@ -622,7 +670,7 @@ test('keeps primary routes and entry states free of detectable accessibility vio
   await expect(page.getByRole('heading', { name: '新增账目' })).toBeVisible()
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
 
-  await page.goto('/#/settings')
+  await page.goto('/#/settings/appearance')
   await page.getByRole('button', { name: '深色' }).click()
   await expect.poll(() => page.locator('html').getAttribute('data-theme')).toBe('dark')
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
@@ -635,8 +683,12 @@ test('fits long representative content and touch controls at 320 CSS pixels', as
   const categoryRegion = page.getByRole('region', { name: '分类' })
   await expect(categoryRegion.getByLabel('分类名称')).toBeHidden()
   await categoryRegion.getByText('分类管理', { exact: true }).click()
-  await categoryRegion.getByLabel('分类名称').fill('合成很长很长但仍然有效的旅行与家庭生活分类')
   await categoryRegion.getByRole('button', { name: '新增分类' }).click()
+  await page
+    .getByRole('dialog', { name: '新增分类' })
+    .getByLabel('分类名称')
+    .fill('合成很长很长但仍然有效的旅行与家庭生活分类')
+  await page.getByRole('button', { name: '保存分类', exact: true }).click()
   await expect(categoryRegion.getByText('合成很长很长但仍然有效的旅行与家庭生活分类')).toBeVisible()
 
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)

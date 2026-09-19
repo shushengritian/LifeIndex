@@ -35,9 +35,7 @@ describe('recoverable feature write failures', () => {
     await user.click(await screen.findByRole('button', { name: '新增交易' }))
     const amount = screen.getByLabelText('金额（CNY）')
     await user.type(amount, '19.90')
-    await user.selectOptions(screen.getByRole('combobox', { name: '分类' }), [
-      'category-finance-expense-food-v1',
-    ])
+    await user.click(screen.getByRole('button', { name: '一级分类 餐饮' }))
     await user.click(screen.getByRole('button', { name: '保存' }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent('未能保存，本次输入仍保留')

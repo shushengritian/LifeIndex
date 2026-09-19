@@ -204,7 +204,7 @@ describe('cessation storage and evidence', () => {
       counts: Object.fromEntries(Object.entries(data).map(([key, value]) => [key, value.length])),
     }
     const preview = backup.inspectText(JSON.stringify(legacy))
-    expect(preview.formatVersion).toBe(3)
+    expect(preview.formatVersion).toBe(4)
     expect(preview.counts.cessationPlans).toBe(0)
     const restored = await backup.restore(preview.token)
     expect(restored.counts.cessationEvents).toBe(0)
@@ -244,7 +244,7 @@ describe('cessation storage and evidence', () => {
     const db = new LifeIndexDatabase(name)
     databases.push(db)
     await db.open()
-    expect(db.verno).toBe(3)
+    expect(db.verno).toBe(4)
     for (const table of before) expect(await db.table(table.name).toArray()).toEqual(table.rows)
     expect(await db.cessationPlans.count()).toBe(0)
   })

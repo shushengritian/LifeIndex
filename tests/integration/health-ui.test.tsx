@@ -1,7 +1,7 @@
 import { render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { AppServicesContext } from '@/app/AppServicesContext'
 import { LifeIndexDatabase } from '@/data/db/LifeIndexDatabase'
@@ -11,6 +11,28 @@ import { PwaProvider } from '@/pwa/PwaProvider'
 import { FIXED_NOW } from '../fixtures/builders'
 
 const databases: LifeIndexDatabase[] = []
+
+beforeAll(() => {
+  // jsdom checks confirmation state; native top-layer behavior is a separate browser check.
+  Object.defineProperties(HTMLDialogElement.prototype, {
+    showModal: {
+      configurable: true,
+      value(this: HTMLDialogElement) {
+        this.setAttribute('open', '')
+      },
+    },
+    close: {
+      configurable: true,
+      value(this: HTMLDialogElement) {
+        this.removeAttribute('open')
+      },
+    },
+  })
+})
+afterAll(() => {
+  Reflect.deleteProperty(HTMLDialogElement.prototype, 'showModal')
+  Reflect.deleteProperty(HTMLDialogElement.prototype, 'close')
+})
 
 afterEach(async () => {
   await Promise.all(databases.splice(0).map((database) => database.delete()))
@@ -55,7 +77,9 @@ describe('V2 Health user interface', () => {
     await user.type(screen.getByLabelText('体重（公斤）'), '68.4')
     await user.click(screen.getByRole('button', { name: '保存' }))
 
-    expect(await screen.findByText('68.4 kg')).toBeInTheDocument()
+    expect(
+      await screen.findByText('68.4', { selector: '.weight-overview strong' }),
+    ).toBeInTheDocument()
     expect(await database.weightEntries.count()).toBe(1)
 
     await user.click(screen.getByRole('button', { name: '添加健康记录' }))
@@ -70,7 +94,7 @@ describe('V2 Health user interface', () => {
     await user.click(screen.getByRole('button', { name: '较强' }))
     await user.click(screen.getByRole('button', { name: '保存' }))
 
-    expect(await screen.findByText('45 分钟 · 较强')).toBeInTheDocument()
+    expect(await screen.findByText('45 分钟')).toBeInTheDocument()
     expect(await database.activitySessions.count()).toBe(1)
     expect(await database.activitySessions.toCollection().first()).toMatchObject({
       categoryId: 'category-activity-running-v2',
@@ -118,17 +142,41 @@ describe('V2 Health user interface', () => {
 
     await user.click(await screen.findByRole('button', { name: /65\.0 kg/ }))
     await user.click(screen.getByRole('button', { name: '清除目标' }))
+    await user.click(screen.getByRole('button', { name: '确认清除' }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent('目标未能清除')
     expect(screen.getByRole('form', { name: '体重目标' })).toBeInTheDocument()
     expect(await database.settings.get('weightTarget')).toMatchObject({
       value: { weightGrams: 65_000 },
     })
+    await user.click(screen.getByRole('button', { name: '确认清除' }))
+    expect(await screen.findByRole('button', { name: /未设置/ })).toBeInTheDocument()
+    expect(await database.settings.get('weightTarget')).toBeUndefined()
+  })
+
+  it('keeps the existing weight target when changed input is explicitly discarded', async () => {
+    const database = await renderPage('health')
+    await database.settings.put({
+      key: 'weightTarget',
+      value: { weightGrams: 65000 },
+      updatedAt: new Date().toISOString(),
+    })
+    const user = userEvent.setup()
+    await user.click(await screen.findByRole('button', { name: /65\.0 kg/ }))
+    await user.clear(screen.getByLabelText('目标（公斤）'))
+    await user.type(screen.getByLabelText('目标（公斤）'), '64')
+    await user.click(screen.getByRole('button', { name: '取消' }))
+    await user.click(screen.getByRole('button', { name: '继续编辑' }))
+    expect(screen.getByLabelText('目标（公斤）')).toHaveValue('64')
+    await user.click(screen.getByRole('button', { name: '取消' }))
+    await user.click(screen.getByRole('button', { name: '放弃修改' }))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect((await database.settings.get('weightTarget'))?.value).toEqual({ weightGrams: 65000 })
   })
 
   it('renders the four independent Settings groups in the approved order', async () => {
     const user = userEvent.setup()
-    await renderPage('settings')
+    const database = await renderPage('settings')
     await screen.findByRole('heading', { name: '分类' })
     const settings = await screen.findByRole('heading', { name: '设置' })
     const page = settings.closest('section')
@@ -139,9 +187,21 @@ describe('V2 Health user interface', () => {
 
     expect(groupNames).toEqual(['分类', '外观', '数据与安全', '其他'])
     const categoryRegion = within(page!).getByRole('region', { name: '分类' })
-    const categoryName = within(categoryRegion).getByLabelText('分类名称')
-    expect(categoryName).not.toBeVisible()
+    expect(within(categoryRegion).queryByLabelText('分类名称')).not.toBeInTheDocument()
     await user.click(within(categoryRegion).getByText('分类管理', { exact: true }))
-    expect(categoryName).toBeVisible()
+    await user.click(within(categoryRegion).getByRole('button', { name: '餐饮' }))
+    await user.click(within(categoryRegion).getByRole('button', { name: '新增二级分类' }))
+    await user.type(screen.getByLabelText('分类名称'), '早餐测试')
+    await user.click(
+      within(screen.getByRole('form', { name: '分类编辑' })).getByRole('button', { name: '餐饮' }),
+    )
+    await user.click(screen.getByRole('button', { name: '图标 水果' }))
+    await user.click(screen.getByRole('button', { name: '保存分类' }))
+    expect(await screen.findByRole('button', { name: '早餐测试' })).toBeVisible()
+    const child = await database.categories
+      .where('parentId')
+      .equals('category-finance-expense-food-v1')
+      .first()
+    expect(child).toMatchObject({ name: '早餐测试', icon: 'fruit' })
   })
 })

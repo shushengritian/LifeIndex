@@ -36,13 +36,14 @@ test('serves base-scoped routes, assets, manifest, and worker without runtime er
     await expect(page.getByRole('heading', { name: destination, exact: true })).toBeVisible()
   }
   // A healthy old cached release is not proof that the checked-out candidate was deployed.
-  await expect(page.getByLabel(`应用版本 ${expectedVersion}`, { exact: true })).toBeVisible()
   expect(await page.locator('.settings-section h2').allTextContents()).toEqual([
     '分类',
     '外观',
     '数据与安全',
     '其他',
   ])
+  await page.getByRole('link', { name: '关于 LifeIndex', exact: true }).click()
+  await expect(page.getByLabel(`应用版本 ${expectedVersion}`, { exact: true })).toBeVisible()
   const databaseMetadata = await page.evaluate(async () => {
     const database = await new Promise<IDBDatabase>((resolve, reject) => {
       const request = indexedDB.open('LifeIndexDB')
@@ -57,8 +58,8 @@ test('serves base-scoped routes, assets, manifest, and worker without runtime er
   })
   expect(databaseMetadata).toEqual({
     // Pin the release schema explicitly: a healthy old deployment must fail this gate.
-    // Dexie stores logical V3 as native IndexedDB version 30.
-    version: 30,
+    // Dexie stores logical V4 as native IndexedDB version 40.
+    version: 40,
     stores: [
       'actionReceipts',
       'activitySessions',
@@ -108,7 +109,7 @@ test('serves base-scoped routes, assets, manifest, and worker without runtime er
   expect(pageErrors).toEqual([])
 })
 
-test('persists synthetic cessation evidence on the deployed V3 candidate', async ({
+test('persists synthetic cessation evidence on the deployed V4 candidate', async ({
   page,
 }, testInfo) => {
   const requests: string[] = []
@@ -157,6 +158,7 @@ test('persists synthetic Health records locally on the deployed candidate', asyn
   await page.getByLabel('体重（公斤）').fill('67.8')
   await page.getByLabel('备注（可选）').fill(privateMarker)
   await page.getByRole('button', { name: '保存' }).click()
+  await expect(page.getByRole('dialog')).toHaveCount(0)
   await page.getByRole('button', { name: '添加健康记录' }).click()
   await page
     .getByRole('dialog', { name: '添加健康记录' })
@@ -166,13 +168,17 @@ test('persists synthetic Health records locally on the deployed candidate', asyn
   await page.getByLabel('时长（分钟）').fill('20')
   await page.getByRole('button', { name: '保存' }).click()
 
-  // Wait for the committed record to flow back through the live query before testing reload durability.
-  // Without this boundary a fast reload can interrupt the async click handler on a remote Pages run.
+  // The approved home only shows a summary; verify committed details on the full history route.
+  // Wait for the write guard to release before navigation, including on slower remote Pages runs.
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+  await page.getByRole('link', { name: '查看运动历史' }).click()
   await expect(page.getByText('20 分钟 · 适中', { exact: true })).toBeVisible()
 
   await page.reload()
-  await expect(page.locator('.weight-overview strong')).toHaveText('67.8')
   await expect(page.getByText('20 分钟 · 适中', { exact: true })).toBeVisible()
+  await page.getByRole('link', { name: '返回健康' }).click()
+  await expect(page.locator('.weight-overview strong')).toHaveText('67.8')
+  console.info('deployed.health.persistence.passed', { count: 2 })
   for (const value of requests) {
     expect(value).not.toContain(privateMarker)
   }
@@ -188,7 +194,7 @@ test('keeps synthetic records local and durable across an online reload', async 
 
   await page.getByRole('button', { name: '新增交易' }).click()
   await page.getByLabel('金额（CNY）').fill('3.21')
-  await page.getByRole('combobox', { name: '分类' }).selectOption({ label: '餐饮' })
+  await page.getByRole('button', { name: '一级分类 餐饮', exact: true }).click()
   await page.getByRole('button', { name: '保存' }).click()
   await expect(page.getByText('−¥3.21')).toBeVisible()
   await page.reload()
@@ -217,6 +223,7 @@ test('keeps action fragments out of the deployed network boundary', async ({ pag
   )
   await expect(page.getByRole('heading', { name: '新增账目' })).toBeVisible()
   await page.getByRole('button', { name: '取消', exact: true }).click()
+  await page.getByRole('button', { name: '放弃草稿', exact: true }).click()
   await expect(page).toHaveURL(/#\/today$/)
 
   for (const value of requests) {
@@ -238,7 +245,7 @@ test('mutates and preserves local data after the deployed app goes offline', asy
     await expect(page.getByText('当前离线 · 本机数据仍可继续使用')).toBeVisible()
     await page.getByRole('button', { name: '新增交易' }).click()
     await page.getByLabel('金额（CNY）').fill('6.54')
-    await page.getByRole('combobox', { name: '分类' }).selectOption({ label: '餐饮' })
+    await page.getByRole('button', { name: '一级分类 餐饮', exact: true }).click()
     await page.getByRole('button', { name: '保存' }).click()
     await expect(page.getByText('−¥6.54')).toBeVisible()
   } finally {
