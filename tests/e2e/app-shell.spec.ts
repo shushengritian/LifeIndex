@@ -317,6 +317,29 @@ test('restores an active focus timer after reload and saves one early finish', a
   await expect(history.getByText(/提前结束/)).toBeVisible()
 })
 
+test('returns quick-entry cancellation to Today without writing or reopening on reload', async ({
+  page,
+}) => {
+  await page.goto('/#/today')
+  await page.getByRole('link', { name: '记一笔', exact: true }).click()
+  await page.getByRole('button', { name: '取消', exact: true }).click()
+  await expect(page).toHaveURL(/#\/today$/)
+  await page.getByRole('link', { name: '记一笔', exact: true }).click()
+  await page.getByLabel('金额（CNY）').fill('9.10')
+  await page.getByRole('button', { name: '取消', exact: true }).click()
+  await page.getByRole('button', { name: '继续填写', exact: true }).click()
+  await expect(page.getByLabel('金额（CNY）')).toHaveValue('9.10')
+  await page.getByRole('button', { name: '取消', exact: true }).click()
+  await page.getByRole('button', { name: '放弃输入', exact: true }).click()
+  // Explicit discard returns to the same source as clean cancel; neither creates a record.
+  await expect(page).toHaveURL(/#\/today$/)
+  expect(await readStoreRecords(page, 'transactions')).toHaveLength(0)
+  await page.reload()
+  await expect(page.getByRole('heading', { name: '今天', exact: true })).toBeVisible()
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+  console.info('finance.quickentry.cancellation.passed', { count: 0 })
+})
+
 test('keeps Today calm while reflecting cross-feature local changes', async ({ page }) => {
   await page.goto('/')
   await expect(page.getByRole('heading', { name: '今天' })).toBeVisible()
@@ -325,9 +348,10 @@ test('keeps Today calm while reflecting cross-feature local changes', async ({ p
   await page.getByLabel('金额（CNY）').fill('8.80')
   await page.getByRole('button', { name: '一级分类 餐饮', exact: true }).click()
   await page.getByRole('button', { name: '保存' }).click()
-  // Wait for the committed editor boundary before navigating; busy guards intentionally reject early clicks.
+  // Quick entry must return itself after committing; a manual Today click masked this regression.
   await expect(page.getByRole('dialog')).toHaveCount(0)
-  await page.getByRole('link', { name: /今天/ }).click()
+  await expect(page).toHaveURL(/#\/today$/)
+  await expect(page.getByRole('status').filter({ hasText: '账目已保存' })).toBeVisible()
   await expect(
     page.getByRole('region', { name: '今日账目' }).getByText('¥8.80', { exact: true }),
   ).toBeVisible()

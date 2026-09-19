@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 
 import { useAppServices } from '@/app/AppServicesContext'
 import { FocusRepository } from '@/data/repositories/FocusRepository'
@@ -26,6 +26,7 @@ function formatToday(date: Date): string {
 }
 
 export function TodayPage() {
+  const location = useLocation()
   const { database } = useAppServices()
   const transactions = useMemo(() => new TransactionRepository(database), [database])
   const habits = useMemo(() => new HabitRepository(database), [database])
@@ -104,6 +105,8 @@ export function TodayPage() {
     <section className="page today-page" aria-labelledby="today-title">
       <h1 id="today-title">今天</h1>
       <p className="today-date">{formatToday(now)}</p>
+      {/* This transient route receipt reports a completed quick entry, never an optimistic write. */}
+      {location.state?.financeSaved === true ? <p role="status">账目已保存</p> : null}
       <section className="daily-intro" aria-label="开始今天的记录">
         <h2>从一笔记录开始</h2>
         <p>把花费、专注和日常，留在今天。</p>

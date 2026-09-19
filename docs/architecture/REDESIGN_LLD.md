@@ -108,6 +108,8 @@ DailyExpenseChart 消费 FinanceContent 已读取的 monthTransactions，不新�
 HabitsPage 的非 embedded 分支只呈现完整习惯管理列表；embedded 分支保留健康首页今日打卡。HabitContent 的 selectedHabitId 打开统计 Sheet，列表不直接暴露编辑/暂停命令。详情复用父级同步 operationLock/busy 与仓库操作，编辑时关闭统计再进入编辑 Sheet，暂停/恢复在统计上叠加 ConfirmDialog，写入中禁止关闭。类别图标使用现有 CategoryIcon 安全键映射。
 # P5-07j：戒烟事件详情删除
 
+P5-07o 路由补充：`FinanceNewPage` 为今天快捷入口适配层，接收 FinancePage 的 saved/cancelled 完成信号。在子编辑器卸载且 PWA dirty/busy 计数归零后，才 replace 到 /today，避免 onSave 内立即导航被写入保护拒绝。失败不发完成信号；普通 FinancePage 不传回调，保持日历上下文。返回 state 仅携带 financeSaved 布尔结果供 Today 成功播报，不改变业务存储或记录日期。日志仅包含操作与退出原因。
+
 PlanForm 与 SmokingForm 的时间提交以原生控件的 FormData 为准（name=startAt/occurredAt），在 draft.save 禁用字段前读取，并同步回状态。避免 iOS 日期选择器 change 延迟导致保存初始时间；失败重试沿用用户可见值。日期范围合法性仍由仓库最终校验。
 
 事件列表只选择 editing 并打开 SmokingForm/CravingForm；详情 Sheet 的删除按钮捕获已选事件 ID 后进入 ConfirmDialog。确认继续调用同一 repository.removeEvent，由 mutate 同步锁串行化；仅成功后 close，失败保留详情与确认错误。UI 不自动恢复同日无烟确认，不因删除推定无烟。日志只输出事件类型和操作，不输出事件 ID/具体记录。

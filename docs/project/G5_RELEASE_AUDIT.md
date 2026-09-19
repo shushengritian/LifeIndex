@@ -4,6 +4,12 @@
 
 ## 需求与证据
 
+P5-07o 修改后全量复核：完整 Chromium/WebKit 63 通过、1 原有跳过；47 文件/234 项 Vitest、全仓格式/lint/类型、构建通过。原生/iPhone、最终版本与发布仍未完成，本批不等于上线。
+
+P5-07o 在后续 R05 源码对照中发现快捷记账保存/取消未回今天，已修复：专用路由等待编辑器卸载、导航保护释放再返回；保存成功反馈，取消不写入，普通日历不改变。234 项单元/集成与针对性 6 项双引擎回归通过，类型/lint/构建通过。下述 7950c1a CI 与子路径验证早于本次修改，不能用作修改后全量或上线证明。
+
+P5-07n 最新权威证据：修复提交 `7950c1aa685f8f338ad75750149b8f82f92afa91` 的 [CI 35452280313](https://github.com/shushengritian/LifeIndex/actions/runs/35452280313) 全部成功，job 105921396614 日志确认 47 文件/234 项单元与集成测试、61 项浏览器通过、1 原有跳过。最新源码另构建到隔离临时目录，以 `/LifeIndex/` 在 4194 端口运行完整 deployed smoke：13 通过/1 原有 WebKit 离线重载跳过，覆盖 base/资产/manifest/SW、V4、合成健康/戒烟记录、离线写入与刷新持久化、Action 网络隐私边界。该结果不是线上部署或 iPhone 证据。工作区 AGENTS.md 独立修改未纳入提交。
+
 远端候选：`f71fe7fffdf9e0dfdfcb56f53d957cfe67dd5f1c` 的 [CI run 35451922363](https://github.com/shushengritian/LifeIndex/actions/runs/35451922363) 失败：233 项通过，finance-confirmation 的 rejectWrite 尚未绑定（异步分类验证先于 add）。P5-07m 测试等待真实写入边界后注入失败，额外确认无账目落库；CI=true 本地 47 文件/234 项、类型与相关 lint 通过，远端重新验证待新提交触发。没有 main 合并或 Pages 发布。系统和 iPhone 未测项的执行步骤见 [验收单](../operations/OCEAN_DEVICE_ACCEPTANCE.md)。
 
 P5-07k 最新候选全量验证：47 文件/234 项 Vitest 通过；Chromium/WebKit 61 通过、1 原有离线壳重载专项跳过；全仓 lint/类型/格式与脚本检查通过。覆盖 P5-07g～j 的每日支出曲线、习惯详情与热力图、戒烟操作层级和原生时间捕获修复。计划保存本地候选检查点，不等于正式发布；package 仍为 2.1.1，必须在最终发布时选定新版本。
@@ -16,7 +22,7 @@ P5-07f 最新回归：完整 Vitest 45 文件/229 项、完整浏览器 57 通�
 | R02 完整健康历史 | health-history 每种 40 条合成记录，首条未来日期可编辑，最早记录编辑、失败删除保留及重试；health-history-scroll 在 Chromium/WebKit 四项通过，最早记录保存/取消后仍在视口，保存前后滚动差小于 5px | 浏览器编辑返回上下文已验证；跨路由返回与物理 iPhone 不在本项证据内 |
 | R03 风险确认 | ConfirmDialog；finance-confirmation、settings-safety、健康/戒烟删除测试 | 最终双主题危险状态/焦点复核 |
 | R04 日历记账 | FinancePage + FinanceCategoryPicker；financeDomain、finance-confirmation 与 E2E；G4 对照发现并补回每日支出曲线，3 项单测覆盖聚合/月初/闰日/大值，本机合成账目截图与最新无障碍矩阵通过 | 其余最终布局与大金额实际展示复核，不能以空态矩阵证明所有内容 |
-| R05 今天入口 | /finance/new 直达表单，Today 轻摘要；app-shell E2E | 来源返回路径最终复核 |
+| R05 今天入口 | /finance/new 直达表单；P5-07o 两引擎实测保存/空取消/脏草稿保留与放弃均正确返回，取消零写入、重载不重开；普通日历编辑回归通过 | 最终整版回归须包含此修复；成功后查看其他日期记录入口仍需核对 |
 | R06 健康四子模块 | 健康首页/完整历史/习惯管理/戒烟独立页；对应集成测试 | 戒烟及习惯页面与 G4 的最终视觉核对 |
 | R07 专注 | 到期失败恢复、历史/详情、绝对时间计时；focus-* 测试 | 最终视觉与后台手机行为单列 |
 | R08 设置四组 | 设置详情路由、分类折叠、外观/备份/其他；settings-safety、p5-05c 证据 | 完整辅助技术/手机系统分享验证 |

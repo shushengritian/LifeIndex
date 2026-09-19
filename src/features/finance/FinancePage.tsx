@@ -1,4 +1,6 @@
-import { useCallback, useMemo, useRef, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { usePwa } from '@/pwa/PwaContext'
 
 import { useAppServices } from '@/app/AppServicesContext'
 import { CategoryRepository } from '@/data/repositories/CategoryRepository'
@@ -275,10 +277,28 @@ function TransactionForm({
 }
 
 export function FinanceNewPage() {
-  return <FinancePage initialNew />
+  const navigate = useNavigate()
+  const { dirtyFormCount, busyFormCount } = usePwa()
+  const [exit, setExit] = useState<'saved' | 'cancelled'>()
+  const returned = useRef(false)
+  useEffect(() => {
+    // The editor must unmount and release its write/draft guard before the return navigation.
+    // Navigating inside onSave would race that cleanup and be blocked as an in-flight write.
+    if (!exit || dirtyFormCount || busyFormCount || returned.current) return
+    returned.current = true
+    logger.info('finance.quickentry.returned', { operation: 'navigate', reason: exit })
+    void navigate('/today', { replace: true, state: { financeSaved: exit === 'saved' } })
+  }, [exit, dirtyFormCount, busyFormCount, navigate])
+  return <FinancePage initialNew onQuickExit={setExit} />
 }
 
-export function FinancePage({ initialNew = false }: { initialNew?: boolean }) {
+export function FinancePage({
+  initialNew = false,
+  onQuickExit,
+}: {
+  initialNew?: boolean
+  onQuickExit?: (result: 'saved' | 'cancelled') => void
+}) {
   const { database } = useAppServices()
   const transactions = useMemo(() => new TransactionRepository(database), [database])
   const categories = useMemo(() => new CategoryRepository(database), [database])
@@ -325,6 +345,8 @@ export function FinancePage({ initialNew = false }: { initialNew?: boolean }) {
     setFormMode('closed')
     setNotice(command.localDate !== selectedDate ? '账目已保存到其他日期' : '账目已保存')
     logger.info('finance.form.saved', { operation: 'save' })
+    // Only the dedicated Today entry returns to its source; calendar editing remains in place.
+    onQuickExit?.('saved')
   }
 
   async function remove(transaction: Transaction) {
@@ -432,6 +454,7 @@ export function FinancePage({ initialNew = false }: { initialNew?: boolean }) {
             onCancel={() => {
               setEditing(undefined)
               setFormMode('closed')
+              onQuickExit?.('cancelled')
             }}
             onSave={save}
           />

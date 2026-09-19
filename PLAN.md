@@ -1,5 +1,11 @@
 # LifeIndex V1 Delivery Plan
 
+> P5-07o 回归收尾：修改后完整浏览器 63 通过/1 原有跳过，全量 Vitest 234 项通过，全仓格式/lint/类型与构建通过。返回来源修复保存在开发分支；尚无包含此修改的远端 CI 或部署证据。
+
+> P5-07o：复核 R05 发现“今天→记一笔”保存/取消未回来源；现专用路由等待编辑器释放 dirty/busy 后 replace 回今天，保存有成功反馈，普通记账日历不变。234 项测试、相关双引擎 6 项、类型/lint/构建通过。7950c1a 的绿色 CI 和子路径结果只证明上一候选，本次实现仍需最终完整回归。未发布。
+
+> P5-07n：7950c1a 的 [CI 35452280313](https://github.com/shushengritian/LifeIndex/actions/runs/35452280313) 最终成功，日志确认 234 项单元/集成、61 项浏览器通过及 1 原有跳过。最新候选另以 /LifeIndex/ 隔离构建，deployed smoke 13 通过/1 原有 WebKit 离线重载跳过。不是线上部署证据；原生快捷安装许可、iOS 版本和使用入口待用户确认。未发布。
+
 > P5-07m：CI 35451922363 失败（233/234），原因是记账失败注入测试早于异步分类校验后的真实写入；现等待 add spy 后注入失败，并断言零写入。CI=true 本地全量 47 文件/234 项、类型与相关 lint 通过，待新提交远端 CI 验证。没有修改生产保存逻辑或降低检查门槛。
 
 > P5-07l：本地候选 f71fe7f 已推送 origin/codex/g5-ocean-implementation，触发 [CI 35451922363](https://github.com/shushengritian/LifeIndex/actions/runs/35451922363)。依赖安装与 peer 检查已通过；最终失败及修复见 P5-07m。未合并 main、未部署 Pages。剩余系统/手机验收见 [设备验收单](docs/operations/OCEAN_DEVICE_ACCEPTANCE.md)，快捷安装许可仍待回复。
