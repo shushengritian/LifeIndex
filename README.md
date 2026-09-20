@@ -6,7 +6,7 @@ LifeIndex is a local-first personal life index for iPhone. The V2 progressive we
 
 ## Project status
 
-LifeIndex **v2.2.1 (Ocean) is live**, with compact two-level Finance categories, a simplified header and in-app financial entry. Database/backup remain V4. See [deployment evidence and update guidance](docs/releases/v2.2.1.md). The owner approved deployment before iPhone acceptance under [ADR-0015](docs/adr/0015-ocean-deploy-before-device-acceptance.md); physical-device checks remain pending, not passed. Current scope and follow-ups are tracked in PLAN.md.
+LifeIndex **v2.2.2 (Ocean) is live**, with a new app icon, 60 category icons, rounded Settings feedback and navigation recovery hardening. Database/backup remain V4; backups containing the new icon identifiers require this release or newer to restore. See [deployment evidence and update guidance](docs/releases/v2.2.2.md). The owner approved deployment before iPhone acceptance under [ADR-0015](docs/adr/0015-ocean-deploy-before-device-acceptance.md); physical-device checks, including the reported long-press navigation issue, remain pending, not passed. Current scope and follow-ups are tracked in PLAN.md.
 
 Open [LifeIndex on GitHub Pages](https://shushengritian.github.io/LifeIndex/). The previous V2 delivery is archived in [V2 release notes](docs/releases/v2.0.0.md) and [V2_PLAN.md](V2_PLAN.md).
 

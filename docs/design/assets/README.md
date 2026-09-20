@@ -1,6 +1,6 @@
 # LifeIndex visual asset provenance
 
-## Current Ocean icon (2026-09-20, local candidate)
+## Current Ocean icon (2026-09-20, released in 2.2.2)
 
 - Source: `lifeindex-ocean-icon.svg`, original repo-native geometric vector artwork.
 - Navy `#101f35` full-bleed background, cyan curved L, blue index stroke and amber point.
