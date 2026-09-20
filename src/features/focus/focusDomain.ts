@@ -15,6 +15,12 @@ export function formatFocusDuration(seconds: number): string {
   return hours > 0 ? `${String(hours).padStart(2, '0')}:${clock}` : clock
 }
 
+/** One bounded projection drives both the arc and elapsed label; timer callbacks never accrue time. */
+export function focusProgress(remaining: number, planned: number, running: boolean) {
+  const elapsed = running ? Math.max(0, Math.min(planned, planned - remaining)) : 0
+  return { elapsed, percent: planned > 0 ? (elapsed / planned) * 100 : 0 }
+}
+
 export function summarizeFocus(sessions: readonly FocusSession[]) {
   const completed = sessions.filter(
     (session): session is FocusSession & { durationSeconds: number } =>

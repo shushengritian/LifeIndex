@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   focusByCategory,
+  focusProgress,
   formatFocusDuration,
   remainingFocusSeconds,
   summarizeFocus,
@@ -10,6 +11,14 @@ import { createSeedCategories } from '@/data/db/seeds'
 import { buildFocusSession, FIXED_NOW } from '../fixtures/builders'
 
 describe('Focus domain projections', () => {
+  it('keeps elapsed labels and arc synchronized across minute boundaries and clock recovery', () => {
+    expect(focusProgress(1460, 1500, true)).toEqual({ elapsed: 40, percent: (40 / 1500) * 100 })
+    expect(formatFocusDuration(focusProgress(1439, 1500, true).elapsed)).toBe('01:01')
+    expect(focusProgress(1600, 1500, true)).toEqual({ elapsed: 0, percent: 0 })
+    expect(focusProgress(-20, 1500, true)).toEqual({ elapsed: 1500, percent: 100 })
+    expect(focusProgress(0, 0, false)).toEqual({ elapsed: 0, percent: 0 })
+    expect(focusProgress(40, 1500, false)).toEqual({ elapsed: 0, percent: 0 })
+  })
   it('derives remaining time from timestamps rather than callback counts', () => {
     const active = buildFocusSession({
       status: 'active',

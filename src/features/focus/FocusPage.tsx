@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState, type FormEvent } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { useFocusCompletion } from './useFocusCompletion'
 
@@ -11,6 +11,7 @@ import {
 } from '@/data/repositories/FocusRepository'
 import {
   focusByCategory,
+  focusProgress,
   formatFocusDuration,
   remainingFocusSeconds,
   summarizeFocus,
@@ -40,8 +41,11 @@ function FocusStage({
   running?: boolean
 }) {
   // The arc is a presentation of elapsed time; persisted timestamps remain the timing authority.
-  const progress =
-    running && planned > 0 ? Math.min(100, Math.max(0, (1 - seconds / planned) * 100)) : 0
+  const { elapsed, percent: progress } = focusProgress(seconds, planned, running)
+  useEffect(() => {
+    // Log mode changes only, never per-second activity or the user's title/duration.
+    logger.info('focus.stage.modechanged', { toState: running ? 'running' : 'ready' })
+  }, [running])
   return (
     <div
       className="focus-stage"
@@ -65,12 +69,6 @@ function FocusStage({
           strokeDashoffset={100 - progress}
         />
         <circle cx="43" cy="233" r="4" fill="var(--accent)" />
-        <text x="29" y="258" fill="var(--muted)" fontSize="10">
-          0 分钟
-        </text>
-        <text x="306" y="48" fill="var(--muted)" fontSize="10">
-          {planned / 60} 分钟
-        </text>
       </svg>
       <span>{running ? '正在专注' : '准备好，进入专注'}</span>
       <strong
@@ -81,6 +79,15 @@ function FocusStage({
         {formatFocusDuration(seconds)}
       </strong>
       <small>{running ? '离开此页不会停止计时' : '留一点空间，让注意力安静下来'}</small>
+      {/* Keep changing facts in HTML, not tiny SVG labels; do not announce every second to VoiceOver. */}
+      <div className="focus-progress-labels" aria-live="off">
+        <span>
+          已专注 <strong>{formatFocusDuration(elapsed)}</strong>
+        </span>
+        <span>
+          目标 <strong>{planned / 60} 分钟</strong>
+        </span>
+      </div>
     </div>
   )
 }
@@ -714,6 +721,7 @@ function FocusHistory({
           <small>{weekSummary.count} 次</small>
         </article>
       </div>
+      {!expanded && <p className="focus-summary-note">汇总仅统计已完成并保存的专注</p>}
       {!expanded && (
         <Link className="button-secondary" to="/focus/history">
           查看专注历史

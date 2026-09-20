@@ -1141,6 +1141,7 @@ a.button-secondary {
 
 .finance-reports > summary {
   min-height: 48px;
+  padding-block: 12px;
   align-content: center;
   border-top: 1px solid var(--divider);
   border-bottom: 1px solid var(--divider);
@@ -1163,7 +1164,8 @@ a.button-secondary {
 
 /* Ocean Health uses one weight surface followed by quieter, separated daily-life sections. */
 .health-page:not(.health-history-page) .health-card:not(.weight-card) {
-  padding: 16px 0;
+  /* Leave breathing room between card actions and the next section divider. */
+  padding: 20px 0;
   border: 0;
   border-bottom: 1px solid var(--divider);
   border-radius: 0;
@@ -1745,6 +1747,24 @@ a.button-secondary {
   justify-content: center;
   background: radial-gradient(ellipse at 50% 100%, var(--accent-soft), transparent 68%);
   text-align: center;
+  padding-bottom: 32px;
+}
+
+.focus-progress-labels {
+  position: absolute;
+  inset-inline: 12px;
+  bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.focus-progress-labels strong {
+  color: var(--text);
+  font-size: inherit;
+  font-weight: 550;
 }
 
 .focus-orbit {
@@ -1800,7 +1820,22 @@ a.button-secondary {
 
 .focus-page .focus-summary {
   border-block: 1px solid var(--divider);
-  padding-block: 16px;
+  /* Dividers separate sections; they must never double as a button edge. */
+  margin-block: 28px 16px;
+  padding-block: 20px;
+}
+
+.focus-summary-note {
+  margin: 0 0 20px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.focus-page .active-focus > .form-actions {
+  margin-top: 20px;
+  gap: 12px;
+}
+.focus-page > .duration-presets {
+  margin-top: 20px;
 }
 
 .focus-page .focus-summary article {

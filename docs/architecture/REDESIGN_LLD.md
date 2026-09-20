@@ -1,5 +1,7 @@
 # Ocean 重设计 LLD 与实现契约
 
+3.0.0：focusProgress 从同一 remaining/planned 投影 clamp 后的 elapsed/percent，供弧线和 HTML 已专注时钟共同使用；原固定 SVG 起点标签移除，目标时长独立。现有 useFocusCompletion 仍负责每秒/visibilitychange 投影与幂等完成；只在展示模式变化时记录不含用户数据的日志，不逐秒记录。统计契约不变：仅 completed 会话计入，并在页面说明。无数据库变更。
+
 ADR-0018 增量：当前图标注册为 60 个 ID/11 组，沿用静态 JSX 与白名单校验；V4 是允许值加法扩展，旧版应用不能恢复含新 ID 的备份，V0–V3 冻结不变。设置行/主题选择高亮 14px 圆角；内部链接阻止 contextmenu 并限定 touch-callout/user-select；弹层返回焦点 preventScroll。不引入窗口大小猜测或全局滚动重置。导航真机原因未确认，详见 ADR 的验证边界。
 
 ADR-0017：AppShell 顶部仅保留上下文标题；设置详情白名单仅 appearance/export/restore/about。运行时 ParsedAction/EnabledActionType 只接受习惯与专注；解析和服务双边界拒绝其他类型。ActionType 与回执 schema 继续验证历史值以保证旧数据库/备份兼容，不能据此执行旧操作。交易只经应用内正常表单写入；无数据库迁移。
