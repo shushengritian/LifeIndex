@@ -13,9 +13,9 @@ import { categorySchema, categorySchemaV3 } from '@/shared/validation/schemas'
 import { createSeedCategories } from '@/data/db/seeds'
 
 describe('approved category icons', () => {
-  it('contains 42 stable icons across 8 groups, with legacy aliases', () => {
-    expect(categoryIconIds).toHaveLength(42)
-    expect(categoryIconGroups).toHaveLength(8)
+  it('contains 60 stable icons across 11 groups, with legacy aliases', () => {
+    expect(categoryIconIds).toHaveLength(60)
+    expect(categoryIconGroups).toHaveLength(11)
     expect(new Set(categoryIconGroups.flatMap((g) => g.ids))).toEqual(new Set(categoryIconIds))
     const view = render(
       <>
@@ -24,7 +24,7 @@ describe('approved category icons', () => {
         ))}
       </>,
     )
-    expect(view.container.querySelectorAll('svg')).toHaveLength(42)
+    expect(view.container.querySelectorAll('svg')).toHaveLength(60)
     for (const svg of view.container.querySelectorAll('svg'))
       expect(svg.children.length).toBeGreaterThan(0)
     expect(resolveCategoryIcon('utensils')).toBe('food')

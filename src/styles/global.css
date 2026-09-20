@@ -2016,6 +2016,39 @@ a.button-secondary {
 .settings-theme-options button:hover {
   background: var(--surface-muted);
 }
+/* Keep the feedback surface rounded, including iOS's persistent tap/focus states.
+   Separators remain straight instead of following the row's rounded border. */
+.settings-row,
+.settings-theme-options button {
+  position: relative;
+  padding-inline: 10px;
+  border-bottom: 0;
+  border-radius: 14px;
+  -webkit-tap-highlight-color: transparent;
+}
+.settings-row::after,
+.settings-theme-options button::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  inset-inline: 10px;
+  height: 1px;
+  background: var(--divider);
+}
+.settings-row:active,
+.settings-row:focus-visible,
+.settings-theme-options button:active,
+.settings-theme-options button[aria-pressed='true'] {
+  background: var(--accent-soft);
+}
+/* These are in-app destinations, not shareable documents. Scope callout suppression
+   to navigation only; ordinary text, form editing and external links stay selectable. */
+.nav-item,
+.settings-row {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
 .settings-page .settings-group-note {
   margin-top: 12px;
   font-size: 14px;
@@ -2092,14 +2125,23 @@ a.button-secondary {
 
 .category-manager-disclosure > summary {
   display: flex;
-  min-height: 54px;
+  min-height: 76px;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin: -4px -6px -6px;
-  padding: 4px 6px 6px;
+  margin: 0;
+  padding: 14px 10px;
+  /* Match adjacent Settings rows so keyboard/touch feedback and icon alignment agree. */
+  border-radius: 14px;
+  -webkit-tap-highlight-color: transparent;
   cursor: pointer;
   list-style: none;
+}
+
+.category-manager-disclosure > summary:hover,
+.category-manager-disclosure > summary:active,
+.category-manager-disclosure > summary:focus-visible {
+  background: var(--accent-soft);
 }
 
 .category-manager-disclosure > summary > span:not(.category-glyph) {

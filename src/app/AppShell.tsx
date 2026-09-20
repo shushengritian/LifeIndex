@@ -48,6 +48,11 @@ export function AppShell() {
           <NavLink
             key={destination.to}
             to={destination.to}
+            onContextMenu={(event) => {
+              // A long press on a tab is not an external-link preview action in the installed app.
+              event.preventDefault()
+              logger.info('ui.navigation.calloutprevented', { operation: 'navigate' })
+            }}
             className={({ isActive }) => `nav-item${isActive ? ' nav-item-active' : ''}`}
           >
             <span className="nav-icon" aria-hidden="true">

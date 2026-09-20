@@ -1,5 +1,7 @@
 # Ocean 重设计 LLD 与实现契约
 
+ADR-0018 增量：当前图标注册为 60 个 ID/11 组，沿用静态 JSX 与白名单校验；V4 是允许值加法扩展，旧版应用不能恢复含新 ID 的备份，V0–V3 冻结不变。设置行/主题选择高亮 14px 圆角；内部链接阻止 contextmenu 并限定 touch-callout/user-select；弹层返回焦点 preventScroll。不引入窗口大小猜测或全局滚动重置。导航真机原因未确认，详见 ADR 的验证边界。
+
 ADR-0017：AppShell 顶部仅保留上下文标题；设置详情白名单仅 appearance/export/restore/about。运行时 ParsedAction/EnabledActionType 只接受习惯与专注；解析和服务双边界拒绝其他类型。ActionType 与回执 schema 继续验证历史值以保证旧数据库/备份兼容，不能据此执行旧操作。交易只经应用内正常表单写入；无数据库迁移。
 
 ADR-0016：CategoryMore 是非模态披露，aria-expanded/controls 关联操作组，支持 Tab、Escape、失焦与外部点击关闭。触发编辑前焦点回到稳定的三点按钮，供 Sheet 卸载后恢复。CategoryEditor 接收可选 parent，新二级分类继承父 icon/color，旧二级分类保留既有值；只隐藏选择控件，不改变 V4 schema/备份。FinanceCategoryPicker 仅一级显示图标，二级使用 44px 最小高度文字标签。写入仍通过原仓库和同步锁，失败保持输入，日志不含名称/ID。

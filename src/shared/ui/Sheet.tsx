@@ -69,9 +69,10 @@ export function Sheet({ title, children }: { title: string; children: ReactNode 
       background.forEach((element, index) => {
         element.inert = previousInert[index] ?? false
       })
-      // Returning focus keeps keyboard and assistive-technology users at the action they invoked.
-      if (returnFocus?.isConnected) returnFocus.focus()
-      else document.querySelector<HTMLElement>('#main-content')?.focus()
+      // Restore keyboard access without scrolling the layout viewport after an iOS keyboard/dialog.
+      // Do not reset scroll globally: users should return to their original place in a long list.
+      if (returnFocus?.isConnected) returnFocus.focus({ preventScroll: true })
+      else document.querySelector<HTMLElement>('#main-content')?.focus({ preventScroll: true })
       logger.info('ui.sheet.closed', { entityType: 'sheet', operation: 'close' })
     }
   }, [returnFocus])

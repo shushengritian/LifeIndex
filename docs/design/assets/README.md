@@ -1,6 +1,17 @@
 # LifeIndex visual asset provenance
 
-## PWA icon
+## Current Ocean icon (2026-09-20, local candidate)
+
+- Source: `lifeindex-ocean-icon.svg`, original repo-native geometric vector artwork.
+- Navy `#101f35` full-bleed background, cyan curved L, blue index stroke and amber point.
+- The L represents LifeIndex; three marks reference finance, focus and health without reducing the identity to a wallet.
+- Foreground geometry fits in the central maskable safe circle; the OS supplies outer rounding.
+- Rebuild: `node scripts/generate-app-icons.mjs`, using the installed/pinned asset generator's Sharp renderer; no downloads.
+- Five runtime PNGs in `public/icons/` are replaced together. The service worker revisions their bytes on release.
+- The old master below is historical provenance, not the source of current derivatives.
+- iOS may cache existing home-screen artwork separately from app updates. Do not delete the app/site data to refresh an icon; export data before any installation changes.
+
+## Historical V1 PWA icon
 
 - Generation mode: built-in `imagegen` (`logo-brand`)
 - Master: `lifeindex-icon-master.png` (1254 × 1254)

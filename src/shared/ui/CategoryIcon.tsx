@@ -17,6 +17,109 @@ export function CategoryIcon({ name, size = 23 }: { name: string; size?: number 
   }, [known])
   const id = resolveCategoryIcon(name)
   const shapes = {
+    suitcase: (
+      <>
+        <rect x="5" y="6" width="14" height="14" rx="3" />
+        <path d="M9 6V3h6v3M9 10v6m6-6v6M8 20v2m8-2v2" />
+      </>
+    ),
+    hotel: (
+      <>
+        <path d="M4 21V3h16v18M2 21h20M10 21v-5h4v5M8 7h1m6 0h1M8 11h1m6 0h1" />
+      </>
+    ),
+    tent: (
+      <>
+        <path d="m3 21 9-18 9 18H3Zm5 0 4-8 4 8M9 3l3 6 3-6" />
+      </>
+    ),
+    beach: (
+      <>
+        <path d="M3 11a9 9 0 0 1 18 0H3Zm9-9c-3 3-4 6-4 9m4-9c3 3 4 6 4 9m-4 0v10M5 21h14" />
+      </>
+    ),
+    camera: (
+      <>
+        <path d="m8 5 2-2h4l2 2h4a2 2 0 0 1 2 2v12H2V7a2 2 0 0 1 2-2h4Z" />
+        <circle cx="12" cy="12" r="4" />
+      </>
+    ),
+    globe: (
+      <>
+        <circle cx="12" cy="12" r="9" />
+        <ellipse cx="12" cy="12" rx="4" ry="9" />
+        <path d="M3 12h18M5 7h14M5 17h14" />
+      </>
+    ),
+    graduation: (
+      <>
+        <path d="m2 8 10-5 10 5-10 5L2 8Zm4 2v7c4 3 8 3 12 0v-7m4-2v9" />
+      </>
+    ),
+    baby: (
+      <>
+        <circle cx="12" cy="13" r="8" />
+        <path d="M12 5c-3-4 4-5 3-1M8 12h.1M16 12h.1M9 16q3 3 6 0" />
+      </>
+    ),
+    family: (
+      <>
+        <circle cx="7" cy="6" r="3" />
+        <circle cx="17" cy="6" r="3" />
+        <circle cx="12" cy="13" r="2" />
+        <path d="M2 18v-4q0-4 5-4m15 8v-4q0-4-5-4M8 22v-3a4 4 0 0 1 8 0v3" />
+      </>
+    ),
+    beauty: (
+      <>
+        <path d="M7 21V11h10v10H7Zm2-10V5l6-3v9M7 16h10" />
+      </>
+    ),
+    shield: (
+      <>
+        <path d="m12 2 8 3v6c0 5-3 8-8 11-5-3-8-6-8-11V5l8-3Z" />
+        <path d="m8 12 3 3 5-6" />
+      </>
+    ),
+    receipt: (
+      <>
+        <path d="M5 2l3 2 4-2 4 2 3-2v20l-3-2-4 2-4-2-3 2V2ZM9 8h6m-6 4h6m-6 4h3" />
+      </>
+    ),
+    subscription: (
+      <>
+        <rect x="4" y="5" width="16" height="16" rx="3" />
+        <path d="M8 2v6m8-6v6M4 10h16m-7 3 3 3-3 3m-5-3h8" />
+      </>
+    ),
+    parcel: (
+      <>
+        <path d="m3 7 9-5 9 5v11l-9 4-9-4V7Zm0 0 9 5 9-5m-9 5v10M7 5l10 5v5" />
+      </>
+    ),
+    parking: (
+      <>
+        <rect x="3" y="3" width="18" height="18" rx="4" />
+        <path d="M9 18V7h4a3 3 0 0 1 0 6H9" />
+      </>
+    ),
+    train: (
+      <>
+        <rect x="6" y="2" width="12" height="16" rx="5" />
+        <path d="M6 10h12M9 6h6M7 22l3-4m7 4-3-4M9 14h.1m6 0h.1" />
+      </>
+    ),
+    ticket: (
+      <>
+        <path d="M3 5h18v4a3 3 0 0 0 0 6v4H3v-4a3 3 0 0 0 0-6V5Zm12 0v3m0 3v2m0 3v3" />
+      </>
+    ),
+    flower: (
+      <>
+        <path d="M12 21v-7m0 6q-6 0-7-4 5-1 7 4Zm0-3q6 0 7-4-5-1-7 4ZM12 4c-4-6-9 0-5 3-7 1-4 8 1 6 0 6 8 6 8 0 5 2 8-5 1-6 4-3-1-9-5-3Z" />
+        <circle cx="12" cy="9" r="2" />
+      </>
+    ),
     food: (
       <>
         <path d="M5 3v7m3-7v7M3 3v6a3 3 0 0 0 6 0V3M6 12v9m12-18c-3 3-4 7-4 10h5V3h-1Zm1 10v8" />

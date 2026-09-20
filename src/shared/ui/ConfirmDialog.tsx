@@ -36,11 +36,12 @@ export function ConfirmDialog({
     logger.info('ui.confirm.opened', { operation: 'open' })
     return () => {
       dialog.close()
-      if (opener instanceof HTMLElement && opener.isConnected) opener.focus()
+      // Avoid focus restoration scrolling the page beneath the fixed tab bar on mobile.
+      if (opener instanceof HTMLElement && opener.isConnected) opener.focus({ preventScroll: true })
       else if (!document.activeElement || document.activeElement === document.body) {
         // A containing Sheet may already have restored its launcher during the same unmount.
         // Only use the fallback when focus is genuinely lost; never override that valid return.
-        document.querySelector<HTMLElement>('#main-content')?.focus()
+        document.querySelector<HTMLElement>('#main-content')?.focus({ preventScroll: true })
         logger.info('ui.confirm.focusfallback', { operation: 'close' })
       } else {
         logger.info('ui.confirm.focuspreserved', { operation: 'close' })

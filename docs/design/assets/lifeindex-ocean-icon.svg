@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <title>LifeIndex — Ocean index</title>
+  <!-- Full-bleed background: the operating system owns the outer corner mask.
+       All foreground geometry fits within the maskable icon's central safe circle. -->
+  <rect width="512" height="512" fill="#101f35"/>
+  <path d="M156 164v132c0 38 26 62 64 62h128" fill="none" stroke="#67d4f2" stroke-width="56" stroke-linecap="round"/>
+  <path d="M252 170v84" fill="none" stroke="#358dd0" stroke-width="52" stroke-linecap="round"/>
+  <circle cx="348" cy="170" r="27" fill="#f2bf6c"/>
+</svg>

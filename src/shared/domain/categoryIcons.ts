@@ -42,6 +42,25 @@ export const categoryIconIds = [
   'card',
   'salary',
   'bonus',
+  // Additive presentation keys: never rename stored icons or rewrite existing categories.
+  'suitcase',
+  'hotel',
+  'tent',
+  'beach',
+  'camera',
+  'globe',
+  'graduation',
+  'baby',
+  'family',
+  'beauty',
+  'shield',
+  'receipt',
+  'subscription',
+  'parcel',
+  'parking',
+  'train',
+  'ticket',
+  'flower',
 ] as const
 export type CategoryIconId = (typeof categoryIconIds)[number]
 export const categoryIconLabels: Record<CategoryIconId, string> = {
@@ -87,6 +106,24 @@ export const categoryIconLabels: Record<CategoryIconId, string> = {
   card: '银行卡',
   salary: '工资',
   bonus: '奖励',
+  suitcase: '旅游',
+  hotel: '住宿',
+  tent: '露营',
+  beach: '度假',
+  camera: '摄影',
+  globe: '境外',
+  graduation: '教育',
+  baby: '育儿',
+  family: '家庭',
+  beauty: '美护',
+  shield: '保险',
+  receipt: '税费',
+  subscription: '订阅',
+  parcel: '快递',
+  parking: '停车',
+  train: '火车',
+  ticket: '门票',
+  flower: '鲜花',
 }
 export const categoryIconGroups: ReadonlyArray<{
   id: string
@@ -105,6 +142,32 @@ export const categoryIconGroups: ReadonlyArray<{
   { id: 'health', label: '健康宠物', ids: ['heart', 'activity', 'pill', 'clinic', 'tooth', 'pet'] },
   { id: 'leisure', label: '学习娱乐', ids: ['book', 'timer', 'leaf', 'movie', 'music', 'game'] },
   { id: 'income', label: '收入财务', ids: ['pay', 'coins', 'bank', 'card', 'salary', 'bonus'] },
+  {
+    id: 'vacation',
+    label: '旅游住宿',
+    ids: [
+      'suitcase',
+      'hotel',
+      'tent',
+      'beach',
+      'camera',
+      'globe',
+      'ticket',
+      'plane',
+      'train',
+      'parking',
+    ],
+  },
+  {
+    id: 'family',
+    label: '家庭教育',
+    ids: ['family', 'baby', 'graduation', 'book', 'gift', 'flower'],
+  },
+  {
+    id: 'services',
+    label: '生活服务',
+    ids: ['beauty', 'shield', 'receipt', 'subscription', 'parcel', 'tools'],
+  },
 ]
 export const legacyCategoryIconAliases: Record<string, CategoryIconId> = {
   utensils: 'food',

@@ -478,6 +478,11 @@ function SettingsRow({
       className="settings-row"
       aria-label={title}
       to={to.startsWith('/') ? to : `/settings/${to}`}
+      onContextMenu={(event) => {
+        // Keep in-app settings rows out of iOS's external-link preview menu.
+        event.preventDefault()
+        logger.info('settings.navigation.calloutprevented', { operation: 'navigate' })
+      }}
     >
       <span className={`category-glyph tone-${tone}`}>
         <Icon name={icon} />

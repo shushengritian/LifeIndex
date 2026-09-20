@@ -5,6 +5,7 @@ import { LifeIndexDatabase } from '@/data/db/LifeIndexDatabase'
 import type { Clock, IdGenerator } from '@/shared/domain/runtime'
 import type { LifeIndexBackupV4 } from '@/shared/domain/types'
 import { AppError } from '@/shared/errors/AppError'
+import { categoryIconIds } from '@/shared/domain/categoryIcons'
 import {
   buildActivitySession,
   buildFocusSession,
@@ -64,6 +65,27 @@ afterEach(async () => {
 })
 
 describe('versioned backup and restore', () => {
+  it('round-trips every expanded icon without rewriting existing V4 records', async () => {
+    const source = createDatabase()
+    const target = createDatabase()
+    await initializeWithSyntheticData(source)
+    await target.initialize(new Date(FIXED_NOW))
+    const seed = (await source.categories.toArray())[0]!
+    await source.categories.bulkAdd(
+      categoryIconIds.map((icon, sortOrder) => ({
+        ...seed,
+        id: crypto.randomUUID(),
+        name: '合成分类',
+        icon,
+        sortOrder,
+      })),
+    )
+    const service = createService(source)
+    const snapshot = await service.createSnapshot('zh-CN')
+    const restored = createService(target)
+    await restored.restore(restored.inspectText(service.serialize(snapshot)).token)
+    expect((await restored.createSnapshot('zh-CN')).data).toEqual(snapshot.data)
+  })
   it('round-trips every canonical store through preview-first replacement', async () => {
     const source = createDatabase()
     const target = createDatabase()
