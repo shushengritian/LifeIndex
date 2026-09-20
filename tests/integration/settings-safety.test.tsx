@@ -5,7 +5,6 @@ import { afterAll, afterEach, beforeAll, expect, it, vi } from 'vitest'
 import { AppServicesContext } from '@/app/AppServicesContext'
 import { BackupService } from '@/data/backup/BackupService'
 import * as browserBackup from '@/data/backup/browserBackup'
-import * as shortcutConfig from '@/features/settings/shortcutConfig'
 import { LifeIndexDatabase } from '@/data/db/LifeIndexDatabase'
 import { SettingsRepository } from '@/data/repositories/SettingsRepository'
 import { SettingsPage, SettingsDetailPage } from '@/features/settings/SettingsPage'
@@ -160,7 +159,7 @@ it('distinguishes successful export handoff from failure to record its timestamp
 it('opens independent settings details and returns to the four-group home', async () => {
   const { user } = await setup()
   expect(screen.queryByRole('button', { name: '深色' })).not.toBeInTheDocument()
-  for (const title of ['主题外观', '导出备份', '从备份恢复', '快捷记账', '关于 LifeIndex']) {
+  for (const title of ['主题外观', '导出备份', '从备份恢复', '关于 LifeIndex']) {
     await user.click(await screen.findByRole('link', { name: title }))
     expect(await screen.findByRole('heading', { name: title, level: 1 })).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: '分类' })).not.toBeInTheDocument()
@@ -171,24 +170,4 @@ it('opens independent settings details and returns to the four-group home', asyn
     'href',
     '/health/cessation',
   )
-})
-
-it('exports a fresh category configuration and keeps the guide usable after a failed handoff', async () => {
-  const { user, database } = await setup()
-  const handoff = vi
-    .spyOn(shortcutConfig, 'exportShortcutCategoryConfig')
-    .mockRejectedValueOnce(new Error('SyntheticHandoffFailure'))
-    .mockResolvedValueOnce(undefined)
-  await user.click(screen.getByRole('link', { name: '快捷记账' }))
-  const button = await screen.findByRole('button', { name: '导出快捷记账分类' })
-  await user.click(button)
-  expect(await screen.findByRole('alert')).toHaveTextContent('账本没有改变')
-  await database.categories.update('category-finance-expense-food-v1', { name: '合成最新名称' })
-  await user.click(button)
-  expect(await screen.findByRole('status')).toHaveTextContent('分类配置已交给系统')
-  expect(handoff.mock.calls[1]![0]).toEqual(
-    expect.arrayContaining([expect.objectContaining({ name: '合成最新名称' })]),
-  )
-  expect(handoff.mock.calls[1]![0].every((row) => row.domain === 'finance')).toBe(true)
-  expect(await database.transactions.count()).toBe(0)
 })

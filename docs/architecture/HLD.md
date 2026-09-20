@@ -21,7 +21,7 @@
 ```mermaid
 flowchart LR
     User[Owner on iPhone]
-    Shortcut[iOS Shortcut]
+    Link[Habit / Focus link]
     Pages[GitHub Pages\nstatic app shell]
     App[LifeIndex V2 PWA]
     IDB[(IndexedDB V2\nprimary data)]
@@ -31,7 +31,7 @@ flowchart LR
     User -->|HTTPS install/update| Pages
     Pages --> App
     User --> App
-    Shortcut -->|fragment action URL| App
+    Link -->|fragment action URL| App
     App <--> IDB
     App <--> Cache
     App -->|explicit export| Files
@@ -204,7 +204,7 @@ Older migrations add empty `weightEntries` and `activitySessions`; they never in
 - Focus keeps its persisted timestamp state machine and one-active-row invariant.
 - The service worker still precaches only the app shell and exposes ready/update/failure state.
 - Update activation remains explicit and dirty-form aware.
-- Add-transaction, check-habit, and start-focus fragment actions remain atomic with receipts.
+- Check-habit and start-focus fragment actions remain atomic with receipts.
 - V2 adds no Health URL action and no network data source.
 
 ## 12. Security and privacy

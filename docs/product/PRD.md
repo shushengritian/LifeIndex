@@ -65,7 +65,6 @@ No telemetry is used. Success is established through deterministic tests, deploy
 - Native Swift/SwiftUI packaging or direct Apple Health/HealthKit integration.
 - Calories, macros, meal plans, BMI or medical judgments, workout programs, exercises, sets, repetitions, load, rest timers, personal records, wearables, and social fitness.
 - Merge restore, automatic backup upload, and silent/destructive data repair.
-- New iOS Shortcut actions for Health in V2; the three existing fragment URL Actions remain supported.
 
 ## 5. Product principles
 
@@ -169,9 +168,9 @@ No telemetry is used. Success is established through deterministic tests, deploy
 - **PWA-004:** A source rollback never attempts to downgrade or clear a V2 database.
 - **PWA-005:** The manifest, worker scope, routes, and assets work at the GitHub Pages `/LifeIndex/` base path.
 
-### 6.12 URL Actions and iOS Shortcuts
+### 6.12 Habit and Focus Link Actions
 
-- **URL-001:** Existing add-transaction, check-habit, and start-focus actions remain fragment-only, allowlisted, previewed, and explicitly confirmed.
+- **URL-001:** Existing check-habit and start-focus actions remain fragment-only, allowlisted, previewed, and explicitly confirmed.
 - **URL-002:** Business mutation and durable receipt are atomic; repeated action UUIDs return the existing result.
 - **URL-003:** Cancel, invalid, completed, and duplicate paths remove sensitive fragment fields from the active route.
 - **URL-004:** V2 adds no automatic payment recognition and no Health action route.

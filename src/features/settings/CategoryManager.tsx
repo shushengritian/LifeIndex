@@ -1,4 +1,4 @@
-import { useRef, useState, type FormEvent } from 'react'
+import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import type { CategoryRepository } from '@/data/repositories/CategoryRepository'
 import type { Category, CategoryDomain, TransactionType } from '@/shared/domain/types'
 import { CategoryIcon } from '@/shared/ui/CategoryIcon'
@@ -53,7 +53,10 @@ export function CategoryManager({
   const active = rows.filter((c) => !c.archived)
   const archived = rows.filter((c) => c.archived)
   async function write(action: () => Promise<unknown>) {
-    if (lock.current) return
+    if (lock.current) {
+      logger.info('category.manager.writeblocked', { reason: 'busy', operation: 'update' })
+      return
+    }
     lock.current = true
     setBusy(true)
     setError('')
@@ -62,6 +65,7 @@ export function CategoryManager({
     try {
       await action()
       setArchiveTarget(undefined)
+      logger.info('category.manager.writesucceeded', { operation: 'update' })
     } catch {
       setError('分类未能更新，原有记录未改变。请重试。')
       logger.warn('category.manager.writefailed', { operation: 'update', failureClass: 'Write' })
@@ -76,7 +80,10 @@ export function CategoryManager({
     if (domain === 'finance' && !category.parentId) {
       setParentId(category.id)
       logger.info('category.manager.entered', { operation: 'open', toState: 'children' })
-    } else setEditor({ category })
+    } else {
+      setEditor({ category })
+      logger.info('category.manager.editoropened', { operation: 'edit', toState: 'editor' })
+    }
   }
   async function move(index: number, direction: -1 | 1) {
     const next = [...active],
@@ -102,36 +109,51 @@ export function CategoryManager({
         <div className="category-manager-content">
           {parent ? (
             <>
-              <button type="button" disabled={busy} onClick={() => setParentId(undefined)}>
+              <button
+                className="category-back"
+                type="button"
+                disabled={busy}
+                onClick={() => {
+                  setParentId(undefined)
+                  logger.info('category.manager.returned', {
+                    operation: 'navigate',
+                    toState: 'roots',
+                  })
+                }}
+              >
+                <Icon name="back" size={16} />
                 返回一级分类
               </button>
               <div className="category-detail-heading">
-                <CategoryIcon name={parent.icon} />
+                <span className={`category-glyph tone-${parent.color}`}>
+                  <CategoryIcon name={parent.icon} />
+                </span>
                 <h3>{parent.name}</h3>
-                <button
-                  type="button"
-                  disabled={busy}
-                  onClick={() => setEditor({ category: parent })}
-                >
-                  编辑一级分类
-                </button>
+                <CategoryMore name={parent.name} disabled={busy}>
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => setEditor({ category: parent })}
+                  >
+                    编辑一级分类
+                  </button>
+                  <button
+                    type="button"
+                    className={parent.archived ? '' : 'category-archive-action'}
+                    disabled={busy}
+                    onClick={() =>
+                      parent.archived
+                        ? void write(() => repository.setArchived(parent.id, false))
+                        : setArchiveTarget(parent)
+                    }
+                  >
+                    {parent.archived ? '恢复一级分类' : '归档一级分类'}
+                  </button>
+                </CategoryMore>
               </div>
-              <p className="helper">
-                {parent.archived
-                  ? '一级分类已归档，恢复后才能新增或选择二级分类。'
-                  : '可直接记到一级分类，也可选择更具体的二级分类。'}
-              </p>
-              <button
-                type="button"
-                disabled={busy}
-                onClick={() =>
-                  parent.archived
-                    ? void write(() => repository.setArchived(parent.id, false))
-                    : setArchiveTarget(parent)
-                }
-              >
-                {parent.archived ? '恢复一级分类' : '归档一级分类'}
-              </button>
+              {Boolean(parent.archived) && (
+                <p className="helper">一级分类已归档，恢复后才能新增或选择二级分类。</p>
+              )}
             </>
           ) : (
             <div className="segmented-control category-domain-tabs" aria-label="分类类型">
@@ -141,21 +163,38 @@ export function CategoryManager({
                   type="button"
                   disabled={busy}
                   aria-pressed={group === id}
-                  onClick={() => setGroup(id)}
+                  onClick={() => {
+                    setGroup(id)
+                    logger.info('category.manager.groupchanged', {
+                      operation: 'navigate',
+                      toState: id,
+                    })
+                  }}
                 >
                   {label}
                 </button>
               ))}
             </div>
           )}
-          <button
-            className="button-primary"
-            type="button"
-            disabled={busy || Boolean(parent?.archived)}
-            onClick={() => setEditor({})}
-          >
-            {parent ? '新增二级分类' : '新增分类'}
-          </button>
+          <div className="category-list-heading">
+            <h3>{parent ? '二级分类' : groups.find(([id]) => id === group)?.[1]}</h3>
+            <span className="category-list-count">{active.length}</span>
+            <button
+              className="category-add"
+              type="button"
+              aria-label={parent ? '新增二级分类' : '新增分类'}
+              disabled={busy || Boolean(parent?.archived)}
+              onClick={() => {
+                setEditor({})
+                logger.info('category.manager.editoropened', {
+                  operation: 'create',
+                  toState: parent ? 'child' : 'root',
+                })
+              }}
+            >
+              <Icon name="add" size={20} />
+            </button>
+          </div>
           {error && (
             <p role="alert" className="form-error">
               {error}
@@ -163,20 +202,30 @@ export function CategoryManager({
           )}
           <ul className="category-drilldown-list">
             {active.map((category, index) => (
-              <li key={category.id}>
+              <li key={category.id} className={parent ? 'category-child-row' : undefined}>
                 <button
                   type="button"
                   className="category-open"
                   disabled={busy}
                   onClick={() => open(category)}
                 >
-                  <span className={`category-glyph tone-${category.color}`}>
-                    <CategoryIcon name={category.icon} />
-                  </span>
-                  <span>{category.name}</span>
-                  <span aria-hidden="true">›</span>
+                  {!parent && (
+                    <span className={`category-glyph tone-${category.color}`}>
+                      <CategoryIcon name={category.icon} />
+                    </span>
+                  )}
+                  <span className="category-row-name">{category.name}</span>
+                  {!parent && domain === 'finance' && <Icon name="next" size={15} />}
                 </button>
-                <div className="category-row-actions">
+                <CategoryMore name={category.name} disabled={busy}>
+                  <button type="button" disabled={busy} onClick={() => setEditor({ category })}>
+                    编辑
+                  </button>
+                  {!parent && domain === 'finance' && (
+                    <button type="button" disabled={busy} onClick={() => open(category)}>
+                      二级分类
+                    </button>
+                  )}
                   <button
                     type="button"
                     disabled={busy || index === 0}
@@ -197,11 +246,12 @@ export function CategoryManager({
                     type="button"
                     disabled={busy}
                     aria-label={`归档 ${category.name}`}
+                    className="category-archive-action"
                     onClick={() => setArchiveTarget(category)}
                   >
                     归档
                   </button>
-                </div>
+                </CategoryMore>
               </li>
             ))}
           </ul>
@@ -217,18 +267,23 @@ export function CategoryManager({
               <summary>已归档分类（{archived.length}）</summary>
               <ul className="category-drilldown-list">
                 {archived.map((c) => (
-                  <li key={c.id}>
+                  <li key={c.id} className={parent ? 'category-child-row' : undefined}>
                     <button
                       className="category-open"
                       type="button"
                       disabled={busy}
                       onClick={() => open(c)}
                     >
-                      <CategoryIcon name={c.icon} />
-                      {c.name}
+                      {!parent && (
+                        <span className={`category-glyph tone-${c.color}`}>
+                          <CategoryIcon name={c.icon} />
+                        </span>
+                      )}
+                      <span className="category-row-name">{c.name}</span>
                     </button>
                     <button
                       type="button"
+                      className="category-restore"
                       disabled={busy}
                       onClick={() => void write(() => repository.setArchived(c.id, false))}
                     >
@@ -246,6 +301,7 @@ export function CategoryManager({
           <CategoryEditor
             key={editor.category?.id ?? 'new'}
             category={editor.category}
+            parent={editor.category && !editor.category.parentId ? undefined : parent}
             onClose={() => setEditor(undefined)}
             onSave={async (values) => {
               if (editor.category) await repository.update(editor.category.id, values)
@@ -279,29 +335,123 @@ export function CategoryManager({
   )
 }
 
+function CategoryMore({
+  name,
+  disabled,
+  children,
+}: {
+  name: string
+  disabled: boolean
+  children: ReactNode
+}) {
+  const [expanded, setExpanded] = useState(false)
+  const region = useRef<HTMLDivElement>(null)
+  const trigger = useRef<HTMLButtonElement>(null)
+  const panelId = useId()
+  useEffect(() => {
+    if (!expanded) return
+    // A non-modal disclosure keeps native Tab navigation; outside clicks dismiss without
+    // stealing focus, while Escape and action selection return focus to the row trigger.
+    function outside(event: PointerEvent) {
+      if (event.target instanceof Node && !region.current?.contains(event.target)) {
+        setExpanded(false)
+        logger.info('category.actions.dismissed', { operation: 'close', reason: 'outside' })
+      }
+    }
+    document.addEventListener('pointerdown', outside)
+    return () => document.removeEventListener('pointerdown', outside)
+  }, [expanded])
+  function close() {
+    setExpanded(false)
+    trigger.current?.focus()
+    logger.info('category.actions.dismissed', { operation: 'close' })
+  }
+  return (
+    <div
+      className="category-more"
+      ref={region}
+      onKeyDown={(event) => {
+        if (event.key === 'Escape' && expanded) {
+          event.preventDefault()
+          event.stopPropagation()
+          close()
+        }
+      }}
+      onBlur={(event) => {
+        if (
+          event.relatedTarget instanceof Node &&
+          !event.currentTarget.contains(event.relatedTarget)
+        )
+          setExpanded(false)
+      }}
+    >
+      <button
+        ref={trigger}
+        type="button"
+        className="category-more-trigger"
+        disabled={disabled}
+        aria-label={`更多 ${name}`}
+        aria-expanded={expanded}
+        aria-controls={panelId}
+        onClick={() => {
+          setExpanded(!expanded)
+          logger.info('category.actions.toggled', { operation: expanded ? 'close' : 'open' })
+        }}
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <circle cx="5" cy="12" r="1.6" />
+          <circle cx="12" cy="12" r="1.6" />
+          <circle cx="19" cy="12" r="1.6" />
+        </svg>
+      </button>
+      <div
+        id={panelId}
+        className="category-actions-panel"
+        hidden={!expanded}
+        role="group"
+        aria-label={`${name}操作`}
+        onClickCapture={(event) => {
+          // Restore before opening an editor, so Sheet captures a persistent trigger, not a hidden action.
+          if (event.target instanceof Element && event.target.closest('button:not(:disabled)'))
+            close()
+        }}
+      >
+        {children}
+      </div>
+    </div>
+  )
+}
+
 function CategoryEditor({
   category,
+  parent,
   onClose,
   onSave,
 }: {
   category?: Category | undefined
+  parent?: Category | undefined
   onClose: () => void
   onSave: (values: { name: string; icon: string; color: Category['color'] }) => Promise<void>
 }) {
   const [name, setName] = useState(category?.name ?? '')
-  const [icon, setIcon] = useState(category?.icon ?? 'food')
-  const [color, setColor] = useState<Category['color']>(category?.color ?? 'blue')
+  // Child styling is hidden, not erased: preserve legacy values when editing, and inherit
+  // the parent for new rows so V4 exports and historical references remain compatible.
+  const initialIcon = category?.icon ?? parent?.icon ?? 'food'
+  const initialColor = category?.color ?? parent?.color ?? 'blue'
+  const [icon, setIcon] = useState(initialIcon)
+  const [color, setColor] = useState<Category['color']>(initialColor)
   const [busy, setBusy] = useState(false),
     [error, setError] = useState(''),
     [discard, setDiscard] = useState(false)
   const lock = useRef(false)
-  const dirty =
-    name !== (category?.name ?? '') ||
-    icon !== (category?.icon ?? 'food') ||
-    color !== (category?.color ?? 'blue')
+  const dirty = name !== (category?.name ?? '') || icon !== initialIcon || color !== initialColor
   useDirtyForm(dirty, busy)
   function close() {
     if (lock.current) return
+    logger.info('category.editor.exitrequested', {
+      operation: 'close',
+      reason: dirty ? 'dirty' : 'clean',
+    })
     if (dirty) setDiscard(true)
     else onClose()
   }
@@ -324,7 +474,7 @@ function CategoryEditor({
       await onSave({ name: name.trim(), icon, color })
       logger.info('category.editor.saved', { operation: 'save' })
     } catch {
-      setError('未能保存，名字和图标已保留。请重试。')
+      setError(parent ? '未能保存，名称已保留。请重试。' : '未能保存，名字和图标已保留。请重试。')
       logger.warn('category.editor.savefailed', { operation: 'save', failureClass: 'Write' })
     } finally {
       lock.current = false
@@ -354,18 +504,27 @@ function CategoryEditor({
           onChange={(event) => setName(event.target.value)}
         />
       </label>
-      <CategoryIconPicker value={icon} onChange={setIcon} disabled={busy} />
-      <fieldset className="category-color-picker" disabled={busy}>
-        <legend>图标颜色</legend>
-        {colors.map(([id, label]) => (
-          <button key={id} type="button" aria-pressed={color === id} onClick={() => setColor(id)}>
-            <span className={`category-glyph tone-${id}`}>
-              <CategoryIcon name={icon} />
-            </span>
-            {label}
-          </button>
-        ))}
-      </fieldset>
+      {!parent && (
+        <>
+          <CategoryIconPicker value={icon} onChange={setIcon} disabled={busy} />
+          <fieldset className="category-color-picker" disabled={busy}>
+            <legend>图标颜色</legend>
+            {colors.map(([id, label]) => (
+              <button
+                key={id}
+                type="button"
+                aria-pressed={color === id}
+                onClick={() => setColor(id)}
+              >
+                <span className={`category-glyph tone-${id}`}>
+                  <CategoryIcon name={icon} />
+                </span>
+                {label}
+              </button>
+            ))}
+          </fieldset>
+        </>
+      )}
       {error && (
         <p role="alert" className="form-error">
           {error}
@@ -382,7 +541,7 @@ function CategoryEditor({
       {discard && (
         <ConfirmDialog
           title="放弃分类修改？"
-          description="尚未保存的名字、图标和颜色将被丢弃。"
+          description={parent ? '尚未保存的名称将被丢弃。' : '尚未保存的名字、图标和颜色将被丢弃。'}
           confirmLabel="放弃修改"
           onCancel={() => setDiscard(false)}
           onConfirm={onClose}

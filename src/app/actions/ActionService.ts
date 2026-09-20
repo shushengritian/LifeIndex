@@ -1,28 +1,20 @@
 import { LifeIndexDatabase } from '@/data/db/LifeIndexDatabase'
 import { isHabitScheduled } from '@/features/habits/habitDomain'
 import { toLocalDateKey } from '@/shared/domain/date'
-import { categoryDisplayName, isCategoryAvailable } from '@/shared/domain/categoryHierarchy'
 import type { Clock, IdGenerator } from '@/shared/domain/runtime'
 import { cryptoIdGenerator, systemClock } from '@/shared/domain/runtime'
-import type {
-  ActionReceipt,
-  ActionType,
-  FocusSession,
-  HabitRecord,
-  Transaction,
-} from '@/shared/domain/types'
+import type { ActionReceipt, ActionType, FocusSession, HabitRecord } from '@/shared/domain/types'
 import { AppError } from '@/shared/errors/AppError'
 import { logger } from '@/shared/logging/logger'
 import {
   actionReceiptSchema,
   focusSessionSchema,
   habitRecordSchema,
-  transactionSchema,
 } from '@/shared/validation/schemas'
 
-import type { ParsedAction } from './actionParser'
+import type { ParsedAction, EnabledActionType } from './actionParser'
 
-export type ActionDestination = '/finance' | '/habits' | '/focus'
+export type ActionDestination = '/habits' | '/focus'
 
 export type ActionInspection =
   | { status: 'handled'; destination: ActionDestination }
@@ -30,7 +22,6 @@ export type ActionInspection =
       status: 'ready'
       referenceLabel: string
       alreadySatisfied: boolean
-      categoryUnavailable?: boolean
     }
 
 export interface ActionExecutionResult {
@@ -38,8 +29,7 @@ export interface ActionExecutionResult {
   destination: ActionDestination
 }
 
-function destinationFor(actionType: ActionType): ActionDestination {
-  if (actionType === 'add-transaction') return '/finance'
+function destinationFor(actionType: EnabledActionType): ActionDestination {
   if (actionType === 'check-habit') return '/habits'
   return '/focus'
 }
@@ -51,9 +41,13 @@ export class ActionService {
     private readonly idGenerator: IdGenerator = cryptoIdGenerator,
   ) {}
 
-  async inspect(action: ParsedAction, allowCategoryRepair = false): Promise<ActionInspection> {
+  async inspect(action: ParsedAction): Promise<ActionInspection> {
     logger.info('action.inspect.started', { operation: 'inspect', actionType: action.type })
     try {
+      // Reject stale callers at the runtime boundary instead of executing a different action.
+      if (action.type !== 'check-habit' && action.type !== 'start-focus') {
+        throw new AppError('Validation', 'Unsupported link action')
+      }
       const receipt = await this.database.actionReceipts.get(action.actionId)
       if (receipt) {
         this.assertReceiptType(receipt, action.type)
@@ -67,32 +61,7 @@ export class ActionService {
 
       let referenceLabel: string
       let alreadySatisfied = false
-      if (action.type === 'add-transaction') {
-        const categories = await this.database.categories.toArray()
-        const category = await this.database.categories.get(action.draft.categoryId)
-        if (
-          !category ||
-          !isCategoryAvailable(category, categories) ||
-          category.domain !== 'finance' ||
-          category.transactionType !== action.draft.type
-        ) {
-          // Only the editable transaction preview may recover; execute still rejects invalid references atomically.
-          if (allowCategoryRepair) {
-            logger.info('action.inspect.repairrequired', {
-              operation: 'inspect',
-              actionType: action.type,
-            })
-            return {
-              status: 'ready',
-              referenceLabel: '请选择有效分类',
-              alreadySatisfied: false,
-              categoryUnavailable: true,
-            }
-          }
-          throw new AppError('Validation', 'Action category is unavailable')
-        }
-        referenceLabel = categoryDisplayName(category.id, categories)
-      } else if (action.type === 'check-habit') {
+      if (action.type === 'check-habit') {
         const habit = await this.database.habits.get(action.habitId)
         if (!habit || habit.status !== 'active' || !isHabitScheduled(habit, action.localDate)) {
           throw new AppError('Validation', 'Action habit is unavailable')
@@ -132,12 +101,14 @@ export class ActionService {
   async execute(action: ParsedAction): Promise<ActionExecutionResult> {
     logger.info('action.execute.started', { operation: 'execute', actionType: action.type })
     try {
+      // Reject stale callers at the runtime boundary instead of executing a different action.
+      if (action.type !== 'check-habit' && action.type !== 'start-focus') {
+        throw new AppError('Validation', 'Unsupported link action')
+      }
       const result =
-        action.type === 'add-transaction'
-          ? await this.executeTransaction(action)
-          : action.type === 'check-habit'
-            ? await this.executeHabit(action)
-            : await this.executeFocus(action)
+        action.type === 'check-habit'
+          ? await this.executeHabit(action)
+          : await this.executeFocus(action)
       logger.info(`action.execute.${result.status}`, {
         operation: 'execute',
         actionType: action.type,
@@ -147,45 +118,6 @@ export class ActionService {
     } catch (error) {
       this.throwFailure('action.execute.failed', 'execute', action.type, error)
     }
-  }
-
-  private async executeTransaction(
-    action: Extract<ParsedAction, { type: 'add-transaction' }>,
-  ): Promise<ActionExecutionResult> {
-    return this.database.transaction(
-      'rw',
-      this.database.categories,
-      this.database.transactions,
-      this.database.actionReceipts,
-      async () => {
-        const handled = await this.handledResult(action.actionId, action.type)
-        if (handled) return handled
-        const category = await this.database.categories.get(action.draft.categoryId)
-        if (
-          !category ||
-          !isCategoryAvailable(category, await this.database.categories.toArray()) ||
-          category.domain !== 'finance' ||
-          category.transactionType !== action.draft.type
-        ) {
-          throw new AppError('Validation', 'Action category is unavailable')
-        }
-
-        const now = this.clock.now()
-        const timestamp = now.toISOString()
-        const parsed = transactionSchema.safeParse({
-          ...action.draft,
-          id: this.idGenerator.next(),
-          currency: 'CNY',
-          createdAt: timestamp,
-          updatedAt: timestamp,
-        })
-        if (!parsed.success) throw new AppError('Validation', 'Action transaction is invalid')
-        const transaction = parsed.data as Transaction
-        await this.database.transactions.add(transaction)
-        await this.addReceipt(action, transaction.id, timestamp)
-        return { status: 'created', destination: '/finance' }
-      },
-    )
   }
 
   private async executeHabit(
@@ -279,7 +211,7 @@ export class ActionService {
 
   private async handledResult(
     actionId: string,
-    actionType: ActionType,
+    actionType: EnabledActionType,
   ): Promise<ActionExecutionResult | undefined> {
     const receipt = await this.database.actionReceipts.get(actionId)
     if (!receipt) return undefined

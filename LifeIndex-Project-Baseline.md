@@ -14,7 +14,7 @@
 
 ## 2. 产品定义
 
-2026-09-20 Ocean 发布顺序补充：用户批准先部署 2.2.0/V4，再在 iPhone 验收。Mac 快捷指令测试不作为发布前置，自动化与线上检查不豁免；原生快捷模板和设备结果仍待验证。见 [ADR-0015](docs/adr/0015-ocean-deploy-before-device-acceptance.md)。
+2026-09-20：2.2.0/V4 已部署，设备验收按 ADR-0015 进行；当前产品范围按 ADR-0017 收敛，见 PLAN.md。
 
 2026-09-14 V2 验收补充：用户授权以浏览器模拟和自动化测试替代本次发布的真机验收门槛，继续完成发布与目标。详见 [ADR-0008](docs/adr/0008-v2-automated-acceptance.md)。真机专属测试保留为延期事项，不记为通过。
 
@@ -149,43 +149,13 @@ lifeindex-backup-YYYY-MM-DD-HHmm.json
 4. 恢复至 IndexedDB。
 5. 显示恢复结果。
 
-通过 iOS Files / Share 将备份保存至 iCloud Drive。后续可研究 iOS Shortcuts 辅助定期备份，但备份机制本身不能依赖 Shortcuts 才能工作。
+通过 iOS Files / Share 将备份保存至 iCloud Drive。
 
 ---
 
-## 6. iOS Shortcuts
+## 6. 应用内记录与链接边界
 
-从架构上预留 URL Action 机制，使快捷指令/Siri 能触发高频操作。
-
-```text
-iOS Shortcut
-     │
-     ├── Amount: 35
-     ├── Category: Food
-     └── Note: Lunch
-     │
-     ▼
-Open LifeIndex URL
-     │
-     ▼
-?action=addTransaction&amount=35&category=food&note=Lunch
-     │
-     ▼
-LifeIndex 校验 Action
-     │
-     ▼
-IndexedDB
-```
-
-未来可支持：
-
-- 快速记账
-- 快速打卡
-- 开始/结束专注
-- 快速日记
-- 快速记录想法
-
-实现时考虑输入校验、重复提交和 URL 参数安全。
+记账仅由应用内表单确认保存。习惯打卡和开始专注的现有链接操作保留严格校验、显式确认和原子回执。历史回执按旧数据兼容契约保留，不自动创建业务记录。
 
 ---
 
@@ -512,7 +482,6 @@ LifeIndex 应更像现代私人产品，而不是企业 Dashboard 或传统财�
 11  Today
 12  Backup / Restore
 13  Offline / Service Worker
-14  iOS Shortcuts Integration
 15  Testing & Data Safety
 16  Polish / Installable Release
 ```

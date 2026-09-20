@@ -157,7 +157,7 @@ V0 and V1 inputs appear in the preview as canonical V2 after migration. The UI m
 
 ## 9. URL Actions
 
-The three V1 fragment actions remain unchanged: add transaction, check habit, start focus. The route shows a preview, validates again on confirmation, writes business record and receipt atomically, then replaces the fragment with a safe destination/result route. Health adds no action in V2.
+The enabled fragment actions are check habit and start focus. Financial entry uses the in-app form. The route shows a preview, validates again on confirmation, writes business record and receipt atomically, then replaces the fragment with a safe destination/result route. Health adds no action in V2.
 
 ## 10. Global states and overlays
 

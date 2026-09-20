@@ -16,7 +16,6 @@ import { usePwa } from '@/pwa/PwaContext'
 import { useDirtyForm } from '@/pwa/useDirtyForm'
 import { ConfirmDialog } from '@/shared/ui/ConfirmDialog'
 import { Icon, type IconName } from '@/shared/ui/Icon'
-import { exportShortcutCategoryConfig } from '@/features/settings/shortcutConfig'
 
 const appearances: Array<{ value: Appearance; label: string }> = [
   { value: 'system', label: '跟随系统' },
@@ -29,7 +28,6 @@ const detailTitles = {
   export: '导出备份',
   restore: '从备份恢复',
   about: '关于 LifeIndex',
-  shortcuts: '快捷记账',
 } as const
 type SettingsView = keyof typeof detailTitles | 'home'
 
@@ -141,29 +139,6 @@ export function SettingsPage({ view = 'home' }: { view?: SettingsView }) {
       } else {
         logger.error('settings.export.failed', caught, { operation: 'export' })
         setError('备份未能导出，本地数据没有改变。请重试。')
-      }
-    } finally {
-      finishOperation()
-    }
-  }
-
-  async function exportShortcutConfig() {
-    if (!beginOperation('shortcutconfig')) return
-    setError('')
-    setMessage('')
-    try {
-      // Read afresh at export time rather than using a possibly stale display projection.
-      await exportShortcutCategoryConfig(
-        await categories.list({ domain: 'finance', includeArchived: true }),
-      )
-      setMessage('分类配置已交给系统。请在文件 App 中确认保存，再在快捷指令中选择这份文件。')
-    } catch (caught) {
-      if (caught instanceof DOMException && caught.name === 'AbortError') {
-        setMessage('已取消导出分类配置，账本没有改变。')
-        logger.info('shortcut.config.cancelled', { operation: 'export' })
-      } else {
-        setError('分类配置未能导出。请确认至少有一个可用记账分类后重试，账本没有改变。')
-        logger.error('shortcut.config.exportfailed', caught, { operation: 'export' })
       }
     } finally {
       finishOperation()
@@ -413,38 +388,6 @@ export function SettingsPage({ view = 'home' }: { view?: SettingsView }) {
               <p>LifeIndex 不使用账户、分析服务或云端数据库。导出文件由你自行保管。</p>
             </section>
           ) : null}
-          {view === 'shortcuts' ? (
-            <section className="settings-detail" aria-label="快捷记账说明">
-              <p className="page-intro">从支付页面发起，回到 LifeIndex 确认后保存。</p>
-              <ol className="settings-steps">
-                <li>手动运行快捷指令，截取当前页面或分享支付截图</li>
-                <li>系统 OCR 提取金额与交易时间，由你核对或补填</li>
-                <li>在指令中选择收支、一级和二级分类</li>
-                <li>打开 LifeIndex，核对草稿并确认保存</li>
-              </ol>
-              <p>
-                不监听支付，不上传截图，也不会在后台直接写入账本。打开链接可能进入
-                Safari，必须先确认与主屏幕 App 使用同一账本。
-              </p>
-              <h2>分类配置</h2>
-              <p>
-                只包含有效的收支分类名称、层级与标识，不含账目。保存到 iCloud Drive
-                会同步这些分类名称；也可选择“我的
-                iPhone”。分类新增、改名或归档后，请重新导出并替换指令使用的文件。
-              </p>
-              <button
-                type="button"
-                className="button-primary"
-                disabled={working}
-                onClick={() => void exportShortcutConfig()}
-              >
-                {working ? '正在导出…' : '导出快捷记账分类'}
-              </button>
-              <p className="state-message">
-                分类配置可导出；安装模板和真机同账本验证尚未完成，暂未开放安装。导出配置不代表已安装或已记账。
-              </p>
-            </section>
-          ) : null}
         </>
       ) : null}
       {restoreConfirmation && preview ? (
@@ -504,13 +447,6 @@ function SettingsHome({ appearance }: { appearance: Appearance }) {
           title="戒烟计划"
           subtitle="查看历史与入口设置"
           tone="sage"
-        />
-        <SettingsRow
-          to="shortcuts"
-          icon="finance"
-          title="快捷记账"
-          subtitle="截图识别与使用说明"
-          tone="blue"
         />
         <SettingsRow
           to="about"

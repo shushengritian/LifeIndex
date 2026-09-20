@@ -65,7 +65,7 @@ After the first owner review, iPhone-polish commit `fc0cd7f` passed [branch CI r
 
 - Five destinations are Today/Finance/Focus/Health/Settings in order; `/habits` redirects to `/health`.
 - Internal icons have accessible labels through their controls and no network dependency.
-- Finance and Health add controls render geometric SVG icons; the Weight and Activity shortcuts expose accessible names without visible “记录” text.
+- Finance and Health add controls render geometric SVG icons; the Weight and Activity entries expose accessible names without visible “记录” text.
 - Light/dark/system, reduced motion, fatal startup, PWA status, and update/dirty-form behavior remain correct.
 
 ### Finance

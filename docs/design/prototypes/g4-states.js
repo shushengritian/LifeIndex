@@ -6,17 +6,12 @@ function deliveryState() {
     saving: false,
     update: 'ready',
     updateFail: false,
-    action: 'preview',
-    invalid: false,
-    actionFail: false,
-    handled: false,
   }
 }
 function deliveryTransition(s, event) {
   const next = { ...s }
   // Busy states reject competing controls; a result event alone completes the pending operation.
   if (s.update === 'busy' && event !== 'update-result') return next
-  if (s.action === 'busy' && event !== 'action-result') return next
   switch (event) {
     case 'network-toggle':
       next.offline = !s.offline
@@ -46,36 +41,6 @@ function deliveryTransition(s, event) {
     case 'update-reset':
       next.update = 'ready'
       break
-    case 'invalid':
-      next.invalid = !s.invalid
-      break
-    case 'action-fail':
-      next.actionFail = !s.actionFail
-      break
-    case 'confirm-action':
-      // Validation and deduplication happen before the synthetic write, including retry paths.
-      if (s.handled) next.action = 'duplicate'
-      else if (!s.invalid && ['preview', 'failed'].includes(s.action)) next.action = 'busy'
-      break
-    case 'action-result':
-      if (s.action === 'busy') {
-        next.action = s.actionFail ? 'failed' : 'done'
-        next.handled = !s.actionFail
-        next.actionFail = false
-      }
-      break
-    case 'cancel-action':
-      if (['preview', 'failed'].includes(s.action)) next.action = 'cancelled'
-      break
-    case 'reopen':
-      next.action = s.handled ? 'duplicate' : 'preview'
-      break
-    case 'action-reset':
-      next.action = 'preview'
-      next.handled = false
-      next.invalid = false
-      next.actionFail = false
-      break
   }
   return next
 }
@@ -88,7 +53,7 @@ if (typeof document !== 'undefined') {
   document.documentElement.dataset.theme =
     new URLSearchParams(location.search).get('theme') === 'dark' ? 'dark' : 'light'
   function renderDelivery() {
-    const locked = state.update === 'busy' || state.action === 'busy'
+    const locked = state.update === 'busy'
     const updateBlocked = state.dirty || state.saving || state.offline
     byId('network-status').innerHTML =
       `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M3 8a15 15 0 0 1 18 0M6 12a10 10 0 0 1 12 0M9 16a5 5 0 0 1 6 0"/><circle cx="12" cy="20" r="1"/>${state.offline ? '<path d="m3 3 18 18"/>' : ''}</svg><span>${state.offline ? '当前离线，仍可在本机记录。' : '已连接网络，记录仍保存在本机。'}</span>`
@@ -113,41 +78,12 @@ if (typeof document !== 'undefined') {
     const actionable = ['ready', 'failed'].includes(state.update)
     byId('update').hidden = byId('later').hidden = !actionable
     byId('update').disabled = locked || updateBlocked
-    const actionCopy = {
-      preview: ['确认后才记入账本', '不想记录可以取消，不会自动保存。'],
-      busy: ['正在记账…', '请稍候，不必再次点击。'],
-      failed: ['尚未记账', '内容已保留，请重试。'],
-      done: ['已记账 · 演示', '同一请求再次打开不会重复记账。'],
-      duplicate: ['这条请求已经处理', '没有新增重复记录，可以返回账本查看。'],
-      cancelled: ['已取消记账', '没有新增记录。重新打开后仍需你确认。'],
-    }[state.action]
-    const invalid = state.invalid && ['preview', 'failed'].includes(state.action)
-    byId('action-status').innerHTML =
-      `<strong class="state-title">${invalid ? '无法处理这条请求' : actionCopy[0]}</strong><span class="state-copy">${invalid ? '内容缺失或格式不正确。请检查快捷指令后重新生成，不会写入记录。' : actionCopy[1]}</span>`
-    const canConfirm = ['preview', 'failed'].includes(state.action)
-    byId('confirm-action').hidden = byId('cancel-action').hidden = !canConfirm
-    byId('confirm-action').textContent = state.action === 'failed' ? '重试记账' : '确认记账'
-    byId('confirm-action').disabled = locked || invalid
-    for (const id of [
-      'network-toggle',
-      'later',
-      'dirty',
-      'saving',
-      'update-fail',
-      'update-reset',
-      'invalid',
-      'action-fail',
-      'cancel-action',
-      'reopen',
-      'action-reset',
-    ])
+    for (const id of ['network-toggle', 'later', 'dirty', 'saving', 'update-fail', 'update-reset'])
       byId(id).disabled = locked
     for (const [id, key] of [
       ['dirty', 'dirty'],
       ['saving', 'saving'],
       ['update-fail', 'updateFail'],
-      ['invalid', 'invalid'],
-      ['action-fail', 'actionFail'],
     ])
       byId(id).checked = state[key]
   }
@@ -155,14 +91,11 @@ if (typeof document !== 'undefined') {
     state = deliveryTransition(state, event)
     log(event)
     renderDelivery()
-    if (
-      (event === 'update' && state.update === 'busy') ||
-      (event === 'confirm-action' && state.action === 'busy')
-    ) {
+    if (event === 'update' && state.update === 'busy') {
       // Simulated latency exposes disabled/loading states. Failure consumes only the armed test flag.
       setTimeout(() => {
-        send(event === 'update' ? 'update-result' : 'action-result')
-        const target = event === 'update' ? 'update-status' : 'action-status'
+        send('update-result')
+        const target = 'update-status'
         byId(target).tabIndex = -1
         byId(target).focus()
       }, 450)
@@ -179,8 +112,8 @@ if (typeof document !== 'undefined') {
     }
     send(button.id)
     // Removing an action after cancel/defer must not strand keyboard focus on the document body.
-    if (['later', 'cancel-action'].includes(button.id)) {
-      const target = byId(button.id === 'later' ? 'update-status' : 'action-status')
+    if (button.id === 'later') {
+      const target = byId('update-status')
       target.tabIndex = -1
       target.focus()
     }

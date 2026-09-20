@@ -13,4 +13,4 @@
 
 预览：`http://127.0.0.1:4176/g4-app.html?view=settings&section=categories&theme=light&review=icon-library`。进入一级分类→新增二级分类→切换图标分组。
 
-G4 整体验收仍未完成，真实快捷指令未制作，不跨越生产实现门禁。
+G4 整体验收仍未完成，不跨越生产实现门禁。

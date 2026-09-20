@@ -16,7 +16,6 @@ const routes = [
   '/settings/export',
   '/settings/restore',
   '/settings/about',
-  '/settings/shortcuts',
 ]
 
 for (const theme of ['light', 'dark'] as const) {

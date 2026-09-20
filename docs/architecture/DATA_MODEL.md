@@ -165,7 +165,7 @@ type Setting =
 
 ## 10. ActionReceipt
 
-The V1 shape and types remain unchanged: `add-transaction`, `check-habit`, `start-focus`. Receipt and business mutation are atomic. V2 adds no Health action type.
+Historical receipt fields remain compatible with old backups. Only habit/focus actions can execute at runtime; legacy financial receipt values are validated and restored as data, not executable operations. Receipt and business mutation remain atomic.
 
 ## 11. Referential and uniqueness integrity
 

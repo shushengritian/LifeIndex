@@ -13,7 +13,7 @@ This is an explicit change to the release acceptance gate, not evidence that the
 ## Decision
 
 - Accept the implemented V1 scope as the owner's first release, subject to successful final automated gates, Pages deployment, tag, and release handoff.
-- Record only phone-browser opening as user-confirmed. The device model, iOS version, Home Screen installation, full navigation, persistence/suspension, airplane-mode use, Files/iCloud restore, Shortcuts, and physical update transition remain unverified.
+- Record only phone-browser opening as user-confirmed. The device model, iOS version, Home Screen installation, full navigation, persistence/suspension, airplane-mode use, Files/iCloud restore, and physical update transition remain unverified.
 - Track those checks in `docs/project/POST_V1_BACKLOG.md` and retain the executable checklist in `docs/operations/IPHONE_ACCEPTANCE.md`. They no longer block this owner-accepted `v1.0.0`; they must not be relabeled as verified or silently removed.
 - Retain all automated quality gates and the already documented Playwright WebKit offline-reload limitation. This decision does not waive a known data-loss/privacy defect or authorize weakening tests.
 - Release `1.0.0` with the same business logic, dependency graph, IndexedDB schema V1, and backup format V1 as `0.1.1`. Only application/test version metadata, verification comments, and release documentation change.

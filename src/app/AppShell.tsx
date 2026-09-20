@@ -34,7 +34,6 @@ export function AppShell() {
       <NavigationGuard />
       <header className="app-header">
         <span className="context-title">{section}</span>
-        <span className="local-badge">仅本机</span>
       </header>
 
       <PwaStatus />

@@ -7,30 +7,10 @@ import { FIXED_NOW } from '../fixtures/builders'
 const ACTION_ID = '00000000-0000-4000-8000-000000000101'
 
 describe('fragment URL action parser', () => {
-  it('canonicalizes an expense without binary money arithmetic', () => {
-    const now = new Date(FIXED_NOW)
-    const result = parseActionRoute(
-      'add-transaction',
-      `?actionId=${ACTION_ID}&amount=35.10&categoryId=category-finance-expense-food-v1&note=%E5%90%88%E6%88%90%E5%8D%88%E9%A4%90`,
-      now,
+  it('rejects a retired financial action before reading its payload', () => {
+    expect(parseActionRoute('add-transaction', '?actionId=' + ACTION_ID + '&amount=35.10')).toEqual(
+      { ok: false, reason: 'UnknownAction' },
     )
-
-    expect(result).toEqual({
-      ok: true,
-      action: {
-        type: 'add-transaction',
-        actionId: ACTION_ID,
-        draft: {
-          type: 'expense',
-          amountMinor: 3510,
-          categoryId: 'category-finance-expense-food-v1',
-          occurredAt: FIXED_NOW,
-          localDate: toLocalDateKey(now),
-          timezoneOffsetMinutes: now.getTimezoneOffset(),
-          note: '合成午餐',
-        },
-      },
-    })
   })
 
   it('defaults habit date and focus duration at parse time', () => {
@@ -62,12 +42,7 @@ describe('fragment URL action parser', () => {
 
   it.each([
     ['unknown action', 'delete-everything', `?actionId=${ACTION_ID}`, 'UnknownAction'],
-    [
-      'unknown field',
-      'add-transaction',
-      `?actionId=${ACTION_ID}&amount=1&categoryId=category-finance-expense-food-v1&extra=1`,
-      'InvalidField',
-    ],
+    ['unknown field', 'start-focus', `?actionId=${ACTION_ID}&title=test&extra=1`, 'InvalidField'],
     [
       'duplicate field',
       'check-habit',
@@ -79,12 +54,6 @@ describe('fragment URL action parser', () => {
       'start-focus',
       `?actionId=${ACTION_ID}&title=%E0%A4%A`,
       'MalformedEncoding',
-    ],
-    [
-      'invalid money',
-      'add-transaction',
-      `?actionId=${ACTION_ID}&amount=0.001&categoryId=category-finance-expense-food-v1`,
-      'InvalidField',
     ],
     [
       'uppercase UUID',

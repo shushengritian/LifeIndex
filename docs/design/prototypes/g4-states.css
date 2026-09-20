@@ -84,31 +84,9 @@ section {
 .test-tools button {
   display: block;
 }
-.preview {
-  margin: 18px 0 10px;
-  padding: 8px 16px;
-  background: var(--surface);
-  border-radius: 14px;
-}
-.preview div {
-  display: flex;
-  justify-content: space-between;
-  gap: 18px;
-  padding: 10px 0;
-}
-.preview dt {
-  color: var(--muted);
-  font-size: 14px;
-}
-.preview dd {
-  margin: 0;
-  font-weight: 550;
-  overflow-wrap: anywhere;
-}
 .helper {
   font-size: 12px;
 }
-#action-status,
 #update-status {
   margin-top: 14px;
   line-height: 1.65;

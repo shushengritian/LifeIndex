@@ -97,7 +97,7 @@ Create/update validates the Activity category inside the same read/write transac
 
 ### Retained repositories
 
-TransactionRepository, HabitRepository, FocusRepository, CategoryRepository, SettingsRepository, and ActionService retain their V1 contracts. CategoryDomain expands to `activity`; Activity categories have no `transactionType`. Category reorder remains limited to one matching domain/type/archive group.
+Repositories retain their data-safety contracts. ActionService supports habit/focus links only; persisted legacy receipt validation remains compatible. CategoryDomain expands to `activity`; Activity categories have no `transactionType`. Category reorder remains limited to one matching domain/type/archive group.
 
 ## 5. Health projections
 

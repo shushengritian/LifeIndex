@@ -27,38 +27,48 @@ async function setup() {
   return { database, service: new ActionService(database, clock, ids) }
 }
 
-function transactionAction(actionId = '00000000-0000-4000-8000-000000000111'): ParsedAction {
+function focusAction(actionId = '00000000-0000-4000-8000-000000000111'): ParsedAction {
   return {
-    type: 'add-transaction',
+    type: 'start-focus',
     actionId,
-    draft: {
-      type: 'expense',
-      amountMinor: 3510,
-      categoryId: 'category-finance-expense-food-v1',
-      occurredAt: FIXED_NOW,
-      localDate: '2026-09-03',
-      timezoneOffsetMinutes: -480,
-      note: '合成动作账目',
-    },
+    draft: { title: '合成专注', plannedDurationSeconds: 1500 },
   }
 }
 
 describe('atomic URL action execution', () => {
-  it('writes one transaction and one receipt, then deduplicates the same action ID', async () => {
+  it('rejects a retired action at both service boundaries without writes', async () => {
     const { database, service } = await setup()
-    const action = transactionAction()
-
-    expect(await service.inspect(action)).toMatchObject({ status: 'ready', referenceLabel: '餐饮' })
+    // Deliberately bypass static typing to model a stale external caller.
+    const retired = {
+      type: 'add-transaction',
+      actionId: crypto.randomUUID(),
+      draft: {},
+    } as unknown as ParsedAction
+    await expect(service.inspect(retired)).rejects.toMatchObject({ failureClass: 'Validation' })
+    await expect(service.execute(retired)).rejects.toMatchObject({ failureClass: 'Validation' })
     expect(await database.transactions.count()).toBe(0)
+    expect(await database.focusSessions.count()).toBe(0)
+    expect(await database.actionReceipts.count()).toBe(0)
+  })
+
+  it('writes one focus session and one receipt, then deduplicates the same action ID', async () => {
+    const { database, service } = await setup()
+    const action = focusAction()
+
+    expect(await service.inspect(action)).toMatchObject({
+      status: 'ready',
+      referenceLabel: '未分类',
+    })
+    expect(await database.focusSessions.count()).toBe(0)
     await expect(service.execute(action)).resolves.toEqual({
       status: 'created',
-      destination: '/finance',
+      destination: '/focus',
     })
     await expect(service.execute(action)).resolves.toEqual({
       status: 'handled',
-      destination: '/finance',
+      destination: '/focus',
     })
-    expect(await database.transactions.count()).toBe(1)
+    expect(await database.focusSessions.count()).toBe(1)
     expect(await database.actionReceipts.count()).toBe(1)
   })
 
@@ -121,12 +131,13 @@ describe('atomic URL action execution', () => {
     ).rejects.toMatchObject({ failureClass: 'Validation' })
 
     const reused = '00000000-0000-4000-8000-000000000117'
-    await service.execute(transactionAction(reused))
+    await service.execute(focusAction(reused))
     await expect(
       service.inspect({
-        type: 'start-focus',
+        type: 'check-habit',
         actionId: reused,
-        draft: { title: '合成冲突', plannedDurationSeconds: 1500 },
+        habitId: '00000000-0000-4000-8000-000000000299',
+        localDate: '2026-09-03',
       }),
     ).rejects.toMatchObject({ failureClass: 'Validation' })
   })
@@ -137,10 +148,10 @@ describe('atomic URL action execution', () => {
       new Error('SyntheticReceiptFailure'),
     )
 
-    await expect(service.execute(transactionAction())).rejects.toMatchObject({
+    await expect(service.execute(focusAction())).rejects.toMatchObject({
       failureClass: 'DatabaseWrite',
     })
-    expect(await database.transactions.count()).toBe(0)
+    expect(await database.focusSessions.count()).toBe(0)
     expect(await database.actionReceipts.count()).toBe(0)
   })
 })

@@ -165,7 +165,7 @@ it('invalidates a preview when the same actionId is reused with another habit', 
   await act(async () => {
     await router.navigate(`/action/check-habit?${params}`)
   })
-  expect(screen.getByRole('heading', { name: '正在检查快捷动作' })).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: '正在检查链接操作' })).toBeInTheDocument()
   expect(screen.queryByRole('button', { name: '确认完成习惯' })).not.toBeInTheDocument()
   await act(async () => release())
   await screen.findByText('合成第二项习惯')

@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.2.1] - 2026-09-20
+
+- Simplify category management: compact root rows and name-only child categories.
+- Simplify the app header and remove external financial entry UI, runtime, authoring scripts and planning artifacts. Preserve existing records and legacy backup compatibility.
+- Keep database and backup V4 unchanged; release verification and device boundaries are recorded in [2.2.1 delivery notes](docs/releases/v2.2.1.md).
+
 All notable LifeIndex changes will be documented here. The project follows Semantic Versioning once the first release candidate is created.
 
 ## [2.2.0] - 2026-09-20
@@ -8,7 +14,7 @@ All notable LifeIndex changes will be documented here. The project follows Seman
 - Add two-level Finance categories, 42 category icons, daily expense charts, complete Health histories, interactive Habit heatmaps and refined cessation/focus flows.
 - Return Today quick-entry saves and cancellations to their source; preserve ordinary calendar editing context.
 - Upgrade IndexedDB/backup to V4 with tested legacy migration. Remain local-first with no backend or cloud OCR.
-- Owner approved App deployment before physical-iPhone acceptance (ADR-0015). Native screenshot Shortcut testing and installation delivery remain pending; no verified template is advertised.
+- Owner approved App deployment before physical-iPhone acceptance (ADR-0015).
 - See [release and update guidance](docs/releases/v2.2.0.md). Deployment evidence is recorded separately from device acceptance.
 
 ## [2.1.1] - 2026-09-15
@@ -49,7 +55,7 @@ All notable LifeIndex changes will be documented here. The project follows Seman
 
 ### Fixed
 
-- Finance and Health circular add controls now use an optically centered geometric icon, including icon-only Weight and Activity card shortcuts with accessible names.
+- Finance and Health circular add controls now use an optically centered geometric icon, including icon-only Weight and Activity card entries with accessible names.
 - Native date/time controls now fill the same form-column width as adjacent inputs on iOS.
 
 ### Verification
@@ -88,7 +94,7 @@ All notable LifeIndex changes will be documented here. The project follows Seman
 - Settings workflows for persisted appearance, Finance category creation/rename/reorder/archive/restore, Habits management, app/storage/privacy status, and browser backup export/preview/replace.
 - Route-level lazy loading for bounded production JavaScript chunks.
 - Original LifeIndex Home Screen/PWA icon set, complete manifest metadata, base-path-safe Apple touch icon, explicit offline/cache status, and a user-controlled update prompt protected by shared dirty-form tracking.
-- Preview-first fragment URL Actions for adding transactions, checking habits, and starting Focus, with strict parsing, atomic entity-plus-receipt writes, durable deduplication, and fragment cleanup.
+- Preview-first fragment URL Actions for checking habits and starting Focus, with strict parsing, atomic entity-plus-receipt writes, durable deduplication, and fragment cleanup.
 - M7 release hardening for corrupted/future backups, 500-record recovery, injected storage failure, network/log privacy, 320 px touch layout, reduced motion, full-route accessibility, dark-theme contrast, and root/subpath production builds.
 - Least-privilege GitHub CI/Pages workflows plus deployment, rollback, live-smoke, and physical-iPhone acceptance runbooks.
 - Post-deployment Chromium/WebKit smoke automation for the live Pages base path, assets, manifest/worker scope, routes, local persistence, fragment privacy, and offline behavior.

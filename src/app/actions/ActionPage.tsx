@@ -8,11 +8,12 @@ import {
   type ActionInspection,
   type ActionDestination,
 } from '@/app/actions/ActionService'
-import { parseActionRoute, type ParsedAction } from '@/app/actions/actionParser'
-import { formatMoney } from '@/shared/domain/money'
-import type { ActionType } from '@/shared/domain/types'
+import {
+  parseActionRoute,
+  type ParsedAction,
+  type EnabledActionType,
+} from '@/app/actions/actionParser'
 import { logger } from '@/shared/logging/logger'
-import { TransactionActionEditor } from './TransactionActionEditor'
 import { usePwa } from '@/pwa/PwaContext'
 
 type PageState =
@@ -36,14 +37,12 @@ type PageState =
       inspection: Extract<ActionInspection, { status: 'ready' }>
     }
 
-const actionLabels: Record<ActionType, string> = {
-  'add-transaction': '新增账目',
+const actionLabels: Record<EnabledActionType, string> = {
   'check-habit': '完成习惯',
   'start-focus': '开始专注',
 }
 
-const destinationLabels: Record<ActionType, { to: ActionDestination; label: string }> = {
-  'add-transaction': { to: '/finance', label: '前往记账' },
+const destinationLabels: Record<EnabledActionType, { to: ActionDestination; label: string }> = {
   'check-habit': { to: '/habits', label: '前往习惯' },
   'start-focus': { to: '/focus', label: '前往专注' },
 }
@@ -57,7 +56,7 @@ export function ActionPage() {
   const parsed = useMemo(() => parseActionRoute(actionType, search), [actionType, search])
   const [state, setState] = useState<PageState>({ status: 'checking' })
   const { setFormDirty } = usePwa()
-  const guard = useRef(Symbol('shortcut-write'))
+  const guard = useRef(Symbol('url-action-write'))
   const writeLock = useRef(false)
   const generation = useRef(0)
 
@@ -78,8 +77,6 @@ export function ActionPage() {
       navigate('/action-result?status=invalid', { replace: true })
       return
     }
-    // Transaction drafts have their own editable preview and recover invalid categories without losing input.
-    if (parsed.action.type === 'add-transaction') return
 
     let active = true
     void service
@@ -107,21 +104,11 @@ export function ActionPage() {
     }
   }, [navigate, parsed, service])
 
-  if (parsed.ok && parsed.action.type === 'add-transaction') {
-    return (
-      <TransactionActionEditor
-        key={`${actionType}:${search}`}
-        action={parsed.action}
-        service={service}
-      />
-    )
-  }
   // A reused actionId does not imply identical payload: never expose an old inspection for a new parsed action.
   if (!parsed.ok || state.status === 'checking' || state.action !== parsed.action) {
     return (
       <section className="page action-page" aria-labelledby="action-loading-title">
-        <p className="eyebrow">shortcut</p>
-        <h1 id="action-loading-title">正在检查快捷动作</h1>
+        <h1 id="action-loading-title">正在检查链接操作</h1>
         <p className="state-message">确认本机引用与处理状态后才会显示预览。</p>
       </section>
     )
@@ -183,7 +170,6 @@ export function ActionPage() {
   const inspection = state.inspection
   return (
     <section className="page action-page" aria-labelledby="action-title">
-      <p className="eyebrow">shortcut preview</p>
       <h1 id="action-title">{actionLabels[parsed.action.type]}</h1>
       <p className="page-intro">请检查以下内容。打开链接本身不会写入任何记录。</p>
 
@@ -229,24 +215,6 @@ function ActionSummary({
   action: ParsedAction
   inspection: Extract<ActionInspection, { status: 'ready' }>
 }) {
-  if (action.type === 'add-transaction') {
-    return (
-      <dl className="action-summary">
-        <SummaryRow label="类型" value={action.draft.type === 'expense' ? '支出' : '收入'} />
-        <SummaryRow label="金额" value={formatMoney(action.draft.amountMinor)} />
-        <SummaryRow label="分类" value={inspection.referenceLabel} />
-        <SummaryRow
-          label="时间"
-          value={new Intl.DateTimeFormat('zh-CN', {
-            dateStyle: 'medium',
-            timeStyle: 'short',
-          }).format(new Date(action.draft.occurredAt))}
-        />
-        {action.draft.note ? <SummaryRow label="备注" value={action.draft.note} /> : null}
-      </dl>
-    )
-  }
-
   if (action.type === 'check-habit') {
     return (
       <>
@@ -284,14 +252,15 @@ export function ActionResultPage() {
   const { search } = useLocation()
   const parameters = new URLSearchParams(search)
   const rawType = parameters.get('type')
-  const type = rawType && Object.hasOwn(destinationLabels, rawType) ? (rawType as ActionType) : null
+  const type =
+    rawType && Object.hasOwn(destinationLabels, rawType) ? (rawType as EnabledActionType) : null
   const status = parameters.get('status')
   const title =
     status === 'handled'
-      ? '这个快捷动作已经处理过'
+      ? '这个链接操作已经处理过'
       : status === 'unavailable'
-        ? '这个快捷动作现在不可用'
-        : '无法识别这个快捷动作'
+        ? '这个链接操作现在不可用'
+        : '无法识别这个链接操作'
   const explanation =
     status === 'handled'
       ? 'LifeIndex 没有再次创建记录。动作地址已从历史中的当前条目移除。'
@@ -301,7 +270,6 @@ export function ActionResultPage() {
 
   return (
     <section className="page action-page" aria-labelledby="action-result-title">
-      <p className="eyebrow">shortcut</p>
       <h1 id="action-result-title">{title}</h1>
       <p className="page-intro">{explanation}</p>
       <Link

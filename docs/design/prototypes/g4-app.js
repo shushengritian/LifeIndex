@@ -876,9 +876,7 @@ window.addEventListener('message', (event) => {
 /* G4 batch A extends the approved shell only; all settings and safety steps below are disposable simulations. */
 // Only documented review destinations are accepted; URL content never becomes executable actions.
 let settingsSection =
-  ['categories', 'shortcuts'].includes(params.get('section')) && view === 'settings'
-    ? params.get('section')
-    : ''
+  params.get('section') === 'categories' && view === 'settings' ? params.get('section') : ''
 // Review links accept only owned group keys, never arbitrary object properties.
 if (Object.hasOwn(categoryGroups, params.get('group'))) categoryGroup = params.get('group')
 let themePreference = document.documentElement.dataset.theme
@@ -915,7 +913,7 @@ function settingsPage() {
     ${['支出分类', '收入分类', '专注分类', '运动分类'].map((name) => `<button data-g4="category-preview" data-value="${name}">${name}${icon('right', true)}</button>`).join('')}</div></details></section>
     <section class="settings-group"><h2>外观</h2>${settingRow('主题外观', { light: '浅色', dark: '深色', system: '跟随系统' }[themePreference], 'appearance', 'blue', 'settings-section', 'appearance')}</section>
     <section class="settings-group"><h2>数据与安全</h2>${settingRow('导出备份', '保留一份自己的数据', 'download', 'green', 'settings-section', 'export')}${settingRow('从备份恢复', '先检查内容，再确认替换', 'upload', 'blue', 'settings-section', 'restore')}<p class="group-note">原型不访问本机记录，也不读取真实备份。</p></section>
-    <section class="settings-group"><h2>其他</h2><button class="setting-row" data-cessation="open">${glyph('leaf', 'green')}<span class="meta"><strong>戒烟计划</strong><small>${cessationHidden ? '健康入口已隐藏 · 可在此恢复' : '查看历史与入口设置'}</small></span>${icon('right', true)}</button>${settingRow('快捷记账', '安装指令与使用说明', 'wallet', 'blue', 'settings-section', 'shortcuts')}${settingRow('关于 LifeIndex', '私人生活索引 · 设计预览', 'heart', 'purple', 'settings-section', 'about')}</section>`
+    <section class="settings-group"><h2>其他</h2><button class="setting-row" data-cessation="open">${glyph('leaf', 'green')}<span class="meta"><strong>戒烟计划</strong><small>${cessationHidden ? '健康入口已隐藏 · 可在此恢复' : '查看历史与入口设置'}</small></span>${icon('right', true)}</button>${settingRow('关于 LifeIndex', '私人生活索引 · 设计预览', 'heart', 'purple', 'settings-section', 'about')}</section>`
 }
 function detailHead(title) {
   return `<header class="detail-head"><button class="iconbtn" data-g4="settings-back" aria-label="返回设置">${icon('left')}</button><h1>${title}</h1></header>`
@@ -926,7 +924,6 @@ function settingsDetail() {
     export: '导出备份',
     restore: '从备份恢复',
     about: '关于 LifeIndex',
-    shortcuts: '快捷记账',
   }
   let content
   if (settingsSection === 'appearance') {
@@ -942,9 +939,6 @@ function settingsDetail() {
       .join(
         '',
       )}</div><p class="helper">仅应用于当前原型；刷新后重置。</p><button class="subtle-button" data-g4="arm-theme-failure">演示下一次切换失败</button>`
-  } else if (settingsSection === 'shortcuts') {
-    content = `<p class="detail-copy">从手机快捷指令发起一笔记录，回到 LifeIndex 确认后保存。</p><div class="safety-note">${icon('wallet')}<div><h2>快速记一笔</h2><p>拟支持输入金额与可选备注，然后在 App 选择一级/二级分类。不是支付监听，不会自动读取其他 App。</p></div></div><button class="primary" disabled aria-describedby="shortcut-availability">添加到快捷指令 · 待提供</button><p id="shortcut-availability" class="helper">设计预览：尚无可安装的共享链接，不会触发下载或安装。</p><ol class="backup-steps"><li>正式上线后点“添加到快捷指令”</li><li>在 iPhone 快捷指令中查看内容并确认添加</li><li>运行指令，输入金额，可选填备注</li><li>在 LifeIndex 选择分类并确认记账</li></ol><div class="safety-note"><div><h2>先验证，再开放安装</h2><p>需要完成快捷协议升级及 iPhone 测试，确认打开的是平时使用的账本。快捷指令不能直接写入网页的本地数据库。</p></div></div>`
-    log('shortcuts.guide_opened', 'settings')
   } else if (settingsSection === 'export') {
     content = `<p class="detail-copy">备份是一份可由你保管的数据副本。</p><div class="safety-note">${icon('history')}<div><h2>演示，不会生成文件</h2><p>正式产品会生成备份，再交给系统分享或保存。本页只说明流程，不能作为已有备份的证明。</p></div></div><ol class="backup-steps"><li>生成包含当前记录的备份</li><li>选择“存储到文件”或分享</li><li>在文件 App 中确认文件存在</li></ol><button class="primary" data-g4="export-preview">查看导出完成提示样式</button>`
   } else if (settingsSection === 'restore') {

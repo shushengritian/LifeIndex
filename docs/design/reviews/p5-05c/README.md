@@ -8,6 +8,6 @@
 - 内置浏览器：首页和主题页在浅/深主题、320/390/430 CSS px 下 document.scrollWidth 均等于 innerWidth；切换主题和返回路径正常。
 - [390px 浅色外观详情](appearance-light-390.png)。色块仅用于主题示意，不含业务数据。
 - 恢复失败与 busy 防重由合成 IndexedDB/jsdom 测试覆盖，不等同于系统文件选择器或原生对话框真机验证。
-- 未覆盖：本批未执行 E2E、线上 smoke、200% 放大或真实 iPhone；快捷指令模板/配置仍待交付，安装入口未开放。
+- 未覆盖：本批未执行 E2E、线上 smoke、200% 放大或真实 iPhone。
 
 手动参考 Impeccable 的状态/层级检查，并以已验收 G4 为视觉与交互依据；未运行其启动器。

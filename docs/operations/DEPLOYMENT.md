@@ -1,6 +1,6 @@
 # LifeIndex GitHub Pages Deployment Runbook
 
-> **2026-09-19 · Ocean candidate (not deployed):** ADR-0014 authorizes the complete redesign and normal GitHub/Pages delivery. The current source uses database/backup V4 while package metadata remains 2.1.1 pending release freeze. Follow [G5 release audit](../project/G5_RELEASE_AUDIT.md); the historical V2/V2.1 status below is not evidence that this candidate was released. `pnpm quality` now includes native-shortcut authoring checks (`pnpm test:shortcut`); those checks do not sign/install a shortcut or prove iOS behavior. Signing stays an explicit macOS operation on public templates only.
+> **当前：** 2.2.0/V4 已部署；后续本地修订未发布。部署前运行格式、lint、类型、单元/集成、生产构建与双引擎浏览器检查，再验证 Pages 子路径、版本、manifest 与 service worker。详见 [G5 审计](../project/G5_RELEASE_AUDIT.md)。
 
 > **2026-09-14 · V2.1 amendment:** V2.1 is local and unpublished. Before main push/deploy, obtain G2 publication authorization and confirmation of a fresh V2 backup, run normal quality/CI/Pages/live smoke, then record actual iPhone evidence or an explicitly scoped deferral. V3 IndexedDB is not downgraded by deploying V2 assets; do not clear user storage. Legacy restore warns that cessation data is replaced with empty collections. V2's ADR-0008 exemption does not automatically apply to V2.1.
 

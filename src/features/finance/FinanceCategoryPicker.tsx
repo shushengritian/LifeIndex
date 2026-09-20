@@ -49,9 +49,12 @@ export function FinanceCategoryPicker({
         aria-pressed={isRoot ? rootId === category.id : value === category.id}
         onClick={() => select(category.id)}
       >
-        <span className={`category-glyph tone-${category.color}`}>
-          <CategoryIcon name={category.icon} />
-        </span>
+        {/* Secondary categories are text-only; their stored styling remains backup-compatible. */}
+        {isRoot && (
+          <span className={`category-glyph tone-${category.color}`}>
+            <CategoryIcon name={category.icon} />
+          </span>
+        )}
         <span>{category.name}</span>
         {!available && <small>已归档</small>}
       </button>

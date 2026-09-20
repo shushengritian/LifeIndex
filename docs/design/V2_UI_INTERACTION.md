@@ -181,7 +181,7 @@ The recommended entry order is optimized for one hand:
 1. Expense/income segmented toggle.
 2. Large amount display with CNY context.
 3. Recent-first category grid followed by the remaining active categories.
-4. Compact date shortcut (“今天 10:28”) and optional note row.
+4. Compact date control (“今天 10:28”) and optional note row.
 5. Numeric keypad and a single primary save action.
 
 Interaction rules:
@@ -213,7 +213,7 @@ Health replaces Habits as the top-level destination and keeps three related reco
 3. Weekly activity section shows count, total duration, and recent sessions.
 4. Today's Habits section shows the completion count and existing one-tap rows.
 
-The add-record sheet offers exactly three routes: Record weight, Record activity, and Create habit. The Weight and Activity card shortcuts use the same conventional circular add icon, with explicit accessible names, instead of passive-looking “记录” text. Weight and activity details use route pages or focused sheets rather than expanding the overview into a dashboard.
+The add-record sheet offers exactly three routes: Record weight, Record activity, and Create habit. The Weight and Activity card entries use the same conventional circular add icon, with explicit accessible names, instead of passive-looking “记录” text. Weight and activity details use route pages or focused sheets rather than expanding the overview into a dashboard.
 
 ### 7.2 Habits
 
@@ -277,7 +277,7 @@ Use familiar inset grouped rows in this order:
 1. **Categories:** one standalone full-width group for Finance, Focus, and Health category/type management.
 2. **Appearance:** one standalone full-width group containing the Theme row.
 3. **Data & security:** device-only status, export, import, validation outcome, and clear-data action.
-4. **Other:** Shortcuts, update state, and About.
+4. **Other:** cessation plan and About.
 
 Appearance is not grouped with Categories: it is a separate section between Categories and Data & security. Categories initially shows one “分类管理” disclosure row; the create, reorder, rename, archive, and restore editor appears only after explicit expansion. Its collapsed state does not combine Categories with another group. The Appearance Theme row displays the current value on the trailing side. Tapping it opens a bottom sheet with System, Light, and Dark as three full-width options; changing an option previews the theme immediately and persists only after the user chooses it.
 

@@ -1,14 +1,15 @@
 # Ocean 重设计 LLD 与实现契约
 
+ADR-0017：AppShell 顶部仅保留上下文标题；设置详情白名单仅 appearance/export/restore/about。运行时 ParsedAction/EnabledActionType 只接受习惯与专注；解析和服务双边界拒绝其他类型。ActionType 与回执 schema 继续验证历史值以保证旧数据库/备份兼容，不能据此执行旧操作。交易只经应用内正常表单写入；无数据库迁移。
+
+ADR-0016：CategoryMore 是非模态披露，aria-expanded/controls 关联操作组，支持 Tab、Escape、失焦与外部点击关闭。触发编辑前焦点回到稳定的三点按钮，供 Sheet 卸载后恢复。CategoryEditor 接收可选 parent，新二级分类继承父 icon/color，旧二级分类保留既有值；只隐藏选择控件，不改变 V4 schema/备份。FinanceCategoryPicker 仅一级显示图标，二级使用 44px 最小高度文字标签。写入仍通过原仓库和同步锁，失败保持输入，日志不含名称/ID。
+
 P5-07b：check-habit/start-focus 的 ActionPage 提交使用同步 ref 锁并在事务前登记独立 busy token，取消/站内离开及更新受保护。成功先释放本 token 再导航；失败保留预览并释放；路由生命周期代次使卸载后完成不得再导航或释放新代次保护。预览绑定完整 ParsedAction 对象身份，而非仅 actionId；同 ID 更换参数必须等待新 inspect，不能显示旧习惯而执行新习惯。已提交事务不会因页面卸载自动撤销，收据去重仍由 ActionService 原子保证。
 
-P5-06f：原生开发候选消费配置 V1，逐项核对 ID、层级、可用性与收支；超过 1000 项时显式停止，避免双层遍历耗时失控。原生类型转换尚待设备确认，不把 JS 模型视为严格原生 schema 校验已通过。URL 仅含 actionId/amount/occurredAt/categoryId/type，分别编码后拼入固定站点 hash，不传分类名/OCR。每次运行生成一次数字组成的小写 UUID v4 格式请求标识；不是认证密钥，也不按截图去重。最终数据库有效性仍由 ActionService 执行时检查，配置文件不赋予写入权限。
 
-P5-06b：`ActionService.inspect(action, allowCategoryRepair=false)` 可选择返回 ready/categoryUnavailable，不更改 execute 校验或 actionReceipt 原子写入。TransactionActionEditor 复用 ParsedAction 契约，修正字段时不改 actionId，URL 字段仍沿用旧严格协议、未知字段继续拒绝；预览分类显示完整路径。guard release 标记防止保存结束 effect 重建已消费草稿保护。输入时间未变则保留 parser 生成的 occurredAt/localDate/offset，变更才按设备本地语义重建。
 
-P5-06a：分类配置格式与备份版本分离：`format: lifeindex-shortcut-categories`、`version: 1`、`categories` 数组。每项仅 `id/domain=finance/type=expense|income/name/parentId=null|string/available=true`。数组按同级 sortOrder/ID 稳定排序，父项先于子项；归档及父级归档项排除，层级损坏或无可用项拒绝生成。导出不会创建 actionReceipt 或修改账目；最终保存仍以当前数据库校验为准，配置不具备授权效力。文件名固定为 `lifeindex-shortcut-categories.json`。
 
-P5-05c：SettingsDetailPage 严格白名单解析 section（appearance/export/restore/about/shortcuts），未知值回设置；以 section 为 key 隔离临时预览/错误，跨页前由既有 NavigationGuard 阻止忙碌跳转或确认放弃预览。业务仓储和备份服务复用；不新增存储。视图日志仅使用白名单视图名。快捷说明尚不生成链接或写入记录。
+P5-05c：SettingsDetailPage 严格白名单解析 section（appearance/export/restore/about），未知值回设置；以 section 为 key 隔离临时预览/错误，跨页前由既有 NavigationGuard 阻止忙碌跳转或确认放弃预览。业务仓储和备份服务复用；不新增存储。视图日志仅使用白名单视图名。
 
 P5-05b：SettingsPage operationLock 在首个 await 前获取，finally 释放；与 working/global busy 同步。恢复确认仅成功后关闭，事务失败保留同一预览 token 供重试；恢复成功后的外观读取错误不进入事务失败提示。导出交接成功后的 lastSuccessfulExportAt 写失败作为独立元数据故障处理。无 schema/备份格式变更，恢复仍使用 BackupService 全表原子事务和预览 TTL。
 
@@ -63,19 +64,19 @@ P5-03c：FinanceCategoryPicker 由 categoryId 推导当前根级，不保存第�
 
 P5-03b：`categoryIcons.ts` 为稳定 ID/标签/分组/旧别名，`CategoryIcon.tsx` 以静态 JSX 渲染，不插入存储中的 SVG。V4 schema 支持旧标识与新 42 标识，V3 图标联合不变。`CategoryIconPicker` 的分组状态独立于选中值。`CategoryManager` 抽出 Settings，finance 根级点击进入子级，非 finance 直接编辑；编辑器 Sheet 用 ref 锁提交、dirty 确认与失败保留。`Sheet` 使用 body portal 绕开页面动画 containing block，并隔离背景、退出还原 inert；先前页面内定位实现由此替代。记账可用分类筛选采用继承归档规则，列表图标通过分类 ID 解析。
 
-P5-03a 已实现数据底座：Category.parentId、独立 V4 索引、冻结 categorySchemaV3 与 V4 备份迁移、父级完整性、有效归档状态、不可改父级与同父级排序。TransactionRepository 与 ActionService 拒绝新选不可用子级，历史编辑可保留原归档引用；expenseByCategory 汇总到根级。交易更新固定原 id/createdAt/currency，避免运行时额外字段改变身份。分类 UI 和新图标尚未接入，不把下面表格视作整体完成。
+P5-03a 已实现数据底座：Category.parentId、独立 V4 索引、冻结 categorySchemaV3 与 V4 备份迁移、父级完整性、有效归档状态、不可改父级与同父级排序。TransactionRepository 拒绝新选不可用子级，历史编辑可保留原归档引用；expenseByCategory 汇总到根级。交易更新固定原 id/createdAt/currency，避免运行时额外字段改变身份。分类 UI 和新图标尚未接入，不把下面表格视作整体完成。
 
 | 文件 | 输入/输出及不变量 |
 | --- | --- |
 | `shared/domain/types.ts` / `validation/schemas.ts` | Category 可选 parentId；类型、时间、颜色和稳定 ID 约束保留；图标兼容旧标识 |
 | `data/db/schema.ts` / `LifeIndexDatabase.ts` | 固定 V3 声明，新增 V4 声明与 parentId 索引，旧类别根级语义不改 |
 | `CategoryRepository.ts` | create 新增 parentId；父级在同一事务校验存在、根级、同收支类型且有效；update 不允许移动父级；reorder 限同父级 |
-| `TransactionRepository.ts` / `ActionService.ts` | 提交时检查有效父级；历史原引用可保留；相同 actionId 仍只产生一个结果 |
+| `TransactionRepository.ts` | 提交时检查有效父级；历史原引用可保留 |
 | `data/backup/schema.ts` / `BackupService.ts` | 冻结历史格式，转换 V4，校验父级缺失、环、自引用、第三级、跨域，覆盖仍为全库原子事务 |
 | `SettingsPage.tsx` | 一级列表→子级列表→名字/图标编辑；父级从上下文固定；根层与子层的归档筛选和返回位置独立 |
 | 新分类图标注册表 | 转写 G4 SVG 为类型化 React 数据；覆盖旧枚举别名，不用不受信任 HTML 注入；未知旧值安全回退并记录固定事件 |
 
-分类详情展示只引用 ID 查当前名称；改名不重写交易，根级总额并集不重复累加。配置导出只含分类版本/ID/父级/域/名称与状态，不混入用户交易。
+分类详情展示只引用 ID 查当前名称；改名不重写交易，根级总额并集不重复累加。
 
 ## 后续模块契约（待实施）
 
@@ -85,7 +86,7 @@ P5-04a：FocusPage 与 TodayPage 通过 useFocusCompletion 共用到点处理。
 - `FocusPage.tsx`：计时使用真实时间差，保持后台恢复语义，不加暂停；保存失败冻结已完成结果，重试不重复或继续增长。
 - `TodayPage.tsx`：聚合只读投影，快捷操作调用现有命令，不建立 Today 存储。
 - `SettingsPage.tsx`：分类/外观/数据与安全/其他四组，备份先解析预览再原子替换；主题写入失败恢复已保存主题。
-- `app/actions/*`：原有金额、时间、分类、actionId 协议先保持；确认页支持修正与无效分类恢复需另加明确用例，绝不通过 URL 自动提交。
+- `app/actions/*`：仅解析习惯与专注链接；未知类型在解析和执行边界拒绝，失败清理 URL，不能自动提交。
 
 ## 测试映射
 

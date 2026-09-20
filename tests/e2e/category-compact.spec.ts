@@ -1,0 +1,56 @@
+import AxeBuilder from '@axe-core/playwright'
+import { expect, test } from '@playwright/test'
+
+for (const theme of ['浅色', '深色']) {
+  test(`compact categories and name-only children in ${theme}`, async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 844 })
+    await page.goto('/#/settings/appearance')
+    await page.getByRole('button', { name: theme, exact: true }).click()
+    await expect(page.getByRole('button', { name: theme, exact: true })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+    await page.getByRole('link', { name: '返回设置', exact: true }).click()
+    await page.getByText('分类管理', { exact: true }).click()
+    const root = page.getByRole('button', { name: '餐饮', exact: true })
+    expect(await root.evaluate((e) => getComputedStyle(e).backgroundColor)).toBe('rgba(0, 0, 0, 0)')
+    const more = page.getByRole('button', { name: '更多 餐饮', exact: true })
+    const box = await more.boundingBox()
+    expect(box?.width).toBeGreaterThanOrEqual(44)
+    expect(box?.height).toBeGreaterThanOrEqual(44)
+    await expect(page.getByRole('button', { name: '归档 餐饮', exact: true })).toBeHidden()
+    await more.click()
+    await expect(page.getByRole('group', { name: '餐饮操作', exact: true })).toBeVisible()
+    await more.press('Escape')
+    await expect(more).toBeFocused()
+    await expect(more).toHaveAttribute('aria-expanded', 'false')
+    await more.click()
+    await page.getByRole('heading', { name: '设置', exact: true }).click()
+    await expect(more).toHaveAttribute('aria-expanded', 'false')
+    await root.click()
+    await page.getByRole('button', { name: '新增二级分类', exact: true }).click()
+    await expect(page.getByRole('group', { name: '图标颜色' })).toHaveCount(0)
+    await page.getByLabel('分类名称', { exact: true }).fill('合成早餐')
+    await page.getByRole('button', { name: '保存分类', exact: true }).click()
+    const child = page.getByRole('button', { name: '合成早餐', exact: true })
+    await expect(child).toBeVisible()
+    await expect(child.locator('svg')).toHaveCount(0)
+    await child.click()
+    await expect(page.getByRole('group', { name: '图标颜色' })).toHaveCount(0)
+    await page.getByLabel('分类名称', { exact: true }).fill('合成早餐修改')
+    await page.getByRole('button', { name: '保存分类', exact: true }).click()
+    await expect(page.getByRole('button', { name: '合成早餐修改', exact: true })).toBeVisible()
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
+    await page.getByRole('link', { name: '记账', exact: true }).click()
+    await page.getByRole('button', { name: '新增交易' }).click()
+    await page.getByRole('button', { name: '一级分类 餐饮', exact: true }).click()
+    const choice = page.getByRole('button', { name: '二级分类 合成早餐修改', exact: true })
+    await expect(choice.locator('svg')).toHaveCount(0)
+    await choice.click()
+    await expect(choice).toHaveAttribute('aria-pressed', 'true')
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
+    // Only synthetic labels are used; logs contain counts/theme, never a user category or amount.
+    console.info('category.compact.checked', { theme, count: 1 })
+  })
+}

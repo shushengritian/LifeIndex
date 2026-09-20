@@ -298,6 +298,7 @@ export const settingSchema = z.discriminatedUnion('key', [
 export const actionReceiptSchema = z
   .object({
     actionId: uuidSchema,
+    // Validate legacy receipts without enabling their retired runtime entry points.
     actionType: z.enum(['add-transaction', 'check-habit', 'start-focus']),
     handledAt: instantSchema,
     outcomeEntityId: uuidSchema,

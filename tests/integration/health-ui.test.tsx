@@ -61,7 +61,7 @@ describe('V2 Health user interface', () => {
     const addHealth = screen.getByRole('button', { name: '添加健康记录' })
     const addWeight = screen.getByRole('button', { name: '记录体重' })
     const addActivity = screen.getByRole('button', { name: '记录运动' })
-    // Icon-only shortcuts remain explicit to assistive technology without looking like passive copy.
+    // Icon-only entries remain explicit to assistive technology without looking like passive copy.
     expect(addHealth.querySelector('svg')).not.toBeNull()
     expect(addWeight.querySelector('svg')).not.toBeNull()
     expect(addActivity.querySelector('svg')).not.toBeNull()
@@ -192,16 +192,17 @@ describe('V2 Health user interface', () => {
     await user.click(within(categoryRegion).getByRole('button', { name: '餐饮' }))
     await user.click(within(categoryRegion).getByRole('button', { name: '新增二级分类' }))
     await user.type(screen.getByLabelText('分类名称'), '早餐测试')
-    await user.click(
-      within(screen.getByRole('form', { name: '分类编辑' })).getByRole('button', { name: '餐饮' }),
-    )
-    await user.click(screen.getByRole('button', { name: '图标 水果' }))
+    // Child creation is name-only; inherited styling keeps the existing V4 contract valid.
+    expect(screen.queryByRole('group', { name: '图标颜色' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '图标 水果' })).not.toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: '保存分类' }))
     expect(await screen.findByRole('button', { name: '早餐测试' })).toBeVisible()
     const child = await database.categories
       .where('parentId')
       .equals('category-finance-expense-food-v1')
       .first()
-    expect(child).toMatchObject({ name: '早餐测试', icon: 'fruit' })
+    const parent = await database.categories.get('category-finance-expense-food-v1')
+    expect(child).toMatchObject({ name: '早餐测试', icon: parent?.icon, color: parent?.color })
+    expect(screen.getByRole('button', { name: '早餐测试' }).querySelector('svg')).toBeNull()
   })
 })

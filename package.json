@@ -1,6 +1,6 @@
 {
   "name": "lifeindex",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "private": true,
   "type": "module",
   "description": "A calm local-first finance, focus, and health index for iPhone.",
@@ -22,8 +22,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:deployed": "playwright test --config playwright.deployed.config.ts",
-    "test:shortcut": "node scripts/check-shortcut-plist.mjs && node scripts/check-shortcut-payment.mjs && node scripts/check-shortcut-confirmation.mjs",
-    "quality": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm test:shortcut && pnpm build"
+    "quality": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build"
   },
   "dependencies": {
     "dexie": "4.4.5",

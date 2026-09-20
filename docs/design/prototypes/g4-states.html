@@ -30,9 +30,7 @@
           </svg>
         </button>
       </header>
-      <p class="intro">
-        离线、更新与快捷入口的交互审稿。所有结果都是内存演示，不更新应用、不读取链接内容、不写入真实记录。
-      </p>
+      <p class="intro">离线与更新的交互审稿。所有结果都是内存演示，不更新应用、不写入真实记录。</p>
       <section aria-labelledby="network-title">
         <h2 id="network-title">连接状态</h2>
         <div id="network-status" class="notice" role="status"></div>
@@ -56,49 +54,9 @@
           ><button id="update-reset" class="subtle-button">重新显示更新提示</button>
         </details>
       </section>
-      <section aria-labelledby="action-title">
-        <div class="sectionhead">
-          <h2 id="action-title">快捷入口</h2>
-          <span class="badge">待你确认</span>
-        </div>
-        <p class="intro">
-          来自快捷入口的内容先预览，确认后才记账。不展示原始链接；来源标签不代表已验证发送者身份。
-        </p>
-        <dl class="preview">
-          <div>
-            <dt>类型</dt>
-            <dd>支出</dd>
-          </div>
-          <div>
-            <dt>金额</dt>
-            <dd>¥ 18.00</dd>
-          </div>
-          <div>
-            <dt>分类</dt>
-            <dd>餐饮</dd>
-          </div>
-          <div>
-            <dt>备注</dt>
-            <dd>示例早餐</dd>
-          </div>
-        </dl>
-        <p class="helper">以上为固定合成样本，不来自手机快捷指令。</p>
-        <div id="action-status" role="status"></div>
-        <div class="actions">
-          <button id="confirm-action" class="primary">确认记账</button
-          ><button id="cancel-action" class="secondary">暂不记账</button>
-        </div>
-        <details class="test-tools">
-          <summary>快捷入口验证工具</summary>
-          <label><input id="invalid" type="checkbox" /> 模拟字段校验不通过</label
-          ><label><input id="action-fail" type="checkbox" /> 下一次记账失败</label
-          ><button id="reopen" class="subtle-button">再次打开同一示例</button
-          ><button id="action-reset" class="subtle-button">重置示例与去重状态</button>
-        </details>
-      </section>
       <footer>
         <a href="g4-review.html#delivery">返回整体审稿</a>
-        <p>刷新会重置样本。真实离线缓存、更新激活和跨刷新去重在生产开发阶段验证。</p>
+        <p>刷新会重置样本。真实离线缓存、更新激活在生产开发阶段验证。</p>
       </footer>
     </main>
   </body>

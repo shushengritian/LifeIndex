@@ -304,7 +304,7 @@ export function FinancePage({
   const categories = useMemo(() => new CategoryRepository(database), [database])
   const today = toLocalDateKey(new Date())
   const [selectedDate, setSelectedDate] = useState(today)
-  // The Today shortcut opens the existing guarded editor; ordinary calendar navigation stays closed.
+  // The Today entry opens the existing guarded editor; ordinary calendar navigation stays closed.
   const [formMode, setFormMode] = useState<'closed' | 'new'>(initialNew ? 'new' : 'closed')
   const [editing, setEditing] = useState<Transaction>()
   const [pageError, setPageError] = useState('')

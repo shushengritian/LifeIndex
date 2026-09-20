@@ -1,11 +1,10 @@
 import { z } from 'zod'
 
 import { toLocalDateKey } from '@/shared/domain/date'
-import { parseMoneyToMinor } from '@/shared/domain/money'
-import type { ActionType, TransactionType } from '@/shared/domain/types'
 import { logger } from '@/shared/logging/logger'
 
-const actionTypes = ['add-transaction', 'check-habit', 'start-focus'] as const
+const actionTypes = ['check-habit', 'start-focus'] as const
+export type EnabledActionType = (typeof actionTypes)[number]
 const actionIdSchema = z
   .uuid()
   .refine((value) => value === value.toLowerCase(), 'UUID must be lowercase')
@@ -21,17 +20,6 @@ const normalizedText = (maximum: number) =>
     .min(1)
     .max(maximum)
     .transform((value) => value.normalize('NFC'))
-
-const addTransactionSchema = z
-  .object({
-    actionId: actionIdSchema,
-    amount: z.string().trim().min(1).max(20),
-    categoryId: categoryIdSchema,
-    type: z.enum(['expense', 'income']).default('expense'),
-    occurredAt: z.iso.datetime({ offset: true }).optional(),
-    note: normalizedText(280).optional(),
-  })
-  .strict()
 
 const checkHabitSchema = z
   .object({
@@ -58,19 +46,6 @@ const startFocusSchema = z
 
 export type ParsedAction =
   | {
-      type: 'add-transaction'
-      actionId: string
-      draft: {
-        type: TransactionType
-        amountMinor: number
-        categoryId: string
-        occurredAt: string
-        localDate: string
-        timezoneOffsetMinutes: number
-        note?: string
-      }
-    }
-  | {
       type: 'check-habit'
       actionId: string
       habitId: string
@@ -93,13 +68,13 @@ export type ActionParseFailureReason =
 export type ActionParseResult =
   { ok: true; action: ParsedAction } | { ok: false; reason: ActionParseFailureReason }
 
-function isActionType(value: string): value is ActionType {
+function isEnabledActionType(value: string): value is EnabledActionType {
   return actionTypes.some((actionType) => actionType === value)
 }
 
 function uniqueParameters(search: string): Record<string, string> | undefined {
   try {
-    // URLSearchParams tolerates malformed escapes, so decode once first to reject corrupted Shortcut URLs.
+    // URLSearchParams tolerates malformed escapes, so decode once first to reject corrupted encoded URLs.
     decodeURIComponent(search.replace(/\+/g, ' '))
   } catch {
     return undefined
@@ -116,7 +91,7 @@ function uniqueParameters(search: string): Record<string, string> | undefined {
   return values
 }
 
-function failure(actionType: ActionType | undefined, reason: ActionParseFailureReason) {
+function failure(actionType: EnabledActionType | undefined, reason: ActionParseFailureReason) {
   logger.warn('action.parse.failed', {
     operation: 'parse',
     ...(actionType ? { actionType } : {}),
@@ -126,11 +101,11 @@ function failure(actionType: ActionType | undefined, reason: ActionParseFailureR
 }
 
 export function parseActionRoute(
-  rawActionType: string,
+  rawEnabledActionType: string,
   search: string,
   now = new Date(),
 ): ActionParseResult {
-  const actionType = isActionType(rawActionType) ? rawActionType : undefined
+  const actionType = isEnabledActionType(rawEnabledActionType) ? rawEnabledActionType : undefined
   logger.info('action.parse.started', {
     operation: 'parse',
     ...(actionType ? { actionType } : {}),
@@ -151,26 +126,8 @@ export function parseActionRoute(
   }
 
   let action: ParsedAction | undefined
-  if (actionType === 'add-transaction') {
-    const parsed = addTransactionSchema.safeParse(parameters)
-    const money = parsed.success ? parseMoneyToMinor(parsed.data.amount) : undefined
-    if (parsed.success && money?.ok) {
-      const occurredAt = new Date(parsed.data.occurredAt ?? now.toISOString())
-      action = {
-        type: actionType,
-        actionId: parsed.data.actionId,
-        draft: {
-          type: parsed.data.type,
-          amountMinor: money.amountMinor,
-          categoryId: parsed.data.categoryId,
-          occurredAt: occurredAt.toISOString(),
-          localDate: toLocalDateKey(occurredAt),
-          timezoneOffsetMinutes: occurredAt.getTimezoneOffset(),
-          ...(parsed.data.note ? { note: parsed.data.note } : {}),
-        },
-      }
-    }
-  } else if (actionType === 'check-habit') {
+  // Only enabled link actions reach parsing; retired actions cannot create financial records.
+  if (actionType === 'check-habit') {
     const parsed = checkHabitSchema.safeParse(parameters)
     if (parsed.success) {
       action = {

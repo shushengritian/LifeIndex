@@ -1,4 +1,6 @@
-# LifeIndex PWA and iOS Shortcuts Guide
+# LifeIndex PWA and Link Actions Guide
+
+Current runtime supports habit and focus links only. Financial records are created through in-app forms.
 
 **Status:** V2 retains the verified V1 URL Action contract; V2 physical checks pending
 
@@ -42,42 +44,9 @@ Implementation reference: [Vite PWA manual update checks](https://vite-pwa-org.n
 
 ## 4. Action contract
 
-Every action requires a lowercase UUID v4-compatible `actionId`. A Shortcut must generate a fresh UUID for every intended new operation. Reusing the same ID returns an already-handled result and never creates a second record.
+Every action requires a lowercase UUID v4-compatible `actionId`. A caller must generate a fresh UUID for every intended new operation. Reusing the same ID returns an already-handled result and never creates a second record.
 
 All field names are case-sensitive. Unknown fields, duplicate fields, malformed percent encoding, unsupported action types, uppercase UUIDs, invalid references, and out-of-range values are rejected without a write.
-
-### Add transaction
-
-Route: `#/action/add-transaction`
-
-| Field        | Required | Contract                                                                    |
-| ------------ | -------- | --------------------------------------------------------------------------- |
-| `actionId`   | yes      | Fresh lowercase UUID                                                        |
-| `amount`     | yes      | Positive CNY decimal with at most two fraction digits                       |
-| `categoryId` | yes      | Active Finance category ID matching the transaction type                    |
-| `type`       | no       | `expense` or `income`; defaults to `expense`                                |
-| `occurredAt` | no       | ISO-8601 instant with offset; defaults to the time the action page is opened |
-| `note`       | no       | 1–280 normalized characters                                                 |
-
-Stable default expense IDs include:
-
-| Display name | ID                                          |
-| ------------ | ------------------------------------------- |
-| 餐饮         | `category-finance-expense-food-v1`          |
-| 交通         | `category-finance-expense-transport-v1`     |
-| 购物         | `category-finance-expense-shopping-v1`      |
-| 居家         | `category-finance-expense-home-v1`          |
-| 健康         | `category-finance-expense-health-v1`        |
-| 娱乐         | `category-finance-expense-entertainment-v1` |
-| 其他支出     | `category-finance-expense-other-v1`         |
-
-Default income IDs are `category-finance-income-salary-v1`, `category-finance-income-bonus-v1`, `category-finance-income-refund-v1`, and `category-finance-income-other-v1`.
-
-Synthetic example:
-
-```text
-#/action/add-transaction?actionId=00000000-0000-4000-8000-000000000901&amount=35.10&categoryId=category-finance-expense-food-v1&note=Lunch
-```
 
 ### Check in a habit
 
@@ -89,7 +58,7 @@ Route: `#/action/check-habit`
 | `habitId`   | yes      | Existing active Habit UUID                                     |
 | `localDate` | no       | Valid `YYYY-MM-DD`; defaults to the local day when preview opens |
 
-The habit must be scheduled for the selected date. If that day is already checked in, confirmation records the action as handled but does not duplicate the daily record. Habit UUIDs are local implementation identifiers; the initial V1 Shortcut setup uses a test habit ID captured during guided M9 acceptance.
+The habit must be scheduled for the selected date. If that day is already checked in, confirmation records the action as handled but does not duplicate the daily record. Habit UUIDs are local implementation identifiers.
 
 ### Start focus
 
@@ -105,14 +74,7 @@ Route: `#/action/start-focus`
 
 Stable Focus IDs are `category-focus-work-v1`, `category-focus-study-v1`, `category-focus-reading-v1`, and `category-focus-personal-v1`.
 
-## 5. Building an iOS Shortcut
-
-1. Add `Generate UUID`; convert it to lowercase if the current Shortcuts version emits uppercase characters.
-2. Collect or define the action values.
-3. Percent-encode every user-entered text value with the Shortcuts URL-encoding action.
-4. Compose the deployed LifeIndex URL with the action route and documented fields after `#`.
-5. Add `Open URLs`.
-6. Review the LifeIndex preview and confirm. Do not design the Shortcut to tap the confirmation automatically.
+## 5. Confirmation and history
 
 The URL is scrubbed from the current history entry after cancel, validation failure, prior handling, or successful execution. Business entity and receipt writes share one IndexedDB transaction, so a receipt failure cannot leave a partial record.
 
@@ -120,9 +82,9 @@ The URL is scrubbed from the current history entry after cancel, validation fail
 
 | Symptom                                  | Meaning and action                                                                 |
 | ---------------------------------------- | ---------------------------------------------------------------------------------- |
-| `无法识别这个快捷动作`                   | Check type, spelling, duplicate fields, encoding, UUID case, amount, date, duration |
-| `这个快捷动作现在不可用`                 | Reference is missing/archived/paused/unscheduled, or Focus is already active        |
-| `这个快捷动作已经处理过`                 | The action ID has a durable receipt; generate a new ID only for a genuinely new act |
+| `无法识别这个链接操作`                   | Check type, spelling, duplicate fields, encoding, UUID case, date, duration |
+| `这个链接操作现在不可用`                 | Reference is missing/archived/paused/unscheduled, or Focus is already active        |
+| `这个链接操作已经处理过`                 | The action ID has a durable receipt; generate a new ID only for a genuinely new act |
 | Offline banner does not appear immediately | Wait briefly for the body-free connectivity probe; local data does not depend on it |
 | Settings says offline shell needs retry  | Reconnect, open LifeIndex once, then refresh                                        |
 
@@ -130,4 +92,4 @@ Never share an action URL containing real amounts, titles, notes, or local IDs i
 
 ## 7. Verification boundary
 
-V2 local automation retains root/Pages-subpath builds, manifest/icon inspection, Cache Storage policy, explicit update/dirty-form components, all three action types, no-write preview, malformed input, stale references, atomic rollback, durable deduplication, fragment cleanup, dual-engine offline mutation, and Chromium offline reload. Playwright WebKit raises an internal error on offline `reload()`; real iPhone Home Screen launch, airplane mode, Files/iCloud, actual Shortcuts, and installed update behavior remain unverified. The owner deferred those checks for `v1.0.0` in [ADR-0005](../adr/0005-v1-owner-acceptance.md); V2 must use the current [physical acceptance checklist](IPHONE_ACCEPTANCE.md).
+V2 local automation retains root/Pages-subpath builds, manifest/icon inspection, Cache Storage policy, explicit update/dirty-form components, both enabled action types, no-write preview, malformed input, stale references, atomic rollback, durable deduplication, fragment cleanup, dual-engine offline mutation, and Chromium offline reload. Playwright WebKit raises an internal error on offline `reload()`; real iPhone Home Screen launch, airplane mode, Files/iCloud, and installed update behavior remain unverified. The owner deferred those checks for `v1.0.0` in [ADR-0005](../adr/0005-v1-owner-acceptance.md); V2 must use the current [physical acceptance checklist](IPHONE_ACCEPTANCE.md).

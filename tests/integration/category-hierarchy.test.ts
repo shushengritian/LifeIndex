@@ -7,7 +7,6 @@ import { TransactionRepository } from '@/data/repositories/TransactionRepository
 import { BackupService } from '@/data/backup/BackupService'
 import { validateBackup } from '@/data/backup/schema'
 import { expenseByCategory } from '@/features/finance/financeDomain'
-import { ActionService } from '@/app/actions/ActionService'
 import { createSeedCategories, createSeedSettings } from '@/data/db/seeds'
 import type { BackupData } from '@/shared/domain/types'
 import {
@@ -150,13 +149,6 @@ describe('two-level category integrity', () => {
     await expect(transactions.update(saved.id, command)).resolves.toMatchObject({
       categoryId: child.id,
     })
-    const action = {
-      type: 'add-transaction' as const,
-      actionId: crypto.randomUUID(),
-      draft: command,
-    }
-    await expect(new ActionService(db).inspect(action)).rejects.toThrow()
-    await expect(new ActionService(db).execute(action)).rejects.toThrow()
     await categories.archive(child.id)
     await categories.setArchived(rootId, false)
     expect((await db.categories.get(child.id))?.archived).toBe(1)

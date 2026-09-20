@@ -410,6 +410,7 @@ test('persists appearance and manages Finance category lifecycle', async ({ page
   await expect(categoryRow).toBeVisible()
 
   await categoryRow.getByRole('button', { name: '合成旅行', exact: true }).click()
+  await page.getByRole('button', { name: '更多 合成旅行', exact: true }).click()
   await page.getByRole('button', { name: '编辑一级分类' }).click()
   await page.getByRole('dialog', { name: '编辑分类' }).getByLabel('分类名称').fill('合成出行')
   await page.getByRole('button', { name: '保存分类' }).click()
@@ -417,6 +418,7 @@ test('persists appearance and manages Finance category lifecycle', async ({ page
   categoryRow = categoryRegion.getByRole('listitem').filter({ hasText: '合成出行' })
   await expect(categoryRow).toBeVisible()
 
+  await categoryRow.getByRole('button', { name: '更多 合成出行' }).click()
   await categoryRow.getByRole('button', { name: '归档 合成出行' }).click()
   await page
     .getByRole('dialog', { name: '归档这个分类？' })
@@ -531,23 +533,18 @@ test('ships base-aware install metadata and complete icon assets', async ({ page
   }
 })
 
-test('previews, commits, and durably deduplicates a transaction URL action', async ({ page }) => {
-  const actionId = '00000000-0000-4000-8000-000000000501'
-  const actionUrl = `/#/action/add-transaction?actionId=${actionId}&amount=35.10&categoryId=category-finance-expense-food-v1&note=${encodeURIComponent('合成快捷午餐')}`
-  await page.goto(actionUrl)
-
-  await expect(page.getByRole('heading', { name: '新增账目' })).toBeVisible()
-  await expect(page.getByLabel('金额（CNY）')).toHaveValue('35.10')
+test('rejects retired financial links without changing data', async ({ page }) => {
+  await page.goto(
+    '/#/action/add-transaction?actionId=00000000-0000-4000-8000-000000000501&amount=35.10',
+  )
+  await expect(page.getByRole('heading', { name: '无法识别这个链接操作' })).toBeVisible()
+  expect(page.url()).not.toContain('amount=')
   expect(await readStoreRecords(page, 'transactions')).toHaveLength(0)
-  await page.getByRole('button', { name: '确认新增账目' }).click()
-  await expect(page).toHaveURL(/#\/finance$/)
-  await expect(page.getByText('−¥35.10')).toBeVisible()
-
-  await page.goto(actionUrl)
-  await expect(page.getByRole('heading', { name: '这个快捷动作已经处理过' })).toBeVisible()
-  await expect(page).toHaveURL(/#\/action-result\?status=handled&type=add-transaction$/)
-  expect(page.url()).not.toContain(actionId)
-  expect(await readStoreRecords(page, 'transactions')).toHaveLength(1)
+  expect(await readStoreRecords(page, 'actionReceipts')).toHaveLength(0)
+  await page.goto('/#/settings/shortcuts')
+  await expect(page.getByRole('heading', { name: '设置', exact: true })).toBeVisible()
+  await expect(page.getByRole('link', { name: '快捷记账' })).toHaveCount(0)
+  await expect(page.locator('.app-header')).not.toContainText('仅本机')
 })
 
 test('supports habit and focus actions while scrubbing cancel and invalid fragments', async ({
@@ -584,7 +581,7 @@ test('supports habit and focus actions while scrubbing cancel and invalid fragme
   await page.goto(
     '/#/action/add-transaction?actionId=00000000-0000-4000-8000-000000000505&amount=1&categoryId=category-finance-expense-food-v1&unknown=private',
   )
-  await expect(page.getByRole('heading', { name: '无法识别这个快捷动作' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '无法识别这个链接操作' })).toBeVisible()
   expect(page.url()).not.toContain('unknown=private')
 })
 
@@ -688,10 +685,8 @@ test('keeps primary routes and entry states free of detectable accessibility vio
   await page.getByRole('button', { name: '添加健康记录' }).click()
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
 
-  await page.goto(
-    '/#/action/add-transaction?actionId=00000000-0000-4000-8000-000000000506&amount=8.88&categoryId=category-finance-expense-food-v1',
-  )
-  await expect(page.getByRole('heading', { name: '新增账目' })).toBeVisible()
+  await page.goto('/#/action/start-focus?actionId=00000000-0000-4000-8000-000000000506&title=test')
+  await expect(page.getByRole('heading', { name: '开始专注' })).toBeVisible()
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([])
 
   await page.goto('/#/settings/appearance')
@@ -814,8 +809,8 @@ test('keeps fragment payloads out of requests and privacy-safe runtime logs', as
   await page.goto(
     `/#/action/add-transaction?actionId=${actionId}&amount=18.88&categoryId=category-finance-expense-food-v1&note=${secret}`,
   )
-  await page.getByRole('button', { name: '确认新增账目' }).click()
-  await expect(page.getByText('−¥18.88')).toBeVisible()
+  await expect(page.getByRole('heading', { name: '无法识别这个链接操作' })).toBeVisible()
+  expect(await readStoreRecords(page, 'transactions')).toHaveLength(0)
 
   expect(requests.length).toBeGreaterThan(0)
   for (const value of [...requests, ...consoleMessages]) {

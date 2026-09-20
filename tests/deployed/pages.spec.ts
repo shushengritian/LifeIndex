@@ -221,10 +221,9 @@ test('keeps action fragments out of the deployed network boundary', async ({ pag
       `/action/add-transaction?actionId=${actionId}&amount=8.01&categoryId=category-finance-expense-food-v1&note=${privateMarker}`,
     ),
   )
-  await expect(page.getByRole('heading', { name: '新增账目' })).toBeVisible()
-  await page.getByRole('button', { name: '取消', exact: true }).click()
-  await page.getByRole('button', { name: '放弃草稿', exact: true }).click()
-  await expect(page).toHaveURL(/#\/today$/)
+  await expect(page.getByRole('heading', { name: '无法识别这个链接操作' })).toBeVisible()
+  expect(page.url()).not.toContain(actionId)
+  expect(page.url()).not.toContain(privateMarker)
 
   for (const value of requests) {
     expect(value).not.toContain(actionId)

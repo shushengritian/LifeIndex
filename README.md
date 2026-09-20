@@ -6,7 +6,7 @@ LifeIndex is a local-first personal life index for iPhone. The V2 progressive we
 
 ## Project status
 
-LifeIndex **v2.2.0 (Ocean) is live**, with dual themes, two-level Finance categories and database/backup V4. See [verified deployment and update guidance](docs/releases/v2.2.0.md). The owner approved deployment before iPhone acceptance under [ADR-0015](docs/adr/0015-ocean-deploy-before-device-acceptance.md); physical-device and native Shortcut checks remain pending, not passed. The Shortcut installation template is not yet available as a verified release.
+LifeIndex **v2.2.0 (Ocean) is live**, with dual themes, two-level Finance categories and database/backup V4. See [verified deployment and update guidance](docs/releases/v2.2.0.md). The owner approved deployment before iPhone acceptance under [ADR-0015](docs/adr/0015-ocean-deploy-before-device-acceptance.md); physical-device checks remain pending, not passed. Current local scope changes are tracked in PLAN.md.
 
 Open [LifeIndex on GitHub Pages](https://shushengritian.github.io/LifeIndex/). The previous V2 delivery is archived in [V2 release notes](docs/releases/v2.0.0.md) and [V2_PLAN.md](V2_PLAN.md).
 
@@ -29,7 +29,7 @@ pnpm dev
 
 Use `pnpm quality` for the non-E2E local gate and `pnpm test:e2e` for the production-preview browser gate. See [DEV.md](docs/development/DEV.md) for environment, command, data-migration, and release details.
 
-PWA installation behavior, controlled updates, offline guarantees, and the strict iOS Shortcut URL contract are documented in [PWA_AND_SHORTCUTS.md](docs/operations/PWA_AND_SHORTCUTS.md).
+PWA installation behavior, controlled updates, offline guarantees, and the habit/focus link contract are documented in [PWA.md](docs/operations/PWA.md).
 
 GitHub CI/Pages behavior and rollback are documented in [DEPLOYMENT.md](docs/operations/DEPLOYMENT.md). The deferred real-device checklist remains separate in [IPHONE_ACCEPTANCE.md](docs/operations/IPHONE_ACCEPTANCE.md), so automated WebKit checks and owner acceptance cannot be mistaken for physical test results.
 

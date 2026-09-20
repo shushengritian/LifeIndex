@@ -73,7 +73,7 @@ The primary Finance visual references remain **MOZE** and the Chinese app **шо░ш
 - Place the smaller month balance, expense, and income totals immediately below the calendar.
 - Show the selected day's ledger below the month totals and preserve month navigation for history.
 - Introduce a bottom-sheet quick-entry flow for new transactions.
-- Use a large amount display, expense/income toggle, recent-first category grid, date shortcut, and optional note.
+- Use a large amount display, expense/income toggle, recent-first category grid, date control, and optional note.
 - Keep existing category/trend reports below the calendar-ledger flow without adding new budget or account concepts.
 - Preserve input on validation or persistence failure.
 
@@ -114,7 +114,6 @@ The following are not authorized by the V2 UI refresh and require separate produ
 - destructive schema migration or reinterpretation of existing Habits records;
 - calorie/macro tracking, meal plans, medical advice, BMI judgments, workout routines, exercise libraries, sets/reps/load, rest timers, personal records, or social fitness;
 - direct Apple Health/HealthKit, wearable, or sensor synchronization within the current PWA;
-- new Shortcut behavior beyond presenting the existing URL Action capability more clearly.
 
 ## Delivery milestones and gates
 

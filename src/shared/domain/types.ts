@@ -4,6 +4,7 @@ export type HabitStatus = 'active' | 'paused'
 export type FocusStatus = 'active' | 'completed'
 export type ActivityIntensity = 'light' | 'moderate' | 'hard'
 export type Appearance = 'system' | 'light' | 'dark'
+// Historical receipt values remain readable for existing databases and backups; runtime actions use a narrower type.
 export type ActionType = 'add-transaction' | 'check-habit' | 'start-focus'
 
 export type HabitSchedule = { type: 'daily' } | { type: 'weekdays'; weekdays: number[] }
