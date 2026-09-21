@@ -4,7 +4,7 @@ Index your life.
 
 LifeIndex 是面向 iPhone 的本地优先生活记录 PWA，包含今天、健康（体重、运动、习惯）、专注、记账和设置。数据保存在本机 IndexedDB；应用外壳支持离线，JSON 备份由用户自行保存和恢复。
 
-当前版本标识：**3.3.0**；内部包版本：`3.3.0`。本次发布验证状态见 [交付计划](PLAN.md)，版本标识不代表已经部署或通过真机验收。
+当前版本：**3.3.0**，已部署至[LifeIndex](https://shushengritian.github.io/LifeIndex/)。自动化与线上验证通过，真机专项待用户确认；证据见[交付计划](PLAN.md)。
 
 ## 开发
 
