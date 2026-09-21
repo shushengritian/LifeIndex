@@ -1,9 +1,9 @@
 import Dexie from 'dexie'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { LifeIndexDatabase } from '@/data/db/LifeIndexDatabase'
 import { createSeedCategories, createSeedSettings } from '@/data/db/seeds'
-import { databaseSchemaV1, databaseStoreNames } from '@/data/db/schema'
+import { databaseSchemaV1, databaseSchemaV2, databaseStoreNames } from '@/data/db/schema'
 import {
   buildFocusSession,
   buildHabit,
@@ -24,8 +24,56 @@ afterEach(async () => {
   await Promise.all(openedDatabases.splice(0).map((database) => database.delete()))
 })
 
-describe('LifeIndex database v3', () => {
-  it('creates the twelve stores and inserts stable defaults once', async () => {
+describe('LifeIndex database', () => {
+  it('rolls back version, tables and records when the upgrade transaction fails', async () => {
+    const name = `LifeIndexUpgradeRollback-${crypto.randomUUID()}`
+    const schema = { ...databaseSchemaV2, experimentalRecords: 'id' }
+    const legacy = new Dexie(name)
+    legacy.version(4).stores(schema)
+    await legacy.open()
+    const record = buildTransaction()
+    await legacy.table('transactions').put(record)
+    await legacy.table('experimentalRecords').put({ id: 'synthetic' })
+    await legacy
+      .table('settings')
+      .put({ key: 'experimentalMode', value: true, updatedAt: FIXED_NOW })
+    legacy.close()
+    const database = new LifeIndexDatabase(name)
+    openedDatabases.push(database)
+    // Fail inside the native version transaction, after schema work has begun, not before open.
+    const nativeDelete = IDBObjectStore.prototype.delete
+    const failure = vi.spyOn(IDBObjectStore.prototype, 'delete').mockImplementation(function (
+      this: IDBObjectStore,
+      key,
+    ) {
+      if (this.name === 'settings') throw new Error('Synthetic upgrade write failure')
+      return nativeDelete.call(this, key)
+    })
+    try {
+      await expect(database.initialize(new Date(FIXED_NOW))).rejects.toMatchObject({
+        failureClass: 'DatabaseInitialization',
+      })
+    } finally {
+      failure.mockRestore()
+    }
+    const verify = new Dexie(name)
+    verify.version(4).stores(schema)
+    try {
+      await verify.open()
+      expect(verify.verno).toBe(4)
+      expect(await verify.table('transactions').get(record.id)).toEqual(record)
+      expect(await verify.table('experimentalRecords').count()).toBe(1)
+      expect(await verify.table('settings').get('experimentalMode')).toMatchObject({ value: true })
+      expect(Array.from(verify.backendDB().objectStoreNames).sort()).toEqual(
+        Object.keys(schema).sort(),
+      )
+      console.info('database.upgrade.rollback.verified', { count: Object.keys(schema).length })
+    } finally {
+      verify.close()
+    }
+  })
+
+  it('creates the nine stores and inserts stable defaults once', async () => {
     const database = createDatabase()
     await database.initialize(new Date(FIXED_NOW))
 
@@ -86,7 +134,7 @@ describe('LifeIndex database v3', () => {
     await database.initialize(new Date(FIXED_NOW))
 
     // V2 adds stores and public Activity seeds; every V1 row remains logically identical.
-    expect(database.verno).toBe(4)
+    expect(database.verno).toBe(5)
     expect(await database.transactions.get(transaction.id)).toEqual(transaction)
     expect(await database.habits.get(habit.id)).toEqual(habit)
     expect(await database.habitRecords.get(habitRecord.id)).toEqual(habitRecord)

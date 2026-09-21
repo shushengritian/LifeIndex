@@ -7,7 +7,6 @@ const routes = [
   '/health/weight-history',
   '/health/activity-history',
   '/health/habits',
-  '/health/cessation',
   '/focus',
   '/focus/history',
   '/finance',

@@ -44,6 +44,7 @@ test('serves base-scoped routes, assets, manifest, and worker without runtime er
   ])
   await page.getByRole('link', { name: '关于 LifeIndex', exact: true }).click()
   await expect(page.getByLabel(`应用版本 ${expectedVersion}`, { exact: true })).toBeVisible()
+  await expect(page.getByText('数据库版本', { exact: true })).toHaveCount(0)
   const databaseMetadata = await page.evaluate(async () => {
     const database = await new Promise<IDBDatabase>((resolve, reject) => {
       const request = indexedDB.open('LifeIndexDB')
@@ -58,15 +59,12 @@ test('serves base-scoped routes, assets, manifest, and worker without runtime er
   })
   expect(databaseMetadata).toEqual({
     // Pin the release schema explicitly: a healthy old deployment must fail this gate.
-    // Dexie stores logical V4 as native IndexedDB version 40.
-    version: 40,
+    // Dexie encodes logical version 5 as native IndexedDB version 50.
+    version: 50,
     stores: [
       'actionReceipts',
       'activitySessions',
       'categories',
-      'cessationDays',
-      'cessationEvents',
-      'cessationPlans',
       'focusSessions',
       'habitRecords',
       'habits',
@@ -107,43 +105,6 @@ test('serves base-scoped routes, assets, manifest, and worker without runtime er
   )
   expect(unexpectedFailures).toEqual([])
   expect(pageErrors).toEqual([])
-})
-
-test('persists synthetic cessation evidence on the deployed V4 candidate', async ({
-  page,
-}, testInfo) => {
-  const requests: string[] = []
-  const marker = 'SYNTHETIC_CESSATION_RELEASE_CHECK'
-  page.on('request', (request) => requests.push(request.url()))
-  await page.goto(routeUrl(testInfo, '/health/cessation'))
-  await page.getByRole('button', { name: '创建戒烟计划', exact: true }).click()
-  // Keep the synthetic plan safely in the past. A minute rollover between page clock capture
-  // and form opening otherwise waits for the 30-second foreground clock refresh at the test deadline.
-  const startField = page.getByLabel('开始日期与时间')
-  const priorDay = new Date(`${await startField.inputValue()}Z`)
-  priorDay.setUTCDate(priorDay.getUTCDate() - 1)
-  await startField.fill(priorDay.toISOString().slice(0, 16))
-  await page.getByText('原因与节省估算（可选）', { exact: true }).click()
-  await page.getByLabel('为什么想戒烟').fill(marker)
-  await page.getByRole('button', { name: '保存戒烟计划', exact: true }).click()
-  // Wait for committed UI before reload; these records exist only in the isolated test profile.
-  await expect(page.getByRole('status')).toContainText('计划已保存')
-  // The header plus owns event creation; inspecting plan content never opens the event chooser.
-  await page.getByRole('button', { name: '记录戒烟事件', exact: true }).click()
-  await page.getByRole('button', { name: '截至现在未吸烟', exact: true }).click()
-  await page.getByRole('button', { name: '记录戒烟事件', exact: true }).click()
-  await expect(page.getByRole('button', { name: '更新今日快照', exact: true })).toBeVisible()
-  await page.reload()
-  await page.getByRole('button', { name: '记录戒烟事件', exact: true }).click()
-  await expect(page.getByRole('button', { name: '更新今日快照', exact: true })).toBeVisible()
-  await expect(page.getByText(marker, { exact: true })).toBeVisible()
-  await page.getByRole('button', { name: /^记录吸烟/ }).click()
-  await page.getByRole('button', { name: '保存吸烟记录', exact: true }).click()
-  await expect(page.getByText('吸烟 1 支', { exact: true })).toBeVisible()
-  await page.reload()
-  await page.getByRole('button', { name: '记录戒烟事件', exact: true }).click()
-  await expect(page.getByRole('button', { name: '截至现在未吸烟', exact: true })).toBeDisabled()
-  expect(requests.every((url) => !url.includes(marker))).toBe(true)
 })
 
 test('persists synthetic Health records locally on the deployed candidate', async ({

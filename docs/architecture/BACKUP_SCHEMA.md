@@ -1,150 +1,46 @@
-# LifeIndex V2 Backup Schema
+# LifeIndex 备份契约
 
-> **2026-09-14 · V2.1 amendment:** V2.1 current local export is **format V3** (`LifeIndexBackupV3`), database V3. The V2 envelope below is the frozen legacy format, not the current output. V3 adds three cessation arrays and their manifest counts. V0/V1/V2 migrate in memory, then all twelve stores restore atomically. Future versions/settings and inconsistent cessation facts are rejected. Restoring a legacy backup replaces cessation history with empty arrays; preview warns first. See [CESSATION_V3](CESSATION_V3.md).
+当前版本导出格式：`lifeindex-backup`，`formatVersion: 5`。导入支持 V0、V1、V2、V5。
 
-**Format name:** `lifeindex-backup`
+## 文件结构
 
-**Current format version:** 3 (V2 envelope below is retained as the legacy contract)
+UTF-8 JSON，文件名 `lifeindex-backup-YYYY-MM-DD-HHmm.json`。解析前限制 50 MiB。顶层字段：
 
-**Status:** Format V3, V0/V1/V2 migrations and twelve-store atomic restore implemented locally; V2.1 deployed/physical checks pending
+| 字段 | 内容 |
+| --- | --- |
+| format | 固定为 lifeindex-backup |
+| formatVersion | 导出固定为 5 |
+| appVersion | 内部应用版本，仅供说明，不决定兼容性 |
+| exportedAt | ISO 导出时间 |
+| source | timezoneOffsetMinutes、locale |
+| counts | 当前九个数据集合的数量 |
+| data | categories、transactions、habits、habitRecords、focusSessions、settings、actionReceipts、weightEntries、activitySessions |
 
-## 1. File contract
+集合字段见 [数据模型](DATA_MODEL.md)。快照在一致读事务内取得，集合按主键排序，计数重新计算；使用与导入相同的校验规则后序列化。
 
-- Filename: `lifeindex-backup-YYYY-MM-DD-HHmm.json` in local export time.
-- Encoding/media: UTF-8 JSON / `application/json` when supported.
-- Maximum accepted size: 50 MiB before parsing.
-- Arrays are sorted by primary key for deterministic tests/diffs.
-- Real exports remain ignored and must never become repository fixtures.
+## 支持版本
 
-## 2. V2 envelope
+| 输入格式 | 规范化 |
+| --- | --- |
+| V0 | 冻结 schema 校验，补空 actionReceipts 成 V1 |
+| V1 | 冻结 schema 校验，补空 weightEntries/activitySessions 成 V2 |
+| V2 | 校验当前公共数据，规范化为 V5 |
+| V5 | 直接执行严格结构和完整性校验 |
 
-```ts
-interface LifeIndexBackupV2 {
-  format: 'lifeindex-backup'
-  formatVersion: 2
-  appVersion: string
-  exportedAt: string
-  source: {
-    timezoneOffsetMinutes: number
-    locale: string
-  }
-  counts: {
-    categories: number
-    transactions: number
-    habits: number
-    habitRecords: number
-    focusSessions: number
-    settings: number
-    actionReceipts: number
-    weightEntries: number
-    activitySessions: number
-  }
-  data: {
-    categories: Category[]
-    transactions: Transaction[]
-    habits: Habit[]
-    habitRecords: HabitRecord[]
-    focusSessions: FocusSession[]
-    settings: Setting[]
-    actionReceipts: ActionReceipt[]
-    weightEntries: WeightEntry[]
-    activitySessions: ActivitySession[]
-  }
-}
-```
+V3、V4 及其他不支持的版本在任何数据库写入前返回明确的不支持版本错误；不静默舍弃数据。支持格式的规范化仅在内存中进行，不创建用户业务记录。
 
-Record rules are normative in [DATA_MODEL.md](DATA_MODEL.md).
+## 验证与预览
 
-## 3. Export algorithm
+依次检查大小、JSON、格式/版本、字段类型、数量、主键和习惯日期唯一性、分类/习惯/业务回执引用、当前设置键及最多一个 active 专注会话。任何不一致均拒绝，当前数据库不变。
 
-1. Emit `backup.export.started` with format version only.
-2. Read all nine stores in one Dexie read transaction.
-3. Sort each collection by primary key.
-4. Build format V2 with current app version/time/source metadata and computed counts.
-5. Validate through the same strict V2 schema and integrity checks used for import.
-6. Serialize with two-space indentation and hand the Blob to share/download.
-7. After handoff begins, update `lastSuccessfulExportAt`; browser copy says “最近导出”, never “云端已备份”.
-8. Revoke object URLs in `finally` and emit only version/count success or safe failure class.
+校验通过生成仅在内存保存、有效期 15 分钟的随机预览 token；展示来源版本、导出时间与记录计数。预览和取消都不写库。未知、过期或已消费 token 不可恢复。
 
-## 4. Frozen legacy shapes
+## 确认恢复
 
-- **V0:** six original business collections and Settings; no `actionReceipts`.
-- **V1:** seven shipped collections including `actionReceipts`; no Weight or Activity collections; Category domains are Finance/Focus and Settings keys are the V1 union.
-- **V2:** current nine collections and expanded Category/Settings unions.
+用户确认后重验规范化数据，在一个覆盖九表的读写事务内替换，按依赖顺序写入并核对计数；任何失败中止事务，原数据保持。成功后消费 token 并刷新视图。恢复是完整替换，不是合并。
 
-Legacy Zod schemas are frozen independently. They must not be built by omitting fields from a future `backupDataSchema`, because future union expansion could accidentally reject a historically valid file or accept a historically impossible one.
+导出文件由浏览器分享或下载交给用户保存；最近导出时间不代表文件已进入云端。取消系统菜单不能显示恢复成功。对象 URL 使用后释放，日志不得记录备份内容或个人字段。
 
-## 5. Migration pipeline
+## 验证要求
 
-```text
-V0 --add empty actionReceipts--> V1
-V1 --add empty weightEntries/activitySessions--> V2
-V2 --strict parse/integrity checks--> canonical preview
-```
-
-Rules:
-
-- Migrations are pure, deterministic, and in memory.
-- V0 first passes its frozen schema, then flows through the V1 step.
-- V1 adds count `0` and empty arrays for both new collections.
-- No migration creates Activity categories, a weight target, weight entries, or activity sessions. Database initialization may separately seed public stable Activity category definitions after restore.
-- `appVersion` is informational and does not select compatibility.
-- Unknown future versions are rejected without mutation.
-
-## 6. Validation before preview
-
-No database write occurs while the service:
-
-1. enforces size and parses JSON;
-2. validates format/header/version;
-3. performs supported migrations;
-4. strictly validates every current V2 field;
-5. validates primary/compound uniqueness;
-6. validates Transaction, Focus, Habit, Activity, and receipt references;
-7. validates at most one active Focus row and typed Settings uniqueness;
-8. recomputes and matches all nine counts.
-
-The preview exposes only a random one-time token, canonical format version, source app version, export time, counts, and expiry. It expires after 15 minutes and is process-memory only.
-
-## 7. Atomic replace restore
-
-After explicit owner confirmation:
-
-1. Resolve and consume only a valid non-expired preview token.
-2. Revalidate the canonical V2 object.
-3. Start one `rw` transaction over all nine stores.
-4. Clear and insert in dependency order: categories, habits, transactions, habitRecords, focusSessions, settings, actionReceipts, weightEntries, activitySessions.
-5. Re-read and compare all counts before commit.
-6. On any exception, abort the transaction and report that existing data was retained.
-7. On success, remove the token and refresh live queries.
-
-Failed restore does not run seed repair inside the transaction. Normal initialization on the next load inserts only any missing stable defaults.
-
-## 8. Failure behavior
-
-| Failure | User result | Data guarantee |
-| --- | --- | --- |
-| Oversize/unreadable/invalid JSON | Choose a valid LifeIndex JSON backup | No write begun |
-| Unsupported version | Update LifeIndex or select V0–V2 | No write begun |
-| Schema/count/duplicate/reference/state violation | Sanitized invalid-backup message | No write begun |
-| Missing/expired/consumed token | Re-select and preview | No write begun |
-| Quota/table/Dexie failure | Restore failed; current data retained | Nine-store transaction abort |
-| Post-commit render failure | Data restored; reload offered | Committed data remains truth |
-
-No error copy or log contains record fields, IDs, backup text, or nested validation input.
-
-## 9. Compatibility and rollback
-
-- Export always emits current V2.
-- Import supports V0, V1, and V2 until a separately approved removal decision.
-- Backup format and database schema versions are independent.
-- A deployed source rollback does not rewrite a V2 backup or downgrade IndexedDB.
-- Merge restore, incremental backups, encryption, scheduled upload, cloud sync, and cache/log/draft export remain excluded.
-
-## 10. Required verification
-
-- Canonical V2 round trip including both new collections and optional target.
-- V0→V1→V2 and V1→V2 deterministic migration with empty Health collections.
-- Counts, duplicate IDs, duplicate Habit/date, invalid grams/duration/intensity, invalid categories, invalid Settings, dangling references, future version, and multiple active Focus rejection before writes.
-- Forced insertion failure proves every pre-restore store remains unchanged.
-- Representative larger snapshot preserves deterministic ordering and exact integer sums.
+覆盖 V5 往返、V0/V1/V2 导入、版本拒绝前不写库、无效字段/计数/引用拒绝、预览到期/重复消费、强制事务失败的全表回滚。测试只使用合成数据；执行结果见[发布记录](../releases/v3.3.0.md)。

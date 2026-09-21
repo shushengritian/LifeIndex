@@ -3,11 +3,6 @@ import { z } from 'zod'
 import { isLocalDateKey } from '@/shared/domain/date'
 import { MAX_AMOUNT_MINOR } from '@/shared/domain/money'
 import { categoryIconIds } from '@/shared/domain/categoryIcons'
-import {
-  cessationPlanSchema,
-  cessationDaySchema,
-  cessationEventSchema,
-} from '@/shared/validation/cessationSchemas'
 
 const instantSchema = z.iso.datetime({ offset: true })
 const localDateSchema = z.string().refine(isLocalDateKey, 'Invalid local calendar date')
@@ -28,8 +23,8 @@ const normalizedText = (maximum: number) =>
 const optionalText = (maximum: number) => normalizedText(maximum).optional()
 const timezoneOffsetSchema = z.number().int().min(-840).max(840)
 
-// Frozen category boundary for shipped V0–V3 backup formats.
-export const categorySchemaV3 = z
+// Frozen root-category boundary for supported legacy backup formats.
+export const legacyRootCategorySchema = z
   .object({
     id: categoryIdSchema,
     domain: z.enum(['finance', 'focus', 'activity']),
@@ -80,8 +75,8 @@ export const categorySchemaV3 = z
 
 export const categorySchema = z
   .object({
-    ...categorySchemaV3.shape,
-    icon: z.union([categorySchemaV3.shape.icon, z.enum(categoryIconIds)]),
+    ...legacyRootCategorySchema.shape,
+    icon: z.union([legacyRootCategorySchema.shape.icon, z.enum(categoryIconIds)]),
     parentId: categoryIdSchema.optional(),
   })
   .strict()
@@ -285,9 +280,6 @@ const weightTargetSettingSchema = z
   .strict()
 
 export const settingSchema = z.discriminatedUnion('key', [
-  z
-    .object({ key: z.literal('cessationHidden'), value: z.boolean(), updatedAt: instantSchema })
-    .strict(),
   appearanceSettingSchema,
   currencySettingSchema,
   onboardingSettingSchema,
@@ -307,9 +299,6 @@ export const actionReceiptSchema = z
 
 export const backupDataSchema = z
   .object({
-    cessationPlans: z.array(cessationPlanSchema),
-    cessationDays: z.array(cessationDaySchema),
-    cessationEvents: z.array(cessationEventSchema),
     categories: z.array(categorySchema),
     transactions: z.array(transactionSchema),
     habits: z.array(habitSchema),

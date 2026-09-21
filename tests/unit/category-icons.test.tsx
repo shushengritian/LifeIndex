@@ -9,7 +9,7 @@ import {
 } from '@/shared/domain/categoryIcons'
 import { CategoryIcon } from '@/shared/ui/CategoryIcon'
 import { CategoryIconPicker } from '@/shared/ui/CategoryIconPicker'
-import { categorySchema, categorySchemaV3 } from '@/shared/validation/schemas'
+import { categorySchema, legacyRootCategorySchema } from '@/shared/validation/schemas'
 import { createSeedCategories } from '@/data/db/seeds'
 
 describe('approved category icons', () => {
@@ -34,7 +34,7 @@ describe('approved category icons', () => {
   it('accepts new icons only in the new schema, without relaxing historical backups', () => {
     const category = { ...createSeedCategories('2026-09-03T12:00:00.000Z')[0]!, icon: 'fruit' }
     expect(categorySchema.safeParse(category).success).toBe(true)
-    expect(categorySchemaV3.safeParse(category).success).toBe(false)
+    expect(legacyRootCategorySchema.safeParse(category).success).toBe(false)
   })
   it('preserves the selected icon while browsing another group', async () => {
     function Harness() {

@@ -1,134 +1,39 @@
-# LifeIndex Development Guide
+# LifeIndex 开发指南
 
-> 2026-09-21 当前：3.1.0 操作体验更新已获持续开发、测试和发布授权，见 [ADR-0021](../adr/0021-operation-refresh-publication.md)。[实施计划](OPERATION_REFRESH_DEV.md)、[健康](OPERATION_HEALTH_IMPL.md)、[设置](OPERATION_SETTINGS_IMPL.md)与[发布证据](../releases/v3.1.0.md)为当前状态；下方日期说明保留历史背景，不再构成本次发布门槛。
+需要 Node.js ≥20.19.0 和 package.json 声明的 pnpm。依赖使用锁文件安装，无后端、密钥或原生工程要求。
 
-> 2026-09-19：当前 Ocean 正式实施进度与验证见 [阶段 5 DEV](REDESIGN_DEV.md)。用户已授权代码修改但未授权发布；不沿用旧版本的真机延期。
-
-> **2026-09-14 · V2.1 amendment:** V2.1 local branch: `codex/v2.1-smoking-cessation`, app 2.1.0, database/backup V3, no dependency changes. [CESSATION_V3](../architecture/CESSATION_V3.md) governs implementation. If the local pnpm wrapper attempts an unsolicited reinstall/no-TTY failure, use existing pinned `node_modules/.bin/{prettier,eslint,tsc,vitest,vite,playwright}` binaries for equivalent gates; do not reinstall or change the lockfile to bypass it. Publication is not authorized by local implementation approval.
-
-**Status:** Active
-
-V2 release acceptance follows [ADR-0008](../adr/0008-v2-automated-acceptance.md): browser automation is owner-authorized as the release gate, while physical-only evidence remains deferred.
-
-**Last verified:** 2026-09-06 for the V2 implementation contract; commands remain inherited from V1
-
-## 1. Prerequisites
-
-- macOS or another supported local environment
-- Git 2.39 or newer
-- Node 20.19.0 or newer (`.nvmrc` records the initially verified 20.19.5)
-- pnpm 11.19.0 as declared by `packageManager`
-
-No environment secret, backend, database server, Apple Developer account, or Xcode project is required. V2 remains a static local-first PWA; manual Health records do not add HealthKit or a native build.
-
-## 2. Install and run
-
-```bash
+```sh
 pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-Vite prints the local URL. The normal development server does not register the production service worker; PWA behavior is verified from a production build/preview.
+| 命令 | 用途 |
+| --- | --- |
+| pnpm format:check | 格式检查 |
+| pnpm lint | ESLint |
+| pnpm typecheck | TypeScript |
+| pnpm test | 单元与集成测试 |
+| pnpm build | 类型检查与生产构建 |
+| pnpm preview | 构建预览 |
+| pnpm test:e2e | Chromium/WebKit 用户流程 |
+| pnpm test:deployed | 指定线上 URL 的验证 |
+| pnpm quality | 格式、lint、类型、单元集成与构建 |
 
-Dependency install scripts are fail-closed: `pnpm-workspace.yaml` keeps `strictDepBuilds: true` and explicitly approves only `sharp@0.33.5`, the locked native image dependency of the PWA icon generator. Its `install/check.js` checks whether a source build is requested or a global libvips is present; this script was reviewed before approval. Review the installation code again when upgrading sharp. Never commit pnpm's `set this to true or false` placeholders or disable script checks globally to make CI pass. Inspect the install log for `ERR_PNPM_IGNORED_BUILDS`; a warm local dependency tree is not evidence that a clean CI install succeeds.
+生产 Service Worker 通过 build/preview 测试。项目子路径构建使用 `LIFEINDEX_BASE_PATH=/LifeIndex/ pnpm build`。Playwright 浏览器需要与锁定依赖匹配；安装依赖执行脚本按 pnpm-workspace.yaml 的许可处理，不为通过检查而放宽策略。
 
-## 3. Commands
+## 代码约束
 
-| Command                 | Purpose                                                     |
-| ----------------------- | ----------------------------------------------------------- |
-| `pnpm dev`              | Start the local Vite development server                     |
-| `pnpm format`           | Apply Prettier formatting                                   |
-| `pnpm format:check`     | Verify formatting without changing files                    |
-| `pnpm lint`             | Run ESLint with zero allowed warnings                       |
-| `pnpm typecheck`        | Type-check app, worker, tests, and configs                  |
-| `pnpm test`             | Run all Vitest unit/integration tests                       |
-| `pnpm test:unit`        | Run pure/component unit tests                               |
-| `pnpm test:integration` | Run IndexedDB/repository integration tests                  |
-| `pnpm build`            | Type-check and create the production PWA artifact in `dist` |
-| `pnpm preview`          | Serve the built artifact locally                            |
-| `pnpm test:e2e`         | Run Chromium and Mobile Safari/WebKit Playwright tests      |
-| `pnpm test:deployed`    | Run the separate smoke suite against `LIFEINDEX_DEPLOYED_URL` |
-| `pnpm quality`          | Run the local non-E2E quality gate                          |
+- 修改产品行为前读根目录 AGENTS、基线和计划；需求变化记录 ADR。
+- 仓储封装持久化，纯函数表达规则；IndexedDB 为唯一业务主数据源。
+- 关键逻辑、分支及状态转换增加解释原因的注释；日志覆盖入口、分支、成功状态与失败，禁止个人字段。
+- 金额用整数分，体重用整数克，自然日用本地日期键。
+- 数据结构修改须有明确升级和合成数据测试；备份恢复先校验后写入。
+- 每次实现同步相关需求、设计、测试及使用文档；验证范围与改动匹配。
 
-Playwright browser binaries are version-coupled to the package. Install the required engines after dependency installation:
+源码分为 app、features、data、shared、pwa、styles，职责见 [HLD](../architecture/HLD.md)。数据契约见 [数据库](../architecture/DATA_MODEL.md)和[备份](../architecture/BACKUP_SCHEMA.md)。
 
-```bash
-pnpm exec playwright install chromium webkit
-```
+## 协作与发布
 
-## 4. Production base path
+保护用户已有改动，不提交真实记录、备份、凭据或 dist。文件所有权由任务分配约束；文档整理不代表 UI/数据实现已通过检查。发布与真机状态写入 [计划](../../PLAN.md)，不能复用先前版本的测试结论。
 
-Local builds use `/`. A GitHub Pages project build supplies the repository path without guessing it in source:
-
-```bash
-LIFEINDEX_BASE_PATH=/REPOSITORY-NAME/ pnpm build
-```
-
-`vite.config.ts` normalizes this once and uses it for assets, manifest ID/start/scope, icons, and worker placement. M8 records the exact confirmed value and validates the deployed artifact. `docs/operations/PWA.md` defines the runtime, update, and fragment-action contract.
-
-## 5. Source ownership
-
-- `src/app`: bootstrap, router, providers, global error/update UI.
-- `src/data`: Dexie schema/migrations, repositories, backup and restore.
-- `src/features`: Today, Finance, Focus, Health, retained Habits primitives, and Settings vertical slices.
-- `src/pwa`: service-worker registration and update/offline client state.
-- `src/shared`: pure domain utilities, safe logging, validation, and UI primitives.
-- `src/styles`: tokens and shared layout.
-- `src/pwa/watchPwaUpdates.ts`: foreground/reconnect discovery only, separate from user-approved worker activation; `tests/unit/pwaUpdates.test.ts` covers state guards, coalescing, cooldown, retry, and listener cleanup.
-- `tests/unit`: pure functions and component contracts.
-- `tests/integration`: IndexedDB, repository, migration, and restore contracts.
-- `tests/e2e`: production-intent user journeys in Chromium and Mobile Safari/WebKit.
-- `tests/deployed`: read-only-host smoke plus ephemeral local-data checks against an explicit deployed URL.
-
-Do not create empty folders. Introduce each directory with its first owned implementation and test.
-
-## 6. Coding rules
-
-- Use strict TypeScript and explicit domain unions instead of unchecked strings.
-- Put business invariants in pure functions and persistence behind repository interfaces.
-- Store money in integer minor units and calendar behavior in validated local date keys.
-- Add rationale comments to key logic, branches, migrations, and state transitions.
-- Log entry, branch, transition, exception, and failure events through the safe logger using static, dot-separated event identifiers.
-- Never pass user records, IDs, amounts, names, titles, notes, payloads, or URL fragments to production logs.
-- Update the relevant PRD, HLD/LLD/data contract, test plan, operations guide, traceability matrix, changelog, and plan in the same change.
-
-## 7. Git workflow
-
-- `main` remains releasable; use short-lived `feat/`, `fix/`, and `docs/` branches when collaboration/remote review begins.
-- Use focused Conventional Commits.
-- Do not rewrite shared history, force-push, or commit `dist`, dependencies, credentials, backups, reports, or personal data.
-- Before a milestone commit, inspect `git diff`, run `git diff --check`, and run the narrowest gate that proves the change.
-
-## 8. Data/schema changes
-
-1. Update `DATA_MODEL.md`, `BACKUP_SCHEMA.md`, and an ADR when the compatibility contract changes.
-2. Increment the Dexie version for a persisted schema/index change.
-3. Add deterministic upgrade logic and synthetic old-version fixtures.
-4. Add success, malformed-row, and transaction-failure tests.
-5. Verify current backups still import or add a pure backup migration.
-6. Never delete/recreate a user's database as an automatic recovery strategy.
-
-V2 is the first in-place database upgrade. It registers the shipped schema V1 and additive schema V2, then proves the transition with a synthetic real V1 database before adding Health records. Backup versions remain independent: format V0 migrates to V1 and format V1 migrates to V2 entirely in memory before current validation. Follow [ADR-0007](../adr/0007-v2-health-storage-and-backup.md), [DATA_MODEL.md](../architecture/DATA_MODEL.md), and [BACKUP_SCHEMA.md](../architecture/BACKUP_SCHEMA.md).
-
-For V2 data changes, use this order:
-
-1. Update types and strict current/legacy validation contracts.
-2. Register the next Dexie schema without removing predecessor declarations.
-3. Add or adjust idempotent public seed definitions only after schema open.
-4. Implement repository reference checks in the same transaction as writes.
-5. Update backup migration/restore across every current store.
-6. Run focused parser/repository/migration/rollback tests before UI work.
-
-Weight is stored as integer grams; Activity duration is integer minutes. Never log either value, activity intensity/category, target, record-local date, or note.
-
-## 9. Release and rollback
-
-- CI must reproduce install with `pnpm install --frozen-lockfile`.
-- Pages deploys only the generated `dist` artifact after required checks.
-- A source rollback deploys a prior known-good app artifact but does not downgrade or mutate IndexedDB automatically. Once schema V2 has opened, recovery must be a forward-compatible V2 fix; do not redeploy V1 as a claimed data recovery path.
-- If new code cannot safely read an existing schema, stop the release and ship a forward-compatible fix; never instruct users to clear data as the default remedy.
-- `.github/workflows/ci.yml` owns pull-request and non-`main` branch evidence; `.github/workflows/pages.yml` repeats the full gate on `main` before publishing.
-- `docs/operations/DEPLOYMENT.md` is the remote setup, live smoke, and rollback runbook; `docs/operations/IPHONE_ACCEPTANCE.md` retains physical-only checks. ADR-0005 permits owner-accepted `v1.0.0` with those checks deferred, never marked passed. See `docs/releases/v1.0.0.md` and `docs/project/POST_V1_BACKLOG.md` for release scope and follow-ups.
-# 当前新增开发批次（2026-09-20）
-
-用户授权开始操作体验优化生产代码的本地开发，当前批次与实际检查统一记录于 [OPERATION_REFRESH_DEV](OPERATION_REFRESH_DEV.md)。首批共用弹层/记账/报表，随后专注/今天、健康、设置和综合候选验证。未发布，不继承旧版本的发布授权。下文为既有开发说明。
+当前 UI 实现和交接见 [CURRENT_UI](CURRENT_UI.md)。

@@ -1,147 +1,26 @@
-# LifeIndex GitHub Pages Deployment Runbook
+# LifeIndex 部署与发布验证
 
-> **当前 2026-09-21：** 3.1.0/V4 操作体验更新按 ADR-0021 发布，最新状态、源码和 Pages 证据见 [3.1.0 发布记录](../releases/v3.1.0.md)。主分支工作流保留静态/单元/集成、生产浏览器、Pages 子路径构建、部署及 live smoke 三阶段；线上 gate 从 package.json 获取版本，并校验原生 DB 40（逻辑 V4）。不降级/清空用户数据。下方旧版本段落为历史，不替代当前授权或状态。
+应用部署为 HTTPS 静态站点。当前交付版本为3.3.0。部署和线上验证证据见[发布记录](../releases/v3.3.0.md)；发布必须由用户授权。
 
-> **2026-09-14 · V2.1 amendment:** V2.1 is local and unpublished. Before main push/deploy, obtain G2 publication authorization and confirmation of a fresh V2 backup, run normal quality/CI/Pages/live smoke, then record actual iPhone evidence or an explicitly scoped deferral. V3 IndexedDB is not downgraded by deploying V2 assets; do not clear user storage. Legacy restore warns that cessation data is replaced with empty collections. V2's ADR-0008 exemption does not automatically apply to V2.1.
+## 发布前
 
-**Status:** V2 deployed and v2.0.0 published under ADR-0008
+核对 [PLAN](../../PLAN.md)、[测试计划](../testing/TEST_PLAN.md)及 package 版本。执行质量、浏览器与数据库/备份验证，检查清洁构建与锁定依赖安装。真实记录、备份、凭据、生成 dist 不提交。
 
-**V2.1 authorization:** The owner explicitly requested direct publication and confirmed there is no data to back up. [ADR-0010](../adr/0010-v2.1-publication-authorization.md) supersedes the fresh-backup prerequisite above for this release only. Physical-iPhone checks remain post-deployment/unverified. The deployed gate now requires native DB version 30, twelve stores, and cessation persistence/conflict checks; no production records are sent anywhere.
+项目路径通过 `LIFEINDEX_BASE_PATH` 传入 Vite，例如：
 
-Release tag `v2.0.0` points to `e4cb44c`; [Pages run 34804519803](https://github.com/shushengritian/LifeIndex/actions/runs/34804519803) passed all three jobs before the [Release](https://github.com/shushengritian/LifeIndex/releases/tag/v2.0.0) was published. Later evidence-only main commits retain identical runtime source and the full workflow; do not move the published tag to these archive commits.
+```sh
+LIFEINDEX_BASE_PATH=/LifeIndex/ pnpm build
+pnpm preview
+```
 
-The 2026-09-14 owner authorization in [ADR-0008](../adr/0008-v2-automated-acceptance.md) supersedes physical-only publication blockers below. Final publication still requires the normal successful main-push workflow and live checks.
+manifest、图标、Service Worker 路径和 Hash 导航须与 base 一致。仓库流程为 `.github/workflows/ci.yml` 和 `.github/workflows/pages.yml`。
 
-**Last reviewed:** 2026-09-14
+## 发布后证据
 
-### V2.1 published deployment
+记录源码提交、流水线、公开入口、实际版本及本次验证结果；使用 `LIFEINDEX_DEPLOYED_URL` 指向明确站点后运行 `pnpm test:deployed`。线上验证使用隔离浏览器和合成数据。将结果填入 [发布记录](../releases/v3.3.0.md)。
 
-Tag `v2.1.0` and its published GitHub Release identify `fa882979f42e6b3578fd407de59e1af31c50bfae`. [Run 34823957109](https://github.com/shushengritian/LifeIndex/actions/runs/34823957109) passed build, deploy, and live jobs. Linux evidence: 140 Vitest, 45 browser passes/1 skip; live 12 direct passes, 1 successful retry, 1 skip. Independent HTTPS suite passed 13/1 skip without retries. Initial run 34823308580 failed dark-theme contrast and never deployed. See [v2.1.0 handoff](../releases/v2.1.0.md) for the correction and smoke-fixture timing hardening. Current version is 2.1.0/database 3; earlier V2 sections below are historical evidence. Physical iPhone checks remain pending, not passed.
+用户沿原入口联网更新，确认设置版本。提醒完成 [iPhone 验收](IPHONE_ACCEPTANCE.md)，不要求卸载或清网站数据。
 
-## 1. Deployment contract
+## 恢复边界
 
-GitHub Pages hosts only the compiled static application shell. Finance, Health/Habit, Focus, settings, action-receipt, and backup records are never included in the repository or Pages artifact; they remain in each browser profile's IndexedDB unless the user explicitly exports a backup.
-
-The Pages URL may expose the application shell to anyone allowed by the selected repository/Pages plan. It is not authenticated storage and must not be described as a private account. Repository visibility, Pages accessibility, owner, name, and license are release decisions made before remote creation.
-
-## 2. Workflows
-
-| File                            | Trigger                                  | Authority                                      | Result                                                                  |
-| ------------------------------- | ---------------------------------------- | ---------------------------------------------- | ----------------------------------------------------------------------- |
-| `.github/workflows/ci.yml`      | Pull request, non-`main` push, manual    | Read repository contents                       | Frozen install, peers, full local gate, Chromium and WebKit checks      |
-| `.github/workflows/pages.yml`   | `main` push or manual                    | Build/smoke read contents; deploy writes Pages/OIDC | Same full gate, configured-base build, gated deployment, live smoke |
-
-The deployment job depends on the verification/build job, so it cannot publish a failed build. A final read-only job runs the separate deployed suite against the URL returned by `deploy-pages`; the workflow is not green until that live check passes. Checkout credentials are not persisted. No application secret is required. Reports and local data are not uploaded.
-
-The Pages build reads `steps.pages.outputs.base_path` from GitHub's configuration action and passes it to `LIFEINDEX_BASE_PATH`. This keeps HTML assets, manifest `id`/`start_url`/`scope`, icons, and service-worker scope aligned for project sites, user sites, or a future custom domain.
-
-## 3. One-time remote setup
-
-Confirm the GitHub owner, repository name, visibility, and static-shell access model before remote publication. Do not invent a license grant; add a license only when the owner chooses one.
-
-Current instance: the user created the public [shushengritian/LifeIndex](https://github.com/shushengritian/LifeIndex) repository and pushed local `main` through commit `7755346` on 2026-09-04. The user then explicitly requested **GitHub Actions** as the Pages source; the settings page returned **GitHub Pages source saved.** The source is enabled and HTTPS is required for the default domain. A project license has not yet been selected, so no license file has been added. Git push and browser authentication work independently of `gh auth status`; GitHub CLI remains unauthenticated, and the connected GitHub tools/browser are available for workflow inspection/settings.
-
-1. Authenticate the chosen GitHub interface with the intended account. If using GitHub CLI, verify it with `gh auth status`; otherwise verify the signed-in browser or connector and use the existing Git credentials for pushing.
-2. Add the approved license, if any, before the first public push.
-3. Create the empty repository from this existing local history and set `origin` without rewriting commits.
-4. In **Settings → Pages → Build and deployment → Source**, select **GitHub Actions**. The normal workflow token intentionally does not have repository-administration permission to enable Pages itself.
-5. Push `main` and inspect the `Deploy GitHub Pages` run. Do not proceed after a skipped, canceled, or partially green run.
-
-### Initial CI installation incident
-
-[Run 33830831321](https://github.com/shushengritian/LifeIndex/actions/runs/33830831321) failed before tests or deployment because the sharp build decision was an unresolved pnpm placeholder. The log reported `ERR_PNPM_IGNORED_BUILDS` for `sharp@0.33.5`. Replace that placeholder with a reviewed, exact-version `allowBuilds` decision while retaining `strictDepBuilds: true`, verify a clean frozen install, and rerun the complete gate. Re-running the unchanged failed commit cannot fix this source configuration issue. No deployment from that run took place.
-
-### First verified deployment — 2026-09-04
-
-- Source: `60b06765c4d84c2892797b1f43eb86e1447b2ea8`, app version `0.1.0`.
-- Workflow: [33832099931](https://github.com/shushengritian/LifeIndex/actions/runs/33832099931), completed successfully at `2026-09-04T03:13:39Z`.
-- Live URL: [LifeIndex](https://shushengritian.github.io/LifeIndex/).
-- Linux proof: successful frozen sharp install, peers/static gates, 18 files / 84 unit/integration tests, 33 passed / 1 documented skipped browser checks, and production build using configured base `/LifeIndex`.
-- Deploy proof: `Deploy verified artifact` succeeded and returned the live URL. `Verify live Pages deployment` passed 9 checks and retained the documented single WebKit offline-reload skip.
-- Manual browser proof: live Today at 390 × 844 and Settings at 320 × 568 were inspected; Settings reported offline shell ready and no warning/error log was captured. This is not physical-iPhone evidence.
-- The subsequent 0.1.1 refinement adds explicit foreground/reconnect discovery; its separate evidence follows.
-
-### Previously verified application — 0.1.1
-
-- Application source: `ff7d443db47fab2283031e58047c9e6396fb7913`.
-- Workflow: [33833052946](https://github.com/shushengritian/LifeIndex/actions/runs/33833052946), completed successfully at `2026-09-04T03:29:21Z`.
-- Same live URL: [LifeIndex](https://shushengritian.github.io/LifeIndex/).
-- All install/static/build gates pass, with 19 files / 92 unit/integration tests, 33 browser passes / 1 documented skip, and 9 live passes / 1 documented skip. The live test asserts version 0.1.1, not just page availability.
-- Manual browser transition: retained a 0.1.0 session, reopened online to discover the waiting worker, entered one unsaved synthetic amount, verified `立即更新` became disabled, canceled the draft, confirmed update, and observed 0.1.1 with the empty transaction state preserved. No test record was saved and no personal data was used. Physical installed-Safari update behavior still requires M9.
-- Later documentation-only commits do not change this application source or substitute for the recorded release evidence. Any runtime, dependency, build, or workflow change must pass the full gate again.
-
-## 4. Live smoke gate
-
-Before the V2 candidate is merged to `main`, the owner must export the currently installed V1 data to Files/iCloud and confirm that the backup exists. This is a safety prerequisite, not migration evidence. The candidate then follows the normal verified workflow; it must never deploy a checked-in `dist` directory or a manual artifact.
-
-### V2 branch candidate — 2026-09-06
-
-- Application source: `2162c323d1fe4100e917982d3fcea5117b4942bc`, version `2.0.0`, branch `codex/v2-ui-design`.
-- Branch workflow: [34033594594](https://github.com/shushengritian/LifeIndex/actions/runs/34033594594), completed successfully on 2026-09-06.
-- Proof: frozen dependency installation, peer contracts, static/unit/integration/build gate, and production Chromium/WebKit gate all succeeded on Ubuntu.
-- Gate result: the owner explicitly confirmed that the V1 backup file exists; the candidate then advanced to the production deployment below.
-
-### First V2 Pages candidate — 2026-09-06
-
-- Candidate source: `55706aa4f5300ec9cbaf7023398ccba9abccd63d`; application source remains `2162c323d1fe4100e917982d3fcea5117b4942bc`, version `2.0.0`.
-- Workflow: [34034416695](https://github.com/shushengritian/LifeIndex/actions/runs/34034416695), completed successfully in 5m 46s.
-- Live URL: [LifeIndex](https://shushengritian.github.io/LifeIndex/).
-- Linux proof: 22 files / 125 Vitest tests, 35 browser passes / 1 documented skip, successful configured `/LifeIndex/` artifact build and deployment, and 11 live passes / 1 documented skip.
-- Manual browser transition: an isolated retained 0.1.1 profile discovered the waiting worker, displayed the explicit update action, updated successfully, and then reported application version 2.0.0 and logical database version 2 with the four approved Settings groups. No personal data was used; this does not substitute for physical-iPhone acceptance.
-
-### V2 iPhone-polish correction candidate — 2026-09-06
-
-- Trigger: first installed-iPhone review reported add-icon alignment, native date/time width, default-expanded Category management, and ambiguous Health card text actions.
-- Scope: presentation and interaction affordance only; application version, IndexedDB schema V2, backup V2, repositories, and business data remain unchanged.
-- Local proof: formatting, ESLint, strict TypeScript, 22 files / 125 Vitest tests, production build, 37 browser passes / 1 documented skip, configured `/LifeIndex/` build, and 11 local deployed-smoke passes / 1 matching skip.
-- Application correction source: `fc0cd7f354674bd288dd5f04d100a22f2eff0226`; final deployed candidate: `09debcaea31b17ed440dad4962338220c67a4d6e` after test-wait hardening.
-- Branch proof: [UI correction run 34036136865](https://github.com/shushengritian/LifeIndex/actions/runs/34036136865) and [test-hardening run 34036951739](https://github.com/shushengritian/LifeIndex/actions/runs/34036951739) both completed successfully with 22 files / 125 Vitest tests and 37 browser passes / 1 documented skip; the final run had no retry or flaky result.
-- Pages proof: [run 34037198731](https://github.com/shushengritian/LifeIndex/actions/runs/34037198731) completed successfully in 5m 32s with the same build gate, successful `/LifeIndex/` deployment, and 11 live HTTPS passes / 1 matching skip.
-- Browser update proof: a retained first-candidate profile discovered and explicitly activated the waiting correction worker; the live DOM then exposed icon-only Health controls and closed Category details, and measured four circular icon offsets at 0 px with equal Finance/Weight/Activity field widths.
-- Release state: do not tag `v2.0.0`; the owner must retest all four corrections in the installed Home Screen app after live deployment.
-
-Pages run [34036404483](https://github.com/shushengritian/LifeIndex/actions/runs/34036404483) successfully built and deployed `fc0cd7f`, but its immediate live gate failed 1 of 11 runnable scenarios after both retries. The Health smoke clicked Save and reloaded before waiting for the async handler's committed UI result; the record appeared when the exact live test was reproduced after propagation. The build job also recorded one successful retry where the appearance test reloaded after optimistic theme application but before its IndexedDB write was observable. Both tests now wait for their committed UI boundaries; final run 34037198731 supersedes this failed run as release evidence.
-
-The V2 candidate must additionally prove the rendered application version is `2.0.0`, all nine IndexedDB stores open under schema version 2, Finance routes to the semantic month calendar, Health can create/reload synthetic Weight and Activity records, Settings shows its four independent groups, and a V1-format synthetic backup previews/restores as canonical V2. The exact candidate commit, Actions run, Pages deployment, and live smoke results are recorded here before physical acceptance begins.
-
-The `v1.0.0` publication record is maintained in [the release handoff](../releases/v1.0.0.md): application/tag commit `40eb947`, successful full [workflow 33849576847](https://github.com/shushengritian/LifeIndex/actions/runs/33849576847), and [published Release](https://github.com/shushengritian/LifeIndex/releases/tag/v1.0.0). [ADR-0005](../adr/0005-v1-owner-acceptance.md) changes only the owner's physical-acceptance gate; all automated build/deploy/live checks below remain required. The release preserves schema/backup V1, the same URL, and the existing unselected license state. Later evidence-only documentation commits do not move the tag or alter application behavior.
-
-Record the repository, commit SHA, workflow run, deployment URL, time, and result. At the live HTTPS URL verify:
-
-1. The response is successful, the rendered version matches the checked-out `package.json`, and every JavaScript, CSS, manifest, icon, and worker request remains under the configured base URL.
-2. Today is the default route; all five destinations and an invalid hash route behave as documented.
-3. `manifest.webmanifest` has the deployed `id`, `start_url`, and `scope`; the worker controls the same scope.
-4. Browser console has no application error and network requests contain no business/action fragment values.
-5. A synthetic Finance record survives refresh; no repository or artifact changes as a result.
-6. After one controlled online load, the application launches and reads that synthetic record with browser networking disabled, then writes another local synthetic record.
-7. A fresh browser profile starts empty, proving data is not served by Pages.
-
-The workflow automates these checks through `pnpm test:deployed` in ephemeral Chromium and Mobile Safari/WebKit profiles. Playwright WebKit's unsupported offline reload remains explicitly skipped, while offline mutation is exercised in both engines and full offline reload in Chromium. The operator still reviews the workflow evidence and live mobile view before M8 closes.
-
-The V1 deployed suite was validated locally against both `/` and `/LifeIndex/` production previews on 2026-09-03: each target passed 9 scenarios with the documented WebKit offline-reload skip. On 2026-09-06, the V2 `2.0.0` candidate's configured `/LifeIndex/` preview passed its expanded suite with 11 passes and the same single WebKit skip. The V2 result includes Health persistence and the nine-store metadata check; Dexie logical schema version 2 appears as native IndexedDB version 20. Real HTTPS evidence must still be recorded after the owner backup gate and production deployment; it is never inferred from local preview results.
-
-The live gate uses synthetic values only. Never upload or paste a real backup into CI, an issue, a workflow artifact, or a screenshot.
-
-## 5. Rollback and incident response
-
-- Application rollback: revert the faulty source change in a new commit, run the complete gate, and let the normal Pages workflow deploy it. Do not force-push `main` or deploy an unverified local `dist` directory.
-- Data compatibility: never roll application code back below the oldest IndexedDB/backup version it can safely read. Ship a forward-compatible repair instead of asking users to clear Safari data.
-- Suspected disclosure: stop sharing URLs/screenshots, disable Pages in repository settings if the shell itself is the concern, preserve local records, export a test-safe backup if possible, and follow `SECURITY.md`.
-- Workflow outage: the last successful static deployment remains the reference. Do not bypass checks; diagnose the failed job and rerun only after the source or external failure is understood.
-
-## 6. Official references
-
-- [Using custom workflows with GitHub Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)
-- [Configuring a publishing source](https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site)
-- [GitHub Pages limits and availability](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits)
-- [pnpm/setup](https://github.com/pnpm/setup)
-- [Vite public base path](https://vite.dev/guide/build#public-base-path)
-
-Action releases were checked against their official pages on 2026-09-03 and pinned by full commit SHA in workflow source: `actions/checkout` v7.0.1, `pnpm/setup` v2.1.0, `actions/configure-pages` v6.0.0, `actions/upload-pages-artifact` v5.0.0, and `actions/deploy-pages` v5.0.1. Updating a pin requires another release/source review.
-# G5 子路径候选预验收（P5-07d）
-
-2026-09-19：当前源码使用 `LIFEINDEX_BASE_PATH=/LifeIndex/` 构建到独立临时目录，保留项目根路径 `dist` 不变；本机预览后，以 `LIFEINDEX_DEPLOYED_URL=http://127.0.0.1:4187/LifeIndex/` 运行 `playwright.deployed.config.ts`，13 通过、1 原有 WebKit 离线壳重载专项跳过。候选仍是包版本 2.1.1，不是已冻结的新发行版。
-
-部署健康测试已跟随批准的首页/完整历史分工：等待表单提交结束，再进入运动历史检查持久化，刷新后返回健康检查体重。不为旧测试恢复首页明细；日志仅报告合成检查数量。
-
-该证据只证明本机候选的子路径契约、V4、离线写入、隐私和刷新持久化。发布后必须对真实 Pages URL 再运行，不可用此结果宣称 GitHub CI/部署成功。WebKit 的专项跳过也不等于真机通过或本轮发布豁免。
+应用文件回滚不能降级 IndexedDB，也不能改变已导出的备份格式。数据异常先保护本地记录及备份，选择兼容当前数据库的修复；不得清库作为升级失败的常规补救。发布失败与未完成验证分别记录，不宣称上线成功。

@@ -1,18 +1,9 @@
 import Dexie, { type Table } from 'dexie'
 
 import { createSeedCategories, createSeedSettings, seedCategoryIds } from '@/data/db/seeds'
-import {
-  CURRENT_DATABASE_VERSION,
-  databaseSchemaV1,
-  databaseSchemaV2,
-  databaseSchemaV3,
-  databaseSchemaV4,
-} from '@/data/db/schema'
+import { CURRENT_DATABASE_VERSION, databaseSchema } from '@/data/db/schema'
 import type {
   ActionReceipt,
-  CessationPlan,
-  CessationDay,
-  CessationEvent,
   ActivitySession,
   Category,
   FocusSession,
@@ -24,6 +15,7 @@ import type {
 } from '@/shared/domain/types'
 import { AppError } from '@/shared/errors/AppError'
 import { logger } from '@/shared/logging/logger'
+import { settingSchema } from '@/shared/validation/schemas'
 
 export const DEFAULT_DATABASE_NAME = 'LifeIndexDB'
 
@@ -37,19 +29,32 @@ export class LifeIndexDatabase extends Dexie {
   actionReceipts!: Table<ActionReceipt, string>
   weightEntries!: Table<WeightEntry, string>
   activitySessions!: Table<ActivitySession, string>
-  cessationPlans!: Table<CessationPlan, string>
-  cessationDays!: Table<CessationDay, string>
-  cessationEvents!: Table<CessationEvent, string>
 
   constructor(name = DEFAULT_DATABASE_NAME) {
     super(name)
-    // Keep the shipped declaration so Dexie can upgrade an existing V1 database in place.
-    this.version(1).stores(databaseSchemaV1)
-    // V2 is additive: no callback rewrites, clears, or invents values for existing records.
-    this.version(2).stores(databaseSchemaV2)
-    // Retain both shipped declarations; new stores start empty, never inferred from Habits.
-    this.version(3).stores(databaseSchemaV3)
-    this.version(CURRENT_DATABASE_VERSION).stores(databaseSchemaV4)
+    // Dexie diffs the installed schema against this complete declaration atomically.
+    // Active stores retain their records and indexes; settings follow the same current contract.
+    this.version(CURRENT_DATABASE_VERSION)
+      .stores(databaseSchema)
+      .upgrade(async (transaction) => {
+        logger.info('database.upgrade.started', {
+          operation: 'upgrade',
+          schemaVersion: CURRENT_DATABASE_VERSION,
+        })
+        const settings = transaction.table('settings')
+        const allowedKeys = new Set<string>(
+          settingSchema.options.map((option) => option.shape.key.value),
+        )
+        const unsupported = (await settings.toArray()).filter(
+          (value: { key: string }) => !allowedKeys.has(value.key),
+        )
+        await settings.bulkDelete(unsupported.map((value: { key: string }) => value.key))
+        logger.info('database.upgrade.completed', {
+          operation: 'upgrade',
+          schemaVersion: CURRENT_DATABASE_VERSION,
+          count: unsupported.length,
+        })
+      })
   }
 
   async initialize(now = new Date()): Promise<void> {

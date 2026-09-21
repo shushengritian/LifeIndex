@@ -624,12 +624,18 @@ export function FocusPage({ historyOnly = false }: { historyOnly?: boolean }) {
       className={`page focus-page${immersive ? ' focus-immersive' : ''}`}
       aria-labelledby="focus-title"
     >
-      {historyOnly && (
-        <Link to="/focus" className="button-secondary">
-          返回专注
-        </Link>
-      )}
       <header className="focus-scene-header">
+        {/* Return to the focus workspace without changing the running session. */}
+        {historyOnly && (
+          <Link
+            to="/focus"
+            className="icon-action page-back-action"
+            aria-label="返回专注"
+            onClick={() => logger.info('focus.history.returned', { operation: 'navigate' })}
+          >
+            <Icon name="back" />
+          </Link>
+        )}
         {immersive && (
           <button
             ref={sceneControl}

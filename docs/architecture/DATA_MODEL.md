@@ -1,203 +1,27 @@
-# LifeIndex V2 Data Model
+# LifeIndex 数据模型
 
-> **2026-09-14 · V2.1 amendment:** V2.1 current local schema is **V3**. The nine-table V2 model below is preserved; `cessationPlans`, `cessationDays`, `cessationEvents` are additive. Settings adds typed `cessationHidden`. See [CESSATION_V3](CESSATION_V3.md) and `src/shared/domain/types.ts` for fields/indexes. No destructive migration.
+当前版本数据库逻辑版本：5（Dexie 对应原生 IndexedDB 版本 50）。本页定义当前契约，验证状态见 [计划](../../PLAN.md)。
 
-**Database:** `LifeIndexDB`
+| 表 | 主键与主要字段 | 约束 |
+| --- | --- | --- |
+| categories | id；domain、transactionType、parentId、name、icon、color、sortOrder、archived | domain 为 finance/focus/activity；记账分类最多两级；引用及图标合法 |
+| transactions | id；type、amountMinor、currency、categoryId、occurredAt、localDate、timezoneOffsetMinutes、note | 金额为整数最小货币单位；分类匹配收支类型 |
+| habits | id；name、icon、color、schedule、startLocalDate、status、pausedAt、note | 每日或指定星期；active/paused |
+| habitRecords | id；habitId、localDate、completedAt、timezoneOffsetMinutes、note | habitId 与日期组合唯一，引用存在 |
+| focusSessions | id；status、title、categoryId、startedAt、plannedDurationSeconds、expectedEndAt、endedAt、durationSeconds、completionKind、localDate、note | 最多一个 active；completed 具有结束信息；时长以秒计 |
+| settings | key、value、updatedAt | 按键类型校验且唯一 |
+| actionReceipts | actionId、actionType、handledAt、outcomeEntityId | 与对应业务结果同事务写入；actionId 唯一 |
+| weightEntries | id；weightGrams、measuredAt、localDate、timezoneOffsetMinutes、note | 整数克，合法测量时间 |
+| activitySessions | id；categoryId、durationMinutes、intensity、occurredAt、localDate、timezoneOffsetMinutes、note | 运动分类有效；强度 light/moderate/hard |
 
-**Dexie schema version:** 3 (V2 base tables documented below; V3 extension linked above)
+业务实体按类型携带 createdAt/updatedAt；完整字段以 `src/shared/domain/types.ts` 和 `src/shared/validation/schemas.ts` 为准。索引以 `src/data/db/schema.ts` 为准；日期、类别、状态、排序及更新时间支持查询。
 
-**Status:** V2 delivered; V3 cessation extension implemented locally, publication pending
+当前设置键：appearance（system/light/dark）、currency（CNY）、onboarding、lastSuccessfulExportAt、weightTarget（整数克）。
 
-## 1. Shared conventions
+onboarding 的 value 包含 localDataNoticeSeen 与 backupNoticeSeen 两个布尔值；lastSuccessfulExportAt 为 ISO 字符串。focusSessions 同样保留 timezoneOffsetMinutes，completionKind 为 timer/early。所有可选 note 字段不进入日志。
 
-- User-created `id`: lowercase UUID; stable seed categories use documented constant IDs.
-- Instants: UTC ISO 8601 strings with offsets accepted by validation and canonical `Date#toISOString` on application writes.
-- Local dates: valid `YYYY-MM-DD` device-calendar keys.
-- `timezoneOffsetMinutes`: captured `Date#getTimezoneOffset()` integer from -840 through 840.
-- Text: trimmed, NFC-normalized, bounded; optional text is omitted rather than stored blank.
-- Money: positive integer minor units.
-- Weight: integer grams.
-- Activity duration: positive integer whole minutes.
-- Statistics, calendar cells, trends, heatmaps, and summaries are projections, not persisted truth.
+## 升级契约
 
-## 2. Stores and indexes
+新建数据库只建立上述九表。对既有数据库，以当前表定义构造版本 5：保留当前表数据、更新必要索引，并依据当前表集合处理非当前存储；设置按当前键白名单整理。升级在版本事务中进行，失败不得留下部分升级数据。
 
-| Store | Primary key and indexes | Version | Purpose |
-| --- | --- | --- | --- |
-| `categories` | `id,[domain+archived],[domain+transactionType+archived],sortOrder,updatedAt` | V1 retained | Finance, Focus, Activity organization |
-| `transactions` | `id,occurredAt,localDate,type,categoryId,[localDate+type],updatedAt` | V1 retained | Income/expense records |
-| `habits` | `id,status,startLocalDate,updatedAt` | V1 retained | Habit definitions/schedules |
-| `habitRecords` | `id,&[habitId+localDate],habitId,localDate,completedAt` | V1 retained | One completion per Habit/local date |
-| `focusSessions` | `id,status,startedAt,localDate,categoryId,updatedAt` | V1 retained | Active/completed Focus |
-| `settings` | `key,updatedAt` | V1 retained | Typed preferences/safety metadata |
-| `actionReceipts` | `actionId,actionType,handledAt,outcomeEntityId` | V1 retained | URL Action idempotency |
-| `weightEntries` | `id,measuredAt,localDate,updatedAt` | V2 new | Manual body-weight history |
-| `activitySessions` | `id,occurredAt,localDate,categoryId,intensity,updatedAt` | V2 new | Lightweight activity history |
-
-Indexes support bounded UI queries and do not encode every invariant. Repositories/backup validation enforce references and state.
-
-## 3. Category
-
-```ts
-type CategoryDomain = 'finance' | 'focus' | 'activity'
-type TransactionType = 'expense' | 'income'
-
-interface Category {
-  id: string
-  domain: CategoryDomain
-  transactionType?: TransactionType
-  name: string
-  icon: CategoryIcon
-  color: CategoryColor
-  sortOrder: number
-  archived: 0 | 1
-  createdAt: string
-  updatedAt: string
-}
-```
-
-Rules:
-
-- Finance requires a transaction type; Focus and Activity omit it.
-- Name is 1–40 characters.
-- Icon/color are allowlisted tokens, not HTML or arbitrary CSS.
-- Archive preserves historical references; archived categories cannot be selected for new records.
-- Reorder is limited to one domain/type/archive group.
-
-V2 adds stable Activity defaults: Walking, Running, Cycling, Strength, Yoga, Other. Existing V1 categories remain untouched.
-
-## 4. Transaction
-
-The V1 shape and invariants are unchanged:
-
-```ts
-interface Transaction {
-  id: string
-  type: 'expense' | 'income'
-  amountMinor: number
-  currency: string
-  categoryId: string
-  occurredAt: string
-  localDate: string
-  timezoneOffsetMinutes: number
-  note?: string
-  createdAt: string
-  updatedAt: string
-}
-```
-
-`amountMinor` is 1 through `99_999_999_999`, category must be matching Finance type, currency is three uppercase letters (current entry uses CNY), and note is at most 280 characters.
-
-## 5. Habit and HabitRecord
-
-The shipped V1 fields and semantics are unchanged. `HabitSchedule` is daily or sorted unique weekdays `0..6`; Habit name is at most 60 characters; notes are at most 280. A paused Habit has `pausedAt`; an active Habit does not. Dates before `startLocalDate` are never scheduled.
-
-`HabitRecord` keeps UUID, `habitId`, `localDate`, `completedAt`, offset, optional note, and audit timestamps. `[habitId+localDate]` remains unique. Check-in validates the schedule and is idempotent; undo removes only the matching completion and any authoritative receipt under the existing action rule.
-
-## 6. FocusSession
-
-The V1 shape and timestamp state machine are unchanged. Planned duration remains 60–14,400 seconds; active rows omit completion fields; completed rows require `endedAt`, positive `durationSeconds` no greater than plan, and `timer|early`. At most one active row is enforced by a transaction.
-
-## 7. WeightEntry
-
-```ts
-interface WeightEntry {
-  id: string
-  weightGrams: number
-  measuredAt: string
-  localDate: string
-  timezoneOffsetMinutes: number
-  note?: string
-  createdAt: string
-  updatedAt: string
-}
-```
-
-Rules:
-
-- `weightGrams`: integer from 20,000 through 500,000 inclusive.
-- UI accepts kilograms with up to three decimal places and converts without floating-point multiplication.
-- UI normally displays one decimal kilogram; export retains exact grams.
-- `note`: optional, at most 280 characters.
-- Multiple entries per local date are allowed; `measuredAt` orders newest first.
-- Trend compares latest with earliest available entry in the inclusive trailing 30-local-day window; no persisted trend.
-
-## 8. ActivitySession
-
-```ts
-type ActivityIntensity = 'light' | 'moderate' | 'hard'
-
-interface ActivitySession {
-  id: string
-  categoryId: string
-  durationMinutes: number
-  intensity: ActivityIntensity
-  occurredAt: string
-  localDate: string
-  timezoneOffsetMinutes: number
-  note?: string
-  createdAt: string
-  updatedAt: string
-}
-```
-
-Rules:
-
-- `categoryId` references an Activity category.
-- `durationMinutes`: integer 1–1,440.
-- Intensity is perceived effort only and carries no medical interpretation.
-- `note`: optional, at most 280 characters.
-- Multiple sessions per date are allowed; list order is newest `occurredAt` first.
-- Weekly summary uses Monday through Sunday local dates and safe-integer accumulation.
-
-## 9. Settings
-
-```ts
-type Setting =
-  | { key: 'appearance'; value: 'system' | 'light' | 'dark'; updatedAt: string }
-  | { key: 'currency'; value: { code: 'CNY' }; updatedAt: string }
-  | { key: 'onboarding'; value: { localDataNoticeSeen: boolean; backupNoticeSeen: boolean }; updatedAt: string }
-  | { key: 'lastSuccessfulExportAt'; value: string; updatedAt: string }
-  | { key: 'weightTarget'; value: { weightGrams: number }; updatedAt: string }
-```
-
-`weightTarget` is optional by row absence and uses the same 20,000–500,000 gram bounds. It is not seeded. Existing Settings rows are not rewritten during upgrade.
-
-## 10. ActionReceipt
-
-Historical receipt fields remain compatible with old backups. Only habit/focus actions can execute at runtime; legacy financial receipt values are validated and restored as data, not executable operations. Receipt and business mutation remain atomic.
-
-## 11. Referential and uniqueness integrity
-
-- Every Transaction references a matching Finance category/type.
-- Every Focus category, when present, references Focus.
-- Every ActivitySession references Activity; archived references remain valid historically.
-- Every HabitRecord references an existing Habit.
-- Every ActionReceipt outcome references the correct existing V1 entity type.
-- Primary IDs, Setting keys, receipt action IDs, and Habit/date pairs are unique.
-- At most one FocusSession is active.
-
-Restore rejects all violations before a write transaction. Repository write validation and reference checks occur in the same transaction as mutation.
-
-## 12. Default data
-
-Initialization seeds missing stable keys only:
-
-- V1 retained: seven expense, four income, four Focus categories; appearance/currency/onboarding settings.
-- V2 added Activity: Walking, Running, Cycling, Strength, Yoga, Other.
-
-Reopening never overwrites renamed/archived user values. `weightTarget` and all Health records have no personal defaults.
-
-## 13. V1-to-V2 database migration
-
-- Register schema V1 and schema V2 in Dexie.
-- Version 2 adds only `weightEntries` and `activitySessions` stores/indexes.
-- No V1 table is cleared, copied, transformed, or deleted.
-- After successful open, normal idempotent seeding adds only missing Activity categories.
-- Migration failure blocks app readiness and preserves the browser database; no automatic `delete()` or recreation path exists.
-
-Required test fixture: create a real schema-V1 database with representative records in every V1 store, close it, open with V2, then assert byte-equivalent logical V1 rows, empty new stores, stable categories present, schema version 2, and normal new Health writes.
-
-## 14. Future migration policy
-
-Any store/index/persisted-invariant change increments the Dexie version, has deterministic synthetic predecessor fixtures and failure tests, updates backup compatibility independently, and ships a forward-compatible recovery path. A source rollback never downgrades IndexedDB.
+测试使用原生版本 40 的合成数据库（包含当前表和附加测试表），打开后验证版本 50、九表集合、有效数据逐条保持、索引可查、设置键正确及失败回滚。数据库逻辑版本、备份格式版本与应用版本不可混用。

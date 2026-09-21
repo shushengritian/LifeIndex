@@ -1,4 +1,4 @@
-export const CURRENT_DATABASE_VERSION = 4
+export const CURRENT_DATABASE_VERSION = 5
 
 export const databaseSchemaV1 = {
   categories: 'id,[domain+archived],[domain+transactionType+archived],sortOrder,updatedAt',
@@ -16,18 +16,8 @@ export const databaseSchemaV2 = {
   activitySessions: 'id,occurredAt,localDate,categoryId,intensity,updatedAt',
 } as const
 
-// V3 only adds records: old stores and indexes remain byte-for-byte unchanged.
-export const databaseSchemaV3 = {
+export const databaseSchema = {
   ...databaseSchemaV2,
-  cessationPlans: 'id,startAt',
-  cessationDays: 'id,&[planId+localDate],planId,localDate',
-  cessationEvents: 'id,[planId+localDate],[planId+occurredAt],planId',
+  categories: `${databaseSchemaV2.categories},parentId`,
 } as const
-// Index-only upgrade: existing categories remain roots and historical references stay intact.
-export const databaseSchemaV4 = {
-  ...databaseSchemaV3,
-  categories: `${databaseSchemaV3.categories},parentId`,
-} as const
-export const databaseStoreNames = Object.keys(databaseSchemaV4) as Array<
-  keyof typeof databaseSchemaV4
->
+export const databaseStoreNames = Object.keys(databaseSchema) as Array<keyof typeof databaseSchema>

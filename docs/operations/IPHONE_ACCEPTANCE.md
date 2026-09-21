@@ -1,128 +1,19 @@
-# LifeIndex V2 Physical iPhone Acceptance
+# iPhone 当前版本验收清单
 
-## 当前 3.1.0 真机复验（待用户）
+状态：待用户实际执行并确认。浏览器模拟不能替代下列证据。记录设备型号、iOS 版本、日期和应用显示版本即可，不记录设备标识或个人数据。
 
-2026-09-21：依据 ADR-0021，先完成自动化与发布，再由用户真机验证。当前清单见 [3.1.0 发布记录](../releases/v3.1.0.md#发布后真机清单待用户执行)。重点为网页滚动条、短屏/键盘、弹层关闭底栏、长按恢复入口、报表返回与后台专注。不要卸载或清数据；联网从原入口更新后，在关于中确认 3.1.0。未收到用户结果前全部保持未验证。
+使用合成记录；沿现有入口更新，不卸载、不清网站数据。需要覆盖恢复时先由用户保存现有数据备份。
 
-下方是 V2 历史验收表，不应将其版本/提交当作 3.1.0，也不能将自动化通过填作真机通过。
+- [ ] 核对「3.3.0」，Safari 与主屏幕入口可打开五个模块。
+- [ ] 深浅主题、窄屏、安全区、底栏及滚动正常，无内容遮挡。
+- [ ] 体重、运动、习惯、专注和收支可记录，关闭再打开后仍可读取。
+- [ ] 键盘打开/收起、表单验证、保存失败重试、草稿退出与焦点返回正常。
+- [ ] 专注锁屏及后台返回后读数正确；完成保存前后统计符合规则。
+- [ ] 已缓存后飞行模式启动、查看、写入、再次启动仍可读取。
+- [ ] 导出文件保存到 Files/iCloud；支持备份预览、取消、确认恢复均符合提示。
+- [ ] 无效或不支持版本备份被拒绝，已有记录保持。
+- [ ] 长按、系统文件/分享菜单、取消及返回后底栏和触摸交互正常。
+- [ ] 更新提示保护草稿，确认更新后版本与已存记录正确。
+- [ ] VoiceOver 名称和顺序、放大文字、减少动态效果可用。
 
-**Status:** Physical checks deferred by owner; browser automation accepted for V2 under [ADR-0008](../adr/0008-v2-automated-acceptance.md)
-
-On 2026-09-14 the owner authorized automated acceptance and V2 completion. The checklist below is retained for optional hardware follow-up; its physical-only gates no longer block this release. Unreported physical results remain unverified.
-
-**Last updated:** 2026-09-06
-
-This checklist is the physical-only release gate for V2. Automated Chromium/WebKit results do not substitute for an installed iPhone report. The owner accepted V1 with earlier physical limitations documented in [ADR-0005](../adr/0005-v1-owner-acceptance.md) and the [v1.0.0 release record](../releases/v1.0.0.md); those historical limitations are not silently reclassified as V2 passes.
-
-## 1. Evidence header
-
-Do not record device identifiers, Apple ID, record contents, or backup contents.
-
-| Field | Result |
-| --- | --- |
-| Date/time zone | TBD |
-| iPhone model family | TBD |
-| iOS/Safari version | TBD |
-| First candidate commit SHA | `55706aa4f5300ec9cbaf7023398ccba9abccd63d` |
-| Correction candidate commit SHA | `09debcaea31b17ed440dad4962338220c67a4d6e` |
-| Correction Pages workflow | [34037198731](https://github.com/shushengritian/LifeIndex/actions/runs/34037198731) — passed |
-| Pages URL | https://shushengritian.github.io/LifeIndex/ |
-| Starting installed version | V1; owner confirmed a backup exists before deployment |
-| Candidate displayed version | `2.0.0` expected; owner to confirm on-device |
-| Final result | Pending |
-
-## 2. Pre-deployment data-safety prerequisite
-
-Complete this before the V2 candidate replaces production:
-
-1. Open the currently installed LifeIndex while online.
-2. In **设置 → 数据与安全**, choose **导出完整备份** and save it to Files or iCloud Drive.
-3. Confirm the file exists and has a recent timestamp. Do not open, upload, or send its contents.
-4. Keep the existing Home Screen app and Safari website data intact.
-
-Pass condition: the owner explicitly confirms a recoverable V1 backup exists. Codex must not infer this from a browser screenshot.
-
-**Result:** Passed on 2026-09-06. The owner explicitly replied that the V1 backup had been exported and the file's existence confirmed before `main` changed.
-
-## 3. Installed upgrade and V1 data continuity
-
-1. After Codex reports the verified V2 Pages deployment, open the existing Home Screen app while online.
-2. If **新版本已准备好** appears, choose **立即更新** with no draft form open.
-3. Confirm Settings shows application version `2.0.0` and database version `2`.
-4. Confirm representative existing Finance, Focus, Habit, category, appearance, and backup-status data remains present and unchanged.
-5. Force-close LifeIndex, reopen it from the Home Screen, and confirm it starts normally with five destinations: 今天、记账、专注、健康、设置.
-
-Pass condition: V1 records remain usable after schema V2 opens; no reset, duplicate, invented Health value, or request to clear site data occurs.
-
-## 4. Health and Habit acceptance
-
-Use only synthetic values, then remove them after verification:
-
-1. In Health, record `68.4` kg with no real note; force-close/reopen and confirm it persists.
-2. Set a `65.0` kg target, confirm neutral target copy, then clear it.
-3. Edit the synthetic weight to `68.2` kg and confirm the newest value/trend display; delete it with confirmation.
-4. Record a `45` minute synthetic running Activity at “较强”, edit it to `50` minutes at “轻松”, force-close/reopen, then delete it.
-5. Create `合成验收习惯`, check it in, open progress, and verify current/longest streak, monthly statistics, fourteen-week heatmap, and recent check-in. Undo once and check in again.
-
-Pass condition: every save appears only after persistence, edits/deletes are confirmed, and Weight/Activity/Habit records survive reopen without judgmental or medical language.
-
-## 5. Finance and Focus regression
-
-1. Select a date in the Finance month calendar and add a `12.34` CNY synthetic expense in `餐饮`.
-2. Confirm the day cell, month balance/expense/income, and selected-day ledger agree; edit to `20.00`, reopen, then delete it.
-3. Start a one-minute Focus named `合成验收专注`, leave the app, lock the phone briefly, return, and finish it early.
-4. Confirm Focus history is derived from persisted timestamps and remains after force-close/reopen.
-
-Pass condition: Finance calendar and Focus state remain correct across navigation, suspension, and reopen.
-
-## 6. Offline installed-app gate
-
-1. While online, confirm Settings reports the offline shell ready, then force-close LifeIndex.
-2. Enable airplane mode and turn Wi-Fi off.
-3. Launch from the Home Screen and confirm the offline banner appears while existing synthetic data remains readable.
-4. Add a `6.66` CNY synthetic expense and toggle the synthetic Habit. Close and reopen while still offline; verify both changes remain.
-5. Restore connectivity and confirm no duplicate, replacement, or unexpected synchronization occurs.
-
-Pass condition: physical Home Screen launch, read, write, and persistence work offline.
-
-## 7. Files/iCloud backup and replacement restore
-
-1. Export a V2 backup containing only the checklist's synthetic records and save it in Files/iCloud Drive.
-2. Note the displayed export time and counts without sharing the JSON.
-3. Add a `22.22` CNY synthetic expense after export.
-4. Select the backup, inspect the nine-store preview, cancel once, and confirm current data is unchanged.
-5. Select it again, confirm replacement, and verify the post-export `22.22` record is absent while pre-export synthetic records remain.
-6. Select a small non-backup JSON/text file and confirm rejection leaves all current records unchanged.
-
-Pass condition: iOS file handoff, preview, cancel, replacement, invalid-file rejection, and post-restore reopen are safe.
-
-## 8. Appearance, layout, and update safety
-
-1. Check System, Light, and Dark appearance; confirm each main page remains readable.
-2. Open Finance and Health sheets with the keyboard visible; confirm fields, save/cancel controls, bottom safe area, and focus return are usable.
-3. Confirm no horizontal clipping at the device's normal text size and the five-item bottom bar does not cover content.
-4. For a later verified candidate deployment, leave a synthetic Finance or Health draft unsaved. Confirm **立即更新** is disabled and the draft remains. Cancel/save, apply the update, and confirm persisted records survive.
-
-Pass condition: appearance and layout work on the actual device, and an update cannot discard a dirty form.
-
-## 9. First-review findings and focused correction retest
-
-The owner reported these four findings against the installed first candidate on 2026-09-06. They are not marked passed by browser automation:
-
-| Finding | Implemented correction | Owner retest |
-| --- | --- | --- |
-| Finance and Health top-right add signs are not centered | Shared geometric SVG add icon inside a fixed 44 × 44 circular target | Pending updated Pages candidate |
-| Date/time control width differs from the other fields | Full logical width and zero intrinsic minimum for native date/time controls | Pending updated Pages candidate |
-| Settings Category management should not stay expanded | Category group remains separate; detailed editor is collapsed behind “分类管理” by default | Pending updated Pages candidate |
-| Health Weight and Activity “记录” text does not look clickable | Circular icon-only add controls with VoiceOver labels “记录体重” and “记录运动” | Pending updated Pages candidate |
-
-Focused retest after Codex confirms the corrected Pages deployment:
-
-1. Open Finance and Health and confirm each top-right add icon looks centered inside its circle.
-2. Open Finance entry, Weight entry, and Activity entry; confirm each date/time field has the same width as the other full-width fields.
-3. Open Settings; confirm Categories, Appearance, Data & security, and Other remain separate, while the detailed category editor is initially hidden and opens after tapping “分类管理”.
-4. In Health, confirm the Weight and Activity cards show recognizable circular add icons instead of the ambiguous “记录” text, and both controls open the expected entry sheet.
-
-## 10. Release sign-off
-
-The owner reports each section as pass/fail with a short synthetic-only note. Any data-loss, privacy, migration, offline-capture, blocked-control, or unrecoverable backup defect blocks the `v2.0.0` tag. Only after all required results are recorded may Codex publish the final tag and release notes.
+每项记录通过/失败/未测与具体复现条件。无本次用户确认时保持未测；汇总到 [发布记录](../releases/v3.3.0.md)。

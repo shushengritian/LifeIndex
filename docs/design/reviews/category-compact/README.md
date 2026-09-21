@@ -1,12 +1,8 @@
-# 分类管理精简版
+# 组件视觉参考
 
-依据用户 2026-09-20 两张截图与 ADR-0016，仅修改分类相关界面，不改变其余模块的视觉系统。Impeccable 以手动 quieter/craft-floor 参考减少操作噪声，不运行启动器。
+本组图片用于当前组件布局参考，不作为 3.3.0 测试或真机验收证据。当前规则见 [设计指导](../../UX_UI_GUIDE.md)。
 
-## 预览
-
-- [一级列表](roots-light.png)：图标、名称、三点入口；不再常驻移动/归档按钮。
-- [操作菜单](menu-light.png)：非模态、支持 Tab、Escape、点外部关闭；打开编辑器前将焦点交回稳定入口。
-- [二级列表](children-light.png)：仅名称标签，无分类图标。早餐、午餐、晚餐均为本机合成预览数据。
-- [二级列表深色](children-dark.png)：沿用 Ocean 深色令牌，不额外引入独立配色。
-
-截图已在 ADR-0017 外壳精简后重新采集，来自本地开发应用的 390×844 深浅主题，不是线上 2.2.0 截图或真机验证。双主题 320px 与移动 WebKit 另由 category-compact 浏览器用例检查；小图标视觉尺寸不等于触点缩小，更多和新增均保留 44px。
+- [menu-light.png](menu-light.png)
+- [children-light.png](children-light.png)
+- [roots-light.png](roots-light.png)
+- [children-dark.png](children-dark.png)

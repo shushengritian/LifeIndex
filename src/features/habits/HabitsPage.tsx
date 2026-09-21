@@ -386,20 +386,22 @@ export function HabitsPage({
     >
       {!embedded ? (
         <>
-          <Link
-            className="button-secondary"
-            to={fromToday ? '/today' : '/health'}
-            state={fromToday ? { todayReturnKey: location.state?.todayReturnKey } : undefined}
-            onClick={() =>
-              logger.info('habit.source.returned', {
-                operation: 'navigate',
-                reason: fromToday ? 'today' : 'health',
-              })
-            }
-          >
-            {fromToday ? '返回今天' : '返回健康'}
-          </Link>
           <div className="page-heading-row">
+            {/* Preserve the entry source and Today restoration key for icon-only returns. */}
+            <Link
+              className="icon-action page-back-action"
+              aria-label={fromToday ? '返回今天' : '返回健康'}
+              to={fromToday ? '/today' : '/health'}
+              state={fromToday ? { todayReturnKey: location.state?.todayReturnKey } : undefined}
+              onClick={() =>
+                logger.info('habit.source.returned', {
+                  operation: 'navigate',
+                  reason: fromToday ? 'today' : 'health',
+                })
+              }
+            >
+              <Icon name="back" />
+            </Link>
             <div>
               <h1 id="habits-title">习惯</h1>
             </div>

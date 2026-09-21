@@ -34,7 +34,6 @@ import { useLiveQueryState } from '@/shared/hooks/useLiveQueryState'
 import { logger } from '@/shared/logging/logger'
 import { Icon } from '@/shared/ui/Icon'
 import { Link, useNavigate } from 'react-router-dom'
-import { CessationCard } from '@/features/health/cessation/CessationCard'
 import { Sheet } from '@/shared/ui/Sheet'
 import { useDirtyForm } from '@/pwa/useDirtyForm'
 import { ConfirmDialog } from '@/shared/ui/ConfirmDialog'
@@ -738,12 +737,20 @@ export function HealthPage({ history }: { history?: 'weight' | 'activity' }) {
       className={`page health-page${history ? ' health-history-page' : ''}`}
       aria-labelledby="health-title"
     >
-      {history && (
-        <Link to="/health" className="button-secondary">
-          返回健康
-        </Link>
-      )}
       <div className="page-heading-row">
+        {/* History navigation stays separate from record creation and exposes its destination to AT. */}
+        {history && (
+          <Link
+            to="/health"
+            className="icon-action page-back-action"
+            aria-label="返回健康"
+            onClick={() =>
+              logger.info('health.history.returned', { operation: 'navigate', entityType: history })
+            }
+          >
+            <Icon name="back" />
+          </Link>
+        )}
         <div>
           <h1 id="health-title">
             {history === 'weight' ? '体重历史' : history === 'activity' ? '运动历史' : '健康'}
@@ -932,10 +939,8 @@ export function HealthPage({ history }: { history?: 'weight' | 'activity' }) {
         </section>
       )}
 
-      {/* Optional cessation data stays independent from the existing habits and measurements. */}
       {!history && (
         <>
-          <CessationCard />
           <section className="health-card habit-card" aria-labelledby="health-habits-title">
             <div className="section-heading">
               <h2 id="health-habits-title" className="health-section-label">
@@ -964,16 +969,6 @@ export function HealthPage({ history }: { history?: 'weight' | 'activity' }) {
       {sheet === 'chooser' ? (
         <Sheet title="添加健康记录" onClose={closeSheet}>
           <div className="health-add-choices">
-            <Link
-              className="button-secondary"
-              to="/health/cessation"
-              onClick={() => {
-                logger.info('health.cessation.opened', { operation: 'open' })
-                closeSheet()
-              }}
-            >
-              戒烟计划与记录
-            </Link>
             <button type="button" onClick={() => openSheet('weight')}>
               <strong>记录体重</strong>
               <span>数值、日期和可选备注</span>

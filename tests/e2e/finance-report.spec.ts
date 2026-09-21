@@ -13,6 +13,11 @@ for (const theme of ['浅色', '深色']) {
     await page.getByRole('button', { name: '一级分类 餐饮', exact: true }).click()
     await page.getByRole('button', { name: '保存', exact: true }).click()
     await expect(page.getByRole('dialog')).toHaveCount(0)
+    // Closing the editor precedes the live calendar requery; capture only the committed aggregate.
+    await expect(page.getByRole('gridcell', { selected: true })).toHaveAttribute(
+      'aria-label',
+      /12\.34/,
+    )
     const selectedDate = await page
       .getByRole('gridcell', { selected: true })
       .getAttribute('aria-label')

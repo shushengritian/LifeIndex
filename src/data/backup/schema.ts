@@ -1,14 +1,13 @@
 import { z } from 'zod'
 
-import type { BackupCounts, BackupData, LifeIndexBackupV4 } from '@/shared/domain/types'
+import type { BackupCounts, BackupData, LifeIndexBackup } from '@/shared/domain/types'
 import { AppError } from '@/shared/errors/AppError'
-import { assertCessationIntegrity } from '@/shared/domain/cessation'
 import { assertCategoryHierarchy } from '@/shared/domain/categoryHierarchy'
 import { logger } from '@/shared/logging/logger'
 import {
   actionReceiptSchema,
   backupDataSchema,
-  categorySchemaV3,
+  legacyRootCategorySchema,
   focusSessionSchema,
   habitRecordSchema,
   habitSchema,
@@ -26,9 +25,6 @@ const storeKeys = [
   'actionReceipts',
   'weightEntries',
   'activitySessions',
-  'cessationPlans',
-  'cessationDays',
-  'cessationEvents',
 ] as const satisfies ReadonlyArray<keyof BackupData>
 
 const sourceSchema = z
@@ -60,27 +56,14 @@ const backupV2Schema = z
     exportedAt: z.iso.datetime({ offset: true }),
     source: sourceSchema,
     counts: countsV2Schema,
-    data: backupDataSchema
-      .omit({ cessationPlans: true, cessationDays: true, cessationEvents: true })
-      .extend({
-        categories: z.array(categorySchemaV3),
-        settings: z.array(settingSchema.refine((setting) => setting.key !== 'cessationHidden')),
-      }),
+    data: backupDataSchema.extend({
+      categories: z.array(legacyRootCategorySchema),
+    }),
   })
   .strict()
 
-const backupV3Schema = backupV2Schema.extend({
-  formatVersion: z.literal(3),
-  counts: countsV2Schema.extend({
-    cessationPlans: z.number().int().nonnegative(),
-    cessationDays: z.number().int().nonnegative(),
-    cessationEvents: z.number().int().nonnegative(),
-  }),
-  data: backupDataSchema.extend({ categories: z.array(categorySchemaV3) }),
-})
-
-const backupV4Schema = backupV3Schema.extend({
-  formatVersion: z.literal(4),
+const currentBackupSchema = backupV2Schema.extend({
+  formatVersion: z.literal(5),
   data: backupDataSchema,
 })
 
@@ -102,12 +85,12 @@ const legacyIcons = new Set([
 ])
 
 // These restrictions freeze the shipped V1 unions even though unchanged record schemas are shared.
-const legacyCategorySchema = categorySchemaV3.refine(
+const legacyCategorySchema = legacyRootCategorySchema.refine(
   (category) => category.domain !== 'activity' && legacyIcons.has(category.icon),
   'Category is not valid in backup V1',
 )
 const legacySettingSchema = settingSchema.refine(
-  (setting) => setting.key !== 'weightTarget' && setting.key !== 'cessationHidden',
+  (setting) => setting.key !== 'weightTarget',
   'Setting is not valid in backup V1',
 )
 const legacyDataV1Schema = z
@@ -211,20 +194,9 @@ function assertReferences(data: BackupData): void {
   }
 }
 
-function assertDomainIntegrity(backup: LifeIndexBackupV4): void {
+function assertDomainIntegrity(backup: LifeIndexBackup): void {
   const { data } = backup
   assertCounts(backup.counts, data)
-  for (const key of ['cessationPlans', 'cessationDays', 'cessationEvents'] as const)
-    assertUnique(
-      data[key].map((record) => record.id),
-      key,
-    )
-  assertCessationIntegrity(
-    data.cessationPlans,
-    data.cessationDays,
-    data.cessationEvents,
-    new Date(backup.exportedAt),
-  )
   assertUnique(
     data.categories.map(({ id }) => id),
     'category',
@@ -298,7 +270,7 @@ function migrateV1(input: unknown): unknown {
   }
 }
 
-export function validateBackup(input: unknown): LifeIndexBackupV4 {
+export function validateBackup(input: unknown): LifeIndexBackup {
   if (typeof input !== 'object' || input === null) {
     throw new AppError('Validation', 'Backup root must be an object')
   }
@@ -318,37 +290,22 @@ export function validateBackup(input: unknown): LifeIndexBackupV4 {
   if ((migrated as { formatVersion?: unknown }).formatVersion === 2) {
     const legacy = backupV2Schema.safeParse(migrated)
     if (!legacy.success) throw new AppError('Validation', 'Legacy V2 backup validation failed')
-    // New collections are empty; migration never infers cessation from old habit records.
-    migrated = {
-      ...legacy.data,
-      formatVersion: 3,
-      counts: { ...legacy.data.counts, cessationPlans: 0, cessationDays: 0, cessationEvents: 0 },
-      data: { ...legacy.data.data, cessationPlans: [], cessationDays: [], cessationEvents: [] },
-    }
+    // Current records share the V2 fields; only the validated envelope is advanced.
+    migrated = { ...legacy.data, formatVersion: 5 }
     logger.info('backup.migration.completed', {
       operation: 'migrate',
       fromState: 'v2',
-      toState: 'v3',
+      toState: 'v5',
     })
   }
-  if ((migrated as { formatVersion?: unknown }).formatVersion === 3) {
-    const legacy = backupV3Schema.safeParse(migrated)
-    if (!legacy.success) throw new AppError('Validation', 'Legacy V3 backup validation failed')
-    migrated = { ...legacy.data, formatVersion: 4 }
-    logger.info('backup.migration.completed', {
-      operation: 'migrate',
-      fromState: 'v3',
-      toState: 'v4',
-    })
-  }
-  if ((migrated as { formatVersion?: unknown }).formatVersion !== 4) {
+  if ((migrated as { formatVersion?: unknown }).formatVersion !== 5) {
     throw new AppError('BackupVersion', 'Backup version is not supported')
   }
 
-  const parsed = backupV4Schema.safeParse(migrated)
+  const parsed = currentBackupSchema.safeParse(migrated)
   if (!parsed.success) throw new AppError('Validation', 'Backup schema validation failed')
 
-  const backup = parsed.data as LifeIndexBackupV4
+  const backup = parsed.data as LifeIndexBackup
   assertDomainIntegrity(backup)
   return backup
 }

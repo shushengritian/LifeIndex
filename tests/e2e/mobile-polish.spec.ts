@@ -1,10 +1,10 @@
 import { expect, test } from '@playwright/test'
 
-test('cessation uses one content entry and phone scrollbar suppression preserves scrolling', async ({
+test('health uses one content entry and phone scrollbar suppression preserves scrolling', async ({
   page,
 }) => {
   await page.goto('/#/health')
-  const entry = page.getByRole('button', { name: '创建戒烟计划', exact: true })
+  const entry = page.getByRole('button', { name: '查看体重历史', exact: true })
   await expect(entry).toBeVisible()
   for (const width of [320, 390]) {
     await page.setViewportSize({ width, height: 600 })
@@ -29,13 +29,36 @@ test('cessation uses one content entry and phone scrollbar suppression preserves
   }))
   if (scrollbar.supported) expect(scrollbar.width).toBe('none')
   // Verify content remains reachable after hiding only the visual indicator.
-  await entry.scrollIntoViewIfNeeded()
+  await page.getByRole('button', { name: '新增习惯', exact: true }).scrollIntoViewIfNeeded()
   expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
   await entry.click()
-  await expect(page.getByRole('heading', { name: '戒烟', exact: true })).toBeVisible()
-  // One content click opens the guarded creation form; entering never writes a plan.
-  await expect(page.getByRole('dialog', { name: '开始戒烟计划' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: '体重历史', exact: true })).toBeVisible()
+  await expect(page.getByRole('dialog')).toHaveCount(0)
 })
+
+for (const [route, name, destination] of [
+  ['/health/weight-history', '返回健康', '/health'],
+  ['/health/activity-history', '返回健康', '/health'],
+  ['/focus/history', '返回专注', '/focus'],
+  ['/health/habits', '返回健康', '/health'],
+]) {
+  test(`icon-only header return on ${route}`, async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 568 })
+    await page.goto(`/#${route}`)
+    const back = page.getByRole('link', { name, exact: true })
+    await expect(back).toBeVisible()
+    await expect(back).toHaveText('')
+    const bounds = await back.boundingBox()
+    expect(bounds!.width).toBeGreaterThanOrEqual(44)
+    expect(bounds!.height).toBeGreaterThanOrEqual(44)
+    // The return control must lead the header rather than consume a separate row.
+    expect(
+      await back.evaluate((element) => element.parentElement?.firstElementChild === element),
+    ).toBe(true)
+    await back.click()
+    await expect(page).toHaveURL(new RegExp(`#${destination}$`))
+  })
+}
 
 test('nested finance editor hides indicators without blocking access to its fields', async ({
   page,

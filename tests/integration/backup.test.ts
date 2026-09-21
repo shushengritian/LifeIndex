@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 import { BackupService, MAX_BACKUP_BYTES } from '@/data/backup/BackupService'
 import { LifeIndexDatabase } from '@/data/db/LifeIndexDatabase'
 import type { Clock, IdGenerator } from '@/shared/domain/runtime'
-import type { LifeIndexBackupV4 } from '@/shared/domain/types'
+import type { LifeIndexBackup } from '@/shared/domain/types'
 import { AppError } from '@/shared/errors/AppError'
 import { categoryIconIds } from '@/shared/domain/categoryIcons'
 import {
@@ -65,7 +65,7 @@ afterEach(async () => {
 })
 
 describe('versioned backup and restore', () => {
-  it('round-trips every expanded icon without rewriting existing V4 records', async () => {
+  it('round-trips every expanded icon without rewriting existing records', async () => {
     const source = createDatabase()
     const target = createDatabase()
     await initializeWithSyntheticData(source)
@@ -127,16 +127,31 @@ describe('versioned backup and restore', () => {
     expect((await service.createSnapshot('zh-CN')).data).toEqual(before.data)
   })
 
+  it.each([3, 4])(
+    'rejects unsupported envelope %s before changing any records',
+    async (formatVersion) => {
+      const database = createDatabase()
+      await initializeWithSyntheticData(database)
+      const service = createService(database)
+      const before = await service.createSnapshot('zh-CN')
+      // A version mismatch must never produce a partial restore or silently discard input fields.
+      expect(() => service.inspectText(JSON.stringify({ ...before, formatVersion }))).toThrow(
+        AppError,
+      )
+      expect((await service.createSnapshot('zh-CN')).data).toEqual(before.data)
+    },
+  )
+
   it.each([
     [
       'a future format version',
-      (backup: LifeIndexBackupV4) => {
-        ;(backup as unknown as { formatVersion: number }).formatVersion = 5
+      (backup: LifeIndexBackup) => {
+        ;(backup as unknown as { formatVersion: number }).formatVersion = 99
       },
     ],
     [
       'a duplicate primary key',
-      (backup: LifeIndexBackupV4) => {
+      (backup: LifeIndexBackup) => {
         // Counts stay internally consistent so this case reaches the uniqueness invariant.
         backup.data.transactions.push(structuredClone(backup.data.transactions[0]!))
         backup.counts.transactions += 1
@@ -144,7 +159,7 @@ describe('versioned backup and restore', () => {
     ],
     [
       'a duplicate habit and date pair',
-      (backup: LifeIndexBackupV4) => {
+      (backup: LifeIndexBackup) => {
         backup.data.habitRecords.push(
           buildHabitRecord({ id: '00000000-0000-4000-8000-000000000103' }),
         )
@@ -153,7 +168,7 @@ describe('versioned backup and restore', () => {
     ],
     [
       'a dangling action receipt',
-      (backup: LifeIndexBackupV4) => {
+      (backup: LifeIndexBackup) => {
         backup.data.actionReceipts.push({
           actionId: '00000000-0000-4000-8000-000000000104',
           actionType: 'add-transaction',
@@ -165,7 +180,7 @@ describe('versioned backup and restore', () => {
     ],
     [
       'more than one active focus session',
-      (backup: LifeIndexBackupV4) => {
+      (backup: LifeIndexBackup) => {
         const first = buildFocusSession({ id: '00000000-0000-4000-8000-000000000106' })
         const second = buildFocusSession({ id: '00000000-0000-4000-8000-000000000107' })
         // Removing completion fields creates two individually valid active records.
@@ -181,13 +196,13 @@ describe('versioned backup and restore', () => {
     ],
     [
       'an invalid weight value',
-      (backup: LifeIndexBackupV4) => {
+      (backup: LifeIndexBackup) => {
         backup.data.weightEntries[0]!.weightGrams = 10_000
       },
     ],
     [
       'a dangling Activity category',
-      (backup: LifeIndexBackupV4) => {
+      (backup: LifeIndexBackup) => {
         backup.data.activitySessions[0]!.categoryId = 'category-focus-study-v1'
       },
     ],
@@ -227,7 +242,7 @@ describe('versioned backup and restore', () => {
     expect((await targetService.createSnapshot('zh-CN')).data).toEqual(before.data)
   })
 
-  it('migrates the supported V0 shape through V1 and V2 to V3 without inventing Health data', async () => {
+  it('migrates the supported V0 shape through V1 and V2 to V5 without inventing Health data', async () => {
     const database = createDatabase()
     await database.initialize(new Date(FIXED_NOW))
     const service = createService(database)
@@ -258,13 +273,13 @@ describe('versioned backup and restore', () => {
     }
 
     const preview = service.inspectText(JSON.stringify(legacy))
-    expect(preview.formatVersion).toBe(4)
+    expect(preview.formatVersion).toBe(5)
     expect(preview.counts.actionReceipts).toBe(0)
     expect(preview.counts.weightEntries).toBe(0)
     expect(preview.counts.activitySessions).toBe(0)
   })
 
-  it('migrates the shipped V1 backup shape to V3 with empty Health collections', async () => {
+  it('migrates the shipped V1 backup shape to V5 with empty Health collections', async () => {
     const database = createDatabase()
     await initializeWithSyntheticData(database)
     const service = createService(database)
@@ -288,7 +303,7 @@ describe('versioned backup and restore', () => {
     }
 
     const preview = service.inspectText(JSON.stringify(legacy))
-    expect(preview.formatVersion).toBe(4)
+    expect(preview.formatVersion).toBe(5)
     expect(preview.counts.weightEntries).toBe(0)
     expect(preview.counts.activitySessions).toBe(0)
   })

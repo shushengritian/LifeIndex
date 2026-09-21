@@ -207,12 +207,16 @@ it('opens independent settings details and returns to the four-group home', asyn
   for (const title of ['主题外观', '导出备份', '从备份恢复', '关于 LifeIndex']) {
     await user.click(await screen.findByRole('link', { name: title }))
     expect(await screen.findByRole('heading', { name: title, level: 1 })).toBeInTheDocument()
+    if (title === '关于 LifeIndex') {
+      expect(screen.getByLabelText(`应用版本 ${__APP_VERSION__}`)).toHaveTextContent('3.3.0')
+      expect(screen.queryByText('数据库版本')).not.toBeInTheDocument()
+    }
     expect(screen.queryByRole('heading', { name: '分类' })).not.toBeInTheDocument()
     await user.click(screen.getByRole('link', { name: '返回设置' }))
     await screen.findByRole('heading', { name: '分类' })
   }
-  expect(screen.getByRole('link', { name: '戒烟计划' })).toHaveAttribute(
+  expect(screen.getByRole('link', { name: '关于 LifeIndex' })).toHaveAttribute(
     'href',
-    '/health/cessation',
+    '/settings/about',
   )
 })

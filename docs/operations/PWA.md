@@ -1,95 +1,37 @@
-# LifeIndex PWA and Link Actions Guide
+# LifeIndex PWA 使用与数据安全
 
-Current runtime supports habit and focus links only. Financial records are created through in-app forms.
+首次通过 HTTPS 联网打开，完成应用外壳缓存后可离线使用核心记录。iPhone 可在 Safari 添加到主屏幕；浏览器与安装入口应保持同一来源。业务记录存于 IndexedDB，Service Worker 仅缓存应用外壳。
 
-**Status:** V2 retains the verified V1 URL Action contract; V2 physical checks pending
+## 日常使用
 
-**Last updated:** 2026-09-06
+今天查看概览；健康记录体重、运动和习惯；专注开始计时并在结束后保存；记账记录收支和查看报表；设置管理外观、分类及备份。公开版本显示「3.3.0」。
 
-## 1. Privacy and ownership
+定期在设置导出 JSON，并自行确认文件已保存到 Files 或 iCloud Drive。恢复先选择文件、查看有效预览，再明确确认完整替换。支持格式和失败保证见 [备份契约](../architecture/BACKUP_SCHEMA.md)。
 
-LifeIndex is a static, local-first PWA. GitHub Pages serves application files only; Finance, Health/Habits, Focus, Settings, action receipts, and backups remain in the current browser profile's IndexedDB unless the user explicitly exports a JSON file.
+## 更新
 
-URL Actions use this shape:
+联网打开原入口，在更新提示出现后保存当前输入并确认更新。应用发现更新与激活更新分开处理。不要通过卸载或清网站数据处理显示问题；该操作可能影响本地记录。图标也可能受 iOS 安装缓存影响。
 
-```text
-https://HOST/BASE/#/action/TYPE?FIELDS
-```
+## 链接操作
 
-Everything after `#` is a fragment and is not included in the HTTP request. HTTP-query actions such as `https://HOST/BASE/?amount=...` are unsupported because they can expose values to hosting and network history.
+支持习惯打卡和开始专注。链接参数位于 fragment，打开后先严格校验，再由用户明确确认；业务结果与回执原子保存，重复操作不重复写入，完成或取消后清理输入。链接包含个人信息时不得放入日志、截图或公开问题报告。
 
-## 2. Installation and offline behavior
+入口为 `#/action/check-habit?...` 或 `#/action/start-focus?...`，不是远端 HTTP API。参数使用 URL 编码；未知字段、重复字段、无效编码和无效类型均拒绝。
 
-After one successful online launch:
+| 操作 | 参数 | 约束 |
+| --- | --- | --- |
+| 两种操作 | actionId | 必填，小写 UUID；持久回执保证幂等 |
+| check-habit | habitId | 必填，小写 UUID；习惯须可用且当日符合计划 |
+| check-habit | localDate | 可选，YYYY-MM-DD；默认当前本地日期 |
+| start-focus | title | 必填，trim 后 1–100 字符，NFC 规范化 |
+| start-focus | durationMinutes | 可选，整数 1–240，默认 25 |
+| start-focus | categoryId | 可选，可用的专注分类 UUID 或内置分类 ID |
+| start-focus | note | 可选，trim 后 1–500 字符，NFC 规范化 |
 
-1. Safari can add LifeIndex to the iPhone Home Screen.
-2. The service worker caches the HTML, versioned JavaScript/CSS, manifest, and production icons.
-3. Business records are never written to Cache Storage; IndexedDB remains authoritative.
-4. When network access is unavailable, the app displays `当前离线 · 本机数据仍可继续使用` and local create/edit workflows remain available.
-5. Settings shows whether the offline application shell is ready.
+已有 active 专注时不能重复开始。链接预览不写入；仓储会再次检查引用、计划与状态，防止预览后数据变化。详细实现契约在 `src/app/actions/actionParser.ts` 和 `ActionService.ts`。
 
-The app checks connectivity with a same-origin, body-free `HEAD` request that contains no record values. This avoids treating a successfully cached page as proof that the network is reachable.
+## 排查
 
-## 3. Controlled updates
+离线外壳未就绪时先联网完成一次加载；存储失败时保留输入并检查可用空间；备份不支持或无效时选用支持格式文件，不改变当前数据库。系统文件菜单取消应回到应用并可继续操作。
 
-- A newly installed worker waits; LifeIndex never silently reloads the current screen.
-- Version 0.1.1 checks for a newer worker on return to the foreground and restored connectivity. Hidden/offline states, a pending update, and repeated events within 60 seconds of a successful check are skipped. Failed checks keep the current app usable and retry on a later event. Discovery only calls `registration.update()`; it cannot approve activation. Version 0.1.0 checks at startup, so reopen that version online once to discover 0.1.1 before testing the foreground-update contract.
-- The app displays an update banner and requires `立即更新`.
-- Finance, Habit, Focus-detail, category, and backup-preview drafts register with one shared dirty-form guard.
-- When any draft is dirty, the update button is disabled until the user saves or cancels it.
-- An active Focus timer is already persisted by absolute timestamps, so a user-approved update can safely reconstruct it.
-- If activation fails, the current app remains open and offers a retry.
-
-Implementation reference: [Vite PWA manual update checks](https://vite-pwa-org.netlify.app/guide/periodic-sw-updates).
-
-## 4. Action contract
-
-Every action requires a lowercase UUID v4-compatible `actionId`. A caller must generate a fresh UUID for every intended new operation. Reusing the same ID returns an already-handled result and never creates a second record.
-
-All field names are case-sensitive. Unknown fields, duplicate fields, malformed percent encoding, unsupported action types, uppercase UUIDs, invalid references, and out-of-range values are rejected without a write.
-
-### Check in a habit
-
-Route: `#/action/check-habit`
-
-| Field       | Required | Contract                                                       |
-| ----------- | -------- | -------------------------------------------------------------- |
-| `actionId`  | yes      | Fresh lowercase UUID                                           |
-| `habitId`   | yes      | Existing active Habit UUID                                     |
-| `localDate` | no       | Valid `YYYY-MM-DD`; defaults to the local day when preview opens |
-
-The habit must be scheduled for the selected date. If that day is already checked in, confirmation records the action as handled but does not duplicate the daily record. Habit UUIDs are local implementation identifiers.
-
-### Start focus
-
-Route: `#/action/start-focus`
-
-| Field             | Required | Contract                                            |
-| ----------------- | -------- | --------------------------------------------------- |
-| `actionId`        | yes      | Fresh lowercase UUID                                |
-| `title`           | yes      | 1–100 normalized characters                         |
-| `durationMinutes` | no       | Integer from 1 through 240; defaults to 25          |
-| `categoryId`      | no       | Active Focus category ID                            |
-| `note`            | no       | 1–500 normalized characters                         |
-
-Stable Focus IDs are `category-focus-work-v1`, `category-focus-study-v1`, `category-focus-reading-v1`, and `category-focus-personal-v1`.
-
-## 5. Confirmation and history
-
-The URL is scrubbed from the current history entry after cancel, validation failure, prior handling, or successful execution. Business entity and receipt writes share one IndexedDB transaction, so a receipt failure cannot leave a partial record.
-
-## 6. Troubleshooting
-
-| Symptom                                  | Meaning and action                                                                 |
-| ---------------------------------------- | ---------------------------------------------------------------------------------- |
-| `无法识别这个链接操作`                   | Check type, spelling, duplicate fields, encoding, UUID case, date, duration |
-| `这个链接操作现在不可用`                 | Reference is missing/archived/paused/unscheduled, or Focus is already active        |
-| `这个链接操作已经处理过`                 | The action ID has a durable receipt; generate a new ID only for a genuinely new act |
-| Offline banner does not appear immediately | Wait briefly for the body-free connectivity probe; local data does not depend on it |
-| Settings says offline shell needs retry  | Reconnect, open LifeIndex once, then refresh                                        |
-
-Never share an action URL containing real amounts, titles, notes, or local IDs in an issue, log, screenshot, or repository fixture.
-
-## 7. Verification boundary
-
-V2 local automation retains root/Pages-subpath builds, manifest/icon inspection, Cache Storage policy, explicit update/dirty-form components, both enabled action types, no-write preview, malformed input, stale references, atomic rollback, durable deduplication, fragment cleanup, dual-engine offline mutation, and Chromium offline reload. Playwright WebKit raises an internal error on offline `reload()`; real iPhone Home Screen launch, airplane mode, Files/iCloud, and installed update behavior remain unverified. The owner deferred those checks for `v1.0.0` in [ADR-0005](../adr/0005-v1-owner-acceptance.md); V2 must use the current [physical acceptance checklist](IPHONE_ACCEPTANCE.md).
+真机主屏幕、后台计时、系统文件及更新的结果见 [验收清单](IPHONE_ACCEPTANCE.md)，未确认项不能视为通过。

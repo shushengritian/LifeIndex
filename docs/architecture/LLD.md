@@ -1,242 +1,27 @@
-# LifeIndex V2 Low-Level Design
+# LifeIndex 详细设计
 
-> 2026-09-19：Ocean 阶段 5 的组件、分类、备份与测试契约见 [REDESIGN_LLD](REDESIGN_LLD.md)，历史 V2 规格保留。
+## 记录写入
 
-> **2026-09-14 · V2.1 amendment:** V2.1 implementation: `src/features/health/cessation/` contains page/card/forms and live-query clock hooks; `CessationRepository` owns transactional mutations; `shared/domain/cessation.ts` owns date, summary and integrity rules. See [CESSATION_V3](CESSATION_V3.md) for authoritative state transitions and backup reuse.
+表单输入 → 领域校验 → 仓储事务 → 提交 → 重读查询 → 可访问结果反馈。重复提交受控；事务失败保留草稿并返回可重试错误。参数化日志覆盖入口、关键分支、状态变化与失败，不记录个人字段。
 
-**Status:** Accepted and frozen at gate G2
+金额使用整数分，体重使用整数克，日期键使用本地 `YYYY-MM-DD`；时间戳使用 ISO 字符串并保留时区偏移。不能用 UTC 截断代替用户的本地日历。
 
-**Date:** 2026-09-06
+## 核心约束
 
-## 1. Source layout
+- 记账金额有效且分类属于同一收支类型；分类最多两级，历史引用保持可读。
+- 习惯打卡按 `habitId + localDate` 唯一，按计划日期计算完成率。
+- 专注仅允许一个 active 会话；根据开始/预计结束时间恢复读数，completed 会话才进入历史统计。
+- 体重和运动保留发生日期、时间、单位及可选备注；目标体重为设置项。
+- 今天和报表按选定日期范围读已有记录；无记录时明确空态。
 
-```text
-src/
-├── app/                       # bootstrap, providers, routes, shell, actions
-├── data/
-│   ├── db/                    # Dexie V1/V2 schemas and seeds
-│   ├── repositories/          # Finance, Focus, Habit, Weight, Activity, Settings
-│   └── backup/                # V0/V1/V2 parsing and atomic restore
-├── features/
-│   ├── today/
-│   ├── finance/
-│   ├── focus/
-│   ├── health/                # composition, weight/activity forms and projections
-│   ├── habits/                # retained reusable habit domain/UI
-│   └── settings/
-├── pwa/
-├── shared/
-│   ├── domain/
-│   ├── logging/
-│   ├── ui/                    # icons, sheet/dialog, rows and feedback
-│   └── validation/
-└── styles/
-```
+## 链接与导航
 
-Directories are introduced with real implementation/tests only.
+习惯打卡、开始专注的链接在 fragment 内携带参数；严格校验后显式确认。业务写入与 actionReceipts 在同一事务中完成，重复 actionId 不重复执行。处理结果或取消后清理 fragment 中的输入。
 
-## 2. Dependency composition
+共享 Sheet/ConfirmDialog 管理焦点、背景隔离、滚动与退出。脏表单离开需确认；保存期间阻止重复提交；错误不清空输入。计时展示不依赖后台 interval 持续执行。
 
-`AppProviders` owns one application-lifetime `LifeIndexDatabase`. Repositories may be constructed in a page or service factory from that verified database; table objects never cross into JSX. Clock and ID generators remain injectable.
+## 数据及更新
 
-```ts
-interface AppServices {
-  database: LifeIndexDatabase
-}
-```
+数据库新建和升级只使用 [当前表定义](DATA_MODEL.md)。版本升级测试必须覆盖既有记录、索引、设置筛选和事务失败。备份先完整验证，再生成限时预览 token，确认后原子恢复，详见 [备份契约](BACKUP_SCHEMA.md)。
 
-The minimal provider contract is intentional: repositories remain small value objects and integration tests can inject a uniquely named database.
-
-## 3. Database V2 declaration
-
-```ts
-const databaseSchemaV1 = { /* shipped seven-store schema */ }
-
-const databaseSchemaV2 = {
-  ...databaseSchemaV1,
-  weightEntries: 'id,measuredAt,localDate,updatedAt',
-  activitySessions: 'id,occurredAt,localDate,categoryId,intensity,updatedAt',
-}
-
-this.version(1).stores(databaseSchemaV1)
-this.version(2).stores(databaseSchemaV2)
-```
-
-Both declarations remain registered so Dexie can open fresh and V1 databases. No V2 `.upgrade()` row transform is needed because stores are additive. Initialization then inserts missing stable Activity categories in the existing idempotent seed transaction. Logs record schema version, operation, count, and safe failure class.
-
-## 4. Repository contracts
-
-### WeightRepository
-
-```ts
-interface WeightRepository {
-  create(command: SaveWeightEntry): Promise<WeightEntry>
-  update(id: string, command: SaveWeightEntry): Promise<WeightEntry>
-  remove(id: string): Promise<void>
-  get(id: string): Promise<WeightEntry | undefined>
-  list(range: LocalDateRange): Promise<WeightEntry[]>
-  latest(): Promise<WeightEntry | undefined>
-}
-```
-
-Create/update strictly validates grams, instant/local-date/offset consistency fields, and note boundaries. List is newest `measuredAt` first. Delete is idempotent at persistence level but UI requires confirmation.
-
-### ActivityRepository
-
-```ts
-interface ActivityRepository {
-  create(command: SaveActivitySession): Promise<ActivitySession>
-  update(id: string, command: SaveActivitySession): Promise<ActivitySession>
-  remove(id: string): Promise<void>
-  get(id: string): Promise<ActivitySession | undefined>
-  list(range: LocalDateRange): Promise<ActivitySession[]>
-}
-```
-
-Create/update validates the Activity category inside the same read/write transaction. Archived categories are valid for historical update only when the record already references that category; new/reclassified capture requires active categories. List is newest `occurredAt` first.
-
-### Retained repositories
-
-Repositories retain their data-safety contracts. ActionService supports habit/focus links only; persisted legacy receipt validation remains compatible. CategoryDomain expands to `activity`; Activity categories have no `transactionType`. Category reorder remains limited to one matching domain/type/archive group.
-
-## 5. Health projections
-
-Pure functions accept already-bounded arrays:
-
-```ts
-interface WeightTrend {
-  latest?: WeightEntry
-  deltaGrams?: number
-}
-
-interface ActivitySummary {
-  count: number
-  durationMinutes: number
-}
-```
-
-- `summarizeWeightTrend(entries, today)` finds the latest record and earliest record from `today - 29` through today; a delta exists only with at least two records.
-- `summarizeActivities(entries)` sums whole minutes with safe-integer checking.
-- `parseWeightToGrams(text)` accepts digits plus one decimal separator and at most three decimal kg places, then validates 20,000–500,000 grams without floating-point multiplication.
-- `formatWeightGrams` renders one-decimal kg for the UI while exact grams remain persisted/exported.
-- Habit streak/rate logic is reused unchanged. A new pure fourteen-week projection maps scheduled/completed local dates to accessible heatmap cells.
-
-## 6. Finance calendar projection
-
-`buildMonthCalendar(monthKey, selectedDate, transactions)` returns leading/trailing placeholders plus actual local dates, per-day income/expense/net minor units, today/selected flags, and weekday labels. It uses calendar components, never fixed-duration milliseconds. Month navigation clamps the selected day and issues no database write.
-
-The Finance page keeps one month query for calendar/totals/reports and derives the selected-day ledger from that result. Add/edit use the existing TransactionRepository and shared form draft.
-
-## 7. Routing and shell
-
-- Replace `/habits` destination with `/health` and add a replace redirect from `/habits`.
-- Health page is route-lazy-loaded.
-- Optional Health nested routes may begin as page-owned state; any addressable detail route must preserve browser back behavior.
-- Bottom navigation uses an internal allowlisted SVG icon component; no external font/icon network request.
-- The compact header derives its title from the active route and keeps accessible heading order inside pages.
-
-## 8. Sheet/dialog state machine
-
-```mermaid
-stateDiagram-v2
-    [*] --> Closed
-    Closed --> Editing: open with defaults or record
-    Editing --> Editing: validate failure / write failure
-    Editing --> ConfirmDiscard: close while dirty
-    ConfirmDiscard --> Editing: continue
-    ConfirmDiscard --> Closed: discard
-    Editing --> Saving: valid submit
-    Saving --> Editing: repository rejects
-    Saving --> Closed: commit succeeds
-```
-
-Each form registers a stable dirty token with the PWA provider. `Saving` disables duplicate submit. Success messages never precede commit. Focus returns to the opening control on close. At compact height, the sheet remains scrollable above the safe area and keyboard.
-
-## 9. Backup V2 types and migration
-
-```ts
-interface LifeIndexBackupV2 {
-  format: 'lifeindex-backup'
-  formatVersion: 2
-  appVersion: string
-  exportedAt: string
-  source: BackupSource
-  counts: BackupCountsV2
-  data: BackupDataV2
-}
-```
-
-Migration pipeline:
-
-1. Parse only the common header.
-2. If V0, validate against the frozen V0 schema and add empty `actionReceipts` to create V1.
-3. If V1, validate against the frozen V1 schema and add empty `weightEntries`/`activitySessions` to create V2.
-4. Parse strict V2 fields and run uniqueness, count, state, and reference checks.
-5. Keep canonical data behind a one-time, 15-minute in-memory preview token.
-6. Revalidate before replacing all nine stores in one transaction.
-
-Legacy schemas must not reuse a current schema in a way that accidentally requires future fields. Export emits V2 only.
-
-## 10. Reference and state validation
-
-- Transaction → existing matching Finance category.
-- Focus category → existing Focus category when present.
-- Activity → existing Activity category, archived allowed for historical import.
-- HabitRecord → existing Habit.
-- ActionReceipt → existing transaction/habitRecord/focusSession by action type.
-- At most one active Focus session.
-- Unique primary IDs and unique Habit/date compound keys.
-- Setting keys unique; optional `weightTarget` appears at most once.
-
-## 11. Settings contract
-
-```ts
-type Setting =
-  | ExistingV1Settings
-  | { key: 'weightTarget'; value: { weightGrams: number }; updatedAt: string }
-```
-
-Absence of `weightTarget` means no target. It is not seeded. Appearance remains a separate group and still applies immediately. Category management adds Activity as a fourth group.
-
-## 12. Safe logging
-
-New events follow the retained logger contract:
-
-- `weight.create|update|delete|list.*`
-- `activity.create|update|delete|list.*`
-- `health.projection.*`
-- `database.initialization.*` with schema version 2
-- `backup.*` with format version 2
-
-Allowed context includes operation, entity type, count, prior/next state, format/schema version, and failure class. Never pass entity IDs, grams, target, duration, intensity, category/name/title/note values, local dates tied to records, payloads, or fragments.
-
-## 13. Error handling
-
-- Zod/domain errors map to field or safe form messages.
-- Repository failures preserve the current draft and emit one sanitized failure event.
-- Health section reads fail independently.
-- Database upgrade failure keeps the initialization boundary active and offers retry; it does not create a replacement database.
-- Backup inspect/migrate/validate failure has no write side effect.
-- Atomic restore failure reports that current data was retained.
-
-## 14. Testing seams
-
-- Injected clock/UUID and unique fake-indexeddb database names.
-- Synthetic schema-V1 database fixture opened by V2 code.
-- Frozen V0/V1 backup builders and current V2 builder.
-- Forced table insertion failure during nine-store restore.
-- Pure calendar, weight parser/trend, activity summary, and heatmap functions.
-- React component tests for navigation, independent Health states, sheets, settings order, and draft retention.
-- Production Playwright at 320 × 568 and iPhone-class WebKit/Chromium viewports.
-
-## 15. Implementation sequence
-
-1. Add current types, validation, Dexie V2 declaration, seed activity categories, repositories, backup V2 migration, and integration tests.
-2. Add shared visual tokens/icons/sheet and V2 shell.
-3. Implement Today and Finance calendar/entry.
-4. Implement Health weight/activity plus retained Habits/detail.
-5. Refresh Focus and Settings.
-6. Run migration rehearsal, full local/E2E gates, deployed smoke, and owner-led iPhone acceptance.
-# 操作体验详细设计增量（2026-09-20）
-
-共享 Sheet 增量接入、记账详情删除、`/finance/report` 子路由及纯整数聚合契约见 [OPERATION_REFRESH_DEV](../development/OPERATION_REFRESH_DEV.md)。生产保持真实异步写入/草稿保护；不复用原型模拟数据和延迟，不改 V4 schema。下文保留既有细节。
+Service Worker 更新发现与激活分离。前台/联网检查可发现更新，激活前保护草稿及业务操作；重新加载后读取 IndexedDB。后台停留、系统菜单、键盘和主屏幕启动以 [真机清单](../operations/IPHONE_ACCEPTANCE.md)验证。

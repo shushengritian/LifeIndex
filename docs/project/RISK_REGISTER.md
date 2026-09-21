@@ -1,31 +1,14 @@
-# LifeIndex V2 Risk Register
+# 当前版本风险登记
 
-> **2026-09-14 · V2.1 amendment:** V2.1 risks: V3 cannot be downgraded by redeploying V2; require fresh V2 backup before release. Unknown days must never count as complete; checked by shared integrity + tests. Plan zones are fixed to avoid travel regrouping, UI discloses the zone. Current live-query loads cessation collections in memory while visible history is paged by 30; very large personal histories need profiling before claiming scale support. All records stay local; browser eviction and physical-device update behavior remain user-verification risks.
+| 风险 | 控制与待办 |
+| --- | --- |
+| 浏览器回收本地存储、来源改变或误清数据 | 提示定期导出；沿原来源使用；不以缓存当备份 |
+| 升级破坏有效记录 | 原生 40→50 合成库迁移测试、当前表/索引/设置断言、失败回滚 |
+| 无效备份或部分恢复 | 支持版本白名单、预览前完整校验、九表原子替换 |
+| iOS 后台、键盘及系统文件差异 | 用户按真机清单验证；浏览器证据单独记录 |
+| 更新中丢失未保存输入 | 更新激活确认、草稿与业务操作保护 |
+| 日期与计时边界 | 本地日期键、时区偏移、时间戳重算、跨日测试 |
+| 依赖安装与升级不一致 | 固定锁文件、审核安装脚本、验证干净安装 |
+| 证据误用 | 仅记录本次版本的实际结果，发布和真机各自确认 |
 
-**Status:** Active for V2 delivery
-
-**Last reviewed:** 2026-09-06
-
-Likelihood/impact are low, medium, or high. Plausible personal-data loss/disclosure and broken core offline capture are release-blocking regardless of likelihood.
-
-| ID | Risk | Likelihood | Impact | Mitigation/evidence required | Owner | Status |
-| --- | --- | --- | --- | --- | --- | --- |
-| R2-001 | V1→V2 database open loses or rewrites existing rows | medium | high | additive stores only; real schema-V1 fixture and logical row equality pass; initialization blocks on failure; iPhone upgrade still required | Data/User | automated mitigation verified; physical open |
-| R2-002 | V1 backup is rejected or restored without new-store consistency | medium | high | frozen V1 schema; pure V1→V2 migration; nine-store current validation/transaction and browser UI tests pass | Data | mitigated locally; physical pending |
-| R2-003 | Restore clears current data before invalid Health records are rejected | medium | high | pre-write validation, forced nine-store rollback, and browser replacement tests pass | Data | mitigated locally; physical pending |
-| R2-004 | Health values leak through logs, fixtures, URLs, or artifacts | medium | high | safe logger context plus synthetic Health marker capture across network/console; final artifact scan required | Security | locally mitigated; release scan pending |
-| R2-005 | V1 source rollback cannot open schema V2 | medium | high | no schema downgrade; retain V2-compatible release/fix path; documented rollback rule | Release/Data | accepted constraint, mitigation open |
-| R2-006 | Calendar/date math assigns records to the wrong day/month/week | medium | high | local-date keys plus month clamp, leap, Monday-first calendar, trend, and week-boundary tests pass | Finance/Health | mitigated automatically; physical pending |
-| R2-007 | Weight float conversion changes the entered measurement | medium | medium | string-to-integer grams parser and boundary/round-trip tests pass | Health | mitigated |
-| R2-008 | Activity category archive breaks historical rows | medium | medium | reference-preserving archive, active-only capture, import and repository tests pass | Health/Data | mitigated locally |
-| R2-009 | Dense calendar/Health content becomes unusable at 320 px | medium | medium | 320/390 inspection, edge-to-edge 320 calendar, touch/overflow/axe checks pass | UX | mitigated locally; physical pending |
-| R2-010 | Sheet keyboard/safe-area handling hides save/cancel controls on iPhone | medium | high | scrollable inert sheet, focus return, 16 px inputs, safe-area CSS and WebKit pass | UX/Test | mitigated locally; physical pending |
-| R2-011 | Update reload discards a dirty V2 sheet | medium | high | every new sheet registers with shared dirty-form guard; unit tests pass | Platform | mitigated locally; physical update pending |
-| R2-012 | Focus behavior regresses during visual rewrite | medium | high | repository/state machine unchanged; timer/reload/early-finish dual-engine tests pass | Focus | mitigated locally |
-| R2-013 | GitHub Pages base path/version cache publishes stale V1 | medium | high | base-aware build, exact rendered-version deployed test, workflow/run verification | Release | open |
-| R2-014 | Automation is mistaken for physical-iPhone proof | medium | high | separate physical checklist; record owner statements only | Test/User | open |
-| R2-015 | Safari site-data clearing/device loss removes all records | medium | high | visible local-only copy, V2 export/restore, owner Files/iCloud acceptance | Product/User | open |
-
-## Release rule
-
-Open data-loss, privacy, core offline, or unrecoverable migration risks block deployment/tagging. Cosmetic issues may be deferred only if they do not harm comprehension, accessibility, or safe action, and the deferral is recorded with owner approval.
+当前状态见 [PLAN](../../PLAN.md)。项目许可证需仓库所有者明确决定；未来产品扩展需新的范围决策，不构成当前待实施功能。

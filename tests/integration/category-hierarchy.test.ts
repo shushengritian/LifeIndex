@@ -1,7 +1,7 @@
 import Dexie from 'dexie'
 import { afterEach, describe, expect, it } from 'vitest'
 import { LifeIndexDatabase } from '@/data/db/LifeIndexDatabase'
-import { databaseSchemaV3 } from '@/data/db/schema'
+import { databaseSchemaV2 } from '@/data/db/schema'
 import { CategoryRepository } from '@/data/repositories/CategoryRepository'
 import { TransactionRepository } from '@/data/repositories/TransactionRepository'
 import { BackupService } from '@/data/backup/BackupService'
@@ -41,14 +41,17 @@ afterEach(async () => {
 })
 
 describe('two-level category integrity', () => {
-  it('preserves all V3 rows on index-only upgrade', async () => {
+  it('preserves active rows and converges the installed schema atomically', async () => {
     const name = `LegacyHierarchy-${crypto.randomUUID()}`
     const legacy = new Dexie(name)
-    legacy.version(3).stores(databaseSchemaV3)
+    legacy.version(4).stores({
+      ...databaseSchemaV2,
+      experimentalRecords: 'id',
+      experimentalDays: 'id',
+      experimentalEvents: 'id',
+    })
     await legacy.open()
     // Populate every shipped store: comparing empty tables cannot prove data preservation.
-    const planId = '00000000-0000-4000-8000-000000000080'
-    const common = { createdAt: FIXED_NOW, updatedAt: FIXED_NOW }
     const data: BackupData = {
       categories: createSeedCategories(FIXED_NOW),
       settings: createSeedSettings(FIXED_NOW),
@@ -66,56 +69,33 @@ describe('two-level category integrity', () => {
           outcomeEntityId: buildTransaction().id,
         },
       ],
-      cessationPlans: [
-        {
-          ...common,
-          id: planId,
-          startAt: FIXED_NOW,
-          startLocalDate: '2026-09-03',
-          timeZone: 'Asia/Shanghai',
-        },
-      ],
-      cessationDays: [
-        {
-          ...common,
-          id: '00000000-0000-4000-8000-000000000081',
-          planId,
-          localDate: '2026-09-03',
-          kind: 'snapshot',
-          reportedAt: FIXED_NOW,
-        },
-      ],
-      cessationEvents: [
-        {
-          ...common,
-          id: '00000000-0000-4000-8000-000000000082',
-          planId,
-          localDate: '2026-09-03',
-          occurredAt: FIXED_NOW,
-          kind: 'craving',
-          outcome: 'relieved',
-        },
-      ],
     }
     await legacy.transaction('rw', legacy.tables, async () => {
       for (const [store, rows] of Object.entries(data)) await legacy.table(store).bulkAdd(rows)
     })
-    console.info('migration.v3.fixture.ready', { count: legacy.tables.length })
+    console.info('migration.fixture.ready', { count: legacy.tables.length })
     const before = await Promise.all(
-      legacy.tables.map(async (table) => ({ name: table.name, rows: await table.toArray() })),
+      Object.keys(data).map(async (name) => ({ name, rows: await legacy.table(name).toArray() })),
     )
+    // Exercise a real populated earlier database rather than relying on fresh-install coverage.
+    await legacy.table('experimentalRecords').add({ id: 'synthetic' })
+    await legacy
+      .table('settings')
+      .put({ key: 'experimentalMode', value: true, updatedAt: FIXED_NOW })
     legacy.close()
     const db = new LifeIndexDatabase(name)
     opened.push(db)
     // Exercise the actual startup path as well as the index upgrade; seeding must stay idempotent.
     await db.initialize(new Date(FIXED_NOW))
-    expect(db.verno).toBe(4)
+    expect(db.verno).toBe(5)
+    expect(db.tables.map(({ name }) => name).sort()).toEqual(Object.keys(data).sort())
+    expect(Array.from(db.backendDB().objectStoreNames).sort()).toEqual(Object.keys(data).sort())
     expect(db.categories.schema.indexes.some(({ name }) => name === 'parentId')).toBe(true)
     for (const table of before) {
       expect(table.rows.length).toBeGreaterThan(0)
       expect(await db.table(table.name).toArray()).toEqual(table.rows)
     }
-    console.info('migration.v4.preservation.passed', { count: before.length })
+    console.info('migration.preservation.passed', { count: before.length })
   })
 
   it('rejects third levels, missing parents and cross-type parents atomically', async () => {
@@ -154,11 +134,11 @@ describe('two-level category integrity', () => {
     expect((await db.categories.get(child.id))?.archived).toBe(1)
   })
 
-  it('round-trips V4, refuses disguised legacy hierarchy and rejects dangling references', async () => {
+  it('round-trips the current backup, refuses disguised legacy hierarchy and rejects dangling references', async () => {
     const { db, child } = await setup()
     const backup = new BackupService(db, 'test')
     const snapshot = await backup.createSnapshot()
-    expect(snapshot.formatVersion).toBe(4)
+    expect(snapshot.formatVersion).toBe(5)
     const preview = backup.inspectText(JSON.stringify(snapshot))
     await backup.restore(preview.token)
     expect(await db.categories.get(child.id)).toEqual(child)
@@ -170,7 +150,7 @@ describe('two-level category integrity', () => {
     const rootsOnly = structuredClone(snapshot)
     rootsOnly.data.categories = rootsOnly.data.categories.filter(({ parentId }) => !parentId)
     rootsOnly.counts.categories = rootsOnly.data.categories.length
-    expect(validateBackup({ ...rootsOnly, formatVersion: 3 }).data).toEqual(rootsOnly.data)
+    expect(validateBackup({ ...rootsOnly, formatVersion: 2 }).data).toEqual(rootsOnly.data)
   })
 
   it('aggregates root and child amounts once each', async () => {

@@ -4,7 +4,7 @@ import { LifeIndexDatabase } from '@/data/db/LifeIndexDatabase'
 import { calculateCounts, storeKeys, validateBackup } from '@/data/backup/schema'
 import type { Clock, IdGenerator } from '@/shared/domain/runtime'
 import { cryptoIdGenerator, systemClock } from '@/shared/domain/runtime'
-import type { BackupData, LifeIndexBackupV4 } from '@/shared/domain/types'
+import type { BackupData, LifeIndexBackup } from '@/shared/domain/types'
 import { AppError } from '@/shared/errors/AppError'
 import { logger } from '@/shared/logging/logger'
 
@@ -13,19 +13,19 @@ const PREVIEW_TTL_MILLISECONDS = 15 * 60 * 1000
 
 export interface BackupPreview {
   token: string
-  formatVersion: 4
+  formatVersion: 5
   appVersion: string
   exportedAt: string
-  counts: LifeIndexBackupV4['counts']
+  counts: LifeIndexBackup['counts']
   expiresAt: string
 }
 
 export interface RestoreResult {
-  counts: LifeIndexBackupV4['counts']
+  counts: LifeIndexBackup['counts']
 }
 
 interface PreviewEntry {
-  backup: LifeIndexBackupV4
+  backup: LifeIndexBackup
   expiresAtMilliseconds: number
 }
 
@@ -43,15 +43,15 @@ export class BackupService {
     private readonly idGenerator: IdGenerator = cryptoIdGenerator,
   ) {}
 
-  async createSnapshot(locale = navigator.language || 'zh-CN'): Promise<LifeIndexBackupV4> {
-    logger.info('backup.export.started', { operation: 'snapshot', formatVersion: 4 })
+  async createSnapshot(locale = navigator.language || 'zh-CN'): Promise<LifeIndexBackup> {
+    logger.info('backup.export.started', { operation: 'snapshot', formatVersion: 5 })
 
     try {
       const data = await this.readConsistentData()
       const now = this.clock.now()
-      const backup: LifeIndexBackupV4 = {
+      const backup: LifeIndexBackup = {
         format: 'lifeindex-backup',
-        formatVersion: 4,
+        formatVersion: 5,
         appVersion: this.appVersion,
         exportedAt: now.toISOString(),
         source: {
@@ -64,14 +64,14 @@ export class BackupService {
       const canonical = validateBackup(backup)
       logger.info('backup.export.succeeded', {
         operation: 'snapshot',
-        formatVersion: 4,
+        formatVersion: 5,
         count: Object.values(canonical.counts).reduce((sum, count) => sum + count, 0),
       })
       return canonical
     } catch (error) {
       logger.error('backup.export.failed', error, {
         operation: 'snapshot',
-        formatVersion: 4,
+        formatVersion: 5,
         failureClass: 'BackupExport',
       })
       throw error instanceof AppError
@@ -80,12 +80,12 @@ export class BackupService {
     }
   }
 
-  serialize(backup: LifeIndexBackupV4): string {
+  serialize(backup: LifeIndexBackup): string {
     return `${JSON.stringify(validateBackup(backup), null, 2)}\n`
   }
 
   inspectText(text: string, byteLength = new TextEncoder().encode(text).byteLength): BackupPreview {
-    logger.info('backup.import.inspectionstarted', { operation: 'inspect', formatVersion: 4 })
+    logger.info('backup.import.inspectionstarted', { operation: 'inspect', formatVersion: 5 })
     if (byteLength > MAX_BACKUP_BYTES) {
       logger.warn('backup.import.rejected', {
         operation: 'inspect',
@@ -118,7 +118,7 @@ export class BackupService {
       })
       return {
         token,
-        formatVersion: 4,
+        formatVersion: 5,
         appVersion: backup.appVersion,
         exportedAt: backup.exportedAt,
         counts: backup.counts,
@@ -138,7 +138,7 @@ export class BackupService {
   }
 
   async restore(token: string): Promise<RestoreResult> {
-    logger.info('backup.restore.started', { operation: 'replace', formatVersion: 4 })
+    logger.info('backup.restore.started', { operation: 'replace', formatVersion: 5 })
     const entry = this.previews.get(token)
     if (!entry || entry.expiresAtMilliseconds < this.clock.now().getTime()) {
       this.previews.delete(token)
@@ -190,9 +190,6 @@ export class BackupService {
       this.database.actionReceipts,
       this.database.weightEntries,
       this.database.activitySessions,
-      this.database.cessationPlans,
-      this.database.cessationDays,
-      this.database.cessationEvents,
     ]
 
     return this.database.transaction('r', tables, async () => ({
@@ -208,13 +205,10 @@ export class BackupService {
       ),
       weightEntries: sortByKey(await this.database.weightEntries.toArray(), ({ id }) => id),
       activitySessions: sortByKey(await this.database.activitySessions.toArray(), ({ id }) => id),
-      cessationPlans: sortByKey(await this.database.cessationPlans.toArray(), ({ id }) => id),
-      cessationDays: sortByKey(await this.database.cessationDays.toArray(), ({ id }) => id),
-      cessationEvents: sortByKey(await this.database.cessationEvents.toArray(), ({ id }) => id),
     }))
   }
 
-  private async replaceData(backup: LifeIndexBackupV4): Promise<void> {
+  private async replaceData(backup: LifeIndexBackup): Promise<void> {
     const tables: Table[] = storeKeys.map((key) => this.database[key])
     await this.database.transaction('rw', tables, async () => {
       // One transaction makes clear-and-replace all-or-nothing across every business store.
@@ -228,9 +222,6 @@ export class BackupService {
       await this.addIfPresent(this.database.actionReceipts, backup.data.actionReceipts)
       await this.addIfPresent(this.database.weightEntries, backup.data.weightEntries)
       await this.addIfPresent(this.database.activitySessions, backup.data.activitySessions)
-      await this.addIfPresent(this.database.cessationPlans, backup.data.cessationPlans)
-      await this.addIfPresent(this.database.cessationDays, backup.data.cessationDays)
-      await this.addIfPresent(this.database.cessationEvents, backup.data.cessationEvents)
 
       const actualCounts = calculateCounts({
         categories: await this.database.categories.toArray(),
@@ -242,9 +233,6 @@ export class BackupService {
         actionReceipts: await this.database.actionReceipts.toArray(),
         weightEntries: await this.database.weightEntries.toArray(),
         activitySessions: await this.database.activitySessions.toArray(),
-        cessationPlans: await this.database.cessationPlans.toArray(),
-        cessationDays: await this.database.cessationDays.toArray(),
-        cessationEvents: await this.database.cessationEvents.toArray(),
       })
       if (storeKeys.some((key) => actualCounts[key] !== backup.counts[key])) {
         throw new AppError('RestoreWrite', 'Restored store counts do not match')

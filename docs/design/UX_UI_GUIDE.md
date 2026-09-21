@@ -1,153 +1,27 @@
-# LifeIndex V1 UX/UI Guide
+# LifeIndex 当前版本设计指导
 
-**Direction:** Modern, minimal, calm, refined, personal, data-aware
+方向：安静、清晰、轻量、个人化。主设备为 iPhone，界面使用简体中文和系统字体。当前视觉为 Ocean 深浅主题，品牌为 LifeIndex。
 
-**Primary surface:** iPhone Home Screen PWA
+## 布局与操作
 
-## 1. Experience principles
+五个常驻入口为今天、健康、专注、记账、设置。页面优先一个主操作；内容区域负责查看，独立加号或编辑入口负责写入。习惯名称和打卡触点分开。图标按钮具备可访问名称，不能只靠颜色表达意义。
 
-- Quiet clarity: reveal the next useful action without turning life into a performance dashboard.
-- Fast capture: common input starts with the field that matters most and preserves sensible, visible defaults.
-- Trust through feedback: confirm successful local writes and explain failures without exposing technical noise.
-- Honest data safety: distinguish local persistence from backup and never imply automatic cloud sync.
-- Native familiarity: respect iPhone safe areas, touch conventions, system typography, appearance, and reduced motion without pretending the PWA is a native binary.
+从 320 CSS 像素起验证，保证触点尽量达到 44×44，文字放大后可读，表单输入至少 16px。保留安全区、稳定底栏和可滚动内容；日历七列不得压缩到不可操作。月份、日历、流水和报表返回保持上下文。
 
-## 2. Voice and language
+## 视觉
 
-- Brand and product name: `LifeIndex`.
-- Tagline: `Index your life.`
-- Primary interface language: concise Simplified Chinese.
-- Use neutral, descriptive copy: `本月支出`, `今日专注`, `已完成 3/5`.
-- Avoid judgmental language such as `失败`, `偷懒`, `超支警告` unless describing a real technical failure.
-- Error copy states what happened, whether data changed, and the next safe action.
+颜色和字号使用生产 CSS 的语义变量，见 [Ocean 参考](G3_OCEAN_TOKENS.md)。数字采用等宽数字，值附单位；专注完整圆环以真实时间比例显示，体重趋势来自实际记录。数据为空时显示空态，不绘制虚构趋势。
 
-## 3. Layout
+分类使用原创 SVG 图标、柔和底色和文字标签。常规内容用间距、色阶和分隔线分组，避免过密卡片。动效克制，遵循减少动态效果偏好。
 
-- Design mobile-first from 320 CSS pixels upward.
-- Use one primary content column with a readable maximum width on larger screens.
-- Respect `env(safe-area-inset-top)` and `env(safe-area-inset-bottom)` in standalone mode.
-- Keep the bottom navigation stable; ensure scrolling content is not hidden behind it.
-- Prefer 16 px horizontal page padding on compact phones and 20–24 px on wider screens.
-- Use an 8 px spacing grid with 4 px only for tight internal relationships.
+## 表单、错误和数据安全
 
-## 4. Typography
+Sheet/ConfirmDialog 负责焦点、背景隔离和返回。标签持续可见；错误说明发生了什么、数据是否改变及下一步。失败保留输入；保存中防重复；离开脏表单需确认。危险操作独立确认。
 
-- Use the system stack headed by `-apple-system`/`BlinkMacSystemFont`.
-- Body text: 16 px minimum for form controls to avoid iOS input zoom.
-- Recommended scale: 12 metadata, 14 secondary, 16 body/control, 20 section title, 28 page metric/title.
-- Use tabular numerals for money, timer values, and aligned statistics.
-- Prefer weight and whitespace over excessive size for hierarchy.
+成功写入反馈简短并刷新视图；异日记录提供可回看入口。设置明确本机存储和导出责任；恢复先校验、预览、确认。系统文件或分享取消后保持应用可继续操作。
 
-## 5. Color tokens
+## 设计依据与验证
 
-Initial tokens are implementation candidates and must pass contrast checks:
+保留的 [视觉参考](reviews/README.md)仅辅助布局与组件理解，不能替代本次 UI、自动化或真机验收。验证深浅主题、键盘、读屏、空态、失败、长文本、后台返回和系统菜单，按 [测试计划](../testing/TEST_PLAN.md)记录本次结果。
 
-| Role        | Light candidate | Dark candidate | Purpose                           |
-| ----------- | --------------- | -------------- | --------------------------------- |
-| Canvas      | `#F4F3EE`       | `#151713`      | Calm app background               |
-| Surface     | `#FFFDF8`       | `#20231E`      | Cards and sheets                  |
-| Text        | `#20231F`       | `#F3F2EC`      | Primary content                   |
-| Muted text  | `#62675F`       | `#AEB4AA`      | Secondary content                 |
-| Accent      | `#3F6B57`       | `#78B596`      | Primary action/selection          |
-| Positive    | `#4F7658`       | `#82BE8C`      | Completed state with icon/text    |
-| Warning     | `#9A6B2F`       | `#D4A55D`      | Recoverable attention             |
-| Destructive | `#A14343`       | `#E07A7A`      | Confirmed destructive action only |
-| Divider     | `#DADBD4`       | `#373B34`      | Structural separation             |
-
-Module identity should be subtle—small accent variations, icons, and labels—not large saturated panels. Never encode income/expense or complete/incomplete by color alone.
-
-## 6. Components
-
-### Bottom navigation
-
-- Five equal destinations with icon and Chinese label.
-- Minimum 44 px target height plus bottom safe area.
-- Active state uses accent, weight, and an accessible current-page state.
-
-### Cards and summaries
-
-- Use cards only to group related action and information.
-- Avoid nested cards and dense dashboard grids.
-- A summary shows one primary value, its period label, and at most one supporting comparison in V1.
-
-### Forms
-
-- Labels remain visible; placeholders are examples, not labels.
-- Show currency alongside amount and use decimal input mode.
-- Use native date/time controls when they provide more reliable iPhone behavior.
-- Disable submission only for a clear reason and expose validation near fields.
-- Preserve entered values when a storage write fails.
-
-### Buttons
-
-- One visually primary action per screen/sheet.
-- Minimum 44 by 44 CSS pixels.
-- Destructive actions are secondary until the confirmation step.
-- Icon-only buttons require accessible names and visible tooltips on pointer devices where applicable.
-
-### Feedback
-
-- Local success feedback is brief and non-blocking.
-- Errors remain visible until addressed.
-- Offline status appears only when it changes expectations; valid local mutations remain available.
-- Update prompts explain that reopening will use the new app version and protect in-progress work.
-
-## 7. Module-specific behavior
-
-### Today
-
-- Lead with the date and today's habits, then quick actions and concise summaries.
-- Do not show long historical charts.
-- Empty state should invite the first record without requiring onboarding completion.
-
-### Finance
-
-- Amount is visually prominent but not oversized.
-- Expense/income control is explicit and accessible.
-- Historical rows show category, amount, local time/date, and note only when present.
-- Totals use consistent sign and currency formatting.
-
-### Focus
-
-- Timer uses tabular numerals and stays readable at arm's length.
-- Natural completion, early finish, and cancel are distinct states/actions.
-- Motion is subtle and absent when reduced motion is requested.
-
-### Habits
-
-- Check-in is a direct, reversible control.
-- Calendar uses shape/icon plus color for completion.
-- Streak information is descriptive, never punitive.
-
-### Settings/data safety
-
-- Export is a normal primary data-safety action.
-- Restore uses a sequence of file selection, validation preview, and explicit replacement confirmation.
-- The confirmation names counts and states that merge is not performed.
-
-## 8. Accessibility checklist
-
-- Semantic headings and landmarks.
-- Logical DOM/focus order matching visual order.
-- Visible focus indicator for keyboard and switch-control use.
-- Screen-reader names, values, states, and error associations.
-- Text and essential controls meet WCAG AA contrast.
-- 200% text zoom does not hide core actions or cause horizontal scrolling.
-- Touch targets meet 44 px minimum with adequate separation.
-- Status never depends on color alone.
-- Reduced motion disables nonessential transitions.
-- Charts include text summaries or accessible tabular equivalents.
-
-## 9. Visual review states
-
-Every primary screen must be rendered and inspected in at least:
-
-- Empty data
-- Representative data
-- Long Chinese labels/notes
-- Loading
-- Validation error
-- Storage error where feasible
-- Offline
-- Light and dark appearance
-- 320 px compact width and a current iPhone-sized viewport
+手动参考设计资料；不运行设计技能的自动启动器、引擎、浏览器桥接或安装 hooks。

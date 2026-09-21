@@ -1,38 +1,28 @@
 # LifeIndex
 
-> Index your life.
+Index your life.
 
-LifeIndex is a local-first personal life index for iPhone. The V2 progressive web app combines Finance, Focus, and lightweight Health—manual weight, activity, and habits—while keeping primary data in the device's IndexedDB database.
+LifeIndex 是面向 iPhone 的本地优先生活记录 PWA，包含今天、健康（体重、运动、习惯）、专注、记账和设置。数据保存在本机 IndexedDB；应用外壳支持离线，JSON 备份由用户自行保存和恢复。
 
-## Project status
+当前版本标识：**3.3.0**；内部包版本：`3.3.0`。本次发布验证状态见 [交付计划](PLAN.md)，版本标识不代表已经部署或通过真机验收。
 
-LifeIndex **v3.1.0 (Ocean) is live**: consistent editors and draft protection across modules, an independent read-only Finance report, timer-area Focus actions, and clearer Today navigation and check-ins. Page and editor scrollbars are hidden without disabling scrolling. Database/backup remain V4; backups using the expanded icon set require 2.2.2 or newer. See [deployment evidence and update guidance](docs/releases/v3.1.0.md). Physical-iPhone checks, including keyboard and long-press navigation behavior, remain pending, not passed. Do not uninstall or clear site data to update. Current scope and follow-ups are tracked in PLAN.md.
+## 开发
 
-Open [LifeIndex on GitHub Pages](https://shushengritian.github.io/LifeIndex/). The previous V2 delivery is archived in [V2 release notes](docs/releases/v2.0.0.md) and [V2_PLAN.md](V2_PLAN.md).
+需要 Node.js ≥20.19.0 和 package.json 指定的 pnpm。
 
-To install, open the live URL in iPhone Safari, choose **Share → Add to Home Screen**, and leave **Open as Web App** enabled if shown. Start from the Home Screen icon and use synthetic data until the [physical acceptance checklist](docs/operations/IPHONE_ACCEPTANCE.md) is complete. No App Store or Apple Developer account is needed.
-
-## Product principles
-
-- Local-first and offline-capable after the initial load
-- Privacy-first, with no backend, account, analytics, or cloud database
-- Versioned JSON backup and restore as a first-class capability
-- Fast, calm, iPhone-focused daily interactions
-- Lightweight scope: no account, calorie tracker, workout program, payment scraping, or cloud synchronization
-
-## Development
-
-```bash
+```sh
 pnpm install --frozen-lockfile
 pnpm dev
 ```
 
-Use `pnpm quality` for the non-E2E local gate and `pnpm test:e2e` for the production-preview browser gate. See [DEV.md](docs/development/DEV.md) for environment, command, data-migration, and release details.
+质量检查：`pnpm quality`；浏览器验证：`pnpm test:e2e`。生产 PWA 行为使用构建预览验证，详见 [开发指南](docs/development/DEV.md)。
 
-PWA installation behavior, controlled updates, offline guarantees, and the habit/focus link contract are documented in [PWA.md](docs/operations/PWA.md).
+## 文档
 
-GitHub CI/Pages behavior and rollback are documented in [DEPLOYMENT.md](docs/operations/DEPLOYMENT.md). The deferred real-device checklist remains separate in [IPHONE_ACCEPTANCE.md](docs/operations/IPHONE_ACCEPTANCE.md), so automated WebKit checks and owner acceptance cannot be mistaken for physical test results.
+- [产品基线](LifeIndex-Project-Baseline.md)与[范围决策](docs/adr/0001-current-product-scope.md)
+- [产品需求](docs/product/PRD.md)与[信息架构](docs/product/INFORMATION_ARCHITECTURE.md)
+- [架构](docs/architecture/HLD.md)、[详细设计](docs/architecture/LLD.md)、[数据模型](docs/architecture/DATA_MODEL.md)、[备份契约](docs/architecture/BACKUP_SCHEMA.md)
+- [设计指导](docs/design/UX_UI_GUIDE.md)、[当前 UI 实现](docs/development/CURRENT_UI.md)与[视觉资源](docs/design/assets/README.md)
+- [测试计划](docs/testing/TEST_PLAN.md)、[PWA 使用](docs/operations/PWA.md)、[部署](docs/operations/DEPLOYMENT.md)、[iPhone 验收](docs/operations/IPHONE_ACCEPTANCE.md)
 
-## Private data warning
-
-Never commit a LifeIndex backup or real personal data. The repository stores application code and documentation only. GitHub Pages will host the static application shell; personal records remain in each browser's local IndexedDB storage.
+数据仅在当前设备和浏览器来源内保存。定期导出备份；更新时沿用原入口，不清除网站数据。备份文件不进入仓库。

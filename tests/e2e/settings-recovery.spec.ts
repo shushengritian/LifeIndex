@@ -56,13 +56,15 @@ test('settings callouts, file cancellation and nested dialog return keep navigat
   await page.getByRole('link', { name: '记账', exact: true }).click()
   await expect(page.getByRole('button', { name: '新增交易' })).toBeVisible()
   await expectNavigation(page)
-  // The shared Health subpage must return to the Settings origin without changing a plan.
+  // Public release details retain a direct return to Settings and its usable navigation.
   await page.getByRole('link', { name: '设置', exact: true }).click()
-  await page.getByRole('link', { name: '戒烟计划', exact: true }).click()
+  await page.getByRole('link', { name: '关于 LifeIndex', exact: true }).click()
+  await expect(page.getByLabel('应用版本 3.3.0', { exact: true })).toBeVisible()
+  await expect(page.getByText('数据库版本', { exact: true })).toHaveCount(0)
   await page.getByRole('link', { name: '返回设置', exact: true }).click()
   await expect(page.getByRole('heading', { name: '设置', exact: true })).toBeVisible()
   await expectNavigation(page)
-  console.info('settings.cessation.origin.checked', { operation: 'navigate' })
+  console.info('settings.about.return.checked', { operation: 'navigate' })
 })
 
 for (const theme of ['浅色', '深色']) {

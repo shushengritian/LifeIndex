@@ -4,7 +4,6 @@ import { Link, Navigate, useParams } from 'react-router-dom'
 import { useAppServices } from '@/app/AppServicesContext'
 import { BackupService, MAX_BACKUP_BYTES, type BackupPreview } from '@/data/backup/BackupService'
 import { exportBackupToDevice } from '@/data/backup/browserBackup'
-import { CURRENT_DATABASE_VERSION } from '@/data/db/schema'
 import { CategoryRepository } from '@/data/repositories/CategoryRepository'
 import { SettingsRepository } from '@/data/repositories/SettingsRepository'
 import { applyAppearance } from '@/features/settings/appearance'
@@ -174,14 +173,15 @@ export function SettingsPage({ view = 'home' }: { view?: SettingsView }) {
     setPreview(undefined)
     setError('')
     setMessage('')
-    logger.info('backup.file.readstarted', { operation: 'inspect', formatVersion: 4 })
+    // Report the current inspection contract without exposing file names or backup contents.
+    logger.info('backup.file.readstarted', { operation: 'inspect', formatVersion: 5 })
     try {
       if (file.size > MAX_BACKUP_BYTES) {
         backup.inspectText('', file.size)
       }
       const inspected = backup.inspectText(await file.text(), file.size)
       setPreview(inspected)
-      logger.info('backup.file.readsucceeded', { operation: 'inspect', formatVersion: 4 })
+      logger.info('backup.file.readsucceeded', { operation: 'inspect', formatVersion: 5 })
     } catch (caught) {
       logger.error('backup.file.readfailed', caught, {
         operation: 'inspect',
@@ -399,11 +399,8 @@ export function SettingsPage({ view = 'home' }: { view?: SettingsView }) {
               <dl className="about-list">
                 <div>
                   <dt>应用版本</dt>
+                  {/* About exposes the application release, keeping storage internals out of this view. */}
                   <dd aria-label={`应用版本 ${__APP_VERSION__}`}>{__APP_VERSION__}</dd>
-                </div>
-                <div>
-                  <dt>数据库版本</dt>
-                  <dd>{CURRENT_DATABASE_VERSION}</dd>
                 </div>
                 <div>
                   <dt>存储方式</dt>
@@ -477,13 +474,6 @@ function SettingsHome({ appearance }: { appearance: Appearance }) {
       <section className="settings-section" aria-labelledby="other-title">
         <h2 id="other-title">其他</h2>
         <SettingsRow
-          to="/health/cessation"
-          icon="health"
-          title="戒烟计划"
-          subtitle="查看历史与入口设置"
-          tone="sage"
-        />
-        <SettingsRow
           to="about"
           icon="health"
           title="关于 LifeIndex"
@@ -512,13 +502,11 @@ function SettingsRow({
     <Link
       className="settings-row"
       aria-label={title}
-      to={to.startsWith('/') ? to : `/settings/${to}`}
-      // Cessation is shared with Health; carry only a closed origin value, never a redirect URL.
-      state={to === '/health/cessation' ? { from: 'settings' } : undefined}
+      to={`/settings/${to}`}
       onClick={() => {
         logger.info('settings.navigation.opened', {
           operation: 'navigate',
-          reason: to === '/health/cessation' ? 'cessation' : 'settings',
+          reason: 'settings',
         })
       }}
       onContextMenu={(event) => {
@@ -557,9 +545,6 @@ function BackupPreviewPanel({
     ['focusSessions', '专注'],
     ['weightEntries', '体重'],
     ['activitySessions', '运动'],
-    ['cessationPlans', '戒烟计划'],
-    ['cessationDays', '无烟日确认'],
-    ['cessationEvents', '戒烟事件'],
     ['categories', '分类'],
     ['settings', '设置'],
     ['actionReceipts', '动作回执'],

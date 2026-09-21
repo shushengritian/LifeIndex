@@ -53,11 +53,6 @@ const ActivityHistoryPage = lazy(() =>
     default: ActivityHistoryPage,
   })),
 )
-const CessationPage = lazy(() =>
-  import('@/features/health/cessation/CessationPage').then(({ CessationPage }) => ({
-    default: CessationPage,
-  })),
-)
 const SettingsPage = lazy(() =>
   import('@/features/settings/SettingsPage').then(({ SettingsPage }) => ({
     default: SettingsPage,
@@ -171,15 +166,6 @@ function createAppRouter() {
           element={
             <LazyRoute>
               <ActivityHistoryPage />
-            </LazyRoute>
-          }
-        />
-        {/* Cessation remains a Health child; no new bottom-navigation destination. */}
-        <Route
-          path="/health/cessation"
-          element={
-            <LazyRoute>
-              <CessationPage />
             </LazyRoute>
           }
         />
