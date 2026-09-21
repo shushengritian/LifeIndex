@@ -1,5 +1,11 @@
 # LifeIndex V2 Physical iPhone Acceptance
 
+## 当前 3.1.0 真机复验（待用户）
+
+2026-09-21：依据 ADR-0021，先完成自动化与发布，再由用户真机验证。当前清单见 [3.1.0 发布记录](../releases/v3.1.0.md#发布后真机清单待用户执行)。重点为网页滚动条、短屏/键盘、弹层关闭底栏、长按恢复入口、报表返回与后台专注。不要卸载或清数据；联网从原入口更新后，在关于中确认 3.1.0。未收到用户结果前全部保持未验证。
+
+下方是 V2 历史验收表，不应将其版本/提交当作 3.1.0，也不能将自动化通过填作真机通过。
+
 **Status:** Physical checks deferred by owner; browser automation accepted for V2 under [ADR-0008](../adr/0008-v2-automated-acceptance.md)
 
 On 2026-09-14 the owner authorized automated acceptance and V2 completion. The checklist below is retained for optional hardware follow-up; its physical-only gates no longer block this release. Unreported physical results remain unverified.

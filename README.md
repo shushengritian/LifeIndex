@@ -6,7 +6,7 @@ LifeIndex is a local-first personal life index for iPhone. The V2 progressive we
 
 ## Project status
 
-LifeIndex **v3.0.0 (Ocean) is live**, marking the owner's usable-product milestone: real-time elapsed Focus labels, clearer saved-session totals and refined spacing around actions and dividers. It retains the new app icon, 60 category icons and rounded Settings feedback. Database/backup remain V4; backups using the expanded icon set require 2.2.2 or newer. See [deployment evidence and update guidance](docs/releases/v3.0.0.md). Physical-iPhone checks, including the reported long-press navigation issue, remain pending, not passed. Current scope and follow-ups are tracked in PLAN.md.
+LifeIndex **v3.1.0 (Ocean) is live**: consistent editors and draft protection across modules, an independent read-only Finance report, timer-area Focus actions, and clearer Today navigation and check-ins. Page and editor scrollbars are hidden without disabling scrolling. Database/backup remain V4; backups using the expanded icon set require 2.2.2 or newer. See [deployment evidence and update guidance](docs/releases/v3.1.0.md). Physical-iPhone checks, including keyboard and long-press navigation behavior, remain pending, not passed. Do not uninstall or clear site data to update. Current scope and follow-ups are tracked in PLAN.md.
 
 Open [LifeIndex on GitHub Pages](https://shushengritian.github.io/LifeIndex/). The previous V2 delivery is archived in [V2 release notes](docs/releases/v2.0.0.md) and [V2_PLAN.md](V2_PLAN.md).
 

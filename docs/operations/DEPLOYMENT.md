@@ -1,6 +1,6 @@
 # LifeIndex GitHub Pages Deployment Runbook
 
-> **当前：** 2.2.0/V4 已部署；后续本地修订未发布。部署前运行格式、lint、类型、单元/集成、生产构建与双引擎浏览器检查，再验证 Pages 子路径、版本、manifest 与 service worker。详见 [G5 审计](../project/G5_RELEASE_AUDIT.md)。
+> **当前 2026-09-21：** 3.1.0/V4 操作体验更新按 ADR-0021 发布，最新状态、源码和 Pages 证据见 [3.1.0 发布记录](../releases/v3.1.0.md)。主分支工作流保留静态/单元/集成、生产浏览器、Pages 子路径构建、部署及 live smoke 三阶段；线上 gate 从 package.json 获取版本，并校验原生 DB 40（逻辑 V4）。不降级/清空用户数据。下方旧版本段落为历史，不替代当前授权或状态。
 
 > **2026-09-14 · V2.1 amendment:** V2.1 is local and unpublished. Before main push/deploy, obtain G2 publication authorization and confirmation of a fresh V2 backup, run normal quality/CI/Pages/live smoke, then record actual iPhone evidence or an explicitly scoped deferral. V3 IndexedDB is not downgraded by deploying V2 assets; do not clear user storage. Legacy restore warns that cessation data is replaced with empty collections. V2's ADR-0008 exemption does not automatically apply to V2.1.
 
