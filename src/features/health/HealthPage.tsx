@@ -1,4 +1,12 @@
-import { useCallback, useMemo, useRef, useState, type FormEvent } from 'react'
+import {
+  useCallback,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type FormEvent,
+  type ReactNode,
+} from 'react'
 
 import { useAppServices } from '@/app/AppServicesContext'
 import {
@@ -25,7 +33,7 @@ import type {
 import { useLiveQueryState } from '@/shared/hooks/useLiveQueryState'
 import { logger } from '@/shared/logging/logger'
 import { Icon } from '@/shared/ui/Icon'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { CessationCard } from '@/features/health/cessation/CessationCard'
 import { Sheet } from '@/shared/ui/Sheet'
 import { useDirtyForm } from '@/pwa/useDirtyForm'
@@ -34,8 +42,38 @@ import { HealthHistoryList } from './HealthHistoryList'
 import { WeightTrendChart } from './WeightTrendChart'
 import { CategoryIcon } from '@/shared/ui/CategoryIcon'
 import { HealthFormError } from './HealthFormError'
+import { HealthSaveAction } from './HealthSaveAction'
 
 type HealthSheet = 'chooser' | 'weight' | 'activity' | 'target'
+
+function HealthSummaryEntry({
+  children,
+  label,
+  onOpen,
+}: {
+  children: ReactNode
+  label: string
+  onOpen?: () => void
+}) {
+  // History already owns the destination: retain its live summary as static content.
+  if (!onOpen)
+    return (
+      <div className="health-summary-entry" aria-label={label}>
+        {children}
+      </div>
+    )
+  return (
+    <button
+      type="button"
+      className="content-entry health-summary-entry"
+      aria-label={label}
+      onClick={onOpen}
+    >
+      {children}
+      <Icon name="next" size={24} />
+    </button>
+  )
+}
 
 function toDateTimeLocalInput(date: Date): string {
   const pad = (value: number) => String(value).padStart(2, '0')
@@ -66,6 +104,7 @@ function WeightForm({
   onSave: (command: SaveWeightEntryCommand) => Promise<void>
   onDelete?: () => void
 }) {
+  const formId = useId()
   const [initial] = useState(() => ({
     weight: entry ? editableKilograms(entry.weightGrams) : '',
     measuredAt: entry
@@ -138,13 +177,20 @@ function WeightForm({
   }
 
   return (
-    <Sheet title={entry ? '编辑体重' : '记录体重'} structured onClose={cancel} busy={saving}>
+    <Sheet
+      title={entry ? '编辑体重' : '记录体重'}
+      structured
+      onClose={cancel}
+      busy={saving}
+      headerAction={<HealthSaveAction formId={formId} busy={saving} label="保存体重" />}
+    >
       <form
-        className="sheet-form sheet-form--structured"
+        id={formId}
+        className="sheet-form sheet-form--structured health-editor"
         aria-label={entry ? '编辑体重' : '记录体重'}
         onSubmit={(event) => void submit(event)}
       >
-        {/* Only the input body scrolls; save and close remain reachable on short screens. */}
+        {/* The header owns save/close; only the field body scrolls on short screens. */}
         <div className="sheet-form-body">
           <fieldset className="sheet-form-fields" disabled={saving}>
             <label className="weight-input">
@@ -190,14 +236,6 @@ function WeightForm({
             )}
           </fieldset>
         </div>
-        <div className="form-actions sheet-form-footer">
-          <button className="button-secondary" type="button" disabled={saving} onClick={cancel}>
-            取消
-          </button>
-          <button className="button-primary" type="submit" disabled={saving}>
-            {saving ? '保存中…' : '保存'}
-          </button>
-        </div>
         {discard && (
           <ConfirmDialog
             title="放弃体重输入？"
@@ -228,6 +266,7 @@ function ActivityForm({
   onSave: (command: SaveActivitySessionCommand) => Promise<void>
   onDelete?: () => void
 }) {
+  const formId = useId()
   const selectableCategories = categories.filter(
     ({ archived, id }) => archived === 0 || id === session?.categoryId,
   )
@@ -318,9 +357,16 @@ function ActivityForm({
   }
 
   return (
-    <Sheet title={session ? '编辑运动' : '记录运动'} structured onClose={cancel} busy={saving}>
+    <Sheet
+      title={session ? '编辑运动' : '记录运动'}
+      structured
+      onClose={cancel}
+      busy={saving}
+      headerAction={<HealthSaveAction formId={formId} busy={saving} label="保存运动" />}
+    >
       <form
-        className="sheet-form sheet-form--structured"
+        id={formId}
+        className="sheet-form sheet-form--structured health-editor"
         aria-label={session ? '编辑运动' : '记录运动'}
         onSubmit={(event) => void submit(event)}
       >
@@ -409,14 +455,6 @@ function ActivityForm({
             )}
           </fieldset>
         </div>
-        <div className="form-actions sheet-form-footer">
-          <button className="button-secondary" type="button" disabled={saving} onClick={cancel}>
-            取消
-          </button>
-          <button className="button-primary" type="submit" disabled={saving}>
-            {saving ? '保存中…' : '保存'}
-          </button>
-        </div>
         {discard && (
           <ConfirmDialog
             title="放弃运动输入？"
@@ -443,6 +481,7 @@ function TargetForm({
   onSave: (weightGrams: number) => Promise<void>
   onClear: () => Promise<void>
 }) {
+  const formId = useId()
   const [value, setValue] = useState(targetGrams ? editableKilograms(targetGrams) : '')
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
@@ -508,9 +547,16 @@ function TargetForm({
   }
 
   return (
-    <Sheet title="体重目标" structured onClose={cancel} busy={saving}>
+    <Sheet
+      title="体重目标"
+      structured
+      onClose={cancel}
+      busy={saving}
+      headerAction={<HealthSaveAction formId={formId} busy={saving} label="保存体重目标" />}
+    >
       <form
-        className="sheet-form sheet-form--structured"
+        id={formId}
+        className="sheet-form sheet-form--structured health-editor"
         aria-label="体重目标"
         onSubmit={(event) => void submit(event)}
       >
@@ -530,8 +576,8 @@ function TargetForm({
             {error && confirmation !== 'clear' ? <HealthFormError message={error} /> : null}
           </fieldset>
         </div>
-        <div className="form-actions sheet-form-footer split-actions">
-          {targetGrams ? (
+        {targetGrams ? (
+          <div className="form-actions sheet-form-footer split-actions">
             <button
               className="text-destructive"
               type="button"
@@ -544,16 +590,8 @@ function TargetForm({
             >
               清除目标
             </button>
-          ) : (
-            <span />
-          )}
-          <button className="button-secondary" type="button" disabled={saving} onClick={cancel}>
-            取消
-          </button>
-          <button className="button-primary" type="submit" disabled={saving}>
-            {saving ? '保存中…' : '保存'}
-          </button>
-        </div>
+          </div>
+        ) : null}
         {confirmation && (
           <ConfirmDialog
             title={confirmation === 'clear' ? '清除体重目标？' : '放弃目标修改？'}
@@ -589,6 +627,7 @@ export function ActivityHistoryPage() {
 }
 
 export function HealthPage({ history }: { history?: 'weight' | 'activity' }) {
+  const navigate = useNavigate()
   const { database } = useAppServices()
   const weights = useMemo(() => new WeightRepository(database), [database])
   const activities = useMemo(() => new ActivityRepository(database), [database])
@@ -643,6 +682,12 @@ export function HealthPage({ history }: { history?: 'weight' | 'activity' }) {
     setSheet(undefined)
     setEditingWeight(undefined)
     setEditingActivity(undefined)
+  }
+
+  function openHistory(kind: 'weight' | 'activity') {
+    // Reading the summary never opens a writer; the title's plus remains a sibling control.
+    logger.info('health.history.opened', { operation: 'navigate', entityType: kind })
+    void navigate(`/health/${kind}-history`)
   }
 
   function requestDeletion(kind: 'weight' | 'activity', id: string) {
@@ -749,22 +794,31 @@ export function HealthPage({ history }: { history?: 'weight' | 'activity' }) {
           ) : null}
           {weightTrend ? (
             <>
-              <div className="weight-overview">
-                <p>
-                  <strong>
-                    {weightTrend.latest ? formatWeightGrams(weightTrend.latest.weightGrams) : '—'}
-                  </strong>
-                  <span>kg</span>
-                </p>
-                <p>
-                  {weightTrend.deltaGrams === undefined
-                    ? '暂无 30 天趋势'
-                    : `近 30 天 ${weightTrend.deltaGrams > 0 ? '+' : ''}${formatWeightGrams(weightTrend.deltaGrams)} kg`}
-                </p>
-              </div>
-              {!history && weightData && weightData.entries.length > 0 && (
-                <WeightTrendChart entries={weightData.entries} today={today} />
-              )}
+              <HealthSummaryEntry
+                label={history ? '体重摘要' : '查看体重历史'}
+                {...(!history ? { onOpen: () => openHistory('weight') } : {})}
+              >
+                <span className="content-entry-copy">
+                  <span className="weight-overview">
+                    <span className="health-weight-value">
+                      <strong>
+                        {weightTrend.latest
+                          ? formatWeightGrams(weightTrend.latest.weightGrams)
+                          : '—'}
+                      </strong>
+                      <span>kg</span>
+                    </span>
+                    <span className="health-weight-trend">
+                      {weightTrend.deltaGrams === undefined
+                        ? '暂无 30 天趋势'
+                        : `近 30 天 ${weightTrend.deltaGrams > 0 ? '+' : ''}${formatWeightGrams(weightTrend.deltaGrams)} kg`}
+                    </span>
+                  </span>
+                  {!history && weightData && weightData.entries.length > 0 && (
+                    <WeightTrendChart entries={weightData.entries} today={today} embedded />
+                  )}
+                </span>
+              </HealthSummaryEntry>
               <div className="weight-panel-footer">
                 <button className="target-row" type="button" onClick={() => openSheet('target')}>
                   <span>目标</span>
@@ -775,11 +829,6 @@ export function HealthPage({ history }: { history?: 'weight' | 'activity' }) {
                     ›
                   </strong>
                 </button>
-                {!history && (
-                  <Link className="button-secondary" to="/health/weight-history">
-                    查看体重历史
-                  </Link>
-                )}
               </div>
               {history === 'weight' && weightData?.entries.length ? (
                 <HealthHistoryList
@@ -836,21 +885,21 @@ export function HealthPage({ history }: { history?: 'weight' | 'activity' }) {
           ) : null}
           {activityData ? (
             <>
-              <div className="activity-summary" aria-label="本周运动汇总">
-                <p>
-                  <strong>{activitySummary.count}</strong>
-                  <span>次</span>
-                </p>
-                <p>
-                  <strong>{formatActivityDuration(activitySummary.durationMinutes)}</strong>
-                  <span>本周累计</span>
-                </p>
-              </div>
-              {!history && (
-                <Link className="button-secondary" to="/health/activity-history">
-                  查看运动历史
-                </Link>
-              )}
+              <HealthSummaryEntry
+                label={history ? '运动摘要' : '查看运动历史'}
+                {...(!history ? { onOpen: () => openHistory('activity') } : {})}
+              >
+                <span className="content-entry-copy activity-summary" aria-label="本周运动汇总">
+                  <span className="health-activity-metric">
+                    <strong>{activitySummary.count}</strong>
+                    <span>次</span>
+                  </span>
+                  <span className="health-activity-metric">
+                    <strong>{formatActivityDuration(activitySummary.durationMinutes)}</strong>
+                    <span>本周累计</span>
+                  </span>
+                </span>
+              </HealthSummaryEntry>
               {history === 'activity' && activityData.sessions.length ? (
                 <HealthHistoryList
                   rows={activityData.sessions.map((session) => {
@@ -888,12 +937,25 @@ export function HealthPage({ history }: { history?: 'weight' | 'activity' }) {
         <>
           <CessationCard />
           <section className="health-card habit-card" aria-labelledby="health-habits-title">
-            <h2 id="health-habits-title" className="health-section-label">
-              <span className="category-glyph tone-violet">
-                <CategoryIcon name="leaf" />
-              </span>
-              习惯
-            </h2>
+            <div className="section-heading">
+              <h2 id="health-habits-title" className="health-section-label">
+                <span className="category-glyph tone-violet">
+                  <CategoryIcon name="leaf" />
+                </span>
+                习惯
+              </h2>
+              <button
+                type="button"
+                className="icon-action"
+                aria-label="新增习惯"
+                onClick={() => {
+                  logger.info('health.habit.createopened', { operation: 'create' })
+                  setHabitCreateRequest((value) => value + 1)
+                }}
+              >
+                <Icon name="add" size={24} />
+              </button>
+            </div>
             <HabitsPage key={habitCreateRequest} embedded createRequest={habitCreateRequest} />
           </section>
         </>

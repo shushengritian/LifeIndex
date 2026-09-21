@@ -282,7 +282,6 @@ export function TodayPage() {
         <section aria-labelledby="today-finance-title">
           <div className="section-heading">
             <h2 id="today-finance-title">今日账目</h2>
-            <Link to="/finance">查看</Link>
             {/* Keep creation next to the real ledger summary, not a promotional hero. */}
             <Link
               className="today-inline-add"
@@ -299,13 +298,30 @@ export function TodayPage() {
               账目读取失败，不会显示为 0。
             </p>
           ) : null}
-          {financeState.status === 'ready' ? <TodayFinance records={financeState.data} /> : null}
+          {financeState.status === 'ready' ? (
+            <Link
+              className="content-entry"
+              to="/finance"
+              aria-label="查看今日账目"
+              onClick={() => logger.info('today.finance.viewed', { operation: 'navigate' })}
+            >
+              <TodayFinance records={financeState.data} />
+              <Icon name="next" />
+            </Link>
+          ) : null}
         </section>
 
         <section aria-labelledby="today-focus-title">
           <div className="section-heading">
             <h2 id="today-focus-title">今日专注</h2>
-            <Link to="/focus">查看</Link>
+            <Link
+              className="icon-action"
+              to="/focus"
+              aria-label="开始或继续专注"
+              onClick={() => logger.info('today.focus.opened', { operation: 'navigate' })}
+            >
+              <Icon name="play" />
+            </Link>
           </div>
           {focusState.status === 'loading' ? <p className="state-message">正在读取…</p> : null}
           {focusState.status === 'failed' ? (
@@ -314,7 +330,15 @@ export function TodayPage() {
             </p>
           ) : null}
           {focusState.status === 'ready' ? (
-            <TodayFocus completed={focusState.data.completed} />
+            <Link
+              className="content-entry"
+              to="/focus/history"
+              aria-label="查看专注记录"
+              onClick={() => logger.info('today.focus.historyopened', { operation: 'navigate' })}
+            >
+              <TodayFocus completed={focusState.data.completed} />
+              <Icon name="next" />
+            </Link>
           ) : null}
         </section>
       </div>

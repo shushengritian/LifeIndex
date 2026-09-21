@@ -125,7 +125,7 @@ test('persists synthetic cessation evidence on the deployed V4 candidate', async
   await startField.fill(priorDay.toISOString().slice(0, 16))
   await page.getByText('原因与节省估算（可选）', { exact: true }).click()
   await page.getByLabel('为什么想戒烟').fill(marker)
-  await page.getByRole('form').getByRole('button', { name: '开始计划', exact: true }).click()
+  await page.getByRole('button', { name: '保存戒烟计划', exact: true }).click()
   // Wait for committed UI before reload; these records exist only in the isolated test profile.
   await expect(page.getByRole('status')).toContainText('计划已保存')
   await page.getByRole('button', { name: '截至现在未吸烟', exact: true }).click()
@@ -134,7 +134,7 @@ test('persists synthetic cessation evidence on the deployed V4 candidate', async
   await expect(page.getByRole('button', { name: '更新今日快照', exact: true })).toBeVisible()
   await expect(page.getByText(marker, { exact: true })).toBeVisible()
   await page.getByRole('button', { name: /^记录吸烟/ }).click()
-  await page.getByRole('button', { name: '保存记录', exact: true }).click()
+  await page.getByRole('button', { name: '保存吸烟记录', exact: true }).click()
   await expect(page.getByText('吸烟 1 支', { exact: true })).toBeVisible()
   await page.reload()
   await expect(page.getByRole('button', { name: '截至现在未吸烟', exact: true })).toBeDisabled()
@@ -157,7 +157,7 @@ test('persists synthetic Health records locally on the deployed candidate', asyn
     .click()
   await page.getByLabel('体重（公斤）').fill('67.8')
   await page.getByLabel('备注（可选）').fill(privateMarker)
-  await page.getByRole('button', { name: '保存' }).click()
+  await page.getByRole('button', { name: '保存体重', exact: true }).click()
   await expect(page.getByRole('dialog')).toHaveCount(0)
   await page.getByRole('button', { name: '添加健康记录' }).click()
   await page
@@ -166,12 +166,12 @@ test('persists synthetic Health records locally on the deployed candidate', asyn
     .click()
   await page.getByLabel('运动类型').selectOption({ label: '步行' })
   await page.getByLabel('时长（分钟）').fill('20')
-  await page.getByRole('button', { name: '保存' }).click()
+  await page.getByRole('button', { name: '保存运动', exact: true }).click()
 
   // The approved home only shows a summary; verify committed details on the full history route.
   // Wait for the write guard to release before navigation, including on slower remote Pages runs.
   await expect(page.getByRole('dialog')).toHaveCount(0)
-  await page.getByRole('link', { name: '查看运动历史' }).click()
+  await page.getByRole('button', { name: '查看运动历史' }).click()
   await expect(page.getByText('20 分钟 · 适中', { exact: true })).toBeVisible()
 
   await page.reload()

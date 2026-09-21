@@ -9,6 +9,7 @@ import {
 } from 'react'
 import { Link } from 'react-router-dom'
 import { useFocusCompletion } from './useFocusCompletion'
+import './focus.css'
 
 import { useAppServices } from '@/app/AppServicesContext'
 import { CategoryRepository } from '@/data/repositories/CategoryRepository'
@@ -45,13 +46,15 @@ function FocusStage({
   planned,
   running = false,
   action,
+  title,
 }: {
   seconds: number
   planned: number
   running?: boolean
   action?: ReactNode
+  title?: string
 }) {
-  // The arc is a presentation of elapsed time; persisted timestamps remain the timing authority.
+  // A permanent circle preserves the full track at 0/100%; timestamps remain the timing authority.
   const { elapsed, percent: progress } = focusProgress(seconds, planned, running)
   useEffect(() => {
     // Log mode changes only, never per-second activity or the user's title/duration.
@@ -62,25 +65,31 @@ function FocusStage({
       className="focus-stage"
       aria-label={`${running ? (seconds === 0 ? '待保存时长' : '剩余') : '计划'} ${durationLabel(running && seconds === 0 ? elapsed : seconds)}`}
     >
-      <svg className="focus-orbit" viewBox="0 0 390 294" aria-hidden="true">
-        <path
-          d="M43 233 A169 169 0 0 1 304 49"
+      <svg className="focus-orbit" viewBox="0 0 320 320" aria-hidden="true">
+        <circle
+          className="focus-track"
+          cx="160"
+          cy="160"
+          r="148"
           fill="none"
-          stroke="var(--divider)"
-          strokeWidth="1.5"
+          stroke="var(--focus-track)"
+          strokeWidth="3"
         />
-        <path
-          d="M43 233 A169 169 0 0 1 304 49"
+        <circle
+          cx="160"
+          cy="160"
+          r="148"
           fill="none"
           stroke="var(--accent)"
-          strokeWidth="3"
+          strokeWidth="4"
           strokeLinecap="round"
           pathLength="100"
-          strokeDasharray="100"
+          strokeDasharray="100 100"
           strokeDashoffset={100 - progress}
+          opacity={progress === 0 ? 0 : 1}
         />
-        <circle cx="43" cy="233" r="4" fill="var(--accent)" />
       </svg>
+      {title && <h2 id="active-focus-title">{title}</h2>}
       <span>
         {running ? (seconds === 0 ? '计时完成，等待保存' : '正在专注') : '准备好，进入专注'}
       </span>
@@ -95,7 +104,7 @@ function FocusStage({
         {running
           ? seconds === 0
             ? '保存成功后计入汇总'
-            : '离开此页不会停止计时'
+            : '剩余时间'
           : '留一点空间，让注意力安静下来'}
       </small>
       {action}
@@ -201,16 +210,23 @@ function FocusForm({ categories, onStart }: FocusFormProps) {
       onSubmit={(event) => void submit(event)}
       aria-label="开始专注"
     >
-      <FocusStage
-        seconds={Math.max(0, Math.min(14_400, previewSeconds))}
-        planned={Math.max(0, Math.min(14_400, previewSeconds))}
-        action={
-          <button className="button-primary focus-stage-action" type="submit" disabled={saving}>
-            <Icon name="play" size={24} />
-            <span>{saving ? '正在开始…' : '开始专注'}</span>
-          </button>
-        }
-      />
+      <div className="focus-stage focus-preparation">
+        <div>
+          <h2>一次，只做一件事。</h2>
+          <strong role="timer" aria-live="off">
+            {formatFocusDuration(Math.max(0, Math.min(14_400, previewSeconds)))}
+          </strong>
+          <p>选择时长，准备开始</p>
+        </div>
+        <button
+          className="button-primary focus-round-action"
+          type="submit"
+          disabled={saving}
+          aria-label={saving ? '正在开始…' : '开始专注'}
+        >
+          <Icon name="play" size={24} />
+        </button>
+      </div>
       <div className="duration-presets" aria-label="专注时长">
         {[
           { value: '1500', label: '25 分钟' },
@@ -520,6 +536,8 @@ export function FocusPage({ historyOnly = false }: { historyOnly?: boolean }) {
   const endpoint = useRef<string | undefined>(undefined)
   const [manualPending, setManualPending] = useState(false)
   const [readRetry, setReadRetry] = useState(0)
+  // Collapsing is presentation only: the completion hook stays mounted and owns reconciliation.
+  const [collapsed, setCollapsed] = useState(false)
   useDirtyForm(manualPending, commandBusy)
 
   const query = useCallback(async () => {
@@ -546,6 +564,17 @@ export function FocusPage({ historyOnly = false }: { historyOnly?: boolean }) {
   const active = state.status === 'ready' ? state.data.active : undefined
 
   const completion = useFocusCompletion(repository, active, manualPending || commandBusy)
+  const immersive = !historyOnly && !!data?.active && !collapsed
+  const sceneSessionId = data?.active?.id
+  const sceneControl = useRef<HTMLButtonElement>(null)
+  function changeScene(nextCollapsed: boolean) {
+    setCollapsed(nextCollapsed)
+    logger.info('focus.scene.changed', { toState: nextCollapsed ? 'summary' : 'immersive' })
+  }
+  useEffect(() => {
+    // Return keyboard focus to the new scene control without moving the surrounding page.
+    if (sceneSessionId && !historyOnly) sceneControl.current?.focus({ preventScroll: true })
+  }, [collapsed, sceneSessionId, historyOnly])
 
   function requestCommand(kind: 'finish' | 'cancel', session: FocusSession) {
     if (completion.busy || commandLock.current) return
@@ -581,14 +610,49 @@ export function FocusPage({ historyOnly = false }: { historyOnly?: boolean }) {
     }
   }
 
+  function resumeTimer() {
+    if (commandLock.current || completion.busy) return
+    setPending(undefined)
+    setManualPending(false)
+    endpoint.current = undefined
+    setPageError('')
+    logger.info('focus.command.abandoned', { operation: pending?.kind ?? 'finish' })
+  }
+
   return (
-    <section className="page focus-page" aria-labelledby="focus-title">
+    <section
+      className={`page focus-page${immersive ? ' focus-immersive' : ''}`}
+      aria-labelledby="focus-title"
+    >
       {historyOnly && (
         <Link to="/focus" className="button-secondary">
           返回专注
         </Link>
       )}
-      <h1 id="focus-title">{historyOnly ? '专注历史' : '专注'}</h1>
+      <header className="focus-scene-header">
+        {immersive && (
+          <button
+            ref={sceneControl}
+            type="button"
+            className="focus-icon-action"
+            aria-label="收起计时，继续运行"
+            onClick={() => changeScene(true)}
+          >
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.7"
+              aria-hidden="true"
+            >
+              <path d="m5 9 7 7 7-7" />
+            </svg>
+          </button>
+        )}
+        <h1 id="focus-title">{historyOnly ? '专注历史' : immersive ? '专注中' : '专注'}</h1>
+      </header>
       {pageError && !pending ? (
         <p className="form-error" role="alert">
           {pageError}
@@ -629,18 +693,36 @@ export function FocusPage({ historyOnly = false }: { historyOnly?: boolean }) {
       {data ? (
         <>
           {historyOnly ? null : data.active ? (
-            <ActiveFocus
-              session={data.active}
-              now={new Date(completion.now)}
-              onFinish={() => requestCommand('finish', data.active!)}
-              onCancel={() => requestCommand('cancel', data.active!)}
-              busy={commandBusy || completion.busy || manualPending}
-            />
+            collapsed ? (
+              <section className="focus-resume" aria-label="进行中的专注">
+                <div>
+                  <h2>{data.active.title}</h2>
+                  <p>计时仍在继续 · 目标 {data.active.plannedDurationSeconds / 60} 分钟</p>
+                </div>
+                <button
+                  ref={sceneControl}
+                  type="button"
+                  className="button-primary focus-round-action"
+                  aria-label="返回正在进行的专注"
+                  onClick={() => changeScene(false)}
+                >
+                  <Icon name="play" size={24} />
+                </button>
+              </section>
+            ) : (
+              <ActiveFocus
+                session={data.active}
+                now={new Date(completion.now)}
+                onFinish={() => requestCommand('finish', data.active!)}
+                busy={commandBusy || completion.busy || manualPending}
+              />
+            )
           ) : (
             <FocusForm
               categories={data.categories}
               onStart={async (command) => {
                 await repository.start(command)
+                setCollapsed(false)
                 // Resume a failed subscription after a committed write, so the active session is re-read.
                 setReadRetry((value) => value + 1)
                 logger.info('focus.read.refreshrequested', {
@@ -650,18 +732,20 @@ export function FocusPage({ historyOnly = false }: { historyOnly?: boolean }) {
               }}
             />
           )}
-          <FocusHistory
-            expanded={historyOnly}
-            sessions={data.history}
-            categories={data.categories}
-            today={today}
-            onEdit={(session) => {
-              // Snapshot editor choices so a failed background refresh cannot unmount a dirty form.
-              setEditCategories(data.categories)
-              setEditing(session)
-              logger.info('focus.details.opened', { operation: 'edit' })
-            }}
-          />
+          {!immersive && (
+            <FocusHistory
+              expanded={historyOnly}
+              sessions={data.history}
+              categories={data.categories}
+              today={today}
+              onEdit={(session) => {
+                // Snapshot editor choices so a failed background refresh cannot unmount a dirty form.
+                setEditCategories(data.categories)
+                setEditing(session)
+                logger.info('focus.details.opened', { operation: 'edit' })
+              }}
+            />
+          )}
         </>
       ) : null}
       {editing && (
@@ -680,26 +764,52 @@ export function FocusPage({ historyOnly = false }: { historyOnly?: boolean }) {
           }}
         />
       )}
-      {pending && (
+      {pending?.kind === 'finish' && (
+        <Sheet title="提前结束专注？" busy={commandBusy || completion.busy} onClose={resumeTimer}>
+          <p>保存已经专注的时间，或继续按原计划计时。未满一秒的会话不会保留。</p>
+          {pageError && (
+            <p className="form-error" role="alert">
+              {pageError}
+            </p>
+          )}
+          <div className="focus-confirm-actions">
+            <button
+              autoFocus
+              type="button"
+              className="button-secondary"
+              disabled={commandBusy || completion.busy}
+              onClick={resumeTimer}
+            >
+              继续专注
+            </button>
+            <button
+              type="button"
+              className="button-primary"
+              disabled={commandBusy || completion.busy}
+              onClick={() => void confirmCommand()}
+            >
+              {commandBusy ? '处理中…' : '保存并结束'}
+            </button>
+            <button
+              type="button"
+              className="button-secondary text-destructive"
+              disabled={commandBusy || completion.busy}
+              onClick={() => requestCommand('cancel', pending.session)}
+            >
+              放弃本次，不保存
+            </button>
+          </div>
+        </Sheet>
+      )}
+      {pending?.kind === 'cancel' && (
         <ConfirmDialog
-          title={pending.kind === 'finish' ? '提前结束专注？' : '取消本次专注？'}
-          description={
-            pending.kind === 'finish'
-              ? '保存已经专注的时间。未满一秒的会话不会保留。'
-              : '本次计时不会保留，也不会计入汇总。'
-          }
-          confirmLabel={pending.kind === 'finish' ? '结束并保存' : '取消本次'}
+          title="取消本次专注？"
+          description="本次计时不会保留，也不会计入汇总。"
+          confirmLabel="放弃本次，不保存"
           cancelLabel="返回计时"
           busy={commandBusy || completion.busy}
           error={pageError}
-          onCancel={() => {
-            if (commandLock.current) return
-            setPending(undefined)
-            setManualPending(false)
-            endpoint.current = undefined
-            setPageError('')
-            logger.info('focus.command.abandoned', { operation: pending.kind })
-          }}
+          onCancel={resumeTimer}
           onConfirm={() => void confirmCommand()}
         />
       )}
@@ -711,44 +821,33 @@ function ActiveFocus({
   session,
   now,
   onFinish,
-  onCancel,
   busy,
 }: {
   session: FocusSession
   now: Date
   onFinish: () => void
-  onCancel: () => void
   busy: boolean
 }) {
   const remaining = remainingFocusSeconds(session, now)
   return (
     <section className="active-focus" aria-labelledby="active-focus-title">
-      <h2 id="active-focus-title">{session.title}</h2>
       <FocusStage
+        title={session.title}
         seconds={remaining}
         planned={session.plannedDurationSeconds}
         running
-        action={
-          <button
-            className="button-primary focus-stage-action"
-            type="button"
-            disabled={remaining === 0 || busy}
-            onClick={onFinish}
-          >
-            <Icon name="stop" size={24} />
-            <span>提前结束</span>
-          </button>
-        }
       />
-      <div className="focus-secondary-action">
+      <div className="focus-stop-actions">
         <button
-          className="button-secondary"
+          className="button-primary focus-round-action"
           type="button"
+          aria-label="提前结束"
           disabled={remaining === 0 || busy}
-          onClick={onCancel}
+          onClick={onFinish}
         >
-          取消本次
+          <Icon name="stop" size={24} />
         </button>
+        <p>收起不会停止计时</p>
       </div>
     </section>
   )

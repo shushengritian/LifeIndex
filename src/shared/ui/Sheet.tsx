@@ -10,12 +10,14 @@ export function Sheet({
   onClose,
   busy = false,
   structured = false,
+  headerAction,
 }: {
   title: string
   children: ReactNode
   onClose?: () => void
   busy?: boolean
   structured?: boolean
+  headerAction?: ReactNode
 }) {
   const titleId = useId()
   const backdropRef = useRef<HTMLDivElement>(null)
@@ -113,7 +115,7 @@ export function Sheet({
       >
         <div className="sheet-handle" aria-hidden="true" />
         {onClose ? (
-          <header className="sheet-header">
+          <header className={`sheet-header${headerAction ? ' sheet-header--actions' : ''}`}>
             <h2 id={titleId}>{title}</h2>
             <button
               type="button"
@@ -130,6 +132,8 @@ export function Sheet({
             >
               <Icon name="close" />
             </button>
+            {/* An external form-associated submit keeps actions visible without duplicating write handlers. */}
+            {headerAction}
           </header>
         ) : (
           <h2 id={titleId}>{title}</h2>

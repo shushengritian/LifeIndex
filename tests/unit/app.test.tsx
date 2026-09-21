@@ -72,7 +72,7 @@ describe('application shell', () => {
     const sheet = await screen.findByRole('dialog', { name: '记一笔' })
     expect(window.location.hash).toBe('#/finance/new')
     expect(within(sheet).getByLabelText('金额（CNY）')).toHaveValue('')
-    await user.click(within(sheet).getByRole('button', { name: '取消' }))
+    await user.click(within(sheet).getByRole('button', { name: '关闭编辑器' }))
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     await user.click(screen.getByRole('link', { name: '记账' }))
     expect(window.location.hash).toBe('#/finance')

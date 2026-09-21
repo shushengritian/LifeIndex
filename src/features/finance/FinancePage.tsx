@@ -2,6 +2,7 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useId,
   useMemo,
   useRef,
   useState,
@@ -99,6 +100,7 @@ function TransactionForm({
   onCancel,
   onSave,
 }: TransactionFormProps) {
+  const formId = useId()
   const [initialValues] = useState(() => ({
     type: transaction?.type ?? ('expense' as TransactionType),
     amount: transaction ? (transaction.amountMinor / 100).toFixed(2) : '',
@@ -202,8 +204,26 @@ function TransactionForm({
   }
 
   return (
-    <Sheet title={transaction ? '编辑账目' : '记一笔'} onClose={cancel} busy={busy} structured>
+    <Sheet
+      title={transaction ? '编辑账目' : '记一笔'}
+      onClose={cancel}
+      busy={busy}
+      structured
+      headerAction={
+        <button
+          type="submit"
+          form={formId}
+          className="icon-action button-primary"
+          disabled={busy}
+          aria-label={saving ? '保存中…' : '保存'}
+          title="保存账目"
+        >
+          <Icon name="check" />
+        </button>
+      }
+    >
       <form
+        id={formId}
         className="sheet-form sheet-form--structured finance-sheet-form"
         onSubmit={(event) => void submit(event)}
         aria-label={transaction ? '编辑交易' : '新增交易'}
@@ -290,22 +310,14 @@ function TransactionForm({
                 type="button"
                 className="finance-detail-delete text-destructive"
                 onClick={onDelete}
+                aria-label="删除账目"
+                title="删除账目"
               >
                 <Icon name="trash" size={18} />
-                删除账目
               </button>
             ) : null}
           </fieldset>
         </div>
-        <footer className="form-actions sheet-form-footer">
-          <button type="button" className="button-secondary" disabled={busy} onClick={cancel}>
-            取消
-          </button>
-          <button type="submit" className="button-primary" disabled={busy}>
-            <Icon name="check" size={18} />
-            {saving ? '保存中…' : '保存'}
-          </button>
-        </footer>
         {confirmDiscard ? (
           <ConfirmDialog
             title="放弃这次输入？"
@@ -478,20 +490,6 @@ export function FinancePage({
             <h1 id="finance-title">记账</h1>
           </div>
           <div className="finance-heading-actions">
-            {!initialNew ? (
-              <Link
-                to={`/finance/report?month=${selectedDate.slice(0, 7)}`}
-                className="finance-report-link"
-                ref={reportLinkRef}
-                onClick={() => {
-                  returnScroll.current = window.scrollY
-                  logger.info('finance.report.opened', { operation: 'navigate' })
-                }}
-              >
-                <Icon name="chart" size={18} />
-                报表
-              </Link>
-            ) : null}
             <button
               className="button-primary compact round-action"
               type="button"
@@ -553,6 +551,27 @@ export function FinancePage({
             monthTransactions={state.data.monthTransactions}
             categories={state.data.allCategories}
             selectedDate={selectedDate}
+            reportEntry={
+              !initialNew ? (
+                <Link
+                  to={`/finance/report?month=${selectedDate.slice(0, 7)}`}
+                  className="content-entry finance-report-entry"
+                  aria-label="报表"
+                  ref={reportLinkRef}
+                  onClick={() => {
+                    returnScroll.current = window.scrollY
+                    logger.info('finance.report.opened', { operation: 'navigate' })
+                  }}
+                >
+                  <Icon name="chart" />
+                  <span className="content-entry-copy">
+                    <strong>收支报表</strong>
+                    <small>分类分布 · 消费趋势</small>
+                  </span>
+                  <Icon name="next" />
+                </Link>
+              ) : null
+            }
             today={today}
             onSelectDate={selectDate}
             onPreviousMonth={() => moveMonth(-1)}
@@ -621,6 +640,7 @@ function FinanceContent({
   onPreviousMonth,
   onNextMonth,
   onEdit,
+  reportEntry,
 }: {
   monthTransactions: Transaction[]
   categories: Category[]
@@ -630,6 +650,7 @@ function FinanceContent({
   onPreviousMonth: () => void
   onNextMonth: () => void
   onEdit: (transaction: Transaction) => void
+  reportEntry: ReactNode
 }) {
   const calendar = buildFinanceMonthCalendar(selectedDate, selectedDate, today, monthTransactions)
   const monthSummary = summarizeTransactions(monthTransactions)
@@ -720,6 +741,8 @@ function FinanceContent({
         </p>
       </div>
 
+      {/* Read navigation is separate from the header's write target; the arrow has no independent action. */}
+      {reportEntry}
       <DailyExpenseChart transactions={monthTransactions} selectedDate={selectedDate} />
 
       <section className="content-section selected-ledger" aria-labelledby="transaction-list-title">

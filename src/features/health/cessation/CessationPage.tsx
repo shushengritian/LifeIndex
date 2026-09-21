@@ -25,14 +25,21 @@ import { triggerNames } from './cessationPresentation'
 import { ConfirmDialog } from '@/shared/ui/ConfirmDialog'
 import { useDirtyForm } from '@/pwa/useDirtyForm'
 
-type Panel = 'plan' | 'smoking' | 'craving' | 'manage' | 'support' | 'reason'
+type Panel = 'plan' | 'events' | 'smoking' | 'craving' | 'manage' | 'support' | 'reason'
 export function CessationPage() {
   const location = useLocation()
   // Accept only the known Settings origin; arbitrary route-state redirects are not allowed.
   const fromSettings = location.state?.from === 'settings'
   const { repository, settings, state, retry } = useCessation(),
     now = useCessationNow()
-  const [panel, setPanel] = useState<Panel>(),
+  // Only internal, known entry intents can open a form; repository writes still require confirmation.
+  const [panel, setPanel] = useState<Panel | undefined>(() =>
+      location.state?.healthIntent === 'plan'
+        ? 'plan'
+        : location.state?.healthIntent === 'events'
+          ? 'events'
+          : undefined,
+    ),
     [editing, setEditing] = useState<CessationEvent>(),
     [planId, setPlanId] = useState<string>(),
     [selected, setSelected] = useState<string>(),
@@ -149,24 +156,27 @@ export function CessationPage() {
         {fromSettings ? '返回设置' : '返回健康'}
       </Link>
       <h1 id="cessation-title">戒烟</h1>
-      <button
-        type="button"
-        className="icon-action"
-        aria-label="管理戒烟计划"
-        onClick={() => open('manage')}
-      >
-        <Icon name="settings" />
-      </button>
+      {active ? (
+        <button
+          type="button"
+          className="icon-action button-primary"
+          aria-label="记录戒烟事件"
+          disabled={busy}
+          onClick={() => open('events')}
+        >
+          <Icon name="add" size={24} />
+        </button>
+      ) : null}
     </div>
   )
-  if (state.status === 'loading' && !panel)
+  if (state.status === 'loading' && (!panel || (panel === 'events' && !editorPlan)))
     return (
       <section className="page">
         {heading}
         <p>正在读取戒烟记录…</p>
       </section>
     )
-  if (state.status === 'failed' && !panel)
+  if (state.status === 'failed' && (!panel || (panel === 'events' && !editorPlan)))
     return (
       <section className="page">
         {heading}
@@ -190,6 +200,16 @@ export function CessationPage() {
       <p className="cessation-feedback" role="status">
         {message}
       </p>
+      <button
+        type="button"
+        className="content-entry"
+        aria-label="管理戒烟计划"
+        disabled={busy}
+        onClick={() => open('manage')}
+      >
+        <span className="content-entry-copy">计划管理</span>
+        <Icon name="next" size={24} />
+      </button>
       {plan && summary ? (
         <>
           <div className="cessation-hero">
@@ -213,46 +233,60 @@ export function CessationPage() {
             <p className="muted">日历时区：{plan.timeZone}</p>
             {plan.reason ? <p className="cessation-reason">{plan.reason}</p> : null}
           </div>
-          {active ? (
-            <>
-              <div className="cessation-actions">
-                <button
-                  className="button-primary"
-                  type="button"
-                  disabled={busy || todayStatus === '有吸烟记录'}
-                  onClick={() =>
-                    void mutate(
-                      () => repository.confirmDay(plan.id, today, 'snapshot'),
-                      '已记录截至现在未吸烟，不代表全天。',
-                    )
-                  }
-                >
-                  <Icon name="check" size={18} />
-                  {todayStatus === '截至记录时未吸烟' ? '更新今日快照' : '截至现在未吸烟'}
-                </button>
-              </div>
-              <p className="muted">只记录此刻，不代表全天。</p>
-              <div className="cessation-action-pair">
-                <button
-                  className="button-secondary"
-                  type="button"
-                  disabled={busy}
-                  onClick={() => open('smoking')}
-                >
-                  <Icon name="add" size={18} />
-                  记录吸烟
-                </button>
-                <button
-                  className="button-secondary"
-                  type="button"
-                  disabled={busy}
-                  onClick={() => open('craving')}
-                >
-                  <CategoryIcon name="leaf" size={18} />
-                  记录烟瘾
-                </button>
-              </div>
-            </>
+          {panel === 'events' ? (
+            <Sheet title="记录戒烟事件" busy={busy} onClose={close}>
+              {active ? (
+                <div className="health-event-choices">
+                  {error ? (
+                    <p className="form-error" role="alert">
+                      {error}
+                    </p>
+                  ) : null}
+                  <div className="cessation-actions">
+                    <button
+                      className="button-primary"
+                      type="button"
+                      disabled={busy || todayStatus === '有吸烟记录'}
+                      onClick={() =>
+                        void mutate(
+                          () => repository.confirmDay(plan.id, today, 'snapshot'),
+                          '已记录截至现在未吸烟，不代表全天。',
+                        ).then((saved) => {
+                          // Failure stays in the chooser with its message; success returns to the summary.
+                          if (saved) close()
+                        })
+                      }
+                    >
+                      <Icon name="check" size={18} />
+                      {todayStatus === '截至记录时未吸烟' ? '更新今日快照' : '截至现在未吸烟'}
+                    </button>
+                  </div>
+                  <p className="muted">只记录此刻，不代表全天。</p>
+                  <div className="cessation-action-pair">
+                    <button
+                      className="button-secondary"
+                      type="button"
+                      disabled={busy}
+                      onClick={() => open('smoking')}
+                    >
+                      <Icon name="add" size={18} />
+                      记录吸烟
+                    </button>
+                    <button
+                      className="button-secondary"
+                      type="button"
+                      disabled={busy}
+                      onClick={() => open('craving')}
+                    >
+                      <CategoryIcon name="leaf" size={18} />
+                      记录烟瘾
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <p>此计划尚未开始或已经结束，暂不能新增事件。</p>
+              )}
+            </Sheet>
           ) : null}
           <section className="health-card cessation-history" aria-label="戒烟回顾">
             <div className="section-heading">
@@ -464,17 +498,19 @@ export function CessationPage() {
           </section>
         </>
       ) : (
-        <section className="cessation-empty-state">
+        <button
+          type="button"
+          className="cessation-empty-state health-cessation-create"
+          aria-label="创建戒烟计划"
+          onClick={() => open('plan')}
+        >
           <span className="category-glyph tone-sage">
             <CategoryIcon name="leaf" size={28} />
           </span>
-          <h2>从这一刻开始</h2>
-          <p>记录自己的节奏。需要帮助时，随时回来。</p>
-          <button type="button" className="button-primary" onClick={() => open('plan')}>
-            <Icon name="add" size={18} />
-            开始计划
-          </button>
-        </section>
+          <strong>从这一刻开始</strong>
+          <span>记录自己的节奏。需要帮助时，随时回来。</span>
+          <Icon name="next" size={24} />
+        </button>
       )}
       {plan?.endAt && !data?.plans.some((plan) => !plan.endAt) ? (
         <button type="button" className="button-primary" onClick={() => open('plan')}>
@@ -490,7 +526,7 @@ export function CessationPage() {
       </button>
       {panel ? (
         <>
-          {panel === 'plan' ? (
+          {panel === 'plan' && !data?.plans.some((item) => !item.endAt) ? (
             <PlanForm
               onClose={close}
               onSave={async (id, input) => {

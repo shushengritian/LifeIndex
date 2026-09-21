@@ -37,7 +37,7 @@ describe('focus completion recovery', () => {
       expect(await screen.findByRole('alert')).toHaveTextContent('时长已固定')
       expect((await database.focusSessions.get(session.id))?.status).toBe('active')
       if (page === 'focus') {
-        expect(screen.getByRole('button', { name: '取消本次' })).toBeDisabled()
+        expect(screen.queryByRole('button', { name: '放弃本次，不保存' })).not.toBeInTheDocument()
         expect(screen.getByRole('button', { name: '提前结束' })).toBeDisabled()
       }
       await userEvent.click(

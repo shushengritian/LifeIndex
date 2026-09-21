@@ -4,7 +4,18 @@ import type { WeightEntry } from '@/shared/domain/types'
 import { formatWeightGrams } from './healthDomain'
 import { logger } from '@/shared/logging/logger'
 
-export function WeightTrendChart({ entries, today }: { entries: WeightEntry[]; today: string }) {
+export function WeightTrendChart({
+  entries,
+  today,
+  embedded = false,
+}: {
+  entries: WeightEntry[]
+  today: string
+  embedded?: boolean
+}) {
+  // Inside a content button use phrasing elements, without nested interactive targets.
+  const Container = embedded ? 'span' : 'figure'
+  const Caption = embedded ? 'span' : 'figcaption'
   const id = useId()
   const from = addLocalDays(today, -29)
   // One point is the last measurement of a local day; do not synthesize missing days or future values.
@@ -23,7 +34,7 @@ export function WeightTrendChart({ entries, today }: { entries: WeightEntry[]; t
     })
   }, [samples.length])
   if (!samples.length)
-    return <p className="empty-state">近 30 天暂无体重记录，可在完整历史中查看更早记录。</p>
+    return <span className="empty-state">近 30 天暂无体重记录，可在完整历史中查看更早记录。</span>
   const values = samples.map(({ weightGrams }) => weightGrams)
   // A minimum half-kilogram margin avoids visually magnifying tiny fluctuations.
   const low = Math.min(...values) - 500
@@ -35,7 +46,7 @@ export function WeightTrendChart({ entries, today }: { entries: WeightEntry[]; t
     y: 100 - ((entry.weightGrams - low) / (high - low)) * 80,
   }))
   return (
-    <figure className="weight-trend-chart">
+    <Container className="weight-trend-chart">
       <svg viewBox="0 0 330 124" role="img" aria-labelledby={id}>
         <title id={id}>近 30 天体重趋势，{samples.length} 天有记录，单位公斤；空缺日期不补值</title>
         {[low, (low + high) / 2, high].map((value) => {
@@ -75,11 +86,11 @@ export function WeightTrendChart({ entries, today }: { entries: WeightEntry[]; t
           </circle>
         ))}
       </svg>
-      <figcaption>
+      <Caption className="health-trend-caption">
         <span>{from.slice(5)}</span>
         <span>每日末次 · 连线仅示趋势</span>
         <span>{today.slice(5)}</span>
-      </figcaption>
-    </figure>
+      </Caption>
+    </Container>
   )
 }

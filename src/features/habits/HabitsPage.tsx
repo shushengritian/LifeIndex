@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState, type FormEvent } from 'react'
+import { useCallback, useId, useMemo, useRef, useState, type FormEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 import { useAppServices } from '@/app/AppServicesContext'
@@ -18,6 +18,7 @@ import { ConfirmDialog } from '@/shared/ui/ConfirmDialog'
 import { CategoryIcon } from '@/shared/ui/CategoryIcon'
 import { Icon } from '@/shared/ui/Icon'
 import { HealthFormError } from '@/features/health/HealthFormError'
+import { HealthSaveAction } from '@/features/health/HealthSaveAction'
 
 const weekdayLabels = ['日', '一', '二', '三', '四', '五', '六'] as const
 
@@ -58,6 +59,7 @@ interface HabitFormProps {
 }
 
 function HabitForm({ habit, onCancel, onSave }: HabitFormProps) {
+  const formId = useId()
   const [initialValues] = useState(() => ({
     name: habit?.name ?? '',
     icon: habit?.icon ?? 'check',
@@ -139,7 +141,7 @@ function HabitForm({ habit, onCancel, onSave }: HabitFormProps) {
   }
 
   function cancel() {
-    // Header, Escape and footer share one guard; busy writes cannot be discarded.
+    // Header and Escape share one guard; busy writes cannot be discarded.
     if (writeLock.current) return
     if (dirty) {
       setDiscard(true)
@@ -148,13 +150,20 @@ function HabitForm({ habit, onCancel, onSave }: HabitFormProps) {
   }
 
   return (
-    <Sheet title={habit ? '编辑习惯' : '新增习惯'} structured onClose={cancel} busy={saving}>
+    <Sheet
+      title={habit ? '编辑习惯' : '新增习惯'}
+      structured
+      onClose={cancel}
+      busy={saving}
+      headerAction={<HealthSaveAction formId={formId} busy={saving} label="保存习惯" />}
+    >
       <form
-        className="sheet-form sheet-form--structured"
+        id={formId}
+        className="sheet-form sheet-form--structured health-editor"
         onSubmit={(event) => void submit(event)}
         aria-label={habit ? '编辑习惯' : '新增习惯'}
       >
-        {/* Field disabling and scrolling are separate so the footer stays reachable. */}
+        {/* The external header submit keeps the same guarded form and native validation. */}
         <div className="sheet-form-body">
           <fieldset className="sheet-form-fields" disabled={saving}>
             <label>
@@ -247,14 +256,6 @@ function HabitForm({ habit, onCancel, onSave }: HabitFormProps) {
             </label>
             {error ? <HealthFormError message={error} /> : null}
           </fieldset>
-        </div>
-        <div className="form-actions sheet-form-footer">
-          <button type="button" className="button-secondary" disabled={saving} onClick={cancel}>
-            取消
-          </button>
-          <button type="submit" className="button-primary" disabled={saving}>
-            {saving ? '保存中…' : '保存'}
-          </button>
         </div>
         {discard && (
           <ConfirmDialog
@@ -380,7 +381,7 @@ export function HabitsPage({
 
   return (
     <section
-      className={embedded ? 'health-habit-workspace' : 'page'}
+      className={embedded ? 'health-habit-workspace health-habits' : 'page health-habits'}
       aria-labelledby={embedded ? undefined : 'habits-title'}
     >
       {!embedded ? (
@@ -405,10 +406,13 @@ export function HabitsPage({
             {!isFormOpen ? (
               <button
                 className="button-primary compact round-action"
-                aria-label="新增"
+                aria-label="新增习惯"
                 type="button"
                 disabled={busy}
-                onClick={() => setFormOpen(true)}
+                onClick={() => {
+                  logger.info('habit.form.opened', { operation: 'create' })
+                  setFormOpen(true)
+                }}
               >
                 <Icon name="add" />
               </button>
@@ -547,7 +551,7 @@ function HabitContent({
                   <li key={habit.id} className="today-habit-row">
                     {/* Opening statistics never toggles today's completion. */}
                     <Link
-                      className="today-habit-detail"
+                      className="today-habit-detail content-entry"
                       to="/health/habits"
                       state={{ habitId: habit.id }}
                       aria-label={`查看 ${habit.name} 详情`}
@@ -562,7 +566,7 @@ function HabitContent({
                       <span className={`category-glyph tone-${habit.color}`}>
                         <HabitGlyph name={habit.icon} />
                       </span>
-                      <span>{habit.name}</span>
+                      <span className="content-entry-copy">{habit.name}</span>
                       <Icon name="next" size={18} />
                     </Link>
                     <button
@@ -584,8 +588,14 @@ function HabitContent({
       )}
 
       {embedded ? (
-        <Link className="button-secondary" to="/health/habits">
-          管理习惯与统计
+        <Link
+          className="content-entry health-all-habits"
+          to="/health/habits"
+          aria-label="查看全部习惯"
+          onClick={() => logger.info('habit.list.opened', { operation: 'navigate' })}
+        >
+          <span className="content-entry-copy">全部习惯</span>
+          <Icon name="next" size={24} />
         </Link>
       ) : (
         <section className="content-section" aria-labelledby="all-habits-title">

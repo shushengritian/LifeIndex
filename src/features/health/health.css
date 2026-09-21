@@ -1,0 +1,125 @@
+/* Health-only spacing separates writes from reading without changing the shared shell. */
+.health-page .health-card > .section-heading {
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  min-height: 44px;
+}
+
+.health-page .health-summary-entry {
+  padding: 8px 0;
+  border-radius: 12px;
+}
+
+.health-page .health-summary-entry .activity-summary {
+  margin: 0;
+  gap: 16px;
+}
+
+.health-page .weight-overview {
+  flex-wrap: wrap;
+  margin: 0;
+}
+
+.health-page .weight-overview strong {
+  letter-spacing: -0.03em;
+}
+
+.health-page .weight-panel-footer {
+  margin-top: 16px;
+  padding-top: 16px;
+}
+
+.health-page.health-history-page .health-summary-entry .weight-overview {
+  display: flex;
+}
+
+.health-page.health-history-page .health-summary-entry .activity-summary {
+  display: grid;
+}
+
+.health-page:not(.health-history-page) > .health-card.health-cessation-create {
+  min-height: 64px;
+  padding: 20px 16px;
+  border-radius: 16px;
+}
+
+.health-page .health-weight-value {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.health-page .health-weight-trend {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.health-page .health-activity-metric {
+  display: grid;
+  gap: 3px;
+  padding: 8px 0;
+}
+
+.health-page .health-activity-metric strong {
+  color: var(--text);
+}
+
+.health-page .weight-trend-chart {
+  display: block;
+}
+
+.health-page .health-trend-caption {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 8px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.health-cessation-create .content-entry-copy > span,
+.cessation-card .content-entry-copy > span {
+  display: block;
+  margin-top: 8px;
+}
+
+.health-habits .today-habit-detail {
+  gap: 16px;
+}
+
+.health-habits .today-habit-row + .today-habit-row {
+  margin-top: 16px;
+  padding-top: 16px;
+}
+
+.health-habits .health-all-habits {
+  margin-top: 16px;
+  padding: 16px 0;
+  border-top: 1px solid var(--divider);
+  border-radius: 0;
+}
+
+/* Portaled editors need their own scope; no scrollbar overrides or extra scroll owners. */
+.health-editor .sheet-form-body {
+  flex: 1;
+  padding-bottom: max(24px, env(safe-area-inset-bottom));
+}
+
+.health-event-choices {
+  display: grid;
+  gap: 16px;
+  padding: 16px 20px 24px;
+}
+
+.health-event-choices button {
+  min-height: 44px;
+}
+
+.cessation-page > .health-cessation-create {
+  display: grid;
+  width: 100%;
+  min-height: 64px;
+  gap: 16px;
+  text-align: left;
+}

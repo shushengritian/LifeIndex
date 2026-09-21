@@ -36,7 +36,9 @@ it.each(['weight', 'activity'] as const)(
     const field = form.getByLabelText(kind === 'weight' ? '体重（公斤）' : '时长（分钟）')
     await user.clear(field)
     await user.type(field, kind === 'weight' ? '68.5' : '40')
-    expect(screen.getByRole('button', { name: '保存' }).closest('.sheet-form-body')).toBeNull()
+    const saveLabel = kind === 'weight' ? '保存体重' : '保存运动'
+    // The toolbar button submits its associated form from outside the scrolling field body.
+    expect(screen.getByRole('button', { name: saveLabel }).closest('.sheet-form-body')).toBeNull()
     await user.click(screen.getByRole('button', { name: '关闭编辑器' }))
     await user.click(screen.getByRole('button', { name: '继续填写' }))
     expect(field).toBeEnabled()
@@ -51,12 +53,11 @@ it.each(['weight', 'activity'] as const)(
           rejectWrite = reject
         }),
     )
-    await user.click(form.getByRole('button', { name: '保存' }))
+    await user.click(screen.getByRole('button', { name: saveLabel }))
     expect(field).toBeDisabled()
     expect(form.getByLabelText('日期与时间')).toBeDisabled()
-    expect(form.getByRole('button', { name: '取消' })).toBeDisabled()
     expect(screen.getByRole('button', { name: '关闭编辑器' })).toBeDisabled()
-    await user.click(form.getByRole('button', { name: '保存中…' }))
+    await user.click(screen.getByRole('button', { name: `${saveLabel}，保存中` }))
     expect(write).toHaveBeenCalledTimes(1)
     await act(async () => rejectWrite(new Error('Synthetic failure')))
     expect(await form.findByRole('alert')).toHaveTextContent('本次输入仍保留')
@@ -64,7 +65,7 @@ it.each(['weight', 'activity'] as const)(
     // Model WebKit committing a native picker value before dispatching its change event.
     const nativeDate = form.getByLabelText('日期与时间') as HTMLInputElement
     nativeDate.value = '2026-09-01T12:34'
-    await user.click(form.getByRole('button', { name: '保存' }))
+    await user.click(screen.getByRole('button', { name: saveLabel }))
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
     const entries =
       kind === 'weight'
@@ -77,7 +78,7 @@ it.each(['weight', 'activity'] as const)(
       screen.getByRole('button', { name: kind === 'weight' ? '记录体重' : '记录运动' }),
     )
     await user.type(screen.getByLabelText('备注（可选）'), '合成未保存内容')
-    await user.click(screen.getByRole('button', { name: '取消' }))
+    await user.click(screen.getByRole('button', { name: '关闭编辑器' }))
     await user.click(screen.getByRole('button', { name: '放弃输入' }))
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   },
@@ -206,7 +207,7 @@ it.each(['weight', 'activity'] as const)(
     )
     const { rerender } = render(view())
     expect(
-      await screen.findByRole('link', {
+      await screen.findByRole('button', {
         name: kind === 'weight' ? '查看体重历史' : '查看运动历史',
       }),
     ).toBeInTheDocument()
@@ -225,7 +226,7 @@ it.each(['weight', 'activity'] as const)(
     expect((form.getByLabelText('日期与时间') as HTMLInputElement).value).toContain(
       toLocalDateKey(new Date(Date.now() + 86400000)),
     )
-    await user.click(form.getByRole('button', { name: '取消' }))
+    await user.click(screen.getByRole('button', { name: '关闭编辑器' }))
     const oldestItem = () =>
       within(Array.from(document.querySelectorAll('.compact-history li')).at(-1) as HTMLElement)
     await user.click(oldestItem().getByRole('button', { name: /^编辑/ }))
@@ -238,7 +239,9 @@ it.each(['weight', 'activity'] as const)(
       toLocalDateKey(oldestDate),
     )
     await user.type(oldestForm.getByLabelText('备注（可选）'), '合成最早记录已编辑')
-    await user.click(oldestForm.getByRole('button', { name: '保存' }))
+    await user.click(
+      screen.getByRole('button', { name: kind === 'weight' ? '保存体重' : '保存运动' }),
+    )
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
     const stored =
       kind === 'weight'

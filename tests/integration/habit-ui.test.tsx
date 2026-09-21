@@ -69,7 +69,7 @@ it('keeps the home compact and shows real progress with failure-safe pause and r
     'true',
   )
   expect(screen.queryByRole('heading', { name: '全部习惯' })).not.toBeInTheDocument()
-  expect(screen.getByRole('link', { name: '管理习惯与统计' })).toHaveAttribute(
+  expect(screen.getByRole('link', { name: '查看全部习惯' })).toHaveAttribute(
     'href',
     '/health/habits',
   )
@@ -108,11 +108,11 @@ it('keeps the home compact and shows real progress with failure-safe pause and r
   expect(await database.habitRecords.count()).toBe(1)
   await user.click(screen.getByRole('button', { name: '编辑' }))
   await user.type(screen.getByLabelText('习惯名称'), '未保存')
-  expect(screen.getByRole('button', { name: '保存' }).closest('.sheet-form-body')).toBeNull()
+  expect(screen.getByRole('button', { name: '保存习惯' }).closest('.sheet-form-body')).toBeNull()
   await user.click(screen.getByRole('button', { name: '关闭编辑器' }))
   await user.click(screen.getByRole('button', { name: '继续填写' }))
   expect(screen.getByLabelText('习惯名称')).toHaveValue('合成阅读未保存')
-  await user.click(screen.getByRole('button', { name: '取消' }))
+  await user.click(screen.getByRole('button', { name: '关闭编辑器' }))
   await user.click(screen.getByRole('button', { name: '放弃修改' }))
   expect((await database.habits.get(habit.id))?.name).toBe('合成阅读')
 })

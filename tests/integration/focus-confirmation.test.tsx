@@ -135,13 +135,13 @@ it('locks early completion during a write and reuses its endpoint after failure'
   )
   await user.click(await screen.findByRole('button', { name: '提前结束' }))
   const confirm = within(screen.getByRole('dialog', { name: '提前结束专注？' }))
-  await user.click(confirm.getByRole('button', { name: '结束并保存' }))
-  expect(confirm.getByRole('button', { name: '返回计时' })).toBeDisabled()
+  await user.click(confirm.getByRole('button', { name: '保存并结束' }))
+  expect(confirm.getByRole('button', { name: '继续专注' })).toBeDisabled()
   await user.click(confirm.getByRole('button', { name: '处理中…' }))
   expect(finish).toHaveBeenCalledTimes(1)
   await act(async () => fail(new Error('Synthetic failure')))
   expect(await confirm.findByRole('alert')).toHaveTextContent('操作未能保存')
-  await user.click(confirm.getByRole('button', { name: '结束并保存' }))
+  await user.click(confirm.getByRole('button', { name: '保存并结束' }))
   await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
   expect(finish.mock.calls[1]?.[1]).toBe(finish.mock.calls[0]?.[1])
   expect((await database.focusSessions.get(session.id))?.endedAt).toBe(finish.mock.calls[0]?.[1])
@@ -150,13 +150,15 @@ it('locks early completion during a write and reuses its endpoint after failure'
 
 it('leaves a session running when cancellation is declined, then cancels explicitly', async () => {
   const { session, user } = await setup(false)
-  await user.click(await screen.findByRole('button', { name: '取消本次' }))
+  await user.click(await screen.findByRole('button', { name: '提前结束' }))
+  await user.click(screen.getByRole('button', { name: '放弃本次，不保存' }))
   await user.click(screen.getByRole('button', { name: '返回计时' }))
   expect((await database.focusSessions.get(session.id))?.status).toBe('active')
-  await user.click(screen.getByRole('button', { name: '取消本次' }))
+  await user.click(screen.getByRole('button', { name: '提前结束' }))
+  await user.click(screen.getByRole('button', { name: '放弃本次，不保存' }))
   await user.click(
     within(screen.getByRole('dialog', { name: '取消本次专注？' })).getByRole('button', {
-      name: '取消本次',
+      name: '放弃本次，不保存',
     }),
   )
   await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())

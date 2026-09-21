@@ -64,7 +64,7 @@ test('finance sheet and discard confirmation contain and restore keyboard focus'
   await page.keyboard.press('Shift+Tab')
   await expect(controls.last()).toBeFocused()
   await page.getByLabel('金额（CNY）').fill('12.34')
-  const cancel = sheet.getByRole('button', { name: '取消', exact: true })
+  const cancel = sheet.getByRole('button', { name: '关闭编辑器', exact: true })
   await cancel.focus()
   await page.keyboard.press('Enter')
   const confirmation = page.getByRole('dialog', { name: '放弃这次输入？' })

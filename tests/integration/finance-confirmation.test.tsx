@@ -81,7 +81,7 @@ describe('Finance application confirmations', () => {
     expect(document.querySelector('.sheet-form-body')).toContainElement(
       screen.getByLabelText('金额（CNY）'),
     )
-    expect(document.querySelector('.sheet-form-footer')).toContainElement(
+    expect(document.querySelector('.sheet-header--actions')).toContainElement(
       screen.getByRole('button', { name: '保存' }),
     )
     await user.click(screen.getByRole('button', { name: '关闭编辑器' }))
@@ -122,11 +122,11 @@ describe('Finance application confirmations', () => {
   })
   it('keeps dirty input when cancellation is declined, then discards explicitly', async () => {
     const user = await draft()
-    await user.click(screen.getByRole('button', { name: '取消' }))
+    await user.click(screen.getByRole('button', { name: '关闭编辑器' }))
     expect(screen.getByRole('dialog', { name: '放弃这次输入？' })).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: '继续填写' }))
     expect(screen.getByLabelText('金额（CNY）')).toHaveValue('12.50')
-    await user.click(screen.getByRole('button', { name: '取消' }))
+    await user.click(screen.getByRole('button', { name: '关闭编辑器' }))
     await user.click(screen.getByRole('button', { name: '放弃输入' }))
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(await database.transactions.count()).toBe(0)
@@ -171,7 +171,6 @@ describe('Finance application confirmations', () => {
     )
     const user = await draft()
     await user.click(screen.getByRole('button', { name: '保存' }))
-    expect(screen.getByRole('button', { name: '取消' })).toBeDisabled()
     expect(screen.getByRole('button', { name: '关闭编辑器' })).toBeDisabled()
     expect(screen.getByLabelText('金额（CNY）')).toBeDisabled()
     // Busy starts before asynchronous category validation; wait for the actual write boundary,

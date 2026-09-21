@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useId, useRef, useState, type FormEvent } from 'react'
 import type { CessationEvent, CessationTrigger } from '@/shared/domain/types'
 import type { EventInput, PlanInput } from '@/data/repositories/CessationRepository'
 import { useDirtyForm } from '@/pwa/useDirtyForm'
@@ -6,6 +6,7 @@ import { logger } from '@/shared/logging/logger'
 import { ConfirmDialog } from '@/shared/ui/ConfirmDialog'
 import { Sheet } from '@/shared/ui/Sheet'
 import { HealthFormError } from '../HealthFormError'
+import { HealthSaveAction } from '../HealthSaveAction'
 
 import { triggerNames, dateTimeInput } from './cessationPresentation'
 function TriggerSelect({ value, onChange }: { value: string; onChange: (value: string) => void }) {
@@ -32,7 +33,10 @@ function useDraftActions(dirty: boolean, onClose: () => void, blocked = false) {
   // Sheet owns Escape; keeping a second document handler can dismiss two layers at once.
   useDirtyForm(dirty, saving || blocked)
   function close() {
-    if (lock.current || blocked) return
+    if (lock.current || blocked) {
+      logger.info('cessation.form.closeblocked', { operation: 'cancel', reason: 'busy' })
+      return
+    }
     if (dirty) {
       setDiscard(true)
       logger.info('cessation.form.discardrequested', { operation: 'cancel' })
@@ -42,7 +46,10 @@ function useDraftActions(dirty: boolean, onClose: () => void, blocked = false) {
     onClose()
   }
   async function save(action: () => Promise<void>) {
-    if (lock.current || blocked) return
+    if (lock.current || blocked) {
+      logger.info('cessation.form.saveblocked', { operation: 'save', reason: 'busy' })
+      return
+    }
     lock.current = true
     setSaving(true)
     setError('')
@@ -81,6 +88,7 @@ export function PlanForm({
   onSave: (id: string, input: PlanInput) => Promise<void>
   onClose: () => void
 }) {
+  const formId = useId()
   const [id] = useState(() => crypto.randomUUID()),
     [initial] = useState(() => dateTimeInput(new Date()))
   const [start, setStart] = useState(initial),
@@ -122,13 +130,20 @@ export function PlanForm({
     })
   }
   return (
-    <Sheet title="开始戒烟计划" structured onClose={draft.close} busy={draft.saving}>
+    <Sheet
+      title="开始戒烟计划"
+      structured
+      onClose={draft.close}
+      busy={draft.saving}
+      headerAction={<HealthSaveAction formId={formId} busy={draft.saving} label="保存戒烟计划" />}
+    >
       <form
-        className="sheet-form sheet-form--structured"
+        id={formId}
+        className="sheet-form sheet-form--structured health-editor"
         aria-label="开始戒烟计划"
         onSubmit={submit}
       >
-        {/* Scroll the ordinary body, never the fieldset or persistent action footer. */}
+        {/* The header remains reachable while optional plan fields scroll independently. */}
         <div className="sheet-form-body">
           <fieldset className="sheet-form-fields" disabled={draft.saving}>
             <p>只需要一个开始时间。其他内容可以不填。</p>
@@ -188,14 +203,6 @@ export function PlanForm({
             {draft.error ? <HealthFormError message={draft.error} /> : null}
           </fieldset>
         </div>
-        <div className="form-actions sheet-form-footer">
-          <button type="button" disabled={draft.saving} onClick={draft.close}>
-            取消
-          </button>
-          <button className="button-primary" disabled={draft.saving}>
-            {draft.saving ? '保存中…' : '开始计划'}
-          </button>
-        </div>
         {draft.confirmation}
       </form>
     </Sheet>
@@ -214,6 +221,7 @@ export function SmokingForm({
   onSave: (id: string, input: EventInput, editing: boolean) => Promise<void>
   onClose: () => void
 }) {
+  const formId = useId()
   const [id] = useState(() => entry?.id ?? crypto.randomUUID()),
     [initial] = useState(() => ({
       at: dateTimeInput(entry ? new Date(entry.occurredAt) : new Date()),
@@ -229,9 +237,16 @@ export function SmokingForm({
     blocked,
   )
   return (
-    <Sheet title="记录吸烟" structured onClose={draft.close} busy={draft.saving}>
+    <Sheet
+      title="记录吸烟"
+      structured
+      onClose={draft.close}
+      busy={draft.saving}
+      headerAction={<HealthSaveAction formId={formId} busy={draft.saving} label="保存吸烟记录" />}
+    >
       <form
-        className="sheet-form sheet-form--structured"
+        id={formId}
+        className="sheet-form sheet-form--structured health-editor"
         aria-label="吸烟记录"
         onSubmit={(event) => {
           event.preventDefault()
@@ -293,14 +308,6 @@ export function SmokingForm({
             {draft.error ? <HealthFormError message={draft.error} /> : null}
           </fieldset>
         </div>
-        <div className="form-actions sheet-form-footer">
-          <button type="button" disabled={draft.saving} onClick={draft.close}>
-            取消
-          </button>
-          <button className="button-primary" disabled={draft.saving}>
-            {draft.saving ? '保存中…' : '保存记录'}
-          </button>
-        </div>
         {draft.confirmation}
       </form>
     </Sheet>
@@ -319,12 +326,18 @@ export function CravingForm({
   onSave: (id: string, input: EventInput, editing: boolean) => Promise<void>
   onClose: () => void
 }) {
+  const formId = useId()
+  const [outcome, setOutcome] = useState<'relieved' | 'still'>(
+    entry?.kind === 'craving' ? entry.outcome : 'relieved',
+  )
   const [id] = useState(() => entry?.id ?? crypto.randomUUID()),
     [trigger, setTrigger] = useState<string>(entry?.trigger ?? ''),
     [deadline, setDeadline] = useState<number>(),
     [remaining, setRemaining] = useState(180)
   const draft = useDraftActions(
-    trigger !== (entry?.trigger ?? '') || Boolean(deadline),
+    trigger !== (entry?.trigger ?? '') ||
+      Boolean(deadline) ||
+      outcome !== (entry?.kind === 'craving' ? entry.outcome : 'relieved'),
     onClose,
     blocked,
   )
@@ -340,8 +353,34 @@ export function CravingForm({
     }
   }, [deadline])
   return (
-    <Sheet title="我想抽烟" structured onClose={draft.close} busy={draft.saving}>
-      <div className="sheet-form sheet-form--structured">
+    <Sheet
+      title="我想抽烟"
+      structured
+      onClose={draft.close}
+      busy={draft.saving}
+      headerAction={<HealthSaveAction formId={formId} busy={draft.saving} label="保存烟瘾记录" />}
+    >
+      <form
+        id={formId}
+        className="sheet-form sheet-form--structured health-editor"
+        aria-label="烟瘾记录"
+        onSubmit={(event) => {
+          event.preventDefault()
+          // Outcome is now an explicit field; the single check submits the same repository command.
+          void draft.save(() =>
+            onSave(
+              id,
+              {
+                kind: 'craving',
+                outcome,
+                occurredAt: entry?.occurredAt ?? new Date().toISOString(),
+                ...(trigger ? { trigger: trigger as CessationTrigger } : {}),
+              },
+              Boolean(entry),
+            ),
+          )
+        }}
+      >
         <div className="sheet-form-body">
           <fieldset className="sheet-form-fields" disabled={draft.saving}>
             <h3>先给自己一点空间</h3>
@@ -364,6 +403,25 @@ export function CravingForm({
             <p>舒适地呼吸，喝点水，或换个环境做一点别的事。</p>
             <p className="muted">提示参考 WHO Quick tips；无需等待计时结束即可保存感受或退出。</p>
             <TriggerSelect value={trigger} onChange={setTrigger} />
+            <fieldset className="form-fieldset" disabled={draft.saving}>
+              <legend>现在的感受</legend>
+              <div className="segmented-control">
+                {(['relieved', 'still'] as const).map((value) => (
+                  <button
+                    key={value}
+                    type="button"
+                    aria-pressed={outcome === value}
+                    className={outcome === value ? 'segment-active' : ''}
+                    onClick={() => {
+                      setOutcome(value)
+                      logger.info('cessation.outcome.selected', { operation: 'select' })
+                    }}
+                  >
+                    {value === 'relieved' ? '缓解了' : '还想抽'}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
             {onDelete ? (
               <button
                 type="button"
@@ -375,39 +433,10 @@ export function CravingForm({
               </button>
             ) : null}
             {draft.error ? <HealthFormError message={draft.error} /> : null}
-            <button type="button" disabled={draft.saving} onClick={draft.close}>
-              不保存，返回
-            </button>
           </fieldset>
         </div>
-        <div className="form-actions sheet-form-footer">
-          {(['relieved', 'still'] as const).map((outcome) => (
-            <button
-              key={outcome}
-              type="button"
-              className={outcome === 'relieved' ? 'button-primary' : 'button-secondary'}
-              disabled={draft.saving}
-              onClick={() =>
-                void draft.save(() =>
-                  onSave(
-                    id,
-                    {
-                      kind: 'craving',
-                      outcome,
-                      occurredAt: entry?.occurredAt ?? new Date().toISOString(),
-                      ...(trigger ? { trigger: trigger as CessationTrigger } : {}),
-                    },
-                    Boolean(entry),
-                  ),
-                )
-              }
-            >
-              {outcome === 'relieved' ? '缓解了，保存' : '还想抽，保存'}
-            </button>
-          ))}
-        </div>
         {draft.confirmation}
-      </div>
+      </form>
     </Sheet>
   )
 }
@@ -421,12 +450,20 @@ export function ReasonForm({
   onSave: (reason: string) => Promise<void>
   onClose: () => void
 }) {
+  const formId = useId()
   const [reason, setReason] = useState(initial)
   const draft = useDraftActions(reason !== initial, onClose)
   return (
-    <Sheet title="编辑戒烟原因" structured onClose={draft.close} busy={draft.saving}>
+    <Sheet
+      title="编辑戒烟原因"
+      structured
+      onClose={draft.close}
+      busy={draft.saving}
+      headerAction={<HealthSaveAction formId={formId} busy={draft.saving} label="保存戒烟原因" />}
+    >
       <form
-        className="sheet-form sheet-form--structured"
+        id={formId}
+        className="sheet-form sheet-form--structured health-editor"
         aria-label="编辑戒烟原因"
         onSubmit={(event) => {
           event.preventDefault()
@@ -446,14 +483,6 @@ export function ReasonForm({
             </label>
             {draft.error ? <HealthFormError message={draft.error} /> : null}
           </fieldset>
-        </div>
-        <div className="form-actions sheet-form-footer">
-          <button type="button" disabled={draft.saving} onClick={draft.close}>
-            取消
-          </button>
-          <button className="button-primary" disabled={draft.saving}>
-            保存原因
-          </button>
         </div>
         {draft.confirmation}
       </form>

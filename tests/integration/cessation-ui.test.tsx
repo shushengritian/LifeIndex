@@ -27,10 +27,12 @@ it('locks smoking editor exits and detail deletion while saving, then retains fa
       <SmokingForm onSave={save} onClose={close} onDelete={remove} />
     </PwaProvider>,
   )
-  await user.click(screen.getByRole('button', { name: '保存记录' }))
+  await user.click(screen.getByRole('button', { name: '保存吸烟记录' }))
   expect(screen.getByRole('button', { name: '关闭编辑器' })).toBeDisabled()
   expect(screen.getByRole('button', { name: '删除记录' })).toBeDisabled()
-  expect(screen.getByRole('button', { name: '保存中…' }).closest('.sheet-form-body')).toBeNull()
+  expect(
+    screen.getByRole('button', { name: '保存吸烟记录，保存中' }).closest('.sheet-form-body'),
+  ).toBeNull()
   await user.keyboard('{Escape}')
   expect(close).not.toHaveBeenCalled()
   await act(async () => rejectWrite(new Error('Synthetic write failure')))
@@ -55,11 +57,11 @@ it('retains a failed smoking draft and retries with the same operation ID', asyn
   )
   await user.clear(screen.getByLabelText('这次吸了几支'))
   await user.type(screen.getByLabelText('这次吸了几支'), '3')
-  await user.click(screen.getByRole('button', { name: '保存记录' }))
+  await user.click(screen.getByRole('button', { name: '保存吸烟记录' }))
   expect(await screen.findByRole('alert')).toHaveTextContent('输入已保留')
   expect(screen.getByLabelText('这次吸了几支')).toHaveValue(3)
   expect(onClose).not.toHaveBeenCalled()
-  await user.click(screen.getByRole('button', { name: '保存记录' }))
+  await user.click(screen.getByRole('button', { name: '保存吸烟记录' }))
   expect(onSave.mock.calls[0]![0]).toBe(onSave.mock.calls[1]![0])
   expect(onClose).toHaveBeenCalledOnce()
 })
@@ -143,7 +145,7 @@ it.each(['delete', 'end'] as const)(
       await user.click(await screen.findByRole('button', { name: '编辑吸烟记录' }))
       await user.click(screen.getByRole('button', { name: '删除记录' }))
     } else {
-      await screen.findByRole('button', { name: '截至现在未吸烟' })
+      await screen.findByRole('button', { name: '记录戒烟事件' })
       await user.click(screen.getByRole('button', { name: '管理戒烟计划' }))
       await user.click(screen.getByRole('button', { name: '结束本次计划' }))
     }

@@ -75,7 +75,7 @@ describe('V2 Health user interface', () => {
       }),
     )
     await user.type(screen.getByLabelText('体重（公斤）'), '68.4')
-    await user.click(screen.getByRole('button', { name: '保存' }))
+    await user.click(screen.getByRole('button', { name: '保存体重' }))
 
     expect(
       await screen.findByText('68.4', { selector: '.weight-overview strong' }),
@@ -92,7 +92,7 @@ describe('V2 Health user interface', () => {
     await user.clear(screen.getByLabelText('时长（分钟）'))
     await user.type(screen.getByLabelText('时长（分钟）'), '45')
     await user.click(screen.getByRole('button', { name: '较强' }))
-    await user.click(screen.getByRole('button', { name: '保存' }))
+    await user.click(screen.getByRole('button', { name: '保存运动' }))
 
     expect(await screen.findByText('45 分钟')).toBeInTheDocument()
     expect(await database.activitySessions.count()).toBe(1)
@@ -119,7 +119,7 @@ describe('V2 Health user interface', () => {
     )
     const weight = screen.getByLabelText('体重（公斤）')
     await user.type(weight, '72.3')
-    await user.click(screen.getByRole('button', { name: '保存' }))
+    await user.click(screen.getByRole('button', { name: '保存体重' }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent('未能保存，本次输入仍保留')
     expect(screen.getByRole('alert')).toHaveFocus()
@@ -166,10 +166,10 @@ describe('V2 Health user interface', () => {
     await user.click(await screen.findByRole('button', { name: /65\.0 kg/ }))
     await user.clear(screen.getByLabelText('目标（公斤）'))
     await user.type(screen.getByLabelText('目标（公斤）'), '64')
-    await user.click(screen.getByRole('button', { name: '取消' }))
+    await user.click(screen.getByRole('button', { name: '关闭编辑器' }))
     await user.click(screen.getByRole('button', { name: '继续编辑' }))
     expect(screen.getByLabelText('目标（公斤）')).toHaveValue('64')
-    await user.click(screen.getByRole('button', { name: '取消' }))
+    await user.click(screen.getByRole('button', { name: '关闭编辑器' }))
     await user.click(screen.getByRole('button', { name: '放弃修改' }))
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect((await database.settings.get('weightTarget'))?.value).toEqual({ weightGrams: 65000 })

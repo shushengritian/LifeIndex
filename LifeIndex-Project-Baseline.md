@@ -14,6 +14,8 @@
 
 ## 2. 产品定义
 
+2026-09-21：用户授权图标化操作R1.1开发及部署，见[ADR-0022](docs/adr/0022-icon-first-release.md)。3.2.0改进读写入口分离与完整专注圆环；不改变Local-First范围和V4数据契约。实际交付状态见PLAN。
+
 2026-09-21：用户授权持续完成操作体验更新至 3.1.0 发布（[ADR-0021](docs/adr/0021-operation-refresh-publication.md)），发布后提醒真机验证。替代下述早期发布门槛；数据库/备份 V4 与 Local-First 不变，手机未测不能记为通过。
 
 2026-09-20：用户在操作体验设计收尾后授权「开始开发工作」，依据 [ADR-0020](docs/adr/0020-operation-refresh-implementation.md)分批实施。包含只读轻量报表和统一操作体验；Local-First、V4 数据/备份不变，发布需另行授权。

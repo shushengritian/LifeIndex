@@ -58,7 +58,9 @@ for (const kind of ['weight', 'activity'] as const) {
     console.info('health.history.scroll-test.open', { kind, count: 40 })
     await oldest.click()
     await page.getByLabel('备注（可选）').fill('合成长列表回归')
-    await page.getByRole('button', { name: '保存', exact: true }).click()
+    await page
+      .getByRole('button', { name: kind === 'weight' ? '保存体重' : '保存运动', exact: true })
+      .click()
     await expect(page.getByRole('dialog')).toHaveCount(0)
     // Returning from a sheet must preserve the list, not just the saved database row.
     await expect(oldest).toBeInViewport()
@@ -67,7 +69,7 @@ for (const kind of ['weight', 'activity'] as const) {
       .toBeLessThan(5)
     await oldest.click()
     await expect(page.getByLabel('备注（可选）')).toHaveValue('合成长列表回归')
-    await page.getByRole('button', { name: '取消', exact: true }).click()
+    await page.getByRole('button', { name: '关闭编辑器', exact: true }).click()
     await expect(page.getByRole('dialog')).toHaveCount(0)
     await expect(oldest).toBeInViewport()
     await expect(rows).toHaveCount(40)

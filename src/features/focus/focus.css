@@ -1,0 +1,159 @@
+/* Feature-scoped overrides retire the legacy partial arc without changing global consumers. */
+.focus-page {
+  --focus-track: #6f879d;
+}
+:root[data-theme='dark'] .focus-page {
+  --focus-track: #728ca6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .focus-page {
+    --focus-track: #728ca6;
+  }
+}
+.focus-page .focus-scene-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 44px;
+}
+.focus-page .focus-scene-header h1 {
+  margin: 0;
+}
+.focus-page .focus-stage {
+  width: min(100%, 322px);
+  min-height: 0;
+  aspect-ratio: 1;
+  margin: auto;
+  padding: 40px;
+  background: none;
+  gap: 12px;
+}
+.focus-page .focus-stage h2 {
+  font-size: 17px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  margin: 0;
+  max-height: 4.5em;
+  overflow: auto;
+}
+.focus-page .focus-orbit {
+  transform: rotate(-90deg);
+}
+.focus-page .focus-clock {
+  font-size: 64px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+.focus-page .focus-clock.long {
+  font-size: 44px;
+}
+.focus-page .focus-progress-labels {
+  top: calc(100% + 20px);
+  bottom: auto;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+.focus-page .focus-round-action {
+  width: 64px;
+  height: 64px;
+  min-height: 64px;
+  flex: 0 0 64px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  border-radius: 50%;
+}
+.focus-page .focus-icon-action {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  display: inline-grid;
+  place-items: center;
+  border: 0;
+  border-radius: 14px;
+  color: var(--accent);
+  background: transparent;
+}
+.focus-page .focus-icon-action:active {
+  background: var(--accent-soft);
+}
+.focus-page .focus-preparation,
+.focus-page .focus-resume {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  aspect-ratio: auto;
+  gap: 16px;
+  padding: 20px 16px;
+  border-radius: 16px;
+  background: var(--surface);
+  text-align: left;
+}
+.focus-page .focus-resume > div,
+.focus-page .focus-preparation > div {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.focus-page .focus-preparation strong {
+  display: block;
+  margin-top: 12px;
+  font-size: 24px;
+  font-variant-numeric: tabular-nums;
+}
+.focus-page .focus-preparation p,
+.focus-page .focus-resume p,
+.focus-stop-actions p {
+  color: var(--muted);
+  font-size: 13px;
+}
+/* :has ties shell visibility to the mounted scene, so route changes restore navigation automatically. */
+.app-shell:has(.focus-immersive) > .app-header,
+.app-shell:has(.focus-immersive) > .bottom-nav {
+  display: none;
+}
+.app-shell:has(.focus-immersive) > .app-content {
+  padding-bottom: max(20px, env(safe-area-inset-bottom));
+}
+.focus-page.focus-immersive {
+  min-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 40px);
+  display: flex;
+  flex-direction: column;
+}
+.focus-immersive .focus-scene-header h1 {
+  flex: 1;
+  padding-right: 60px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--muted);
+}
+.focus-page.focus-immersive .active-focus {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 72px;
+  padding-top: 24px;
+}
+.focus-stop-actions {
+  text-align: center;
+  padding-top: 16px;
+}
+.focus-confirm-actions {
+  display: grid;
+  gap: 16px;
+  margin-top: 24px;
+}
+@media (max-width: 340px) {
+  .focus-page .focus-clock {
+    font-size: 48px;
+  }
+  .focus-page .focus-clock.long {
+    font-size: 36px;
+  }
+  .focus-page .focus-stage:not(.focus-preparation) {
+    padding: 32px;
+  }
+}
