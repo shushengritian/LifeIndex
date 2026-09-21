@@ -1,5 +1,10 @@
 # LifeIndex Agent Instructions
 
+## Design skill execution boundary
+
+- Impeccable is installed as a pinned personal skill for manual-reference use. Do not execute its bundled launcher/engine/browser bridge or install automatic hooks without separate approval; the launcher can download an executable on first use.
+- Use the skill's documented manual context fallback and existing project documents. Design-only approval does not authorize production implementation, dependency changes, deployment, or advancing review gates.
+
 ## Source of truth
 
 - Read `LifeIndex-Project-Baseline.md` and `PLAN.md` before changing product behavior.
