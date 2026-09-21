@@ -116,7 +116,7 @@ test('persists synthetic cessation evidence on the deployed V4 candidate', async
   const marker = 'SYNTHETIC_CESSATION_RELEASE_CHECK'
   page.on('request', (request) => requests.push(request.url()))
   await page.goto(routeUrl(testInfo, '/health/cessation'))
-  await page.getByRole('button', { name: '开始计划', exact: true }).click()
+  await page.getByRole('button', { name: '创建戒烟计划', exact: true }).click()
   // Keep the synthetic plan safely in the past. A minute rollover between page clock capture
   // and form opening otherwise waits for the 30-second foreground clock refresh at the test deadline.
   const startField = page.getByLabel('开始日期与时间')
@@ -128,15 +128,20 @@ test('persists synthetic cessation evidence on the deployed V4 candidate', async
   await page.getByRole('button', { name: '保存戒烟计划', exact: true }).click()
   // Wait for committed UI before reload; these records exist only in the isolated test profile.
   await expect(page.getByRole('status')).toContainText('计划已保存')
+  // The header plus owns event creation; inspecting plan content never opens the event chooser.
+  await page.getByRole('button', { name: '记录戒烟事件', exact: true }).click()
   await page.getByRole('button', { name: '截至现在未吸烟', exact: true }).click()
+  await page.getByRole('button', { name: '记录戒烟事件', exact: true }).click()
   await expect(page.getByRole('button', { name: '更新今日快照', exact: true })).toBeVisible()
   await page.reload()
+  await page.getByRole('button', { name: '记录戒烟事件', exact: true }).click()
   await expect(page.getByRole('button', { name: '更新今日快照', exact: true })).toBeVisible()
   await expect(page.getByText(marker, { exact: true })).toBeVisible()
   await page.getByRole('button', { name: /^记录吸烟/ }).click()
   await page.getByRole('button', { name: '保存吸烟记录', exact: true }).click()
   await expect(page.getByText('吸烟 1 支', { exact: true })).toBeVisible()
   await page.reload()
+  await page.getByRole('button', { name: '记录戒烟事件', exact: true }).click()
   await expect(page.getByRole('button', { name: '截至现在未吸烟', exact: true })).toBeDisabled()
   expect(requests.every((url) => !url.includes(marker))).toBe(true)
 })
