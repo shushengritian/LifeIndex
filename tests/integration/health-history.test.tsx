@@ -36,7 +36,8 @@ it.each(['weight', 'activity'] as const)(
     const field = form.getByLabelText(kind === 'weight' ? '体重（公斤）' : '时长（分钟）')
     await user.clear(field)
     await user.type(field, kind === 'weight' ? '68.5' : '40')
-    await user.click(form.getByRole('button', { name: '取消' }))
+    expect(screen.getByRole('button', { name: '保存' }).closest('.sheet-form-body')).toBeNull()
+    await user.click(screen.getByRole('button', { name: '关闭编辑器' }))
     await user.click(screen.getByRole('button', { name: '继续填写' }))
     expect(field).toBeEnabled()
     let rejectWrite!: (error: Error) => void
@@ -54,6 +55,7 @@ it.each(['weight', 'activity'] as const)(
     expect(field).toBeDisabled()
     expect(form.getByLabelText('日期与时间')).toBeDisabled()
     expect(form.getByRole('button', { name: '取消' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: '关闭编辑器' })).toBeDisabled()
     await user.click(form.getByRole('button', { name: '保存中…' }))
     expect(write).toHaveBeenCalledTimes(1)
     await act(async () => rejectWrite(new Error('Synthetic failure')))
@@ -96,6 +98,62 @@ beforeAll(() => {
     },
   })
 })
+
+it.each(['weight', 'activity'] as const)(
+  'retains the %s editor after a background read failure',
+  async (kind) => {
+    database = new LifeIndexDatabase(`HealthReadDraft-${crypto.randomUUID()}`)
+    await database.initialize()
+    const now = new Date()
+    await new WeightRepository(database).create({
+      weightGrams: 68000,
+      measuredAt: now.toISOString(),
+      localDate: toLocalDateKey(now),
+      timezoneOffsetMinutes: now.getTimezoneOffset(),
+    })
+    await new ActivityRepository(database).create({
+      categoryId: 'category-activity-running-v2',
+      durationMinutes: 30,
+      intensity: 'light',
+      occurredAt: now.toISOString(),
+      localDate: toLocalDateKey(now),
+      timezoneOffsetMinutes: now.getTimezoneOffset(),
+    })
+    render(
+      <AppServicesContext.Provider value={{ database }}>
+        <MemoryRouter>
+          <PwaProvider>
+            <HealthPage history={kind} />
+          </PwaProvider>
+        </MemoryRouter>
+      </AppServicesContext.Provider>,
+    )
+    const user = userEvent.setup()
+    await user.click(await screen.findByRole('button', { name: /^编辑/ }))
+    await user.type(screen.getByLabelText('备注（可选）'), '合成草稿')
+    const read =
+      kind === 'weight'
+        ? vi.spyOn(WeightRepository.prototype, 'list')
+        : vi.spyOn(ActivityRepository.prototype, 'list')
+    read.mockRejectedValue(new Error('Synthetic read failure'))
+    // Trigger the observed query using only this test database; the mounted draft must survive.
+    await act(async () => {
+      if (kind === 'weight')
+        await database.weightEntries.toCollection().modify({ note: 'Synthetic refresh' })
+      else await database.activitySessions.toCollection().modify({ note: 'Synthetic refresh' })
+    })
+    await screen.findByText(
+      kind === 'weight'
+        ? '体重记录暂时无法读取；运动和习惯仍可使用。'
+        : '运动记录暂时无法读取；体重和习惯仍可使用。',
+    )
+    expect(screen.getByLabelText('备注（可选）')).toHaveValue('合成草稿')
+    await user.click(screen.getByRole('button', { name: '关闭编辑器' }))
+    expect(
+      screen.getByRole('dialog', { name: kind === 'weight' ? '放弃体重输入？' : '放弃运动输入？' }),
+    ).toBeInTheDocument()
+  },
+)
 afterAll(() => {
   Reflect.deleteProperty(HTMLDialogElement.prototype, 'showModal')
   Reflect.deleteProperty(HTMLDialogElement.prototype, 'close')

@@ -239,3 +239,6 @@ flowchart LR
 ```
 
 No generated `dist`, backup, personal record, credential, or IndexedDB export is committed. Physical-iPhone results are recorded only from the owner.
+# 操作体验架构增量（2026-09-20）
+
+本次使用既有 React/IndexedDB 架构，报表为保留父记账页上下文的只读子路由；领域聚合和展示拆分，表单沿用原仓储写入。详见 [首批 HLD/LLD](../development/OPERATION_REFRESH_DEV.md)与 [ADR-0020](../adr/0020-operation-refresh-implementation.md)。不引入新服务、存储或持久化缓存。下文为既有架构。

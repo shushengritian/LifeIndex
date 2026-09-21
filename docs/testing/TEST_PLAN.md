@@ -1,5 +1,7 @@
 # LifeIndex V2 Test Plan
 
+> 2026-09-21：3.1.0 按 ADR-0021 完成自动化后发布，再由用户真机验证。新增报表双主题窄屏/可访问性/上下文回归、结构化编辑器滚动条回归、今天返回上下文与各域草稿失败保护；更新专注测试的按钮定位而不降低计时及间距要求。当前证据见 [3.1.0](../releases/v3.1.0.md)，不是物理 iPhone 验证。
+
 > **2026-09-14 · V2.1 amendment:** V2.1 adds `tests/integration/cessation.test.ts` and `tests/e2e/cessation.spec.ts`: conflict/rollback, legacy restore, additive schema upgrade, fixed-zone DST, complete/partial-day semantics, history/hiding, 320/390 layouts, light/dark axe checks and offline save. Current evidence/status: [V2_1_PLAN](../../V2_1_PLAN.md). Physical-iPhone and live V2.1 acceptance remain unverified; ADR-0008 applies only to V2.
 
 **Status:** Automated release acceptance authorized; physical-only follow-up deferred under ADR-0008
@@ -177,3 +179,9 @@ Only reported results are marked pass. A defect that risks data loss/privacy or 
 ## 11. Evidence recording
 
 `V2_PLAN.md` records milestone commands/counts/commits. `REQUIREMENTS_TRACEABILITY.md` maps requirements to named source/tests and changes `planned` to `verified` only after evidence exists. Release notes link the exact GitHub Actions and deployed-smoke runs; iPhone evidence is recorded separately.
+# 操作体验首批验证增量（2026-09-20）
+
+按 [开发计划](../development/OPERATION_REFRESH_DEV.md)验证生产 Sheet、记账 CRUD/失败/草稿与新报表。原型的 14 组检查不能作为生产测试结果；新域函数/图表单测、fake IndexedDB 集成、浏览器实际几何/返回/键盘分别记录。数据库/备份仍 V4，不触碰用户真实数据或将模拟测试冒充 iPhone。下文历史版本记录不代表本次已通过。
+# 2026-09-21 操作体验滚动回归补充
+
+所有页面、报表、Portal 弹层及 `.sheet-form-body` 统一隐藏滚动指示条，但保留原生滚动。检查 320/390/430 宽度、短屏、深浅主题、触摸及鼠标输入；长内容可达尾部，保存仍可操作，关闭后底栏仍可达。`tests/e2e/mobile-polish.spec.ts` 新增内部编辑器覆盖；尚未执行新增浏览器用例，不作为真机修复证明。系统菜单/文件选择器另做 iPhone 专项。

@@ -7,6 +7,7 @@ import { BackupService } from '@/data/backup/BackupService'
 import * as browserBackup from '@/data/backup/browserBackup'
 import { LifeIndexDatabase } from '@/data/db/LifeIndexDatabase'
 import { SettingsRepository } from '@/data/repositories/SettingsRepository'
+import { CategoryRepository } from '@/data/repositories/CategoryRepository'
 import { SettingsPage, SettingsDetailPage } from '@/features/settings/SettingsPage'
 import { PwaProvider } from '@/pwa/PwaProvider'
 
@@ -134,12 +135,56 @@ it('rolls back a failed theme change and releases the operation lock for retry',
   )
   await user.click(screen.getByRole('button', { name: '深色' }))
   expect(await screen.findByRole('alert')).toHaveTextContent('已恢复之前的选择')
+  expect(screen.getByRole('alert')).toHaveFocus()
   expect(document.documentElement.dataset.theme).toBeUndefined()
   await user.click(screen.getByRole('button', { name: '深色' }))
   await waitFor(() =>
     expect(screen.getByRole('button', { name: '深色' })).toHaveAttribute('aria-pressed', 'true'),
   )
   expect((await database.settings.get('appearance'))?.value).toBe('dark')
+})
+
+it('retains category draft through a failed live settings refresh and retry', async () => {
+  const { database, user } = await setup()
+  await user.click(screen.getByText('分类管理', { exact: true }))
+  await user.click(screen.getByRole('button', { name: '新增分类' }))
+  await user.type(screen.getByLabelText('分类名称'), '合成草稿')
+  vi.spyOn(CategoryRepository.prototype, 'list').mockRejectedValueOnce(new Error('SyntheticRead'))
+  await act(async () => {
+    await database.settings.put({
+      key: 'appearance',
+      value: 'dark',
+      updatedAt: new Date().toISOString(),
+    })
+  })
+  await screen.findByText(/设置暂时无法读取/)
+  expect(screen.getByLabelText('分类名称')).toHaveValue('合成草稿')
+  await user.click(screen.getByRole('button', { name: '关闭编辑器' }))
+  await user.click(screen.getByRole('button', { name: '放弃修改' }))
+  await user.click(screen.getByRole('button', { name: '重试读取' }))
+  await waitFor(() => expect(screen.queryByText(/设置暂时无法读取/)).not.toBeInTheDocument())
+})
+
+it('retains an inspected backup when settings refresh fails and cancels without replacing data', async () => {
+  const { database, user, inspect } = await setup()
+  await inspect()
+  const restore = vi.spyOn(BackupService.prototype, 'restore')
+  vi.spyOn(CategoryRepository.prototype, 'list').mockRejectedValueOnce(new Error('SyntheticRead'))
+  await act(async () => {
+    await database.settings.put({
+      key: 'appearance',
+      value: 'light',
+      updatedAt: new Date().toISOString(),
+    })
+  })
+  await screen.findByText(/设置暂时无法读取/)
+  expect(screen.getByRole('heading', { name: '恢复预览' })).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: '重试读取' }))
+  await waitFor(() => expect(screen.queryByText(/设置暂时无法读取/)).not.toBeInTheDocument())
+  expect(screen.getByRole('heading', { name: '恢复预览' })).toBeInTheDocument()
+  await user.click(screen.getByRole('button', { name: '取消恢复' }))
+  expect(restore).not.toHaveBeenCalled()
+  expect(screen.getByRole('status')).toHaveTextContent('当前数据没有改变')
 })
 
 it('distinguishes successful export handoff from failure to record its timestamp', async () => {

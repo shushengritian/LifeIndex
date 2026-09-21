@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 
 import { useAppServices } from '@/app/AppServicesContext'
@@ -6,6 +6,7 @@ import { FocusRepository } from '@/data/repositories/FocusRepository'
 import { HabitRepository } from '@/data/repositories/HabitRepository'
 import { TransactionRepository } from '@/data/repositories/TransactionRepository'
 import { summarizeTransactions } from '@/features/finance/financeDomain'
+import { financeDisplayDate } from '@/features/finance/financeNavigation'
 import { formatFocusDuration, summarizeFocus } from '@/features/focus/focusDomain'
 import { useFocusCompletion } from '@/features/focus/useFocusCompletion'
 import { formatMoney } from '@/shared/domain/money'
@@ -16,6 +17,7 @@ import { Icon } from '@/shared/ui/Icon'
 import { CategoryIcon } from '@/shared/ui/CategoryIcon'
 import { useDirtyForm } from '@/pwa/useDirtyForm'
 import { logger } from '@/shared/logging/logger'
+import { rememberTodayReturn, takeTodayReturn } from './todayReturnContext'
 
 function formatToday(date: Date): string {
   return new Intl.DateTimeFormat('zh-CN', {
@@ -27,6 +29,10 @@ function formatToday(date: Date): string {
 
 export function TodayPage() {
   const location = useLocation()
+  const savedDate =
+    location.state?.financeSaved === true
+      ? financeDisplayDate(location.state?.financeSavedDate)
+      : undefined
   const { database } = useAppServices()
   const transactions = useMemo(() => new TransactionRepository(database), [database])
   const habits = useMemo(() => new HabitRepository(database), [database])
@@ -35,7 +41,10 @@ export function TodayPage() {
   const today = useCurrentLocalDate()
   const [habitError, setHabitError] = useState('')
   const [habitBusy, setHabitBusy] = useState(false)
+  const [habitRevision, setHabitRevision] = useState(0)
   const habitLock = useRef(false)
+  const habitLinks = useRef(new Map<string, HTMLAnchorElement>())
+  const habitHeading = useRef<HTMLHeadingElement>(null)
   useDirtyForm(false, habitBusy)
 
   const financeQuery = useCallback(
@@ -43,6 +52,8 @@ export function TodayPage() {
     [today, transactions],
   )
   const habitQuery = useCallback(async () => {
+    // Include the acknowledged write revision so a just-remounted subscription also rereads the result.
+    void habitRevision
     const scheduled = await habits.listScheduled(today)
     const records = await Promise.all(
       scheduled.map(async (habit) => {
@@ -51,7 +62,7 @@ export function TodayPage() {
       }),
     )
     return { scheduled, records: new Map(records) }
-  }, [habits, today])
+  }, [habits, today, habitRevision])
   const focusQuery = useCallback(async () => {
     const [active, completed] = await Promise.all([
       focus.getActive(),
@@ -63,6 +74,21 @@ export function TodayPage() {
   const financeState = useLiveQueryState(financeQuery)
   const habitState = useLiveQueryState(habitQuery)
   const focusState = useLiveQueryState(focusQuery)
+
+  useEffect(() => {
+    // Wait for all sections to settle so restoring scroll is not clamped by loading placeholders.
+    // Consume once: later live updates must never steal focus or jump the page again.
+    if ([financeState.status, habitState.status, focusState.status].includes('loading')) return
+    const context = takeTodayReturn(location.state?.todayReturnKey ?? location.key)
+    if (!context) return
+    const target = habitLinks.current.get(context.habitId) ?? habitHeading.current
+    target?.focus({ preventScroll: true })
+    window.scrollTo({ top: context.scrollY, behavior: 'instant' })
+    logger.info('today.return.restored', {
+      operation: 'navigate',
+      reason: habitLinks.current.has(context.habitId) ? 'trigger' : 'section',
+    })
+  }, [financeState.status, habitState.status, focusState.status, location.key, location.state])
 
   // Today and Focus share recovery semantics for sessions that expired while iOS suspended the app.
   const completion = useFocusCompletion(
@@ -89,6 +115,7 @@ export function TodayPage() {
         })
       }
       logger.info('today.habit.saved', { operation: record ? 'undo' : 'checkin' })
+      setHabitRevision((revision) => revision + 1)
     } catch {
       logger.warn('today.habit.failed', {
         operation: record ? 'undo' : 'checkin',
@@ -106,15 +133,20 @@ export function TodayPage() {
       <h1 id="today-title">今天</h1>
       <p className="today-date">{formatToday(now)}</p>
       {/* This transient route receipt reports a completed quick entry, never an optimistic write. */}
-      {location.state?.financeSaved === true ? <p role="status">账目已保存</p> : null}
-      <section className="daily-intro" aria-label="开始今天的记录">
-        <h2>从一笔记录开始</h2>
-        <p>把花费、专注和日常，留在今天。</p>
-        <Link className="button-primary today-record-action" to="/finance/new">
-          <Icon name="add" />
-          记一笔
-        </Link>
-      </section>
+      {location.state?.financeSaved === true ? (
+        <div className="notice" role="status">
+          <p>账目已保存{savedDate ? ` · ${savedDate}` : ''}</p>
+          {savedDate && (
+            <Link
+              to="/finance"
+              state={{ financeViewDate: savedDate }}
+              onClick={() => logger.info('today.finance.receiptviewed', { operation: 'navigate' })}
+            >
+              查看记录
+            </Link>
+          )}
+        </div>
+      ) : null}
       <Link
         to="/focus"
         className="today-focus-entry"
@@ -143,7 +175,7 @@ export function TodayPage() {
                   : '25 分钟，专心做一件事'}
           </small>
         </span>
-        <span aria-hidden="true">›</span>
+        <Icon name="next" />
       </Link>
       {completion.error && (
         <div role="alert" className="form-error">
@@ -161,7 +193,9 @@ export function TodayPage() {
 
       <section className="content-section" aria-labelledby="today-habit-title">
         <div className="section-heading">
-          <h2 id="today-habit-title">健康习惯</h2>
+          <h2 id="today-habit-title" ref={habitHeading} tabIndex={-1}>
+            健康习惯
+          </h2>
           {habitState.status === 'ready' ? (
             <span>
               {
@@ -191,18 +225,51 @@ export function TodayPage() {
             {habitState.data.scheduled.map((habit) => {
               const record = habitState.data.records.get(habit.id)
               return (
-                <li key={habit.id}>
+                <li key={habit.id} className="today-habit-row">
+                  {/* Navigation and check-in are siblings: opening details cannot mutate a record. */}
+                  <Link
+                    className="today-habit-detail"
+                    to="/health/habits"
+                    state={{ habitId: habit.id, from: 'today', todayReturnKey: location.key }}
+                    ref={(element) => {
+                      if (element) habitLinks.current.set(habit.id, element)
+                      else habitLinks.current.delete(habit.id)
+                    }}
+                    onClick={(event) => {
+                      if (habitLock.current) {
+                        event.preventDefault()
+                        return
+                      }
+                      // Modified clicks open another browsing context and must not schedule a return here.
+                      if (
+                        !event.metaKey &&
+                        !event.ctrlKey &&
+                        !event.shiftKey &&
+                        !event.altKey &&
+                        event.button === 0
+                      ) {
+                        rememberTodayReturn(location.key, habit.id, window.scrollY)
+                      }
+                      logger.info('today.habit.detailopened', { operation: 'navigate' })
+                    }}
+                  >
+                    <span className={`habit-marker marker-${habit.color}`} aria-hidden="true">
+                      <Icon name="health" />
+                    </span>
+                    <span>{habit.name}</span>
+                    <Icon name="next" size={18} />
+                  </Link>
                   <button
                     type="button"
+                    className="today-habit-toggle"
+                    aria-label={`${habit.name} · ${record ? '已完成，点按撤销' : '点按完成'}`}
                     aria-pressed={Boolean(record)}
                     disabled={habitBusy}
                     onClick={() => void toggleHabit(habit, record)}
                   >
                     <span className={`habit-marker marker-${habit.color}`} aria-hidden="true">
-                      {record ? '✓' : '○'}
+                      <Icon name={record ? 'check' : 'add'} />
                     </span>
-                    <span>{habit.name}</span>
-                    <strong>{record ? '已完成，点按撤销' : '点按完成'}</strong>
                   </button>
                 </li>
               )
@@ -216,6 +283,15 @@ export function TodayPage() {
           <div className="section-heading">
             <h2 id="today-finance-title">今日账目</h2>
             <Link to="/finance">查看</Link>
+            {/* Keep creation next to the real ledger summary, not a promotional hero. */}
+            <Link
+              className="today-inline-add"
+              to="/finance/new"
+              aria-label="记一笔"
+              onClick={() => logger.info('today.finance.opened', { operation: 'create' })}
+            >
+              <Icon name="add" />
+            </Link>
           </div>
           {financeState.status === 'loading' ? <p className="state-message">正在读取…</p> : null}
           {financeState.status === 'failed' ? (

@@ -237,3 +237,6 @@ Allowed context includes operation, entity type, count, prior/next state, format
 4. Implement Health weight/activity plus retained Habits/detail.
 5. Refresh Focus and Settings.
 6. Run migration rehearsal, full local/E2E gates, deployed smoke, and owner-led iPhone acceptance.
+# 操作体验详细设计增量（2026-09-20）
+
+共享 Sheet 增量接入、记账详情删除、`/finance/report` 子路由及纯整数聚合契约见 [OPERATION_REFRESH_DEV](../development/OPERATION_REFRESH_DEV.md)。生产保持真实异步写入/草稿保护；不复用原型模拟数据和延迟，不改 V4 schema。下文保留既有细节。

@@ -12,6 +12,10 @@ export type IconName =
   | 'appearance'
   | 'download'
   | 'upload'
+  | 'close'
+  | 'chart'
+  | 'play'
+  | 'stop'
 
 export function Icon({ name, size = 22 }: { name: IconName; size?: number }) {
   const common = {
@@ -33,6 +37,12 @@ export function Icon({ name, size = 22 }: { name: IconName; size?: number }) {
     appearance: 'M12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6 7 7m10 10 1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4',
     download: 'M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5',
     upload: 'M12 15V3m-5 5 5-5 5 5M4 16v5h16v-5',
+    // Shared action geometry keeps short-label navigation and editor dismissal in the same icon family.
+    close: 'm6 6 12 12M6 18 18 6',
+    chart: 'M4 3v18h17M8 16v-4m5 4V8m5 8V5',
+    // Focus controls use geometry with a persistent text label, not font glyphs.
+    play: 'm9 5 11 7-11 7Z',
+    stop: 'M6 6h12v12H6Z',
   }
   if (Object.hasOwn(settingsPaths, name)) {
     return (

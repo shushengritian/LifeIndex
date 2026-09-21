@@ -163,7 +163,11 @@ test('creates, persists, edits, and deletes a local transaction', async ({ page 
   await page.getByRole('button', { name: '保存' }).click()
   await expect(page.getByText('−¥20.00')).toBeVisible()
 
-  await page.getByRole('button', { name: '删除' }).click()
+  await page.getByRole('button', { name: '编辑 餐饮 ¥20.00', exact: true }).click()
+  await page
+    .getByRole('dialog', { name: '编辑账目' })
+    .getByRole('button', { name: '删除账目' })
+    .click()
   await page
     .getByRole('dialog', { name: '删除这条账目？' })
     .getByRole('button', { name: '删除账目', exact: true })

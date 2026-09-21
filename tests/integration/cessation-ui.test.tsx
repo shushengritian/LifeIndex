@@ -1,4 +1,4 @@
-import { cleanup, render, screen, waitFor, within } from '@testing-library/react'
+import { act, cleanup, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterAll, afterEach, beforeAll, expect, it, vi } from 'vitest'
@@ -10,6 +10,36 @@ import { PwaProvider } from '@/pwa/PwaProvider'
 import { SmokingForm } from '@/features/health/cessation/CessationForms'
 
 let database: LifeIndexDatabase
+
+it('locks smoking editor exits and detail deletion while saving, then retains failure input', async () => {
+  let rejectWrite!: (reason: Error) => void
+  const save = vi.fn(
+    () =>
+      new Promise<void>((_, reject) => {
+        rejectWrite = reject
+      }),
+  )
+  const close = vi.fn(),
+    remove = vi.fn(),
+    user = userEvent.setup()
+  render(
+    <PwaProvider>
+      <SmokingForm onSave={save} onClose={close} onDelete={remove} />
+    </PwaProvider>,
+  )
+  await user.click(screen.getByRole('button', { name: '保存记录' }))
+  expect(screen.getByRole('button', { name: '关闭编辑器' })).toBeDisabled()
+  expect(screen.getByRole('button', { name: '删除记录' })).toBeDisabled()
+  expect(screen.getByRole('button', { name: '保存中…' }).closest('.sheet-form-body')).toBeNull()
+  await user.keyboard('{Escape}')
+  expect(close).not.toHaveBeenCalled()
+  await act(async () => rejectWrite(new Error('Synthetic write failure')))
+  expect(await screen.findByRole('alert')).toHaveTextContent('输入已保留')
+  expect(screen.getByRole('alert')).toHaveFocus()
+  expect(screen.getByRole('button', { name: '关闭编辑器' })).toBeEnabled()
+  expect(screen.getByLabelText('这次吸了几支')).toHaveValue(1)
+  expect(remove).not.toHaveBeenCalled()
+})
 
 it('retains a failed smoking draft and retries with the same operation ID', async () => {
   const user = userEvent.setup(),

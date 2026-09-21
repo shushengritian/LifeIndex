@@ -42,7 +42,8 @@ it('keeps the cessation draft behind confirmation and does not propagate Escape 
   // Native dialog cancellation is modeled explicitly; real top-layer dismissal is browser-owned.
   fireEvent(dialog, new Event('cancel', { cancelable: true, bubbles: false }))
   expect(screen.getByLabelText('为什么想戒烟')).toHaveValue('合成原因')
-  expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  expect(screen.queryByRole('dialog', { name: '放弃戒烟输入？' })).not.toBeInTheDocument()
+  expect(screen.getByRole('dialog', { name: '编辑戒烟原因' })).toBeInTheDocument()
   await user.click(screen.getByRole('button', { name: '取消' }))
   await user.click(screen.getByRole('button', { name: '放弃输入' }))
   expect(close).toHaveBeenCalledTimes(1)

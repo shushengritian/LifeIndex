@@ -18,10 +18,12 @@ for (const theme of ['浅色', '深色']) {
       Number(await page.locator('.focus-orbit path[pathLength]').getAttribute('stroke-dashoffset')),
     ).toBeLessThan(97)
     const summary = await page.getByLabel('专注汇总').boundingBox()
-    const actions = await page.locator('.active-focus > .form-actions').boundingBox()
+    // The main finish action now lives inside the timer; the secondary cancel action is the last control before totals.
+    const actions = await page.getByRole('button', { name: '取消本次', exact: true }).boundingBox()
     const history = await page.getByRole('link', { name: '查看专注历史' }).boundingBox()
     expect(summary!.y - actions!.y - actions!.height).toBeGreaterThanOrEqual(24)
     expect(history!.y - summary!.y - summary!.height).toBeGreaterThanOrEqual(20)
+    console.info('focus.progress.spacing.checked', { theme, operation: 'running' })
     await expect(page.getByLabel('专注汇总')).toContainText('0 秒')
     // Leaving and returning reprojects persisted timestamps; it must not restart elapsed time.
     await page.getByRole('link', { name: '健康', exact: true }).click()

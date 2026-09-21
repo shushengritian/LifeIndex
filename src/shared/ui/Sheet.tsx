@@ -2,8 +2,21 @@ import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 
 import { logger } from '@/shared/logging/logger'
+import { Icon } from './Icon'
 
-export function Sheet({ title, children }: { title: string; children: ReactNode }) {
+export function Sheet({
+  title,
+  children,
+  onClose,
+  busy = false,
+  structured = false,
+}: {
+  title: string
+  children: ReactNode
+  onClose?: () => void
+  busy?: boolean
+  structured?: boolean
+}) {
   const titleId = useId()
   const backdropRef = useRef<HTMLDivElement>(null)
   // Capture focus during render, before an auto-focused sheet field can replace the launcher.
@@ -80,9 +93,47 @@ export function Sheet({ title, children }: { title: string; children: ReactNode 
   // Escape ancestor animation/transform containing blocks so a fixed sheet uses the viewport.
   return createPortal(
     <div className="sheet-backdrop" ref={backdropRef}>
-      <section className="sheet" role="dialog" aria-modal="true" aria-labelledby={titleId}>
+      <section
+        className={`sheet${structured ? ' sheet--structured' : ''}`}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-busy={busy}
+        onKeyDown={(event) => {
+          // A top-layer confirmation owns Escape. Never dismiss the draft underneath it.
+          if (event.key !== 'Escape' || !onClose || document.querySelector('dialog[open]')) return
+          event.preventDefault()
+          event.stopPropagation()
+          logger.info('ui.sheet.exitrequested', {
+            operation: 'close',
+            reason: busy ? 'busy' : 'escape',
+          })
+          if (!busy) onClose()
+        }}
+      >
         <div className="sheet-handle" aria-hidden="true" />
-        <h2 id={titleId}>{title}</h2>
+        {onClose ? (
+          <header className="sheet-header">
+            <h2 id={titleId}>{title}</h2>
+            <button
+              type="button"
+              className="button-secondary sheet-close"
+              aria-label="关闭编辑器"
+              disabled={busy}
+              onClick={() => {
+                logger.info('ui.sheet.exitrequested', {
+                  operation: 'close',
+                  reason: busy ? 'busy' : 'button',
+                })
+                if (!busy) onClose()
+              }}
+            >
+              <Icon name="close" />
+            </button>
+          </header>
+        ) : (
+          <h2 id={titleId}>{title}</h2>
+        )}
         {children}
       </section>
     </div>,

@@ -1,0 +1,193 @@
+:root {
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif;
+  color: #172c46;
+  background: #f1f6fb;
+  font-size: 16px;
+  line-height: 1.6;
+  --phone-width: 390px;
+  --phone-height: 844px;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+header,
+main {
+  max-width: 1140px;
+  margin: auto;
+  padding: 28px 32px;
+}
+header {
+  padding-top: 40px;
+  padding-bottom: 12px;
+}
+.brand {
+  color: inherit;
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 20px;
+}
+.stage {
+  display: inline;
+  margin-left: 14px;
+  font-size: 13px;
+  color: #516982;
+}
+h1 {
+  margin: 26px 0 10px;
+  font-size: 32px;
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+}
+.intro {
+  max-width: 700px;
+  margin: 0;
+  color: #516982;
+}
+.review-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+}
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+button,
+select {
+  font: inherit;
+  color: inherit;
+  min-height: 44px;
+  border: 0;
+  border-radius: 12px;
+}
+button {
+  padding: 8px 18px;
+  background: transparent;
+  cursor: pointer;
+}
+button[aria-pressed='true'] {
+  color: #fff;
+  background: #126590;
+}
+button:hover:not([aria-pressed='true']) {
+  background: #dceefa;
+}
+button:active {
+  transform: translateY(1px);
+}
+.size-choice {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: #516982;
+  font-size: 14px;
+}
+select {
+  padding: 8px 12px;
+  background: #fff;
+  border: 1px solid #788da4;
+}
+a {
+  color: #126590;
+  text-underline-offset: 4px;
+}
+:focus-visible {
+  outline: 3px solid #126590;
+  outline-offset: 3px;
+}
+::selection {
+  background: #dceefa;
+  color: #172c46;
+}
+.instruction {
+  min-height: 52px;
+  margin: 20px 0 22px;
+  color: #516982;
+  max-width: 790px;
+}
+.previews {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 36px;
+  align-items: start;
+}
+.preview {
+  width: var(--phone-width);
+  max-width: 100%;
+  min-width: 0;
+}
+.preview-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+h2 {
+  font-size: 17px;
+  margin: 0;
+  font-weight: 650;
+}
+.preview-heading a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  font-size: 14px;
+}
+iframe {
+  display: block;
+  width: 100%;
+  height: var(--phone-height);
+  border: 1px solid #cfdeec;
+  border-radius: 24px;
+  background: #fff;
+}
+.review-notes {
+  border-top: 1px solid #cfdeec;
+  margin-top: 40px;
+  padding-top: 24px;
+  max-width: 850px;
+}
+.review-notes ol {
+  padding-left: 22px;
+}
+.review-notes li {
+  margin-block: 8px;
+}
+.review-notes p {
+  font-size: 14px;
+  color: #516982;
+}
+@media (max-width: 600px) {
+  header,
+  main {
+    padding: 22px 16px;
+  }
+  h1 {
+    font-size: 28px;
+  }
+  .stage {
+    display: block;
+    margin: 8px 0 0;
+  }
+  button {
+    padding-inline: 14px;
+  }
+  iframe {
+    border-radius: 16px;
+  }
+  .previews {
+    gap: 24px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  button:active {
+    transform: none;
+  }
+}

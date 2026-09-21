@@ -17,7 +17,12 @@ const TodayPage = lazy(() =>
   import('@/features/today/TodayPage').then(({ TodayPage }) => ({ default: TodayPage })),
 )
 const FinancePage = lazy(() =>
-  import('@/features/finance/FinancePage').then(({ FinancePage }) => ({ default: FinancePage })),
+  import('@/features/finance/FinancePage').then(({ FinanceRoute }) => ({ default: FinanceRoute })),
+)
+const FinanceReportPage = lazy(() =>
+  import('@/features/finance/FinanceReportPage').then(({ FinanceReportPage }) => ({
+    default: FinanceReportPage,
+  })),
 )
 const FinanceNewPage = lazy(() =>
   import('@/features/finance/FinancePage').then(({ FinanceNewPage }) => ({
@@ -100,7 +105,17 @@ function createAppRouter() {
               <FinancePage />
             </LazyRoute>
           }
-        />
+        >
+          {/* Read-only reports retain the parent ledger's calendar and browsing context. */}
+          <Route
+            path="report"
+            element={
+              <LazyRoute>
+                <FinanceReportPage />
+              </LazyRoute>
+            }
+          />
+        </Route>
         <Route
           path="/focus"
           element={

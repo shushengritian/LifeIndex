@@ -232,3 +232,6 @@ V2 may be tagged only when:
 ## 10. Change control
 
 New capabilities discovered during implementation are backlog items unless the owner explicitly changes V2 scope. A persisted-field change requires an ADR, data/backup migration update, and tests before code. Physical-iPhone checks are never inferred from automation or a phone-browser screenshot.
+# 操作体验开发增量（2026-09-20）
+
+用户已授权基于收尾原型开始本地开发。首批验收需求：固定头尾编辑器、详情内确认删除、跨日期保存上下文、只读分类条形图/每日趋势报表；范围与完整验收条目见 [OPERATION_REFRESH_DEV](../development/OPERATION_REFRESH_DEV.md)，决策见 [ADR-0020](../adr/0020-operation-refresh-implementation.md)。不增加预算/账户/后台，不修改 V4 数据，发布待授权。下文保留既有产品需求。

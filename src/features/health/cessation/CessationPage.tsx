@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import {
   cessationDayStatus,
   cessationSummary,
@@ -14,7 +14,7 @@ import {
   startOfLocalMonth,
   startOfLocalWeek,
 } from '@/shared/domain/date'
-import type { CessationEvent } from '@/shared/domain/types'
+import type { CessationEvent, CessationPlan } from '@/shared/domain/types'
 import { Sheet } from '@/shared/ui/Sheet'
 import { Icon } from '@/shared/ui/Icon'
 import { CategoryIcon } from '@/shared/ui/CategoryIcon'
@@ -27,6 +27,9 @@ import { useDirtyForm } from '@/pwa/useDirtyForm'
 
 type Panel = 'plan' | 'smoking' | 'craving' | 'manage' | 'support' | 'reason'
 export function CessationPage() {
+  const location = useLocation()
+  // Accept only the known Settings origin; arbitrary route-state redirects are not allowed.
+  const fromSettings = location.state?.from === 'settings'
   const { repository, settings, state, retry } = useCessation(),
     now = useCessationNow()
   const [panel, setPanel] = useState<Panel>(),
@@ -40,6 +43,8 @@ export function CessationPage() {
     [message, setMessage] = useState(''),
     [error, setError] = useState('')
   const writeLock = useRef(false)
+  // Keep the plan identity stable throughout an editor, even if background reads fail.
+  const [editorPlan, setEditorPlan] = useState<CessationPlan>()
   const [confirmation, setConfirmation] = useState<{
     title: string
     description: string
@@ -52,7 +57,8 @@ export function CessationPage() {
     plan =
       data?.plans.find((plan) => plan.id === planId) ??
       data?.plans.find((plan) => !plan.endAt) ??
-      data?.plans[0]
+      data?.plans[0] ??
+      (panel ? editorPlan : undefined)
   const days = data?.days.filter((day) => day.planId === plan?.id) ?? [],
     events = data?.events.filter((event) => event.planId === plan?.id) ?? []
   const today = zonedDateKey(
@@ -77,6 +83,7 @@ export function CessationPage() {
   function open(next: Panel) {
     if (writeLock.current) return
     setError('')
+    setEditorPlan(plan)
     setPanel(next)
     logger.info('cessation.panel.opened', { operation: next })
   }
@@ -84,6 +91,23 @@ export function CessationPage() {
     setPanel(undefined)
     setEditing(undefined)
     logger.info('cessation.panel.closed', { operation: 'close' })
+  }
+  function requestEventDeletion() {
+    if (!editing || writeLock.current) return
+    // The editor owns this entry, while the page owns confirmation and the serialized delete.
+    const eventId = editing.id
+    setError('')
+    setConfirmation({
+      title: '删除戒烟记录？',
+      description: '删除后无法撤销，也不会自动恢复无烟确认。',
+      label: '删除记录',
+      action: async () => {
+        await repository.removeEvent(eventId)
+        close()
+      },
+      success: '记录已删除，未自动创建无烟确认。',
+    })
+    logger.info('cessation.ui.deleterequested', { operation: 'delete' })
   }
   async function mutate(action: () => Promise<void>, success: string) {
     // Mutation commands share a synchronous lock and navigation guard until storage settles.
@@ -112,8 +136,17 @@ export function CessationPage() {
   }
   const heading = (
     <div className="page-heading-row">
-      <Link to="/health" className="button-secondary compact">
-        返回健康
+      <Link
+        to={fromSettings ? '/settings' : '/health'}
+        className="button-secondary compact"
+        onClick={() =>
+          logger.info('cessation.source.returned', {
+            operation: 'navigate',
+            reason: fromSettings ? 'settings' : 'health',
+          })
+        }
+      >
+        {fromSettings ? '返回设置' : '返回健康'}
       </Link>
       <h1 id="cessation-title">戒烟</h1>
       <button
@@ -126,14 +159,14 @@ export function CessationPage() {
       </button>
     </div>
   )
-  if (state.status === 'loading')
+  if (state.status === 'loading' && !panel)
     return (
       <section className="page">
         {heading}
         <p>正在读取戒烟记录…</p>
       </section>
     )
-  if (state.status === 'failed')
+  if (state.status === 'failed' && !panel)
     return (
       <section className="page">
         {heading}
@@ -146,6 +179,9 @@ export function CessationPage() {
   return (
     <section className="page cessation-page" aria-labelledby="cessation-title">
       {heading}
+      {state.status === 'failed' && panel ? (
+        <p role="alert">列表暂时无法刷新，当前输入仍保留。</p>
+      ) : null}
       {error && !confirmation ? (
         <p role="alert" className="form-error">
           {error}
@@ -453,47 +489,7 @@ export function CessationPage() {
         寻求支持
       </button>
       {panel ? (
-        <Sheet
-          title={
-            panel === 'plan'
-              ? '开始戒烟计划'
-              : panel === 'smoking'
-                ? '记录吸烟'
-                : panel === 'craving'
-                  ? '我想抽烟'
-                  : panel === 'support'
-                    ? '寻求支持'
-                    : panel === 'reason'
-                      ? '编辑戒烟原因'
-                      : '计划管理'
-          }
-        >
-          {editing && (panel === 'smoking' || panel === 'craving') && (
-            <button
-              type="button"
-              className="button-secondary text-destructive"
-              disabled={busy}
-              onClick={() => {
-                // Destruction belongs to the selected detail, never an adjacent history-row action.
-                const eventId = editing.id
-                setError('')
-                setConfirmation({
-                  title: '删除戒烟记录？',
-                  description: '删除后无法撤销，也不会自动恢复无烟确认。',
-                  label: '删除记录',
-                  action: async () => {
-                    await repository.removeEvent(eventId)
-                    close()
-                  },
-                  success: '记录已删除，未自动创建无烟确认。',
-                })
-                logger.info('cessation.ui.deleterequested', { operation: 'delete' })
-              }}
-            >
-              <Icon name="trash" size={18} />
-              删除记录
-            </button>
-          )}
+        <>
           {panel === 'plan' ? (
             <PlanForm
               onClose={close}
@@ -508,6 +504,8 @@ export function CessationPage() {
           ) : null}
           {panel === 'smoking' && plan ? (
             <SmokingForm
+              blocked={busy || Boolean(confirmation)}
+              {...(editing ? { onDelete: requestEventDeletion } : {})}
               {...(editing ? { entry: editing } : {})}
               onClose={close}
               onSave={async (id, input, edit) => {
@@ -519,6 +517,8 @@ export function CessationPage() {
           ) : null}
           {panel === 'craving' && plan ? (
             <CravingForm
+              blocked={busy || Boolean(confirmation)}
+              {...(editing ? { onDelete: requestEventDeletion } : {})}
               {...(editing ? { entry: editing } : {})}
               onClose={close}
               onSave={async (id, input, edit) => {
@@ -528,103 +528,107 @@ export function CessationPage() {
             />
           ) : null}
           {panel === 'manage' ? (
-            <div className="sheet-form">
-              {error ? (
-                <p role="alert" className="form-error">
-                  {error}
-                </p>
-              ) : null}
-              {plan ? (
-                <button type="button" onClick={() => open('reason')}>
-                  编辑戒烟原因
-                </button>
-              ) : null}
-              <p>隐藏不删除数据，结束不清空历史。</p>
-              <button
-                type="button"
-                disabled={busy}
-                onClick={() =>
-                  void mutate(async () => {
-                    await settings.put({
-                      key: 'cessationHidden',
-                      value: !data?.hidden,
-                      updatedAt: new Date().toISOString(),
-                    })
-                    close()
-                  }, '入口显示已更新。')
-                }
-              >
-                {data?.hidden ? '恢复健康入口' : '隐藏健康入口'}
-              </button>
-              {plan && !plan.endAt ? (
+            <Sheet title="计划管理" busy={busy} onClose={close}>
+              <div className="sheet-form">
+                {error ? (
+                  <p role="alert" className="form-error">
+                    {error}
+                  </p>
+                ) : null}
+                {plan ? (
+                  <button type="button" onClick={() => open('reason')}>
+                    编辑戒烟原因
+                  </button>
+                ) : null}
+                <p>隐藏不删除数据，结束不清空历史。</p>
                 <button
                   type="button"
                   disabled={busy}
-                  onClick={() => {
-                    setError('')
-                    setConfirmation({
-                      title: future ? '取消未来计划？' : '结束本次计划？',
-                      description: '历史记录仍保留。结束后不可在本计划新增吸烟或烟瘾事件。',
-                      label: future ? '确认取消计划' : '确认结束',
-                      action: async () => {
-                        await repository.end(plan.id)
-                        close()
-                      },
-                      success: '计划已结束，历史仍保留。',
-                    })
-                    logger.info('cessation.ui.endrequested', { operation: 'end' })
-                  }}
+                  onClick={() =>
+                    void mutate(async () => {
+                      await settings.put({
+                        key: 'cessationHidden',
+                        value: !data?.hidden,
+                        updatedAt: new Date().toISOString(),
+                      })
+                      close()
+                    }, '入口显示已更新。')
+                  }
                 >
-                  {future ? '取消未来计划' : '结束本次计划'}
+                  {data?.hidden ? '恢复健康入口' : '隐藏健康入口'}
                 </button>
-              ) : null}
-              <h3>全部计划</h3>
-              {data?.plans.map((item) => (
-                <button
-                  type="button"
-                  key={item.id}
-                  onClick={() => {
-                    setPlanId(item.id)
-                    setSelected(item.startLocalDate)
-                    setMonth(startOfLocalMonth(item.startLocalDate))
-                    setShowCalendar(true)
-                    close()
-                  }}
-                >
-                  {item.startLocalDate} · {item.endAt ? '已结束' : '未结束'}
+                {plan && !plan.endAt ? (
+                  <button
+                    type="button"
+                    disabled={busy}
+                    onClick={() => {
+                      setError('')
+                      setConfirmation({
+                        title: future ? '取消未来计划？' : '结束本次计划？',
+                        description: '历史记录仍保留。结束后不可在本计划新增吸烟或烟瘾事件。',
+                        label: future ? '确认取消计划' : '确认结束',
+                        action: async () => {
+                          await repository.end(plan.id)
+                          close()
+                        },
+                        success: '计划已结束，历史仍保留。',
+                      })
+                      logger.info('cessation.ui.endrequested', { operation: 'end' })
+                    }}
+                  >
+                    {future ? '取消未来计划' : '结束本次计划'}
+                  </button>
+                ) : null}
+                <h3>全部计划</h3>
+                {data?.plans.map((item) => (
+                  <button
+                    type="button"
+                    key={item.id}
+                    onClick={() => {
+                      setPlanId(item.id)
+                      setSelected(item.startLocalDate)
+                      setMonth(startOfLocalMonth(item.startLocalDate))
+                      setShowCalendar(true)
+                      close()
+                    }}
+                  >
+                    {item.startLocalDate} · {item.endAt ? '已结束' : '未结束'}
+                  </button>
+                ))}
+                <button type="button" onClick={close}>
+                  关闭
                 </button>
-              ))}
-              <button type="button" onClick={close}>
-                关闭
-              </button>
-            </div>
+              </div>
+            </Sheet>
           ) : null}
           {panel === 'support' ? (
-            <div className="sheet-form">
-              <h3>不用独自面对</h3>
-              <p>在微信搜索“中国戒烟平台”，查看戒烟门诊、热线及相关资源。</p>
-              <p>
-                LifeIndex
-                提供自我记录与一般支持，不替代专业诊疗。戒烟困难或不适持续时，请向专业人员寻求帮助。
-              </p>
-              <a
-                className="button-secondary"
-                href="https://www.who.int/campaigns/world-no-tobacco-day/2021/quitting-toolkit/quick-tips"
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(event) => {
-                  if (!window.confirm('将打开 WHO 官方网页，需要网络，不携带个人记录。继续？'))
-                    event.preventDefault()
-                  else logger.info('cessation.support.opened', { operation: 'external' })
-                }}
-              >
-                WHO 官方戒烟提示 ↗
-              </a>
-              <p className="muted">外部网页需要网络；本地记录仍可离线使用。</p>
-              <button type="button" onClick={close}>
-                关闭
-              </button>
-            </div>
+            <Sheet title="寻求支持" onClose={close}>
+              <div className="sheet-form">
+                <h3>不用独自面对</h3>
+                <p>在微信搜索“中国戒烟平台”，查看戒烟门诊、热线及相关资源。</p>
+                <p>
+                  LifeIndex
+                  提供自我记录与一般支持，不替代专业诊疗。戒烟困难或不适持续时，请向专业人员寻求帮助。
+                </p>
+                <a
+                  className="button-secondary"
+                  href="https://www.who.int/campaigns/world-no-tobacco-day/2021/quitting-toolkit/quick-tips"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(event) => {
+                    if (!window.confirm('将打开 WHO 官方网页，需要网络，不携带个人记录。继续？'))
+                      event.preventDefault()
+                    else logger.info('cessation.support.opened', { operation: 'external' })
+                  }}
+                >
+                  WHO 官方戒烟提示 ↗
+                </a>
+                <p className="muted">外部网页需要网络；本地记录仍可离线使用。</p>
+                <button type="button" onClick={close}>
+                  关闭
+                </button>
+              </div>
+            </Sheet>
           ) : null}
           {panel === 'reason' && plan ? (
             <ReasonForm
@@ -633,7 +637,7 @@ export function CessationPage() {
               onSave={(reason) => repository.updateReason(plan.id, reason)}
             />
           ) : null}
-        </Sheet>
+        </>
       ) : null}
       {confirmation && (
         <ConfirmDialog

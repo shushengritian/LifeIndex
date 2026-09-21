@@ -659,22 +659,22 @@ a.button-secondary {
   text-decoration: none;
 }
 
-/* Hide only the indicator on phone-sized touch devices, never disable scrolling.
-   Desktop/keyboard users retain the standard scrollbar; older iOS may retain its OS overlay. */
-@media (max-width: 600px) and (hover: none) and (pointer: coarse) {
-  html,
-  body,
-  .sheet {
-    scrollbar-width: none;
-  }
+/* One indicator policy covers document scrolling and nested/Portal editors, including
+   future modules. Do not change overflow, touch-action or focus scrolling here:
+   hiding the indicator must never make the rest of a form unreachable.
+   No pointer media query: mouse previews and external iPad pointers use the same UI. */
+html,
+body,
+body * {
+  scrollbar-width: none;
+}
 
-  html::-webkit-scrollbar,
-  body::-webkit-scrollbar,
-  .sheet::-webkit-scrollbar {
-    display: none;
-    width: 0;
-    height: 0;
-  }
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+body *::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 .period-tabs,
@@ -912,7 +912,8 @@ a.button-secondary {
   min-height: 50px;
 }
 
-.sheet-form > label {
+.sheet-form > label,
+.sheet-form-fields > label {
   display: grid;
   min-width: 0;
   gap: 7px;
@@ -1761,6 +1762,41 @@ a.button-secondary {
   font-size: 14px;
   font-variant-numeric: tabular-nums;
 }
+
+/* Keep the primary control with its timer; never cover the scrolling fields or labels. */
+.focus-stage-action {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 58px;
+  margin-block: 14px 24px;
+  padding-inline: 22px;
+  border-radius: 29px;
+  z-index: 1;
+}
+.focus-secondary-action {
+  display: flex;
+  justify-content: center;
+  margin-block: 16px 24px;
+}
+.focus-secondary-action > button {
+  color: var(--muted);
+  background: transparent;
+  border-color: transparent;
+}
+
+.today-inline-add {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: var(--accent);
+  background: var(--accent-soft);
+}
 .focus-progress-labels strong {
   color: var(--text);
   font-size: inherit;
@@ -2513,6 +2549,41 @@ a.button-secondary {
   background: var(--accent-soft);
   color: var(--accent);
   font-weight: 800;
+}
+
+/* Separate read/navigation from writes; the action remains 44px even with a long name. */
+.habit-check-list .today-habit-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.today-habit-detail {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 52px;
+  align-items: center;
+  gap: 10px;
+  color: var(--text);
+  text-decoration: none;
+  border-radius: 12px;
+}
+.today-habit-detail > span:nth-child(2) {
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+.today-habit-detail svg {
+  flex-shrink: 0;
+}
+.habit-check-list .today-habit-toggle {
+  display: grid;
+  grid-template-columns: 1fr;
+  place-items: center;
+  flex: 0 0 48px;
+  width: 48px;
+  min-height: 48px;
+  padding: 0;
+  border-radius: 14px;
 }
 
 .marker-blue {
@@ -3322,4 +3393,226 @@ a.button-secondary {
 }
 .finance-subcategories .finance-category-grid button[aria-pressed='true'] {
   background: var(--accent-soft);
+}
+
+/* Structured editors fix the header/actions and scroll only the field body. Legacy sheets keep their layout until migrated. */
+.sheet--structured {
+  display: flex;
+  flex-direction: column;
+  height: min(760px, calc(100dvh - max(32px, env(safe-area-inset-top))));
+  overflow: hidden;
+  padding: 10px 0 0;
+}
+.sheet-header {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 20px 12px;
+}
+.sheet-header h2 {
+  margin: 0;
+  font-size: 20px;
+}
+.sheet-close {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  place-items: center;
+  border-radius: 12px;
+}
+.sheet-form--structured {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  gap: 0;
+}
+.sheet-form-body {
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 8px 20px 24px;
+}
+.sheet-form-fields {
+  display: grid;
+  min-width: 0;
+  gap: 18px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.sheet-form-body .form-error {
+  margin: 0 0 16px;
+}
+.sheet-form--structured .sheet-form-footer {
+  position: static;
+  flex: none;
+  margin: auto 0 0;
+  padding: 16px 20px max(20px, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--divider);
+  background: var(--surface);
+}
+.sheet-form-footer > button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.finance-detail-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 0;
+  border: 0;
+  background: transparent;
+  color: var(--destructive);
+}
+.finance-heading-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.finance-report-link,
+.finance-report-back {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px;
+  border-radius: 12px;
+  color: var(--accent);
+  text-decoration: none;
+}
+.finance-report-link:active,
+.finance-report-back:active {
+  background: var(--accent-soft);
+}
+.finance-report-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.finance-report-back {
+  width: 44px;
+  flex: none;
+}
+.finance-report-heading h1 {
+  margin: 0;
+}
+.finance-page[hidden] {
+  display: none;
+}
+.finance-record-open {
+  flex: 1;
+}
+
+/* Reports compare categories with length, and dates with a shared zero-based trend; no decorative chart containers. */
+.finance-report-month {
+  margin-bottom: 16px;
+}
+.finance-report-summary {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 24px 0;
+}
+.finance-report-summary p {
+  text-align: left;
+}
+.finance-report-summary strong {
+  overflow-wrap: anywhere;
+}
+.finance-report-section {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--divider);
+}
+.finance-report-section h2 {
+  margin: 0;
+  font-size: 18px;
+}
+.finance-report-hint,
+.finance-report-baseline {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.finance-report-hint {
+  margin: 8px 0 20px;
+}
+.finance-report-empty {
+  padding: 20px 0;
+  color: var(--muted);
+}
+.finance-report-empty p {
+  line-height: 1.65;
+}
+.finance-report-empty p:first-child {
+  color: var(--text);
+  font-weight: 650;
+}
+.finance-report-categories {
+  display: grid;
+  gap: 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.finance-report-category {
+  min-width: 0;
+}
+.finance-report-category-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.finance-report-category-name {
+  min-width: 0;
+  flex: 1;
+  font-size: 15px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.finance-report-category-name small {
+  margin-left: 6px;
+  color: var(--muted);
+  font-weight: 400;
+}
+.finance-report-category-count {
+  flex: none;
+  color: var(--muted);
+  font-size: 12px;
+}
+.finance-report-values {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 12px 0 8px;
+  font-variant-numeric: tabular-nums;
+}
+.finance-report-values strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 15px;
+}
+.finance-report-values span {
+  flex: none;
+  color: var(--muted);
+  font-size: 12px;
+}
+.finance-report-bar {
+  display: block;
+  width: 100%;
+  height: 8px;
+  background: transparent;
+}
+.finance-report-section .daily-expense-chart {
+  margin-top: 14px;
+  border: 0;
 }

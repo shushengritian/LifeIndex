@@ -29,11 +29,10 @@ test('cessation entry is centered and phone scrollbar suppression preserves scro
     expect(metrics.y).toBeLessThanOrEqual(2)
   }
   const scrollbar = await page.evaluate(() => ({
-    touch: matchMedia('(hover: none) and (pointer: coarse)').matches,
     supported: CSS.supports('scrollbar-width', 'none'),
     width: getComputedStyle(document.documentElement).scrollbarWidth,
   }))
-  if (scrollbar.supported) expect(scrollbar.width).toBe(scrollbar.touch ? 'none' : 'auto')
+  if (scrollbar.supported) expect(scrollbar.width).toBe('none')
   // Verify content remains reachable after hiding only the visual indicator.
   await entry.scrollIntoViewIfNeeded()
   expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
@@ -41,4 +40,30 @@ test('cessation entry is centered and phone scrollbar suppression preserves scro
   await expect(page.getByRole('heading', { name: '戒烟', exact: true })).toBeVisible()
   await page.getByRole('button', { name: '开始计划', exact: true }).click()
   await expect(page.getByRole('dialog', { name: '开始戒烟计划' })).toBeVisible()
+})
+
+test('nested finance editor hides indicators without blocking access to its fields', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 568 })
+  await page.goto('/#/finance')
+  await page.getByRole('button', { name: '新增交易', exact: true }).click()
+  const body = page.locator('.sheet-form-body')
+  await expect(body).toBeVisible()
+  // Exercise the actual overflow container, not just the outer sheet selector.
+  const metrics = await body.evaluate((element) => {
+    element.scrollTop = element.scrollHeight
+    return {
+      supported: CSS.supports('scrollbar-width', 'none'),
+      indicator: getComputedStyle(element).scrollbarWidth,
+      overflow: getComputedStyle(element).overflowY,
+      offset: element.scrollTop,
+    }
+  })
+  if (metrics.supported) expect(metrics.indicator).toBe('none')
+  expect(metrics.overflow).toBe('auto')
+  expect(metrics.offset).toBeGreaterThan(0)
+  await expect(page.getByRole('button', { name: '保存', exact: true })).toBeVisible()
+  await page.getByRole('button', { name: '关闭编辑器', exact: true }).click()
+  await expect(page.getByRole('navigation', { name: '主要导航' })).toBeVisible()
 })

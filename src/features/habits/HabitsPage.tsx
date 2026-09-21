@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef, useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 
 import { useAppServices } from '@/app/AppServicesContext'
 import { HabitRepository, type SaveHabitCommand } from '@/data/repositories/HabitRepository'
@@ -17,6 +17,7 @@ import { Sheet } from '@/shared/ui/Sheet'
 import { ConfirmDialog } from '@/shared/ui/ConfirmDialog'
 import { CategoryIcon } from '@/shared/ui/CategoryIcon'
 import { Icon } from '@/shared/ui/Icon'
+import { HealthFormError } from '@/features/health/HealthFormError'
 
 const weekdayLabels = ['日', '一', '二', '三', '四', '五', '六'] as const
 
@@ -137,134 +138,136 @@ function HabitForm({ habit, onCancel, onSave }: HabitFormProps) {
     }
   }
 
+  function cancel() {
+    // Header, Escape and footer share one guard; busy writes cannot be discarded.
+    if (writeLock.current) return
+    if (dirty) {
+      setDiscard(true)
+      logger.info('habit.form.discardrequested', { operation: 'cancel' })
+    } else onCancel()
+  }
+
   return (
-    <form
-      className="sheet-form"
-      onSubmit={(event) => void submit(event)}
-      aria-label={habit ? '编辑习惯' : '新增习惯'}
-    >
-      {/* One disabled fieldset covers every control while the single write settles. */}
-      <fieldset className="habit-form-fields" disabled={saving}>
-        <label>
-          习惯名称
-          <input
-            autoFocus
-            value={name}
-            maxLength={60}
-            onChange={(event) => setName(event.target.value)}
-          />
-        </label>
-        <div className="form-grid-two">
-          <label>
-            标记
-            <select value={icon} onChange={(event) => setIcon(event.target.value)}>
-              <option value="check">完成</option>
-              <option value="book">阅读</option>
-              <option value="water">饮水</option>
-              <option value="walk">运动</option>
-              <option value="moon">睡眠</option>
-            </select>
-          </label>
-          <label>
-            颜色
-            <select value={color} onChange={(event) => setColor(event.target.value)}>
-              {colorOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-        <fieldset className="form-fieldset">
-          <legend>计划</legend>
-          <div className="segmented-control">
-            <button
-              type="button"
-              className={scheduleType === 'daily' ? 'segment-active' : ''}
-              aria-pressed={scheduleType === 'daily'}
-              onClick={() => setScheduleType('daily')}
-            >
-              每天
-            </button>
-            <button
-              type="button"
-              className={scheduleType === 'weekdays' ? 'segment-active' : ''}
-              aria-pressed={scheduleType === 'weekdays'}
-              onClick={() => setScheduleType('weekdays')}
-            >
-              按星期
-            </button>
-          </div>
-          {scheduleType === 'weekdays' ? (
-            <div className="weekday-picker" aria-label="选择计划日">
-              {weekdayLabels.map((label, day) => (
-                <label key={label}>
-                  <input
-                    type="checkbox"
-                    checked={weekdays.includes(day)}
-                    onChange={() =>
-                      setWeekdays((current) =>
-                        current.includes(day)
-                          ? current.filter((value) => value !== day)
-                          : [...current, day],
-                      )
-                    }
-                  />
-                  <span>{label}</span>
-                </label>
-              ))}
+    <Sheet title={habit ? '编辑习惯' : '新增习惯'} structured onClose={cancel} busy={saving}>
+      <form
+        className="sheet-form sheet-form--structured"
+        onSubmit={(event) => void submit(event)}
+        aria-label={habit ? '编辑习惯' : '新增习惯'}
+      >
+        {/* Field disabling and scrolling are separate so the footer stays reachable. */}
+        <div className="sheet-form-body">
+          <fieldset className="sheet-form-fields" disabled={saving}>
+            <label>
+              习惯名称
+              <input
+                autoFocus
+                value={name}
+                maxLength={60}
+                onChange={(event) => setName(event.target.value)}
+              />
+            </label>
+            <div className="form-grid-two">
+              <label>
+                标记
+                <select value={icon} onChange={(event) => setIcon(event.target.value)}>
+                  <option value="check">完成</option>
+                  <option value="book">阅读</option>
+                  <option value="water">饮水</option>
+                  <option value="walk">运动</option>
+                  <option value="moon">睡眠</option>
+                </select>
+              </label>
+              <label>
+                颜色
+                <select value={color} onChange={(event) => setColor(event.target.value)}>
+                  {colorOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
-          ) : null}
-        </fieldset>
-        <label>
-          开始日期
-          <input
-            type="date"
-            value={startLocalDate}
-            onChange={(event) => setStartLocalDate(event.target.value)}
-          />
-        </label>
-        <label>
-          备注（可选）
-          <input value={note} maxLength={280} onChange={(event) => setNote(event.target.value)} />
-        </label>
-        {error ? (
-          <p className="form-error" role="alert">
-            {error}
-          </p>
-        ) : null}
-        <div className="form-actions">
-          <button
-            type="button"
-            className="button-secondary"
-            disabled={saving}
-            onClick={() => {
-              if (writeLock.current) return
-              if (dirty) {
-                setDiscard(true)
-                logger.info('habit.form.discardrequested', { operation: 'cancel' })
-              } else onCancel()
-            }}
-          >
+            <fieldset className="form-fieldset">
+              <legend>计划</legend>
+              <div className="segmented-control">
+                <button
+                  type="button"
+                  className={scheduleType === 'daily' ? 'segment-active' : ''}
+                  aria-pressed={scheduleType === 'daily'}
+                  onClick={() => setScheduleType('daily')}
+                >
+                  每天
+                </button>
+                <button
+                  type="button"
+                  className={scheduleType === 'weekdays' ? 'segment-active' : ''}
+                  aria-pressed={scheduleType === 'weekdays'}
+                  onClick={() => setScheduleType('weekdays')}
+                >
+                  按星期
+                </button>
+              </div>
+              {scheduleType === 'weekdays' ? (
+                <div className="weekday-picker" aria-label="选择计划日">
+                  {weekdayLabels.map((label, day) => (
+                    <label key={label}>
+                      <input
+                        type="checkbox"
+                        checked={weekdays.includes(day)}
+                        onChange={() =>
+                          setWeekdays((current) =>
+                            current.includes(day)
+                              ? current.filter((value) => value !== day)
+                              : [...current, day],
+                          )
+                        }
+                      />
+                      <span>{label}</span>
+                    </label>
+                  ))}
+                </div>
+              ) : null}
+            </fieldset>
+            <label>
+              开始日期
+              <input
+                type="date"
+                value={startLocalDate}
+                onChange={(event) => setStartLocalDate(event.target.value)}
+              />
+            </label>
+            <label>
+              备注（可选）
+              <input
+                value={note}
+                maxLength={280}
+                onChange={(event) => setNote(event.target.value)}
+              />
+            </label>
+            {error ? <HealthFormError message={error} /> : null}
+          </fieldset>
+        </div>
+        <div className="form-actions sheet-form-footer">
+          <button type="button" className="button-secondary" disabled={saving} onClick={cancel}>
             取消
           </button>
           <button type="submit" className="button-primary" disabled={saving}>
             {saving ? '保存中…' : '保存'}
           </button>
         </div>
-      </fieldset>
-      {discard && (
-        <ConfirmDialog
-          title="放弃习惯修改？"
-          description="未保存的输入将丢失，已有打卡记录不会改变。"
-          confirmLabel="放弃修改"
-          cancelLabel="继续填写"
-          onCancel={() => setDiscard(false)}
-          onConfirm={onCancel}
-        />
-      )}
-    </form>
+        {discard && (
+          <ConfirmDialog
+            title="放弃习惯修改？"
+            description="未保存的输入将丢失，已有打卡记录不会改变。"
+            confirmLabel="放弃修改"
+            cancelLabel="继续填写"
+            onCancel={() => setDiscard(false)}
+            onConfirm={onCancel}
+          />
+        )}
+      </form>
+    </Sheet>
   )
 }
 
@@ -278,17 +281,25 @@ export function HabitsPage({
   const { database } = useAppServices()
   const repository = useMemo(() => new HabitRepository(database), [database])
   const today = toLocalDateKey(new Date())
+  const location = useLocation()
+  const navigate = useNavigate()
+  // Source is a closed enum, not an arbitrary redirect supplied by route state.
+  const fromToday = !embedded && location.state?.from === 'today'
   // A keyed Health workspace can request the existing create flow on its initial render.
   const [formOpen, setFormOpen] = useState(createRequest > 0)
   const [editing, setEditing] = useState<Habit | undefined>()
-  const [selectedHabitId, setSelectedHabitId] = useState<string>()
+  const [selectedHabitId, setSelectedHabitId] = useState<string | undefined>(() =>
+    !embedded && typeof location.state?.habitId === 'string' ? location.state.habitId : undefined,
+  )
   const [pageError, setPageError] = useState('')
+  const [revision, setRevision] = useState(0)
   const [busy, setBusy] = useState(false)
   const operationLock = useRef(false)
   const [statusChange, setStatusChange] = useState<Habit>()
   useDirtyForm(false, busy)
 
   const query = useCallback(async () => {
+    void revision
     const habits = await repository.listAll()
     const records = await Promise.all(
       habits.map(
@@ -300,7 +311,7 @@ export function HabitsPage({
       ),
     )
     return { habits, records: new Map(records) }
-  }, [repository, today])
+  }, [repository, today, revision])
   const state = useLiveQueryState(query)
 
   async function save(command: SaveHabitCommand) {
@@ -331,6 +342,8 @@ export function HabitsPage({
         })
       }
       logger.info('habit.checkin.saved', { operation: record ? 'undo' : 'checkin' })
+      // Re-read after a command so remounted views do not keep the pre-write button state.
+      setRevision((value) => value + 1)
     } catch {
       logger.warn('habit.checkin.failed', {
         operation: record ? 'undo' : 'checkin',
@@ -353,6 +366,7 @@ export function HabitsPage({
       await repository.setStatus(habit.id, habit.status === 'active' ? 'paused' : 'active')
       setStatusChange(undefined)
       logger.info('habit.status.saved', { operation: 'setStatus' })
+      setRevision((value) => value + 1)
     } catch {
       logger.warn('habit.status.failed', { operation: 'setStatus', failureClass: 'Write' })
       setPageError('习惯状态未能更新，历史记录没有被删除。')
@@ -371,8 +385,18 @@ export function HabitsPage({
     >
       {!embedded ? (
         <>
-          <Link className="button-secondary" to="/health">
-            返回健康
+          <Link
+            className="button-secondary"
+            to={fromToday ? '/today' : '/health'}
+            state={fromToday ? { todayReturnKey: location.state?.todayReturnKey } : undefined}
+            onClick={() =>
+              logger.info('habit.source.returned', {
+                operation: 'navigate',
+                reason: fromToday ? 'today' : 'health',
+              })
+            }
+          >
+            {fromToday ? '返回今天' : '返回健康'}
           </Link>
           <div className="page-heading-row">
             <div>
@@ -394,17 +418,15 @@ export function HabitsPage({
       ) : null}
 
       {isFormOpen ? (
-        <Sheet title={editing ? '编辑习惯' : '新增习惯'}>
-          <HabitForm
-            key={editing?.id ?? 'new'}
-            {...(editing ? { habit: editing } : {})}
-            onCancel={() => {
-              setEditing(undefined)
-              setFormOpen(false)
-            }}
-            onSave={save}
-          />
-        </Sheet>
+        <HabitForm
+          key={editing?.id ?? 'new'}
+          {...(editing ? { habit: editing } : {})}
+          onCancel={() => {
+            setEditing(undefined)
+            setFormOpen(false)
+          }}
+          onSave={save}
+        />
       ) : null}
 
       {pageError && !statusChange ? (
@@ -426,7 +448,16 @@ export function HabitsPage({
           records={state.data.records}
           today={today}
           {...(selectedHabitId ? { selectedHabitId } : {})}
-          onSelect={setSelectedHabitId}
+          onSelect={(id) => {
+            if (!id && fromToday) {
+              // Dismissing a detail opened from Today returns to its source, not an unrelated list.
+              logger.info('habit.detail.returned', { operation: 'navigate', reason: 'today' })
+              void navigate('/today', {
+                replace: true,
+                state: { todayReturnKey: location.state?.todayReturnKey },
+              })
+            } else setSelectedHabitId(id)
+          }}
           onCheckIn={(habit, record) => void toggleCheckIn(habit, record)}
           onEdit={(habit) => {
             setSelectedHabitId(undefined)
@@ -513,18 +544,36 @@ function HabitContent({
                   ({ localDate }) => localDate === today,
                 )
                 return (
-                  <li key={habit.id}>
+                  <li key={habit.id} className="today-habit-row">
+                    {/* Opening statistics never toggles today's completion. */}
+                    <Link
+                      className="today-habit-detail"
+                      to="/health/habits"
+                      state={{ habitId: habit.id }}
+                      aria-label={`查看 ${habit.name} 详情`}
+                      onClick={(event) => {
+                        if (busy) {
+                          event.preventDefault()
+                          return
+                        }
+                        logger.info('habit.detail.opened', { operation: 'open' })
+                      }}
+                    >
+                      <span className={`category-glyph tone-${habit.color}`}>
+                        <HabitGlyph name={habit.icon} />
+                      </span>
+                      <span>{habit.name}</span>
+                      <Icon name="next" size={18} />
+                    </Link>
                     <button
                       type="button"
+                      className="today-habit-toggle"
+                      aria-label={`${habit.name} · ${record ? '已完成，点按撤销' : '点按完成'}`}
                       aria-pressed={Boolean(record)}
                       disabled={busy}
                       onClick={() => onCheckIn(habit, record)}
                     >
-                      <span className={`habit-marker marker-${habit.color}`} aria-hidden="true">
-                        {record ? '✓' : '○'}
-                      </span>
-                      <span>{habit.name}</span>
-                      <strong>{record ? '已完成，点按撤销' : '点按完成'}</strong>
+                      <Icon name={record ? 'check' : 'add'} />
                     </button>
                   </li>
                 )
@@ -579,7 +628,7 @@ function HabitContent({
       )}
 
       {selected ? (
-        <Sheet title="习惯统计">
+        <Sheet title="习惯统计" busy={busy} onClose={() => onSelect(undefined)}>
           <div className="habit-detail-actions">
             <button
               type="button"

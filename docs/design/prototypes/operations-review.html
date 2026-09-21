@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; style-src 'self'; script-src 'self'; frame-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'"
+    />
+    <title>LifeIndex · 全应用操作体验审稿</title>
+    <link rel="stylesheet" href="operations-review.css" />
+    <script defer src="operations-review.js"></script>
+  </head>
+  <body>
+    <header>
+      <a class="brand" href="operations-review.html">LifeIndex</a>
+      <p class="stage">操作体验提案 · 待你验收</p>
+      <h1>让记录更顺手。</h1>
+      <p class="intro">
+        保留 Ocean 的色彩和曲线，把操作放回内容附近。左右是同一方案的浅色与深色，可直接点击体验。
+      </p>
+    </header>
+    <main>
+      <section class="review-controls" aria-label="审稿展示选项">
+        <nav aria-label="选择审阅模块" id="module-choices">
+          <button type="button" data-view="today" aria-pressed="true">今天</button>
+          <button type="button" data-view="health" aria-pressed="false">健康</button>
+          <button type="button" data-view="focus" aria-pressed="false">专注</button>
+          <button type="button" data-view="finance" aria-pressed="false">记账</button>
+          <button type="button" data-view="settings" aria-pressed="false">设置</button>
+        </nav>
+        <label class="size-choice" for="phone-width"
+          >展示宽度
+          <select id="phone-width">
+            <option value="320">320 px</option>
+            <option value="390" selected>390 px</option>
+            <option value="430">430 px</option>
+          </select>
+        </label>
+        <label class="size-choice" for="show-review-tools">
+          <input type="checkbox" id="show-review-tools" />显示审稿工具
+        </label>
+        <label class="size-choice" for="phone-height"
+          >展示高度
+          <select id="phone-height">
+            <option value="568">568 px（短屏）</option>
+            <option value="844" selected>844 px</option>
+          </select>
+        </label>
+      </section>
+      <p id="review-instruction" class="instruction" role="status">
+        今天：试试直接打卡、记一笔，再进入专注。确认你能一眼分清「执行动作」与「打开详情」。
+      </p>
+      <div class="previews">
+        <section class="preview">
+          <div class="preview-heading">
+            <h2>浅色</h2>
+            <a
+              id="light-link"
+              href="operation-refresh/index.html?theme=light&amp;view=today"
+              target="_blank"
+              rel="noopener"
+              >单独打开</a
+            >
+          </div>
+          <iframe
+            id="light-frame"
+            title="浅色可交互原型"
+            src="operation-refresh/index.html?theme=light&amp;view=today&amp;embed=1"
+          ></iframe>
+        </section>
+        <section class="preview">
+          <div class="preview-heading">
+            <h2>深色</h2>
+            <a
+              id="dark-link"
+              href="operation-refresh/index.html?theme=dark&amp;view=today"
+              target="_blank"
+              rel="noopener"
+              >单独打开</a
+            >
+          </div>
+          <iframe
+            id="dark-frame"
+            title="深色可交互原型"
+            src="operation-refresh/index.html?theme=dark&amp;view=today&amp;embed=1"
+          ></iframe>
+        </section>
+      </div>
+      <section class="review-notes" aria-labelledby="review-boundary">
+        <h2 id="review-boundary">这次请重点看三件事</h2>
+        <ol>
+          <li>没有说明时，你能否分清哪里能记录、哪里看历史、哪里修改？</li>
+          <li>完成或取消操作后，是否回到预期位置，能看见刚刚的结果？</li>
+          <li>主次是否自然，文字是否够清楚，是否还有「按钮堆在一起」的感觉？</li>
+        </ol>
+        <p>
+          这是隔离原型，不是线上
+          3.0.0。所有记录为合成样本且仅在内存中；两窗口互不共享，刷新或切换上方模块会重置样本。备份与恢复仅作模拟，不读取文件；离线、应用更新和系统交互不在本原型中验证。不接触你的数据、不部署。
+        </p>
+        <p>
+          测试完整连续流程时，请用窗口内的底部导航；勾选「显示审稿工具」或「单独打开」可以切换空数据、失败等演示状态。切换工具显示会重置样本；调整宽高不会。工具区会占用部分展示高度。
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

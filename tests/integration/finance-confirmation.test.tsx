@@ -1,9 +1,11 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router-dom'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { AppServicesContext } from '@/app/AppServicesContext'
 import { LifeIndexDatabase } from '@/data/db/LifeIndexDatabase'
+import { TransactionRepository } from '@/data/repositories/TransactionRepository'
 import { FinancePage } from '@/features/finance/FinancePage'
 import { PwaProvider } from '@/pwa/PwaProvider'
 
@@ -38,7 +40,9 @@ beforeEach(async () => {
   render(
     <AppServicesContext.Provider value={{ database }}>
       <PwaProvider>
-        <FinancePage />
+        <MemoryRouter>
+          <FinancePage />
+        </MemoryRouter>
       </PwaProvider>
     </AppServicesContext.Provider>,
   )
@@ -57,6 +61,37 @@ async function draft() {
 }
 
 describe('Finance application confirmations', () => {
+  it('keeps the open draft and its guard when a live list refresh fails', async () => {
+    const user = await draft()
+    vi.spyOn(TransactionRepository.prototype, 'list').mockRejectedValueOnce(
+      new Error('SyntheticReadFailure'),
+    )
+    // A separate category edit invalidates the observed query; no draft field is sourced from the failed refresh.
+    await database.categories.update('category-finance-expense-food-v1', { name: '餐饮更新' })
+    expect(await screen.findByText('列表暂时无法刷新，当前输入仍保留。')).toBeInTheDocument()
+    expect(screen.getByLabelText('金额（CNY）')).toHaveValue('12.50')
+    await user.click(screen.getByRole('button', { name: '关闭编辑器' }))
+    expect(screen.getByRole('dialog', { name: '放弃这次输入？' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: '继续填写' }))
+    expect(screen.getByLabelText('金额（CNY）')).toHaveValue('12.50')
+    expect(await database.transactions.count()).toBe(0)
+  })
+  it('routes the header close and Escape through the same dirty-draft protection', async () => {
+    const user = await draft()
+    expect(document.querySelector('.sheet-form-body')).toContainElement(
+      screen.getByLabelText('金额（CNY）'),
+    )
+    expect(document.querySelector('.sheet-form-footer')).toContainElement(
+      screen.getByRole('button', { name: '保存' }),
+    )
+    await user.click(screen.getByRole('button', { name: '关闭编辑器' }))
+    await user.click(screen.getByRole('button', { name: '继续填写' }))
+    expect(screen.getByLabelText('金额（CNY）')).toHaveValue('12.50')
+    await user.keyboard('{Escape}')
+    expect(screen.getByRole('dialog', { name: '放弃这次输入？' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: '放弃输入' }))
+    expect(await database.transactions.count()).toBe(0)
+  })
   it('submits the native date control value even before its change event arrives', async () => {
     const user = await draft()
     // Model a native picker that has committed its DOM value but has not emitted change yet.
@@ -100,15 +135,28 @@ describe('Finance application confirmations', () => {
   it('retains the record on cancelled deletion and failed deletion, then retries', async () => {
     const user = await draft()
     await user.click(screen.getByRole('button', { name: '保存' }))
-    await user.click(await screen.findByRole('button', { name: '删除' }))
-    await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: '取消' }))
+    await user.click(await screen.findByRole('button', { name: '编辑 餐饮 ¥12.50' }))
+    await user.click(screen.getByRole('button', { name: '删除账目' }))
+    await user.click(
+      within(screen.getByRole('dialog', { name: '删除这条账目？' })).getByRole('button', {
+        name: '取消',
+      }),
+    )
     expect(await database.transactions.count()).toBe(1)
     vi.spyOn(database.transactions, 'delete').mockRejectedValueOnce(new Error('SyntheticFailure'))
-    await user.click(screen.getByRole('button', { name: '删除' }))
     await user.click(screen.getByRole('button', { name: '删除账目' }))
+    await user.click(
+      within(screen.getByRole('dialog', { name: '删除这条账目？' })).getByRole('button', {
+        name: '删除账目',
+      }),
+    )
     expect(await screen.findByRole('alert')).toHaveTextContent('未能删除')
     expect(await database.transactions.count()).toBe(1)
-    await user.click(screen.getByRole('button', { name: '删除账目' }))
+    await user.click(
+      within(screen.getByRole('dialog', { name: '删除这条账目？' })).getByRole('button', {
+        name: '删除账目',
+      }),
+    )
     await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
     expect(await database.transactions.count()).toBe(0)
   })
@@ -124,6 +172,7 @@ describe('Finance application confirmations', () => {
     const user = await draft()
     await user.click(screen.getByRole('button', { name: '保存' }))
     expect(screen.getByRole('button', { name: '取消' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: '关闭编辑器' })).toBeDisabled()
     expect(screen.getByLabelText('金额（CNY）')).toBeDisabled()
     // Busy starts before asynchronous category validation; wait for the actual write boundary,
     // not user.click completion, before injecting a storage failure on slower CI runners.
@@ -131,6 +180,8 @@ describe('Finance application confirmations', () => {
     console.info('[LifeIndex test] Pending finance write reached; injecting synthetic failure')
     rejectWrite(new Error('SyntheticFailure'))
     expect(await screen.findByRole('alert')).toHaveTextContent('本次输入仍保留')
+    // Error text commits before the focus effect; wait for that separate state transition.
+    await waitFor(() => expect(screen.getByRole('alert')).toHaveFocus())
     expect(screen.getByLabelText('金额（CNY）')).toHaveValue('12.50')
     expect(screen.getByRole('button', { name: '保存' })).toBeEnabled()
     expect(await database.transactions.count()).toBe(0)

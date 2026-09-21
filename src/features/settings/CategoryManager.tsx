@@ -297,25 +297,23 @@ export function CategoryManager({
         </div>
       </details>
       {editor && (
-        <Sheet title={editor.category ? '编辑分类' : parent ? '新增二级分类' : '新增分类'}>
-          <CategoryEditor
-            key={editor.category?.id ?? 'new'}
-            category={editor.category}
-            parent={editor.category && !editor.category.parentId ? undefined : parent}
-            onClose={() => setEditor(undefined)}
-            onSave={async (values) => {
-              if (editor.category) await repository.update(editor.category.id, values)
-              else
-                await repository.create({
-                  ...values,
-                  domain,
-                  ...(domain === 'finance' ? { transactionType: group as TransactionType } : {}),
-                  ...(parentId ? { parentId } : {}),
-                })
-              setEditor(undefined)
-            }}
-          />
-        </Sheet>
+        <CategoryEditor
+          key={editor.category?.id ?? 'new'}
+          category={editor.category}
+          parent={editor.category && !editor.category.parentId ? undefined : parent}
+          onClose={() => setEditor(undefined)}
+          onSave={async (values) => {
+            if (editor.category) await repository.update(editor.category.id, values)
+            else
+              await repository.create({
+                ...values,
+                domain,
+                ...(domain === 'finance' ? { transactionType: group as TransactionType } : {}),
+                ...(parentId ? { parentId } : {}),
+              })
+            setEditor(undefined)
+          }}
+        />
       )}
       {archiveTarget && (
         <ConfirmDialog
@@ -444,10 +442,25 @@ function CategoryEditor({
     [error, setError] = useState(''),
     [discard, setDiscard] = useState(false)
   const lock = useRef(false)
+  const bodyRef = useRef<HTMLDivElement>(null)
+  const errorRef = useRef<HTMLParagraphElement>(null)
+  useEffect(() => {
+    if (!error) return
+    // Focus the failure without scrolling the underlying settings page or moving its tab bar.
+    errorRef.current?.focus({ preventScroll: true })
+    if (bodyRef.current) bodyRef.current.scrollTop = 0
+    logger.info('category.editor.errorfocused', {
+      operation: 'focus',
+      reason: 'validation-or-save',
+    })
+  }, [error])
   const dirty = name !== (category?.name ?? '') || icon !== initialIcon || color !== initialColor
   useDirtyForm(dirty, busy)
   function close() {
-    if (lock.current) return
+    if (lock.current) {
+      logger.info('category.editor.exitblocked', { operation: 'close', reason: 'busy' })
+      return
+    }
     logger.info('category.editor.exitrequested', {
       operation: 'close',
       reason: dirty ? 'dirty' : 'clean',
@@ -457,7 +470,11 @@ function CategoryEditor({
   }
   async function submit(event: FormEvent) {
     event.preventDefault()
-    if (lock.current) return
+    if (lock.current) {
+      logger.info('category.editor.saveblocked', { operation: 'save', reason: 'busy' })
+      return
+    }
+    setError('')
     if (!name.trim()) {
       logger.warn('category.editor.validationfailed', {
         operation: 'save',
@@ -482,71 +499,78 @@ function CategoryEditor({
     }
   }
   return (
-    <form
-      className="sheet-form category-editor"
-      aria-label="分类编辑"
-      onSubmit={(event) => void submit(event)}
-      onKeyDown={(event) => {
-        if (event.key === 'Escape' && !discard) {
-          event.preventDefault()
-          close()
-        }
-      }}
+    <Sheet
+      title={category ? '编辑分类' : parent ? '新增二级分类' : '新增分类'}
+      structured
+      onClose={close}
+      busy={busy}
     >
-      <label>
-        分类名称
-        <input
-          autoFocus
-          required
-          maxLength={40}
-          disabled={busy}
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-        />
-      </label>
-      {!parent && (
-        <>
-          <CategoryIconPicker value={icon} onChange={setIcon} disabled={busy} />
-          <fieldset className="category-color-picker" disabled={busy}>
-            <legend>图标颜色</legend>
-            {colors.map(([id, label]) => (
-              <button
-                key={id}
-                type="button"
-                aria-pressed={color === id}
-                onClick={() => setColor(id)}
-              >
-                <span className={`category-glyph tone-${id}`}>
-                  <CategoryIcon name={icon} />
-                </span>
-                {label}
-              </button>
-            ))}
-          </fieldset>
-        </>
-      )}
-      {error && (
-        <p role="alert" className="form-error">
-          {error}
-        </p>
-      )}
-      <div className="form-actions">
-        <button type="button" disabled={busy} onClick={close}>
-          取消
-        </button>
-        <button className="button-primary" disabled={busy}>
-          {busy ? '保存中…' : '保存分类'}
-        </button>
-      </div>
-      {discard && (
-        <ConfirmDialog
-          title="放弃分类修改？"
-          description={parent ? '尚未保存的名称将被丢弃。' : '尚未保存的名字、图标和颜色将被丢弃。'}
-          confirmLabel="放弃修改"
-          onCancel={() => setDiscard(false)}
-          onConfirm={onClose}
-        />
-      )}
-    </form>
+      <form
+        className="sheet-form sheet-form--structured category-editor"
+        aria-label="分类编辑"
+        onSubmit={(event) => void submit(event)}
+      >
+        <div className="sheet-form-body" ref={bodyRef}>
+          {error && (
+            <p role="alert" className="form-error" tabIndex={-1} ref={errorRef}>
+              {error}
+            </p>
+          )}
+          <div className="sheet-form-fields">
+            <label>
+              分类名称
+              <input
+                autoFocus
+                required
+                maxLength={40}
+                disabled={busy}
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+              />
+            </label>
+            {!parent && (
+              <>
+                <CategoryIconPicker value={icon} onChange={setIcon} disabled={busy} />
+                <fieldset className="category-color-picker" disabled={busy}>
+                  <legend>图标颜色</legend>
+                  {colors.map(([id, label]) => (
+                    <button
+                      key={id}
+                      type="button"
+                      aria-pressed={color === id}
+                      onClick={() => setColor(id)}
+                    >
+                      <span className={`category-glyph tone-${id}`}>
+                        <CategoryIcon name={icon} />
+                      </span>
+                      {label}
+                    </button>
+                  ))}
+                </fieldset>
+              </>
+            )}
+          </div>
+        </div>
+        <div className="form-actions sheet-form-footer">
+          <button type="button" disabled={busy} onClick={close}>
+            取消
+          </button>
+          <button className="button-primary" disabled={busy}>
+            {busy ? '保存中…' : '保存分类'}
+          </button>
+        </div>
+        {discard && (
+          <ConfirmDialog
+            title="放弃分类修改？"
+            description={
+              parent ? '尚未保存的名称将被丢弃。' : '尚未保存的名字、图标和颜色将被丢弃。'
+            }
+            confirmLabel="放弃修改"
+            onCancel={() => setDiscard(false)}
+            onConfirm={onClose}
+          />
+        )}
+      </form>
+    </Sheet>
   )
 }

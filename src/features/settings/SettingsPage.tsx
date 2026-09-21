@@ -58,6 +58,14 @@ export function SettingsPage({ view = 'home' }: { view?: SettingsView }) {
   const [working, setWorking] = useState(false)
   const operationLock = useRef(false)
   const [restoreConfirmation, setRestoreConfirmation] = useState(false)
+  const [readAttempt, setReadAttempt] = useState(0)
+  const feedbackRef = useRef<HTMLParagraphElement>(null)
+  useEffect(() => {
+    // Native restore confirmation owns focus while open; otherwise announce the actionable failure.
+    if (!error || restoreConfirmation) return
+    feedbackRef.current?.focus({ preventScroll: true })
+    logger.info('settings.feedback.focused', { operation: 'focus', reason: 'failure' })
+  }, [error, restoreConfirmation])
 
   // One synchronous lock covers settings writes and backup commands before React disables controls.
   function beginOperation(operation: string) {
@@ -80,6 +88,10 @@ export function SettingsPage({ view = 'home' }: { view?: SettingsView }) {
   useDirtyForm(Boolean(preview), working)
 
   const query = useCallback(async () => {
+    logger.info('settings.read.started', {
+      operation: 'read',
+      reason: readAttempt ? 'retry' : 'initial',
+    })
     const [appearance, lastExport, financeCategories, focusCategories, activityCategories] =
       await Promise.all([
         settings.get('appearance'),
@@ -93,8 +105,17 @@ export function SettingsPage({ view = 'home' }: { view?: SettingsView }) {
       lastExport: lastExport?.key === 'lastSuccessfulExportAt' ? lastExport.value : undefined,
       allCategories: [...financeCategories, ...focusCategories, ...activityCategories],
     }
-  }, [categories, settings])
+  }, [categories, settings, readAttempt])
   const state = useLiveQueryState(query)
+  const [lastReady, setLastReady] = useState<Awaited<ReturnType<typeof query>>>()
+  // Retain only a changed successful result; the guarded render update avoids an effect cascade.
+  // This display snapshot keeps editors mounted and never replaces IndexedDB persistence.
+  if (state.status === 'ready' && lastReady !== state.data) setLastReady(state.data)
+  useEffect(() => {
+    if (state.status === 'failed')
+      logger.warn('settings.read.failed', { operation: 'read', failureClass: 'Read' })
+  }, [state])
+  const data = state.status === 'ready' ? state.data : lastReady
 
   async function setAppearance(appearance: Appearance) {
     if (!beginOperation('appearance')) return
@@ -105,7 +126,7 @@ export function SettingsPage({ view = 'home' }: { view?: SettingsView }) {
       await settings.put({ key: 'appearance', value: appearance, updatedAt: timestamp })
       logger.info('settings.appearance.saved', { operation: 'appearance' })
     } catch (caught) {
-      applyAppearance(state.status === 'ready' ? state.data.appearance : 'system')
+      applyAppearance(data?.appearance ?? 'system')
       setError('外观偏好未能保存，已恢复之前的选择。')
       logger.error('settings.appearance.failed', caught, { operation: 'appearance' })
     } finally {
@@ -205,7 +226,9 @@ export function SettingsPage({ view = 'home' }: { view?: SettingsView }) {
     if (preview) backup.cancel(preview.token)
     setPreview(undefined)
     setRestoreConfirmation(false)
+    setError('')
     setMessage('已取消恢复；当前数据没有改变。')
+    logger.info('settings.restore.cancelled', { operation: 'cancel' })
   }
 
   return (
@@ -221,7 +244,7 @@ export function SettingsPage({ view = 'home' }: { view?: SettingsView }) {
       {view === 'home' ? <p className="page-intro">按自己的方式，记录生活。</p> : null}
 
       {error ? (
-        <p className="form-error global-feedback" role="alert">
+        <p className="form-error global-feedback" role="alert" tabIndex={-1} ref={feedbackRef}>
           {error}
         </p>
       ) : null}
@@ -232,20 +255,32 @@ export function SettingsPage({ view = 'home' }: { view?: SettingsView }) {
       ) : null}
       {state.status === 'loading' ? <p className="state-message">正在读取设置…</p> : null}
       {state.status === 'failed' ? (
-        <p className="form-error" role="alert">
-          设置暂时无法读取，本地数据没有被重置。
-        </p>
+        <div>
+          <p className="form-error" role="alert">
+            设置暂时无法读取，本地数据没有被重置。已打开的编辑内容和恢复预览仍保留。
+          </p>
+          <button
+            type="button"
+            disabled={working}
+            onClick={() => {
+              logger.info('settings.read.retryrequested', { operation: 'read' })
+              setReadAttempt((value) => value + 1)
+            }}
+          >
+            重试读取
+          </button>
+        </div>
       ) : null}
-      {state.status === 'ready' ? (
+      {data ? (
         <>
           {view === 'home' ? (
             <>
               <CategoryManager
                 repository={categories}
-                categories={state.data.allCategories}
+                categories={data.allCategories}
                 onError={setError}
               />
-              <SettingsHome appearance={state.data.appearance} />
+              <SettingsHome appearance={data.appearance} />
             </>
           ) : null}
 
@@ -257,7 +292,7 @@ export function SettingsPage({ view = 'home' }: { view?: SettingsView }) {
                   <button
                     key={value}
                     type="button"
-                    aria-pressed={state.data.appearance === value}
+                    aria-pressed={data.appearance === value}
                     aria-label={label}
                     disabled={working}
                     onClick={() => void setAppearance(value)}
@@ -277,7 +312,7 @@ export function SettingsPage({ view = 'home' }: { view?: SettingsView }) {
                       </small>
                     </span>
                     <span className="settings-theme-check">
-                      {state.data.appearance === value ? <Icon name="check" size={20} /> : null}
+                      {data.appearance === value ? <Icon name="check" size={20} /> : null}
                     </span>
                   </button>
                 ))}
@@ -304,11 +339,11 @@ export function SettingsPage({ view = 'home' }: { view?: SettingsView }) {
                   </ol>
                   <p className="setting-meta">
                     最近导出：
-                    {state.data.lastExport
+                    {data.lastExport
                       ? new Intl.DateTimeFormat('zh-CN', {
                           dateStyle: 'medium',
                           timeStyle: 'short',
-                        }).format(new Date(state.data.lastExport))
+                        }).format(new Date(data.lastExport))
                       : '尚未导出'}
                   </p>
                 </>
@@ -478,6 +513,14 @@ function SettingsRow({
       className="settings-row"
       aria-label={title}
       to={to.startsWith('/') ? to : `/settings/${to}`}
+      // Cessation is shared with Health; carry only a closed origin value, never a redirect URL.
+      state={to === '/health/cessation' ? { from: 'settings' } : undefined}
+      onClick={() => {
+        logger.info('settings.navigation.opened', {
+          operation: 'navigate',
+          reason: to === '/health/cessation' ? 'cessation' : 'settings',
+        })
+      }}
       onContextMenu={(event) => {
         // Keep in-app settings rows out of iOS's external-link preview menu.
         event.preventDefault()

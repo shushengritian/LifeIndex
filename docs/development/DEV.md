@@ -1,5 +1,7 @@
 # LifeIndex Development Guide
 
+> 2026-09-21 当前：3.1.0 操作体验更新已获持续开发、测试和发布授权，见 [ADR-0021](../adr/0021-operation-refresh-publication.md)。[实施计划](OPERATION_REFRESH_DEV.md)、[健康](OPERATION_HEALTH_IMPL.md)、[设置](OPERATION_SETTINGS_IMPL.md)与[发布证据](../releases/v3.1.0.md)为当前状态；下方日期说明保留历史背景，不再构成本次发布门槛。
+
 > 2026-09-19：当前 Ocean 正式实施进度与验证见 [阶段 5 DEV](REDESIGN_DEV.md)。用户已授权代码修改但未授权发布；不沿用旧版本的真机延期。
 
 > **2026-09-14 · V2.1 amendment:** V2.1 local branch: `codex/v2.1-smoking-cessation`, app 2.1.0, database/backup V3, no dependency changes. [CESSATION_V3](../architecture/CESSATION_V3.md) governs implementation. If the local pnpm wrapper attempts an unsolicited reinstall/no-TTY failure, use existing pinned `node_modules/.bin/{prettier,eslint,tsc,vitest,vite,playwright}` binaries for equivalent gates; do not reinstall or change the lockfile to bypass it. Publication is not authorized by local implementation approval.
@@ -127,3 +129,6 @@ Weight is stored as integer grams; Activity duration is integer minutes. Never l
 - If new code cannot safely read an existing schema, stop the release and ship a forward-compatible fix; never instruct users to clear data as the default remedy.
 - `.github/workflows/ci.yml` owns pull-request and non-`main` branch evidence; `.github/workflows/pages.yml` repeats the full gate on `main` before publishing.
 - `docs/operations/DEPLOYMENT.md` is the remote setup, live smoke, and rollback runbook; `docs/operations/IPHONE_ACCEPTANCE.md` retains physical-only checks. ADR-0005 permits owner-accepted `v1.0.0` with those checks deferred, never marked passed. See `docs/releases/v1.0.0.md` and `docs/project/POST_V1_BACKLOG.md` for release scope and follow-ups.
+# 当前新增开发批次（2026-09-20）
+
+用户授权开始操作体验优化生产代码的本地开发，当前批次与实际检查统一记录于 [OPERATION_REFRESH_DEV](OPERATION_REFRESH_DEV.md)。首批共用弹层/记账/报表，随后专注/今天、健康、设置和综合候选验证。未发布，不继承旧版本的发布授权。下文为既有开发说明。

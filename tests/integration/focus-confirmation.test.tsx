@@ -36,6 +36,23 @@ afterEach(async () => {
   await database?.delete()
   vi.restoreAllMocks()
 })
+
+it('retains the open draft when the background history query fails', async () => {
+  const { user } = await setup(true)
+  await user.click(await screen.findByRole('button', { name: '编辑' }))
+  await user.type(screen.getByLabelText('专注标题'), '保留草稿')
+  vi.spyOn(FocusRepository.prototype, 'listCompleted').mockRejectedValue(
+    new Error('Synthetic read failure'),
+  )
+  // A real observed-table mutation triggers Dexie refresh without replacing the editor.
+  await act(async () => {
+    await database.focusSessions.toCollection().modify({ note: 'Synthetic refresh' })
+  })
+  await screen.findByText('专注记录暂时无法读取，数据没有被清空。')
+  expect(screen.getByLabelText('专注标题')).toHaveValue('合成专注保留草稿')
+  await user.click(screen.getByRole('button', { name: '关闭编辑器' }))
+  expect(screen.getByRole('dialog', { name: '放弃修改？' })).toBeInTheDocument()
+})
 async function setup(history: boolean) {
   database = new LifeIndexDatabase(`FocusConfirm-${crypto.randomUUID()}`)
   await database.initialize()
@@ -61,7 +78,9 @@ it('requires explicit draft discard and preserves the original time facts', asyn
   expect(form.getByText('开始时间')).toBeInTheDocument()
   expect(form.getByText('结束时间')).toBeInTheDocument()
   await user.type(form.getByLabelText('专注标题'), '草稿')
-  await user.click(form.getByRole('button', { name: '取消' }))
+  // Header close follows the same dirty guard as the footer; it never silently drops edits.
+  expect(screen.getByRole('dialog', { name: '专注详情' })).toHaveClass('sheet--structured')
+  await user.click(screen.getByRole('button', { name: '关闭编辑器' }))
   const confirm = within(screen.getByRole('dialog', { name: '放弃修改？' }))
   await user.click(confirm.getByRole('button', { name: '取消' }))
   expect(form.getByLabelText('专注标题')).toHaveValue('合成专注草稿')
@@ -69,6 +88,23 @@ it('requires explicit draft discard and preserves the original time facts', asyn
   await user.click(screen.getByRole('button', { name: '放弃修改' }))
   expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   expect(await database.focusSessions.get(session.id)).toEqual(original)
+})
+
+it('focuses edit failure without scrolling the underlying page and retains input', async () => {
+  const { user } = await setup(true)
+  await user.click(await screen.findByRole('button', { name: '编辑' }))
+  await user.type(screen.getByLabelText('专注标题'), '草稿')
+  vi.spyOn(FocusRepository.prototype, 'updateDetails').mockRejectedValueOnce(
+    new Error('SyntheticWrite'),
+  )
+  const form = screen.getByRole('form', { name: '编辑专注记录' })
+  const body = form.querySelector<HTMLDivElement>('.sheet-form-body')!
+  body.scrollTop = 120
+  await user.click(within(form).getByRole('button', { name: '保存描述' }))
+  const error = await within(form).findByRole('alert')
+  expect(error).toHaveFocus()
+  expect(body.scrollTop).toBe(0)
+  expect(screen.getByLabelText('专注标题')).toHaveValue('合成专注草稿')
 })
 
 it('retains the record on failed deletion and retries within the confirmation', async () => {

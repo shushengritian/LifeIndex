@@ -58,6 +58,11 @@ it('keeps the home compact and shows real progress with failure-safe pause and r
   )
   const { rerender } = render(view(true))
   const user = userEvent.setup()
+  expect(await screen.findByRole('link', { name: '查看 合成阅读 详情' })).toHaveAttribute(
+    'href',
+    '/health/habits',
+  )
+  expect(await database.habitRecords.count()).toBe(0)
   await user.click(await screen.findByRole('button', { name: /合成阅读.*点按完成/ }))
   expect(await screen.findByRole('button', { name: /合成阅读.*已完成/ })).toHaveAttribute(
     'aria-pressed',
@@ -103,7 +108,8 @@ it('keeps the home compact and shows real progress with failure-safe pause and r
   expect(await database.habitRecords.count()).toBe(1)
   await user.click(screen.getByRole('button', { name: '编辑' }))
   await user.type(screen.getByLabelText('习惯名称'), '未保存')
-  await user.click(screen.getByRole('button', { name: '取消' }))
+  expect(screen.getByRole('button', { name: '保存' }).closest('.sheet-form-body')).toBeNull()
+  await user.click(screen.getByRole('button', { name: '关闭编辑器' }))
   await user.click(screen.getByRole('button', { name: '继续填写' }))
   expect(screen.getByLabelText('习惯名称')).toHaveValue('合成阅读未保存')
   await user.click(screen.getByRole('button', { name: '取消' }))

@@ -122,6 +122,7 @@ describe('V2 Health user interface', () => {
     await user.click(screen.getByRole('button', { name: '保存' }))
 
     expect(await screen.findByRole('alert')).toHaveTextContent('未能保存，本次输入仍保留')
+    expect(screen.getByRole('alert')).toHaveFocus()
     expect(weight).toHaveValue('72.3')
     expect(await database.weightEntries.count()).toBe(0)
   })

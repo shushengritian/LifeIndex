@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type FormEvent,
+  type ReactNode,
+} from 'react'
 import { Link } from 'react-router-dom'
 import { useFocusCompletion } from './useFocusCompletion'
 
@@ -30,15 +38,18 @@ import { useDirtyForm } from '@/pwa/useDirtyForm'
 import { Sheet } from '@/shared/ui/Sheet'
 import { ConfirmDialog } from '@/shared/ui/ConfirmDialog'
 import { CategoryIcon } from '@/shared/ui/CategoryIcon'
+import { Icon } from '@/shared/ui/Icon'
 
 function FocusStage({
   seconds,
   planned,
   running = false,
+  action,
 }: {
   seconds: number
   planned: number
   running?: boolean
+  action?: ReactNode
 }) {
   // The arc is a presentation of elapsed time; persisted timestamps remain the timing authority.
   const { elapsed, percent: progress } = focusProgress(seconds, planned, running)
@@ -49,7 +60,7 @@ function FocusStage({
   return (
     <div
       className="focus-stage"
-      aria-label={`${running ? '剩余' : '计划'} ${durationLabel(seconds)}`}
+      aria-label={`${running ? (seconds === 0 ? '待保存时长' : '剩余') : '计划'} ${durationLabel(running && seconds === 0 ? elapsed : seconds)}`}
     >
       <svg className="focus-orbit" viewBox="0 0 390 294" aria-hidden="true">
         <path
@@ -70,15 +81,24 @@ function FocusStage({
         />
         <circle cx="43" cy="233" r="4" fill="var(--accent)" />
       </svg>
-      <span>{running ? '正在专注' : '准备好，进入专注'}</span>
+      <span>
+        {running ? (seconds === 0 ? '计时完成，等待保存' : '正在专注') : '准备好，进入专注'}
+      </span>
       <strong
         role="timer"
         aria-live="off"
         className={seconds >= 3600 ? 'focus-clock long' : 'focus-clock'}
       >
-        {formatFocusDuration(seconds)}
+        {formatFocusDuration(running && seconds === 0 ? elapsed : seconds)}
       </strong>
-      <small>{running ? '离开此页不会停止计时' : '留一点空间，让注意力安静下来'}</small>
+      <small>
+        {running
+          ? seconds === 0
+            ? '保存成功后计入汇总'
+            : '离开此页不会停止计时'
+          : '留一点空间，让注意力安静下来'}
+      </small>
+      {action}
       {/* Keep changing facts in HTML, not tiny SVG labels; do not announce every second to VoiceOver. */}
       <div className="focus-progress-labels" aria-live="off">
         <span>
@@ -184,6 +204,12 @@ function FocusForm({ categories, onStart }: FocusFormProps) {
       <FocusStage
         seconds={Math.max(0, Math.min(14_400, previewSeconds))}
         planned={Math.max(0, Math.min(14_400, previewSeconds))}
+        action={
+          <button className="button-primary focus-stage-action" type="submit" disabled={saving}>
+            <Icon name="play" size={24} />
+            <span>{saving ? '正在开始…' : '开始专注'}</span>
+          </button>
+        }
       />
       <div className="duration-presets" aria-label="专注时长">
         {[
@@ -261,9 +287,6 @@ function FocusForm({ categories, onStart }: FocusFormProps) {
           {error}
         </p>
       ) : null}
-      <button className="button-primary" type="submit" disabled={saving}>
-        {saving ? '正在开始…' : '开始专注'}
-      </button>
     </form>
   )
 }
@@ -288,6 +311,15 @@ function FocusEditForm({
   const [saving, setSaving] = useState(false)
   const writeLock = useRef(false)
   const [confirmation, setConfirmation] = useState<'discard' | 'delete'>()
+  const bodyRef = useRef<HTMLDivElement>(null)
+  const errorRef = useRef<HTMLParagraphElement>(null)
+  useEffect(() => {
+    // A delete/discard confirmation owns focus until dismissed; never focus behind its top layer.
+    if (!error || confirmation) return
+    errorRef.current?.focus({ preventScroll: true })
+    if (bodyRef.current) bodyRef.current.scrollTop = 0
+    logger.info('focus.details.errorfocused', { operation: 'focus', reason: 'failure' })
+  }, [error, confirmation])
   const dirty =
     title !== session.title ||
     categoryId !== (session.categoryId ?? '') ||
@@ -354,91 +386,90 @@ function FocusEditForm({
   }
 
   return (
-    <Sheet title="专注详情">
+    <Sheet title="专注详情" structured busy={saving} onClose={close}>
       <form
-        className="entry-form focus-details-form"
+        className="entry-form focus-details-form sheet-form--structured"
         onSubmit={(event) => void submit(event)}
         aria-label="编辑专注记录"
-        onKeyDown={(event) => {
-          if (event.key === 'Escape' && !confirmation) {
-            event.preventDefault()
-            close()
-          }
-        }}
       >
-        {/* Time facts are immutable here; only descriptive fields can be edited. */}
-        <dl className="focus-facts">
-          <div>
-            <dt>开始时间</dt>
-            <dd>{new Date(session.startedAt).toLocaleString('zh-CN')}</dd>
-          </div>
-          <div>
-            <dt>结束时间</dt>
-            <dd>{session.endedAt ? new Date(session.endedAt).toLocaleString('zh-CN') : '—'}</dd>
-          </div>
-          <div>
-            <dt>实际专注</dt>
-            <dd>
-              {durationLabel(session.durationSeconds ?? 0)} ·{' '}
-              {session.completionKind === 'early' ? '提前结束' : '计时完成'}
-            </dd>
-          </div>
-        </dl>
-        <label>
-          专注标题
-          <input
-            autoFocus
-            disabled={saving}
-            value={title}
-            maxLength={100}
-            onChange={(event) => setTitle(event.target.value)}
-          />
-        </label>
-        <label>
-          分类（可选）
-          <select
-            disabled={saving}
-            value={categoryId}
-            onChange={(event) => setCategoryId(event.target.value)}
-          >
-            <option value="">未分类</option>
-            {categories
-              .filter((category) => !category.archived || category.id === session.categoryId)
-              .map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                  {category.archived ? '（已归档）' : ''}
-                </option>
-              ))}
-          </select>
-        </label>
-        <label>
-          备注（可选）
-          <input
-            disabled={saving}
-            value={note}
-            maxLength={500}
-            onChange={(event) => setNote(event.target.value)}
-          />
-        </label>
-        {error ? (
-          <p className="form-error" role="alert">
-            {error}
-          </p>
-        ) : null}
-        <button
-          type="button"
-          className="button-secondary text-destructive"
-          disabled={saving}
-          onClick={() => {
-            setError('')
-            setConfirmation('delete')
-            logger.info('focus.details.deleterequested', { operation: 'delete' })
-          }}
-        >
-          删除记录
-        </button>
-        <div className="form-actions sticky-form-actions">
+        {/* Only fields scroll; shared Sheet owns Escape so confirmation cannot close the draft. */}
+        <div className="sheet-form-body" ref={bodyRef}>
+          {error ? (
+            <p className="form-error" role="alert" tabIndex={-1} ref={errorRef}>
+              {error}
+            </p>
+          ) : null}
+          <fieldset className="sheet-form-fields" disabled={saving}>
+            {/* Time facts are immutable here; only descriptive fields can be edited. */}
+            <dl className="focus-facts">
+              <div>
+                <dt>开始时间</dt>
+                <dd>{new Date(session.startedAt).toLocaleString('zh-CN')}</dd>
+              </div>
+              <div>
+                <dt>结束时间</dt>
+                <dd>{session.endedAt ? new Date(session.endedAt).toLocaleString('zh-CN') : '—'}</dd>
+              </div>
+              <div>
+                <dt>实际专注</dt>
+                <dd>
+                  {durationLabel(session.durationSeconds ?? 0)} ·{' '}
+                  {session.completionKind === 'early' ? '提前结束' : '计时完成'}
+                </dd>
+              </div>
+            </dl>
+            <label>
+              专注标题
+              <input
+                autoFocus
+                disabled={saving}
+                value={title}
+                maxLength={100}
+                onChange={(event) => setTitle(event.target.value)}
+              />
+            </label>
+            <label>
+              分类（可选）
+              <select
+                disabled={saving}
+                value={categoryId}
+                onChange={(event) => setCategoryId(event.target.value)}
+              >
+                <option value="">未分类</option>
+                {categories
+                  .filter((category) => !category.archived || category.id === session.categoryId)
+                  .map((category) => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                      {category.archived ? '（已归档）' : ''}
+                    </option>
+                  ))}
+              </select>
+            </label>
+            <label>
+              备注（可选）
+              <input
+                disabled={saving}
+                value={note}
+                maxLength={500}
+                onChange={(event) => setNote(event.target.value)}
+              />
+            </label>
+            <button
+              type="button"
+              className="button-secondary text-destructive"
+              disabled={saving}
+              onClick={() => {
+                setError('')
+                setConfirmation('delete')
+                logger.info('focus.details.deleterequested', { operation: 'delete' })
+              }}
+            >
+              删除记录
+            </button>
+          </fieldset>
+        </div>
+        <div className="form-actions sheet-form-footer">
           <button className="button-secondary" type="button" disabled={saving} onClick={close}>
             取消
           </button>
@@ -481,23 +512,37 @@ export function FocusPage({ historyOnly = false }: { historyOnly?: boolean }) {
   const categoryRepository = useMemo(() => new CategoryRepository(database), [database])
   const today = toLocalDateKey(new Date())
   const [editing, setEditing] = useState<FocusSession>()
+  const [editCategories, setEditCategories] = useState<Category[]>([])
   const [pageError, setPageError] = useState('')
   const [pending, setPending] = useState<{ kind: 'finish' | 'cancel'; session: FocusSession }>()
   const [commandBusy, setCommandBusy] = useState(false)
   const commandLock = useRef(false)
   const endpoint = useRef<string | undefined>(undefined)
   const [manualPending, setManualPending] = useState(false)
+  const [readRetry, setReadRetry] = useState(0)
   useDirtyForm(manualPending, commandBusy)
 
   const query = useCallback(async () => {
+    // A failed live subscription needs a new identity to retry; this never writes records.
+    void readRetry
     const [active, history, categories] = await Promise.all([
       repository.getActive(),
       repository.listCompleted({ from: '1000-01-01', to: '9999-12-31' }),
       categoryRepository.list({ domain: 'focus', includeArchived: true }),
     ])
     return { active, history, categories }
-  }, [categoryRepository, repository])
+  }, [categoryRepository, repository, readRetry])
   const state = useLiveQueryState(query)
+  const [lastReady, setLastReady] = useState<Awaited<ReturnType<typeof query>>>()
+  // Preserve the mounted start form, its draft, and its busy guard across refresh failures.
+  // Only a changed successful result updates this display snapshot; it is not a second database.
+  if (state.status === 'ready' && state.data !== lastReady) setLastReady(state.data)
+  const data = state.status === 'ready' ? state.data : lastReady
+  useEffect(() => {
+    if (state.status === 'failed') {
+      logger.warn('focus.read.failed', { operation: 'read', failureClass: 'Read' })
+    }
+  }, [state.status])
   const active = state.status === 'ready' ? state.data.active : undefined
 
   const completion = useFocusCompletion(repository, active, manualPending || commandBusy)
@@ -565,45 +610,76 @@ export function FocusPage({ historyOnly = false }: { historyOnly?: boolean }) {
       {completion.busy && <p role="status">正在保存本次专注…</p>}
       {state.status === 'loading' ? <p className="state-message">正在读取本地专注记录…</p> : null}
       {state.status === 'failed' ? (
-        <p className="form-error" role="alert">
-          专注记录暂时无法读取，数据没有被清空。
-        </p>
+        <div>
+          <p className="form-error" role="alert">
+            专注记录暂时无法读取，数据没有被清空。
+          </p>
+          <button
+            type="button"
+            className="button-secondary"
+            onClick={() => {
+              logger.info('focus.read.retryrequested', { operation: 'read' })
+              setReadRetry((value) => value + 1)
+            }}
+          >
+            重试读取
+          </button>
+        </div>
       ) : null}
-      {state.status === 'ready' ? (
+      {data ? (
         <>
-          {historyOnly ? null : state.data.active ? (
+          {historyOnly ? null : data.active ? (
             <ActiveFocus
-              session={state.data.active}
+              session={data.active}
               now={new Date(completion.now)}
-              onFinish={() => requestCommand('finish', state.data.active!)}
-              onCancel={() => requestCommand('cancel', state.data.active!)}
+              onFinish={() => requestCommand('finish', data.active!)}
+              onCancel={() => requestCommand('cancel', data.active!)}
+              busy={commandBusy || completion.busy || manualPending}
             />
           ) : (
             <FocusForm
-              categories={state.data.categories}
+              categories={data.categories}
               onStart={async (command) => {
                 await repository.start(command)
+                // Resume a failed subscription after a committed write, so the active session is re-read.
+                setReadRetry((value) => value + 1)
+                logger.info('focus.read.refreshrequested', {
+                  operation: 'read',
+                  reason: 'start-saved',
+                })
               }}
             />
           )}
           <FocusHistory
             expanded={historyOnly}
-            sessions={state.data.history}
-            categories={state.data.categories}
+            sessions={data.history}
+            categories={data.categories}
             today={today}
-            {...(editing ? { editing } : {})}
-            onEdit={setEditing}
-            onDelete={async (session) => {
-              await repository.removeCompleted(session.id)
-              setEditing(undefined)
-            }}
-            onSave={async (session, command) => {
-              await repository.updateDetails(session.id, command)
-              setEditing(undefined)
+            onEdit={(session) => {
+              // Snapshot editor choices so a failed background refresh cannot unmount a dirty form.
+              setEditCategories(data.categories)
+              setEditing(session)
+              logger.info('focus.details.opened', { operation: 'edit' })
             }}
           />
         </>
       ) : null}
+      {editing && (
+        <FocusEditForm
+          key={editing.id}
+          session={editing}
+          categories={editCategories}
+          onCancel={() => setEditing(undefined)}
+          onSave={async (command) => {
+            await repository.updateDetails(editing.id, command)
+            setEditing(undefined)
+          }}
+          onDelete={async () => {
+            await repository.removeCompleted(editing.id)
+            setEditing(undefined)
+          }}
+        />
+      )}
       {pending && (
         <ConfirmDialog
           title={pending.kind === 'finish' ? '提前结束专注？' : '取消本次专注？'}
@@ -636,33 +712,42 @@ function ActiveFocus({
   now,
   onFinish,
   onCancel,
+  busy,
 }: {
   session: FocusSession
   now: Date
   onFinish: () => void
   onCancel: () => void
+  busy: boolean
 }) {
   const remaining = remainingFocusSeconds(session, now)
   return (
     <section className="active-focus" aria-labelledby="active-focus-title">
       <h2 id="active-focus-title">{session.title}</h2>
-      <FocusStage seconds={remaining} planned={session.plannedDurationSeconds} running />
-      <div className="form-actions">
+      <FocusStage
+        seconds={remaining}
+        planned={session.plannedDurationSeconds}
+        running
+        action={
+          <button
+            className="button-primary focus-stage-action"
+            type="button"
+            disabled={remaining === 0 || busy}
+            onClick={onFinish}
+          >
+            <Icon name="stop" size={24} />
+            <span>提前结束</span>
+          </button>
+        }
+      />
+      <div className="focus-secondary-action">
         <button
           className="button-secondary"
           type="button"
-          disabled={remaining === 0}
+          disabled={remaining === 0 || busy}
           onClick={onCancel}
         >
           取消本次
-        </button>
-        <button
-          className="button-primary"
-          type="button"
-          disabled={remaining === 0}
-          onClick={onFinish}
-        >
-          提前结束
         </button>
       </div>
     </section>
@@ -674,19 +759,13 @@ function FocusHistory({
   sessions,
   categories,
   today,
-  editing,
   onEdit,
-  onDelete,
-  onSave,
 }: {
   expanded: boolean
   sessions: FocusSession[]
   categories: Category[]
   today: string
-  editing?: FocusSession
   onEdit: (session: FocusSession | undefined) => void
-  onDelete: (session: FocusSession) => Promise<void>
-  onSave: (session: FocusSession, command: UpdateFocusDetailsCommand) => Promise<void>
 }) {
   const [range, setRange] = useState<'all' | 'today' | 'week' | 'month'>('all')
   const weekStart = startOfLocalWeek(today)
@@ -767,16 +846,6 @@ function FocusHistory({
       {expanded && (
         <section className="content-section" aria-labelledby="focus-history-title">
           <h2 id="focus-history-title">最近记录</h2>
-          {editing ? (
-            <FocusEditForm
-              key={editing.id}
-              session={editing}
-              categories={categories}
-              onCancel={() => onEdit(undefined)}
-              onSave={(command) => onSave(editing, command)}
-              onDelete={() => onDelete(editing)}
-            />
-          ) : null}
           {visible.length === 0 ? (
             <p className="empty-state">
               {sessions.length

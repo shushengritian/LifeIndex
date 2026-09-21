@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { AppServicesContext } from '@/app/AppServicesContext'
@@ -27,7 +28,9 @@ describe('recoverable feature write failures', () => {
     render(
       <AppServicesContext.Provider value={{ database }}>
         <PwaProvider>
-          <FinancePage />
+          <MemoryRouter>
+            <FinancePage />
+          </MemoryRouter>
         </PwaProvider>
       </AppServicesContext.Provider>,
     )
