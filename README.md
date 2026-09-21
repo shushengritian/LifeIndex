@@ -19,6 +19,7 @@ pnpm dev
 
 ## 文档
 
+- [新会话交接与代码定位](docs/project/HANDOFF.md)
 - [产品基线](LifeIndex-Project-Baseline.md)与[范围决策](docs/adr/0001-current-product-scope.md)
 - [产品需求](docs/product/PRD.md)与[信息架构](docs/product/INFORMATION_ARCHITECTURE.md)
 - [架构](docs/architecture/HLD.md)、[详细设计](docs/architecture/LLD.md)、[数据模型](docs/architecture/DATA_MODEL.md)、[备份契约](docs/architecture/BACKUP_SCHEMA.md)

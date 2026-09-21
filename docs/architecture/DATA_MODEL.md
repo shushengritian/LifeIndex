@@ -16,7 +16,7 @@
 
 业务实体按类型携带 createdAt/updatedAt；完整字段以 `src/shared/domain/types.ts` 和 `src/shared/validation/schemas.ts` 为准。索引以 `src/data/db/schema.ts` 为准；日期、类别、状态、排序及更新时间支持查询。
 
-当前设置键：appearance（system/light/dark）、currency（CNY）、onboarding、lastSuccessfulExportAt、weightTarget（整数克）。
+当前设置键：appearance（value 为 system/light/dark）、currency（value 为 `{ code: 'CNY' }`）、onboarding、lastSuccessfulExportAt、weightTarget（value 为 `{ weightGrams: number }`，整数克）。
 
 onboarding 的 value 包含 localDataNoticeSeen 与 backupNoticeSeen 两个布尔值；lastSuccessfulExportAt 为 ISO 字符串。focusSessions 同样保留 timezoneOffsetMinutes，completionKind 为 timer/early。所有可选 note 字段不进入日志。
 

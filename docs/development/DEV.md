@@ -37,3 +37,20 @@ pnpm dev
 保护用户已有改动，不提交真实记录、备份、凭据或 dist。文件所有权由任务分配约束；文档整理不代表 UI/数据实现已通过检查。发布与真机状态写入 [计划](../../PLAN.md)，不能复用先前版本的测试结论。
 
 当前 UI 实现和交接见 [CURRENT_UI](CURRENT_UI.md)。
+
+新会话的当前状态、代码定位和范围边界见 [HANDOFF](../project/HANDOFF.md)。
+
+## 本机工具自检异常
+
+若 pnpm 在执行脚本前尝试联网或自动重装依赖，先检查 Node/pnpm 路径及锁文件，不直接设置 `CI=true` 或关闭删除确认来强制重装。已有依赖完整时，可直接调用已安装的工具执行等价检查：
+
+```sh
+node node_modules/prettier/bin/prettier.cjs --check .
+node node_modules/eslint/bin/eslint.js . --max-warnings 0
+node node_modules/typescript/bin/tsc -b --pretty false
+node node_modules/vitest/vitest.mjs run
+node node_modules/vite/bin/vite.js build
+node node_modules/@playwright/test/cli.js test
+```
+
+这不验证干净依赖安装，也不替代 CI 的锁文件安装门槛。Markdown 被 `.prettierignore` 排除，须额外核对文档内容和本地链接。
