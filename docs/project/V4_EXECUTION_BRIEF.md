@@ -35,11 +35,13 @@ Goal 仍受运行环境、权限和额度约束，不等同于无限后台运行
 | 设计总监、交互设计 | `/root/design_director` | 信息架构、任务流程、三个候选方向、最终视觉系统、页面和完整状态 | Impeccable 手册、Penpot、本地原型、emil-design-eng、mobile-native |
 | 独立审核负责人 | `/root/design_reviewer`；代码阶段由未写被审代码的代理承担 | 三轮设计异议和复查、设计一致性、实现及发布证据审查；不自己创作再自己签收 | web-design-guidelines、review-animations、requesting-code-review |
 | 架构负责人 | 设计后期启动 `architecture_lead` | 模块边界、状态与存储、组件契约、性能预算、迁移或复用决策及 ADR | vercel-composition-patterns、vercel-react-best-practices |
-| 开发负责人 | 定稿后启动 `implementation_lead` | 按冻结设计实现全部页面与交互，补注释、隐私安全日志和对应文档 | React 工程及设计工程 Skills；故障时 systematic-debugging |
-| 测试验收负责人 | 实现阶段启动 `qa_lead` | 独立测试、视觉比较、缺陷复现、回归与验收矩阵；开发作者不得代签 | Playwright、axe-core、verification-before-completion |
-| 发布负责人 | 发布阶段启动 `release_engineer` | 版本、CI、Pages、回退方案、线上冒烟与发布记录 | GitHub、既有工作流、verification-before-completion |
+| 开发负责人 | 定稿后由主代理与已完成设计/架构职责的代理分模块承担 | 按冻结设计实现全部页面与交互，补注释、隐私安全日志和对应文档 | React 工程及设计工程 Skills；故障时 systematic-debugging |
+| 测试验收负责人 | 实现阶段由未编写被测模块的现有代理承担，架构负责人先制定测试契约 | 独立测试、视觉比较、缺陷复现、回归与验收矩阵；开发作者不得代签 | Playwright、axe-core、verification-before-completion |
+| 发布负责人 | 主代理负责执行，独立审核角色核对证据 | 版本、CI、Pages、回退方案、线上冒烟与发布记录 | GitHub、既有工作流、verification-before-completion |
 
 前三个工作角色已在准备阶段分别提交任务书和约束建议；这不计入正式设计的三轮讨论。
+
+实际调度说明：宿主限制同时存在的代理线程，新增 QA 线程及重新激活已离开的研究线程被拒绝；现有架构代理可以继续工作。因此复用现有代理切换阶段职责，保留最多主代理加三个工作代理。专业职责不等于必须创建同名线程；独立签收仍由未编写被审实现的角色完成。
 
 准备文档独立审核：`/root/design_reviewer` 已只读检查本文件与完整启动提示词，未发现启动时点、授权、职责、三轮讨论、成本、数据和发布证据方面的实质冲突。本结论只针对执行约定，不代表产品设计、代码或部署已经通过验收。
 
