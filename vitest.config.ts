@@ -11,7 +11,10 @@ if (!metadata.version || typeof metadata.version !== 'string') {
   console.error('[LifeIndex test] Application version metadata is missing.')
   throw new Error('Invalid application version metadata')
 }
-console.info('[LifeIndex test] Using application metadata', { appVersion: metadata.version })
+console.info('[LifeIndex test] Configuring unit and integration runner', {
+  appVersion: metadata.version,
+  browserSuites: 'owned-by-playwright',
+})
 
 export default defineConfig({
   define: {
@@ -26,8 +29,14 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./tests/setup.ts'],
-    // Browser suites own production preview and deployed targets; Vitest collects only unit/integration files.
-    exclude: ['tests/e2e/**', 'tests/deployed/**', 'node_modules/**', 'dist/**'],
+    // Performance specs also use Playwright's test lifecycle; collecting them in Vitest fails before any browser can launch.
+    exclude: [
+      'tests/e2e/**',
+      'tests/deployed/**',
+      'tests/performance/**',
+      'node_modules/**',
+      'dist/**',
+    ],
     clearMocks: true,
     restoreMocks: true,
   },
