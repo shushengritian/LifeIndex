@@ -1,6 +1,6 @@
 # LifeIndex 4.0 架构方案
 
-日期：2026-09-28。作者：架构负责人 `/root/architecture_lead`。状态：**R3唯一架构契约提案 v2（根协调补全A04），等待独立签收；未冻结，不代表生产实现或验收通过。** 至少完成第三轮架构审查，存在关键问题则继续专题轮次，不能因轮数达到而放行。当前由R2挑战方向D「日常调频」继续深化；它是后续评审输入，尚未完成独立冻结。
+日期：2026-09-28。作者：架构负责人 `/root/architecture_lead`。状态：**R3/R4唯一架构契约提案 v3（A03/A04与实施接口收口），等待独立签收；未冻结，不代表生产实现或验收通过。** 至少完成第三轮架构审查，存在关键问题则继续专题轮次，不能因轮数达到而放行。当前由R2挑战方向D「日常调频」继续深化，动作采用[R4整行回应](ROUND_4_CONTROLS.md)候选；尚未完成独立冻结。
 
 ## 最新决策与任务边界
 
@@ -8,7 +8,7 @@
 
 架构为新版体验服务。可以重定路由、实体、状态、库名和备份格式；可靠现有代码可以按新契约验证后复用，但不是必须复用的约束。不读取、迁移或清空旧数据库来实现新版；“不考虑历史数据”不等于清理用户设备。
 
-2026-09-28三位工作代理因额度限制停止；根协调接续A03/A04文档与原型修订，仍由独立审核角色恢复后签收。本阶段只维护本文件与[测试策略](../../testing/v4/TEST_STRATEGY.md)，不改生产源码、依赖、锁文件或Git。项目授权和阶段由[执行约定](../../project/V4_EXECUTION_BRIEF.md)、[ADR 0002](../../adr/0002-v4-autonomous-experience-upgrade.md)、[PLAN](../../../PLAN.md)跟踪；后续产品决策以最新用户要求及正式评审为准。
+根协调补全A04后，架构、设计和独立审核已恢复协作。本阶段架构职责只维护本文件与[测试策略](../../testing/v4/TEST_STRATEGY.md)，不改生产源码、依赖、锁文件或Git。项目授权和阶段由[执行约定](../../project/V4_EXECUTION_BRIEF.md)、[ADR 0002](../../adr/0002-v4-autonomous-experience-upgrade.md)、[PLAN](../../../PLAN.md)跟踪；后续产品决策以最新用户要求及正式评审为准。
 
 ## 1. 新架构的目标
 
@@ -49,11 +49,11 @@
 
 ### 公共规范
 
-- 身份为不含个人内容的UUID。`EntityBase`包括id、revision（从1递增的安全整数）、lastCommandId、createdAt/updatedAt（UTC ISO毫秒精度、以Z结尾）。名称trim后保存，备注保留内部换行。
+- 身份为小写、标准连字符形式的合法UUID v4（版本位4、variant位8/9/a/b），命令、completion token和generation同样遵守；生产新ID使用crypto.randomUUID。`EntityBase`包括id、revision（从1递增的安全整数）、lastCommandId、createdAt/updatedAt（UTC ISO毫秒精度、以Z结尾，createdAt≤updatedAt）。名称trim后保存，备注保留内部换行。
 - 业务自然日统一为有效 `YYYY-MM-DD`，年份1000–9999。时间字段统一UTC ISO，不混数字epoch与带不同offset的字符串；比较时解析为epoch。`utcOffsetMinutes`为当地相对UTC的东正偏移，中国为+480，范围−840..+840。只有timePrecision=instant的事实要求localDate与业务instant及捕获offset一致；day精度没有业务instant，不由午夜或createdAt拼造。
 - 新录入/修正的instant不能晚于命令捕获的设备当前instant；day精度的localDate不能晚于该命令捕获的设备今天，过去补录允许。备份分别验证instant≤exportedAt，或day localDate≤按记录utcOffsetMinutes换算的exportedAt日期，不用导入设备当前日重划归属。浏览未来日期可为空，不制造计划事实。
 - money使用CNY整数分1..9999999999；weight使用整数克1000..1000000；activity durationMinutes为1..1440整数。非法数值、NaN、Infinity、非安全整数与未知字段拒绝。所有汇总使用安全整数加法并检查溢出。
-- category name为1..30字符，habit name为1..40，focus title为1..80；备注最多1000字符。UI与schema共享边界定义，错误保留原输入。
+- category name为1..30，habit name为1..40，focus title为1..80；备注最多1000。长度统一按JavaScript字符串UTF-16 code units计算，与HTML maxlength一致；名称先trim，备注不裁剪内容。weightTarget与weightGrams同为1000..1000000整数克。UI与schema共享边界定义，错误保留原输入。
 
 ### 表、字段与索引
 
@@ -71,9 +71,9 @@
 | preferences | key主键；value按key严格校验；revision/lastCommandId/updatedAt。key为appearance(system/light/dark)、weightTarget（整数克或null）、lastExportedAt（ISO或null）、localNoticeSeen（boolean） | key |
 | meta | 仅key=state；schemaVersion=1、generation(UUID)、revision（全库安全整数，从0起）；仅初始化/命令/恢复服务可改 | key |
 
-平面分类没有parentId。scope内active normalizedName唯一（trim、NFKC、拉丁大小写折叠），由包含categories+meta的事务检查；不同scope可同名。排序影响选择器，不影响引用身份。新建记录不能选归档类；编辑可保留原已归档引用，不可切换到另一归档项。使用中的分类删除动作转为归档，历史继续解析该稳定实体；未使用才可真正删除。改名会同步显示在引用它的历史中，不把一条“快照旧名”冒充永不变化的分类。
+平面分类没有parentId。scope内active normalizedName唯一（trim、NFKC、拉丁大小写折叠），由包含categories+meta的事务检查；不同scope可同名。排序影响选择器，不影响引用身份。新建记录不能选归档类；编辑可保留原已归档引用，不可切换到另一归档项。使用中的分类删除动作转为归档，历史继续解析该稳定实体；未使用才可真正删除。允许activate重新启用归档类，同scope的active规范名冲突则拒绝并保持归档，提示先改名；可修改归档项名称后重试，不能默默合并实体/引用。改名会同步显示在引用它的历史中，不把一条“快照旧名”冒充永不变化的分类。
 
-默认分类是必要结构而非演示数据：支出餐饮/交通/购物/居家/健康/娱乐/其他，收入工资/奖金/其他，运动步行/跑步/力量/骑行/其他，专注工作/学习/创作/其他；稳定固定ID。用户可管理名称/图标/顺序。图标键由设计系统的完整枚举导出，备份中的未知键明确拒绝，不能静默丢弃分类。
+默认分类是必要结构而非演示数据：支出餐饮/交通/购物/居家/健康/娱乐/其他，收入工资/奖金/其他，运动步行/跑步/力量/骑行/其他，专注工作/学习/创作/其他。按上述顺序使用19个固定合法UUID：前缀`30000000-0000-4000-8000-`加从1至19的12位小写十六进制编号（末尾000000000001至000000000013）；不允许`food`或`cat-1`等ID例外。用户可管理名称/图标/顺序。实体IconKey固定为today/health/focus/finance/activity/weight/leaf/book/cup/bag/arrow，分类和习惯共用；动作图标write/play/pause等属于独立UI枚举，不能通过add=write的全局别名改变实体语义。备份中的未知实体键明确拒绝。
 
 ### 日期、聚合与习惯事实
 
@@ -85,7 +85,9 @@
 
 习惯计划是当前计划，不伪造历史缺勤。创建/修改/暂停/恢复从命令当日生效，scheduleEffectiveFrom更新为当日，已存在habitChecks永不因计划改动删除。当天完成事实仍显示于今日轨迹；暂停会从待做列表移除，但不能把今天已发生完成从统计/轨迹擦掉。历史日历只显示真实完成和已知当前状态，不用当前weekdays回推过去“应做”或计算没有计划快照支持的完成率。
 
-历史补记/撤销必须显式动作，允许任意结构有效的过去日期和今天，不限制为创建之后；不得写未来习惯完成。非计划日补记是用户确认的事实，不推导缺勤。当日完成捕获真实completedAt与timePrecision=instant；历史补记只保留day精度，禁止拼造时分。撤销后再次完成是新事实；同一完成命令幂等重放不改时间。相同habitId+localDate唯一；完成命令表示desired=true，撤销表示desired=false，不用重试会反转结果的toggle命令。已删除习惯如需删除历史，必须在确认文案中明确级联范围并在同事务删除habitChecks；普通暂停不删除历史。
+历史补记/撤销必须显式动作，允许任意结构有效的过去日期和今天，不限制为创建之后；不得写未来习惯完成。非计划日补记是用户确认的事实，不推导缺勤。命令捕获时仍为今天的完成捕获真实completedAt与timePrecision=instant；所选日已是过去则为day精度，禁止拼造时分。跨午夜不把昨日条目偷偷改成今日完成。撤销后再次完成是新事实；同一完成命令幂等重放不改时间。相同habitId+localDate唯一；完成命令表示desired=true，撤销表示desired=false，不用重试会反转结果的toggle命令。
+
+setCheck与计划操作都携带expectedHabitRevision；实际增加/撤销check时，同事务更新父habit的revision/lastCommandId/updatedAt和meta，不改变scheduleEffectiveFrom。这使撤销后重放旧完成命令报EntityConflict，而非重新造出已撤销事实；同一命令立即重试、或新命令发现desired状态已满足时返回现状且不增revision。检查顺序是generation→同命令结果→revision→desired状态。已删除习惯如需删除历史，必须在确认文案中明确级联范围并在同事务删除habitChecks；普通暂停不删除历史。
 
 ### meta、备份预览与恢复隔离
 
@@ -129,7 +131,7 @@ features/settings/       偏好、分类、备份恢复、数据说明
 - `ActionLink`用于导航、`ActionButton`用于当前行为，统一外观但保留语义。
 - `Field`负责label、说明和错误关联；领域Fields负责金额、时间、分类等输入与校验转换。
 - `Feedback`明确区分loading/empty/error/success，错误有恢复动作。
-- `RecordRow`提供布局结构；各领域Row拥有单位、时间和数值语义。习惯详情与完成是两个相邻、独立触点。
+- `RecordRow`提供布局结构；各领域Row拥有单位、时间和数值语义。R4习惯整行动作面负责desired完成/撤销，独立“详情”只读；两者是相邻兄弟控件，不在button内嵌另一个button。整行含名称，不能继续以“名称一定只读”作为旧约束；状态用文字与整行反馈，不以加号/勾选作为动作。
 - `ChartFrame`共享标题、图例、摘要和空态；领域图表保留不同的计算与图形表达，不能以一套默认图表抹平差异。
 - 每页与编辑流程是实际独立模块；`lazy()`指向同一个含全部模式的大文件不视为分包。
 
@@ -154,11 +156,13 @@ D方向的录入日期契约：中央全局记录一律在打开时捕获设备�
 
 ### 服务与页面公开接口
 
-数据包公开 `createLifeIndexServices({databaseName,clock,idGenerator})` 与LifeIndexServices，持有database、transactions、weights、activities、habits、categories、focus、preferences、backup。生产默认databaseName为LifeIndexV4；测试注入专用名称/时钟/ID，生产不暴露fixture开关。
+数据包公开 `createLifeIndexServices({databaseName,clock,idGenerator})` 与LifeIndexServices，持有database、clock、today、transactions、weights、activities、habits、categories、focus、preferences、backup及observe。生产默认databaseName为LifeIndexV4；测试注入专用名称/时钟/ID，生产不暴露fixture开关。
 
-所有读取返回 `Snapshot<T> {data, stamp:{generation,revision}}`；每个领域workspace query在必要表+meta的一致只读事务中读取数据，Dexie liveQuery只订阅实际读取表。写入的CommandContext为 `{commandId, expectedGeneration}`，编辑/删除另传expectedEntityRevision。commandId在一次用户意图创建时生成并跨重试保持；创建实体可直接使用该稳定ID。相同lastCommandId重放返回现有结果，重复创建ID且payload不同报冲突，不覆盖。
+所有读取返回 `Snapshot<T> {data, stamp:{generation,revision}}`；每个领域workspace query在必要表+meta的一致只读事务中读取数据，Dexie liveQuery只订阅实际读取表。写入的CommandContext为 `{commandId, expectedGeneration, expectedRevision}`，编辑/删除另传expectedEntityRevision。expectedRevision是用户意图创建时捕获的全库revision，只在创建实体时作为额外前置条件；普通更新用实体revision，不能因无关记录变化一律拒绝。commandId与该stamp跨重试保持，创建实体id等于commandId。
 
-公开命令：Transaction/Weight/Activity的create/update/remove；Category的create/update/reorder/archive/removeUnused；Habit的create/update/setStatus/setCheck/remove；Focus的start/pause/resume/prepareCompletion/finalizeCompletion/discard/updateDetails/reconcile；Preferences的set；Backup的inspectFile/cancelPreview/restore/exportSnapshot。UI不调用表put/clear，不拼另一套备份。错误码固定为Validation、NotFound、ReadFailure、WriteFailure、Busy、EntityConflict、GenerationConflict、PreviewStale、PreviewExpired、UnsupportedBackup、ClockChanged；日志只记固定码。
+创建在同事务中先检查generation；同ID实体仍存在且lastCommandId/规范化payload匹配时幂等返回，不因当前全库revision已变而误报失败。ID不存在时要求expectedRevision等于当前meta.revision，否则EntityConflict；重复ID但payload不同也报冲突。这样“create已成功→另一context删除→旧意图重试”不能复活已删除事实。代价是草稿期间有其他写入可能导致首次创建冲突；保留输入并明确提示重新检查/重新打开，不静默换stamp。该规则覆盖三种记录、分类、习惯、focus.start；setCheck由父habit revision保护，不新增回执表。
+
+公开命令：Transaction/Weight/Activity的create/update/remove；Category的create/update/reorder/archive/activate/removeUnused；Habit的create/update/setStatus/setCheck/remove；Focus的start/pause/resume/prepareCompletion/finalizeCompletion/discard/updateDetails/remove；Preferences的set；Backup的inspectFile/cancelPreview/restore/exportSnapshot。reconcile是root运行controller组合读取/两阶段命令的流程，不是另一条绕过两阶段的写入API。UI不调用表put/clear，不拼另一套备份。错误码固定为Validation、NotFound、ReadFailure、WriteFailure、Busy、EntityConflict、GenerationConflict、PreviewStale、PreviewExpired、UnsupportedBackup、ClockChanged；日志只记固定码。
 
 创建入口CreateKind为expense/weight/activity；expense编辑器支持切换income，持久实体kind统一transaction。RecordKind为transaction/weight/activity/focus/habitCheck，详情分派根据kind明确领域。Focus只能由运行命令创建，通用编辑器只编辑completed元信息，不能伪造手工专注时长。
 
@@ -167,6 +171,227 @@ D方向的录入日期契约：中央全局记录一律在打开时捕获设备�
 ReturnContext为 `{sourceRoute, sourceView, selectedDate?, selectedMonth?, filter?, scrollY, focusKey}`，只包含白名单路径和内存浏览状态。root拥有FormSession/GlobalComposer/Confirmation与guard；领域页提供语义focusKey，不传易失DOM对象作为唯一返回凭据。保存返回结果含 `{kind,id,localDate,stamp}`，它用于真实回执与打开详情；页面再次query而不是手工把乐观记录塞进多个数组。
 
 `FocusRuntimeController`由root挂载、调用数据服务，公开只读 `{session,displayElapsedSeconds,displayRemainingSeconds,busy,error,awaitingSave}` 与明确actions；设计页不另建第二个ticker或保存effect。显示两数来自同一clock snapshot。领域页面与全局记录可共用轻量Fields，但不能因导入Fields带入整页/图表。
+
+### 并行实施接口清单
+
+本节是上述职责的具体DTO收口，不增加页面能力。`src/core/types.ts`导出表实体、联合类型与以下DTO，`src/core/validation.ts`导出共享LIMITS/IconKey/解析函数，`src/core/services.ts`导出服务工厂与接口。UI只依赖这三个公开入口。database只暴露open/close生命周期，不把Dexie tables交给页面。每个异步方法返回Promise，失败抛带固定code与可选field键的DomainError；UI按code映射文案，不能展示原始数据库错误。
+
+```ts
+type Stamp = { generation: string; revision: number };
+type Snapshot<T> = { data: T; stamp: Stamp };
+type CommandContext = { commandId: string; expectedGeneration: string; expectedRevision: number };
+type EntityRef = { id: string; expectedEntityRevision: number };
+type DateSelection = { localDate: string; utcOffsetMinutes: number };
+type DateRange = { from: string; toExclusive: string };
+type PageQuery = DateRange & { limit?: number; cursor?: string };
+type Page<T> = { items: T[]; nextCursor: string | null; totalCount: number };
+type TransactionInput = DateSelection & {
+  type: 'expense' | 'income'; amountMinor: number; categoryId: string; note?: string;
+};
+type WeightInput = DateSelection & { weightGrams: number; note?: string };
+type ActivityInput = DateSelection & {
+  categoryId: string; durationMinutes: number;
+  intensity: 'light' | 'moderate' | 'hard'; note?: string;
+};
+type CategoryInput = { scope: CategoryScope; name: string; iconKey: IconKey };
+type HabitInput = { name: string; iconKey: IconKey; scheduleWeekdays: number[]; note?: string };
+type FocusDetailsInput = { title: string; categoryId?: string; note?: string };
+type CompletionAttempt = EntityRef & { token: string; requestedAt: string };
+```
+
+string日期/UUID在运行时严格验证，不靠TypeScript别名保证有效。create的实体id取ctx.commandId，UI不提交revision/createdAt/updatedAt/timePrecision/currency；服务写出固定字段。update提交完整可编辑值，不是任意Partial<Entity>，未提供note表示清空。update保留createdAt；未改localDate须保留原offset，改日期使用当前DateSelection。核心导出`captureDateSelection(clockSnapshot,localDate?)`在打开或实际改变日期时捕获本机offset；Repository再次验证day≤命令时今天。金额输入最多2位小数、体重公斤输入最多3位小数，用十进制字符串解析到整数，超精度拒绝而非四舍五入；解析结果/字段错误共享，UI不各自用parseFloat×100。
+
+通用记录接口对transactions/weights/activities同形：`create(input,ctx)→Snapshot<Entity>`；`getById(id)→Snapshot<Entity|null>`；`update(ref,input,ctx)→Snapshot<Entity>`；`remove(ref,ctx)→Snapshot<{id,removed}>`；`list(query)→Snapshot<Page<Entity>>`。remove对已不存在的同ID返回removed=false，不产生额外写入；存在时必须检查revision。数据命令结果是实际持久实体，root由它提取之前约定的保存回执。没有任意表名CRUD或任意字段patch。
+
+| 服务/方法 | 具体输入与输出 |
+| --- | --- |
+| today.getHabits(date) | Snapshot<{date,items:[{habit,check或null,scheduled}],scheduledCount,scheduledCompletedCount,pendingCount,completedCount}>；items为当天应做与当天已完成的并集，scheduledCompletedCount只计scheduled与check的交集；completedCount含非计划日事实，不伪装成当前计划完成率 |
+| today.getFinance(date) | Snapshot<{date,incomeMinor,expenseMinor,netMinor,transactionCount}>；日期范围查询，空库明确0，读取失败抛错 |
+| today.getRecords(date,{limit}) | Snapshot<{date,timed:RecordView[],dayOnly:RecordView[],recent:RecordView[],totalCount,hasMore}>；timed/dayOnly按第5节各自排序，recent为录入顺序；totalCount不受limit影响 |
+| transactions.getMonth(month) | month为YYYY-MM；Snapshot<{month,range,incomeMinor,expenseMinor,netMinor,days:[{date,incomeMinor,expenseMinor,count}],categories:[{category,type,amountMinor,count}]}>；所有月份视图复用同一范围规则，明细使用list(range) |
+| weights.getTrend(range) | Snapshot<{points:[{localDate,entry}],latest:WeightEntry或null,targetGrams:number或null}>；points每天最后录入且升序，latest为整个库截至设备今天的最近日期记录 |
+| activities.getSummary(range) | Snapshot<{range,count,totalMinutes,byIntensity}>；不混专注数据；明细使用list(range) |
+| habits.list()/getById(id) | Snapshot<Habit[]>/Snapshot<Habit或null>；list包含暂停计划；习惯日历getChecks(habitId,range)返回Snapshot<HabitCheck[]>，getCheckById(id)返回Snapshot<HabitCheck或null> |
+| habits.create/update/setStatus | create(input,ctx)、update(ref,input,ctx)、setStatus(ref,'active'或'paused',ctx)均返回Snapshot<Habit>；新建为active，status改变不重写历史checks |
+| habits.setCheck/remove | setCheck({habitId,expectedHabitRevision,date,desired},ctx)→Snapshot<{habit,check:HabitCheck或null}>；remove(ref,{deleteChecks:true},ctx)→Snapshot<{id,removed,deletedChecksCount}>，UI先明确级联确认 |
+| categories.list/create/update | list({scope?,includeArchived})→Snapshot<Category[]>；create(input,ctx)/update(ref,input,ctx)→Snapshot<Category>；已有scope不可改，update只接受相同scope |
+| categories.reorder/archive/activate/removeUnused | reorder(scope,[EntityRef],ctx)→Snapshot<Category[]>，列表须包含该scope全部active实体且不重复；archive(ref,ctx)/activate(ref,ctx)→Snapshot<Category>，activate重新检查active规范名唯一；removeUnused(ref,ctx)→Snapshot<{id,removed}>，引用存在则Validation供UI改走归档确认 |
+| focus.getCurrent/getById/list/getSummary | current返回Snapshot<未结束会话或null>；getById返回Snapshot<FocusSession或null>；list(range)只列completed；summary(range)返回Snapshot<{count,totalDurationMs}>，按开始日归属 |
+| focus.start/pause/resume | start({targetDurationMs,title?,categoryId?},ctx)、pause(ref,ctx)、resume(ref,ctx)→Snapshot<FocusSession>；start缺省title为自由专注，重复启动返回Busy，不偷偷替换现有会话；pause恰到期时返回已持久pending，由controller继续finalize |
+| focus.prepareCompletion/finalizeCompletion | prepareCompletion(attempt,ctx)→Snapshot<待保存或已completed会话>；finalizeCompletion({id,token},ctx)→Snapshot<completed会话>；token保留但不记录日志 |
+| focus.discard/updateDetails/remove | discard(ref,ctx)只删除未结束；remove(ref,ctx)只删除completed，两者返回Snapshot<{id,removed}>；updateDetails(ref,details,ctx)→Snapshot<completed会话>，仅元信息可编 |
+| preferences.getAll/set | getAll()→Snapshot<{values:PreferenceValues,revisions:各key的revision}>；set({key,value,expectedEntityRevision},ctx)→Snapshot<Preference>；不允许未知key、禁止把业务草稿放这里 |
+| backup.inspectFile/cancelPreview | inspectFile(file:Blob)→BackupPreview，含token/expiresAt/sourceCounts/targetCounts/targetStamp/sourceFocus/targetFocus；取消同步释放对应token，不写库 |
+| backup.restore/exportSnapshot | restore(token)→Snapshot<{counts}>；exportSnapshot()→{blob,filename,exportedAt,stamp,counts}，从一致读快照导出；调用方交付文件成功后另用preferences.set更新lastExportedAt |
+
+Today计划仅解释设备今天：scheduled由active、scheduleEffectiveFrom和weekday共同决定，scheduledCompletedCount/scheduledCount是计划进度，分母为0时显示无计划而非0/0。pendingCount=scheduledCount−scheduledCompletedCount；completedCount始终为该日全部真实checks。items以habit.createdAt/id升序稳定排列，完成不挪动行。请求过去日时只返回实际checks，所有计划相关计数为0，UI不展示计划完成率或回推缺勤。
+
+RecordView是按kind可辨识的`{kind,entity,category?或habit?}`联合：交易/运动附被引用分类，专注附可选分类，habitCheck附习惯；不把金额/重量/时长混成无单位value。query在单个只读事务中解析引用，UI不为每行单独请求分类。分页默认50、最大100；游标是不透明的localDate/createdAt/id与generation组合，排序为日倒序、createdAt倒序、id字典倒序，跨generation游标报GenerationConflict。Today默认limit20分别限制两个分组，recent最多3；完整数量仍读取真实范围。历史/报表页可通过分页取全，不能把限额当事实总量。
+
+`services.observe(query,{next,error})→unsubscribe`封装Dexie liveQuery；query为上述Promise<Snapshot<T>>查询函数。首次成功前为loading，error不转为[]/0；重新订阅重试，卸载调用unsubscribe。五个首屏区域分别订阅自己的query，不能用一个大Promise失败抹掉全部数据。FocusRuntimeController的reconcile先getCurrent，若到期或已有pending则调用两阶段命令；共享纯函数`createCompletionAttempt(session,clockSnapshot,token)`捕获requestedAt，首次prepare失败后保留整个attempt重试，服务重新校验revision、requestedAt≤当前时刻与合法终点。controller使用同一注入clock，不自己拼终点或逐秒写库。
+
+以下是供root/领域页面直接依赖的公开签名。表实体名称固定为Category、Transaction、WeightEntry、ActivitySession、Habit、HabitCheck、FocusSession；字段由第3/6节定义，运行状态细分导出RunningFocusSession、PausedFocusSession、CompletedFocusSession。文档中的类型签名在第一批core交付时成为真实types/services，后续如发现必须变更，先同步调用方而非各自保留同名异形DTO。
+
+```ts
+type CategoryScope = 'expense' | 'income' | 'activity' | 'focus';
+type IconKey = 'today' | 'health' | 'focus' | 'finance' | 'activity' | 'weight'
+  | 'leaf' | 'book' | 'cup' | 'bag' | 'arrow';
+type PreferenceValues = {
+  appearance: 'system' | 'light' | 'dark';
+  weightTarget: number | null;
+  lastExportedAt: string | null;
+  localNoticeSeen: boolean;
+};
+type PreferenceKey = keyof PreferenceValues;
+type DomainErrorCode = 'Validation' | 'NotFound' | 'ReadFailure' | 'WriteFailure'
+  | 'Busy' | 'EntityConflict' | 'GenerationConflict' | 'PreviewStale'
+  | 'PreviewExpired' | 'UnsupportedBackup' | 'ClockChanged';
+type DomainError = Error & { code: DomainErrorCode; field?: string };
+type Preference<K extends PreferenceKey = PreferenceKey> = {
+  key: K; value: PreferenceValues[K]; revision: number;
+  lastCommandId: string; updatedAt: string;
+};
+type PreferencesSnapshot = {
+  values: PreferenceValues; revisions: Record<PreferenceKey, number>;
+};
+type Mutation<T> = Promise<Snapshot<T>>;
+type Removal = { id: string; removed: boolean };
+type RecordView =
+  | { kind: 'transaction'; entity: Transaction; category: Category }
+  | { kind: 'weight'; entity: WeightEntry }
+  | { kind: 'activity'; entity: ActivitySession; category: Category }
+  | { kind: 'focus'; entity: CompletedFocusSession; category?: Category }
+  | { kind: 'habitCheck'; entity: HabitCheck; habit: Habit };
+type TodayHabits = {
+  date: string; items: { habit: Habit; check: HabitCheck | null; scheduled: boolean }[];
+  scheduledCount: number; scheduledCompletedCount: number; pendingCount: number; completedCount: number;
+};
+type FinanceTotals = { incomeMinor: number; expenseMinor: number; netMinor: number };
+type TodayFinance = FinanceTotals & { date: string; transactionCount: number };
+type TodayRecords = {
+  date: string; timed: RecordView[]; dayOnly: RecordView[]; recent: RecordView[];
+  totalCount: number; hasMore: boolean;
+};
+type MonthSummary = FinanceTotals & {
+  month: string; range: DateRange;
+  days: (FinanceTotals & { date: string; count: number })[];
+  categories: { category: Category; type: 'expense' | 'income'; amountMinor: number; count: number }[];
+};
+type WeightTrend = {
+  points: { localDate: string; entry: WeightEntry }[];
+  latest: WeightEntry | null; targetGrams: number | null;
+};
+type ActivitySummary = {
+  range: DateRange; count: number; totalMinutes: number;
+  byIntensity: Record<'light' | 'moderate' | 'hard', { count: number; totalMinutes: number }>;
+};
+type BackupTable = 'categories' | 'transactions' | 'weightEntries' | 'activitySessions'
+  | 'habits' | 'habitChecks' | 'focusSessions' | 'preferences';
+type BackupCounts = Record<BackupTable, number>;
+type BackupFocusSummary = {
+  running: number; paused: number; awaitingSave: number; completed: number;
+};
+type BackupPreview = {
+  token: string; expiresAt: string; exportedAt: string; appVersion: string;
+  sourceCounts: BackupCounts; targetCounts: BackupCounts; targetStamp: Stamp;
+  sourceFocus: BackupFocusSummary; targetFocus: BackupFocusSummary;
+};
+type BackupExport = {
+  blob: Blob; filename: string; exportedAt: string; stamp: Stamp; counts: BackupCounts;
+};
+type ClockSnapshot = { nowMs: number; utcOffsetMinutes: number };
+type LifeIndexClock = {
+  now(): number; utcOffsetMinutes(epochMs: number): number; monotonicNow(): number;
+};
+type FocusDisplay = {
+  elapsedMs: number; displayElapsedSeconds: number; displayRemainingSeconds: number;
+  expired: boolean; clockChanged: boolean;
+};
+interface RecordService<E, I> {
+  create(input: I, ctx: CommandContext): Mutation<E>;
+  getById(id: string): Mutation<E | null>;
+  update(ref: EntityRef, input: I, ctx: CommandContext): Mutation<E>;
+  remove(ref: EntityRef, ctx: CommandContext): Mutation<Removal>;
+  list(query: PageQuery): Mutation<Page<E>>;
+}
+interface LifeIndexServices {
+  database: { open(): Promise<void>; close(): void };
+  clock: { capture(): ClockSnapshot };
+  observe<T>(query: () => Mutation<T>, observer: {
+    next(value: Snapshot<T>): void; error(error: DomainError): void;
+  }): () => void;
+  today: {
+    getHabits(date: string): Mutation<TodayHabits>;
+    getFinance(date: string): Mutation<TodayFinance>;
+    getRecords(date: string, options?: { limit?: number }): Mutation<TodayRecords>;
+  };
+  transactions: RecordService<Transaction, TransactionInput> & {
+    getMonth(month: string): Mutation<MonthSummary>;
+  };
+  weights: RecordService<WeightEntry, WeightInput> & {
+    getTrend(range: DateRange): Mutation<WeightTrend>;
+  };
+  activities: RecordService<ActivitySession, ActivityInput> & {
+    getSummary(range: DateRange): Mutation<ActivitySummary>;
+  };
+  habits: {
+    list(): Mutation<Habit[]>;
+    getById(id: string): Mutation<Habit | null>;
+    getChecks(habitId: string, range: DateRange): Mutation<HabitCheck[]>;
+    getCheckById(id: string): Mutation<HabitCheck | null>;
+    create(input: HabitInput, ctx: CommandContext): Mutation<Habit>;
+    update(ref: EntityRef, input: HabitInput, ctx: CommandContext): Mutation<Habit>;
+    setStatus(ref: EntityRef, status: 'active' | 'paused', ctx: CommandContext): Mutation<Habit>;
+    setCheck(input: { habitId: string; expectedHabitRevision: number; date: string; desired: boolean },
+      ctx: CommandContext): Mutation<{ habit: Habit; check: HabitCheck | null }>;
+    remove(ref: EntityRef, options: { deleteChecks: true }, ctx: CommandContext): Mutation<Removal & { deletedChecksCount: number }>;
+  };
+  categories: {
+    list(options: { scope?: CategoryScope; includeArchived: boolean }): Mutation<Category[]>;
+    create(input: CategoryInput, ctx: CommandContext): Mutation<Category>;
+    update(ref: EntityRef, input: CategoryInput, ctx: CommandContext): Mutation<Category>;
+    reorder(scope: CategoryScope, refs: EntityRef[], ctx: CommandContext): Mutation<Category[]>;
+    archive(ref: EntityRef, ctx: CommandContext): Mutation<Category>;
+    activate(ref: EntityRef, ctx: CommandContext): Mutation<Category>;
+    removeUnused(ref: EntityRef, ctx: CommandContext): Mutation<Removal>;
+  };
+  focus: {
+    getCurrent(): Mutation<RunningFocusSession | PausedFocusSession | null>;
+    getById(id: string): Mutation<FocusSession | null>;
+    list(query: PageQuery): Mutation<Page<CompletedFocusSession>>;
+    getSummary(range: DateRange): Mutation<{ count: number; totalDurationMs: number }>;
+    start(input: { targetDurationMs: number; title?: string; categoryId?: string }, ctx: CommandContext): Mutation<FocusSession>;
+    pause(ref: EntityRef, ctx: CommandContext): Mutation<FocusSession>;
+    resume(ref: EntityRef, ctx: CommandContext): Mutation<FocusSession>;
+    prepareCompletion(attempt: CompletionAttempt, ctx: CommandContext): Mutation<PausedFocusSession | CompletedFocusSession>;
+    finalizeCompletion(input: { id: string; token: string }, ctx: CommandContext): Mutation<CompletedFocusSession>;
+    discard(ref: EntityRef, ctx: CommandContext): Mutation<Removal>;
+    updateDetails(ref: EntityRef, input: FocusDetailsInput, ctx: CommandContext): Mutation<CompletedFocusSession>;
+    remove(ref: EntityRef, ctx: CommandContext): Mutation<Removal>;
+  };
+  preferences: {
+    getAll(): Mutation<PreferencesSnapshot>;
+    set<K extends PreferenceKey>(input: { key: K; value: PreferenceValues[K]; expectedEntityRevision: number },
+      ctx: CommandContext): Mutation<Preference<K>>;
+  };
+  backup: {
+    inspectFile(file: Blob): Promise<BackupPreview>;
+    cancelPreview(token: string): void;
+    restore(token: string): Mutation<{ counts: BackupCounts }>;
+    exportSnapshot(): Promise<BackupExport>;
+  };
+}
+declare function createLifeIndexServices(options?: {
+  databaseName?: string; clock?: LifeIndexClock; idGenerator?: () => string;
+}): LifeIndexServices;
+declare function deriveFocusDisplay(session: FocusSession | null,
+  clock: ClockSnapshot, previousWallMs?: number): FocusDisplay;
+declare function createCompletionAttempt(session: RunningFocusSession | PausedFocusSession,
+  clock: ClockSnapshot, token: string): CompletionAttempt;
+declare function captureDateSelection(clock: ClockSnapshot, localDate?: string): DateSelection;
+```
+
+上面工厂/纯函数由services入口导出；deriveFocusDisplay(null)返回零值/false，由controller负责在ClockChanged时保留上一可见快照。BackupFocusSummary的paused只计普通paused，awaitingSave单列，四项互不重叠；source/target总未结束数为前三项之和。TTL用注入clock.monotonicNow校验已过时长，expiresAt仅用于展示，系统时钟倒跳不能延长15分钟有效期。偏好初始化四个key均存在，revision=1，初值system/null/null/false；导入缺失key拒绝，避免页面自行补默认后掩盖无效文件。
 
 ### 首屏原则
 
@@ -178,7 +403,7 @@ D「日常调频」采用今日概览/今日轨迹、鲜明领域工作区和固
 
 每个领域独立读取与失败；一个领域内部无依赖的读取并行。汇总与明细复用同一份查询结果，不为每个数字创建重复订阅。Today只读所需时间范围，完整历史由历史流程负责；显示前N条与统计全部数据必须分开，不能拿截断列表当总数。
 
-今日轨迹包含五类真实事实（交易、体重、运动、习惯完成、已完成专注）。带时刻的习惯和专注按completedAt/startedAt排序，专注仍按开始日归属；同instant用类型/ID稳定排序。仅日期的记录单独显示“当日记录 · 未记录具体时刻”，按createdAt/id列出录入顺序，不插入伪造的午夜/当前分钟。首页“刚刚留下的”按createdAt排序，只表达录入顺序，副文案对day精度仅显示日期。完整历史先按localDate再按领域内确定顺序；只展示真实可知的时间精度。
+今日轨迹包含五类真实事实（交易、体重、运动、习惯完成、已完成专注）。带时刻的习惯和专注按completedAt/startedAt升序，专注仍按开始日归属；同instant用类型/ID字典升序稳定排序。仅日期的记录单独显示“当日记录 · 未记录具体时刻”，按createdAt/id升序列出录入顺序，不插入伪造的午夜/当前分钟。分组限额各保留最新N项再按上述顺序呈现。首页“刚刚留下的”按createdAt/id倒序，只表达录入顺序，副文案对day精度仅显示日期。完整历史先按localDate倒序再按领域内确定顺序；只展示真实可知的时间精度。
 
 `loading`不是空结果，`failed`不是0。保留上一次数据时明示尚未更新；一个区域失败不阻断其他成功区域。查询状态和占位布局不得反复卸载已输入表单。
 
@@ -194,16 +419,18 @@ D「日常调频」采用今日概览/今日轨迹、鲜明领域工作区和固
 
 ### 持久字段与状态不变量
 
-FocusSession公共字段为id、title、可选categoryId/note、startedAt、localDate、utcOffsetMinutes、targetDurationMs、revision、createdAt/updatedAt。目标按完整分钟输入，首版15/25/45预设；schema允许整数1–1440分钟以容纳将来明确的自定义入口，但本次不因此承诺自定义UI。所有毫秒整数有安全整数/范围校验。
+FocusSession继承完整EntityBase（含lastCommandId），公共业务字段为title、可选categoryId/note、timePrecision固定instant、startedAt、localDate、utcOffsetMinutes、targetDurationMs。localDate只要求与startedAt和捕获offset一致，不要求跨日endedAt仍为该日。目标按完整分钟输入，首版15/25/45预设；schema允许整数1–1440分钟以容纳将来明确的自定义入口，但本次不因此承诺自定义UI。所有毫秒整数有安全整数/范围校验。
 
 | 持久状态 | 必需字段/约束 | 不得出现 |
 | --- | --- | --- |
 | running | accumulatedMs为此前已结算运行段总和；segmentStartedAt为本段起点；0≤accumulatedMs<targetDurationMs | pausedAt、durationMs、endedAt、pendingCompletion |
 | paused（普通） | accumulatedMs固定；pausedAt；0≤accumulatedMs<targetDurationMs | segmentStartedAt、durationMs、endedAt |
 | paused（待保存投影） | accumulatedMs固定；pausedAt；pendingCompletion含token、kind(timer/early)、durationMs、endedAt | segmentStartedAt；普通resume入口 |
-| completed | durationMs、endedAt、completionKind、completionToken；0<durationMs≤targetDurationMs | segmentStartedAt、pausedAt、pendingCompletion |
+| completed | durationMs、endedAt、completionKind、completionToken；0<durationMs≤targetDurationMs | accumulatedMs、segmentStartedAt、pausedAt、pendingCompletion |
 
 在最终schema里用严格可辨识联合校验字段，不把旧status字符串凑入新模型。paused待保存允许accumulatedMs等于目标；其pendingCompletion.durationMs必须等于accumulatedMs。timer完成恰好等于目标，early完成小于目标；所有会话同时最多一条running或paused（含待保存）；completed.durationMs至少1000ms，提前结束未满1秒明确拒绝且保持原状态。毫秒累计避免多次不足一秒的暂停段被每次取整丢失；UI先取同一快照的elapsedMs，令displayElapsedSeconds=floor(elapsedMs/1000)，displayRemainingSeconds=targetDurationMs/1000−displayElapsedSeconds；不能对remainingMs再独立floor。两数之和恒等目标整秒，总计先累加整数毫秒再格式化。
+
+状态时间还须满足startedAt≤各转移时刻≤updatedAt，startedAt=createdAt；普通paused的accumulatedMs不超过pausedAt−startedAt，running已结算累计不超过segmentStartedAt−startedAt。pending的pausedAt=固定endedAt，pending/completed的durationMs至少1000且不超过endedAt−startedAt；最终completed不再保留accumulatedMs。审计updatedAt是实际提交命令时刻，可晚于自然到期endedAt，不能据此把自然结束时刻改成恢复时刻。
 
 ### 时间计算与跨日
 
@@ -219,13 +446,14 @@ FocusSession公共字段为id、title、可选categoryId/note、startedAt、loca
 
 | 命令 | 原子责任 | 重入/失败规则 |
 | --- | --- | --- |
-| start | 在focusSessions读写事务内查询未结束会话、验证分类、创建running | 并发启动只保留一条，另一调用返回现有会话/明确冲突，不再建一条 |
+| start | 在focusSessions+categories+meta读写事务内查询未结束会话、验证分类、创建running | 同命令重试返回自身会话；不同意图已有未结束则Busy，陈旧创建stamp则EntityConflict，不再建一条 |
 | pause | 校验revision与running；先判断是否已到期，未到期才结算本段并写paused | 双击不重复加时；到期优先进入完成流程；失败保持原持久running并显示失败 |
 | resume | 校验普通paused，设置新的segmentStartedAt、清除pausedAt并增revision | pendingCompletion禁止resume；重复命令返回当前结果，不重新设置段起点 |
 | prepareCompletion | 同事务取得确定终点/时长、结算为paused并持久pendingCompletion；到期归timer，否则early | 意图一旦提交便停止累计；现有意图优先返回，不覆盖终点；写失败保留原会话和本地完成输入 |
 | finalizeCompletion | 同事务校验pending token、改同一行completed、写duration/endedAt/completionToken、清除意图 | 失败保留durable awaiting-save；重复同token返回同一completed，不能生成第二条 |
 | discard | 明确确认后删除未结束会话/待保存意图 | 失败保留会话；取消确认不改状态；与完成竞争按revision重新读取 |
 | edit completed | 仅修改允许的标题/分类/备注，不重算计时事实 | 失败保留输入；编辑不能绕成重新创建完成会话 |
+| remove completed | 明确删除确认后校验revision，只删除completed同一行 | 失败保留记录；已不存在为无变化；不能调用discard删除完成历史 |
 
 两阶段完成是有意的责任划分：第一事务持久“已停止但待保存”，第二事务将它发布为已完成事实。它不是部分恢复或假成功；首阶段后UI只能显示awaiting-save，不能显示已完成或更新汇总。自然到期/提前结束共用这条路径，跨标签页通过读写事务和revision/token约束串行化，不仅靠组件busy。手动“结束”弹出确认时running继续累计；在用户确认保存那一刻捕获结束意图，取消确认不改变状态。若等待确认期间自然到期，以timer完成优先并刷新确认层，不能再重复保存early。
 
@@ -324,8 +552,8 @@ R3签收清单（决定已收敛，剩余是独立审查与状态证据，不交
 | 契约 | 当前决定与签收责任 |
 | --- | --- |
 | 体验/导航 | D日常调频；中央记录与明确日期来源；详情先读后编；设计方交完整状态和响应稿 |
-| 数据 | LifeIndexV4/schema1，八业务表+meta；平面分类；无外部动作和无关回执表；架构/审核核对约束 |
-| 习惯/健康 | 当前计划从今天生效，历史只存事实；同日体重全部保留、趋势日末点；设计文案与QA覆盖一致 |
+| 数据 | LifeIndexV4/schema1，八业务表+meta；平面分类；无外部动作和无关回执表；架构/审核核对约束及创建stamp防复活 |
+| 习惯/健康 | 当前计划从今天生效，历史只存事实；同日体重全部保留、趋势当日最后录入；设计文案与QA覆盖一致 |
 | 专注 | running/paused/completed及paused+pending；毫秒累计、互补秒显示、开始日归属、两阶段完成；审核失败/恢复可解释性 |
 | 备份 | 新format1、50MiB/15分钟、全量替换；meta revision绑定预览、generation拦旧草稿；审核跨context与冲突UI |
 | 组件/API | root流程/共享组件、designer领域页、core数据服务；统一Snapshot/CommandContext/ReturnContext接口 |

@@ -1,4 +1,4 @@
-/* global R3, safe, icon, icons, render, trace, today, toast, navigation: writable */
+/* global R3, state, safe, icon, icons, render, trace, today, toast, navigation: writable */
 // R4 changes the task affordance itself while reusing the isolated R3 synthetic model.
 const controlsVariant = new URLSearchParams(location.search).get('controls') || 'surface'
 const activeVariant = ['surface', 'paper', 'slide'].includes(controlsVariant)
@@ -20,8 +20,14 @@ navigation = function controlNavigation() {
     if (button.classList.contains('dock-compose'))
       button.innerHTML = `${icon('write', 22)}<span>留一笔</span>`
     else if (button.classList.contains('rail-compose'))
-      button.innerHTML = `${icon('write', 20)}<span>留下一笔</span>`
+      button.innerHTML = `${icon('write', 20)}<span>留一笔</span>`
   })
+  // The wrapper provides a content-width query: large text can separate the action row from navigation without shrinking labels.
+  const dock = document.querySelector('.mobile-dock')
+  const grid = document.createElement('div')
+  grid.className = 'dock-grid'
+  grid.append(dock.querySelector('.dock-compose'), ...dock.querySelectorAll('.dock-link'))
+  dock.replaceChildren(grid)
 }
 
 R3.habitRows = function controlHabitRows(items) {
@@ -31,10 +37,14 @@ R3.habitRows = function controlHabitRows(items) {
       const name = safe(habit.title)
       const action = `${completed ? '撤销完成' : '完成'}${name}`
       const hint = completed ? '今天已记下 · 点按撤销' : '今天做过了？点按记下'
+      const schedule =
+        state.page === 'health'
+          ? `<small class="habit-plan">${this.schedule(habit)}${!habit.paused && !habit.weekdays.includes(this.weekday(today)) ? ' · 今天非计划日' : ''}</small>`
+          : ''
       if (activeVariant === 'paper')
         return `<div class="habit-row control-row" data-completed="${completed}"><button class="habit-name" type="button" data-habit-detail="${habit.id}"><span><strong>${name}</strong><small>${this.schedule(habit)}</small></span></button><button class="habit-tick paper-action" type="button" data-habit="${habit.id}" aria-pressed="${completed}" aria-label="${action}"><strong>${completed ? '已记下' : '做到了'}</strong><small>${completed ? '点按撤销' : '记录完成'}</small></button></div>`
       const sliding = activeVariant === 'slide'
-      return `<div class="habit-row control-row" data-completed="${completed}"><div class="${sliding ? 'slide-track' : 'surface-track'}">${sliding ? `<span class="slide-result" aria-hidden="true">${completed ? '撤销这次' : '为今天留一笔'}</span>` : ''}<button class="habit-surface ${sliding ? 'slide-surface' : ''}" type="button" data-habit="${habit.id}" aria-pressed="${completed}" aria-label="${action}"><span class="surface-copy"><strong>${name}</strong><small>${sliding && !completed ? '点按，或向右轻推完成' : hint}</small></span><span class="surface-state" aria-hidden="true">${completed ? '已完成' : sliding ? '轻推' : '记下'}</span></button></div><button class="habit-info" type="button" data-habit-detail="${habit.id}" aria-label="查看${name}详情">详情</button></div>`
+      return `<div class="habit-row control-row" data-completed="${completed}"><div class="${sliding ? 'slide-track' : 'surface-track'}">${sliding ? `<span class="slide-result" aria-hidden="true">${completed ? '撤销这次' : '为今天留一笔'}</span>` : ''}<button class="habit-surface ${sliding ? 'slide-surface' : ''}" type="button" data-habit="${habit.id}" aria-pressed="${completed}" aria-label="${action}"><span class="surface-copy"><strong>${name}</strong>${schedule}<small>${sliding && !completed ? '点按，或向右轻推完成' : hint}</small></span><span class="surface-state" aria-hidden="true">${completed ? '已完成' : sliding ? '轻推' : '记下'}</span></button></div><button class="habit-info" type="button" data-habit-detail="${habit.id}" aria-label="查看${name}详情">详情</button></div>`
     })
     .join('')
 }

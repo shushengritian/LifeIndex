@@ -40,4 +40,12 @@
 
 根协调选择“整行回应”继续深化，另外两稿保留为实际比较输入。独立审核需重点检查动作/查看边界、意外完成与撤销、焦点、色彩对比、关键操作遮挡及与其他页面的一致性；若发现具体阻断继续修订。
 
-三个工作代理已实际返回额度上限错误，`collaboration.list_agents`确认均errored。此时根协调可完成作者修订和自测，不能代替独立审核签收。设计系统、架构与测试契约尚未冻结，生产实现、合并与部署均未开始。Goal仍追踪完整4.0上线目标。
+三个工作代理先前因额度上限中断，现已恢复原角色协作。设计和架构交付唯一契约，独立审核正在复查最后产物；根协调没有代签。Goal仍追踪完整4.0上线目标。
+
+## R4 收尾修订
+
+独立审核要求恢复健康完整习惯列表的暂停/非计划日副文案，完成回执不能遮蔽计划状态；已在真实计划操作后截图验证。底栏在窄宽度或大字时改为两层，保留全部文字。完成底的焦点环改用专用深色，未完成底采用专用浅色；动作面横向内边距至少 8px，保证内部描边不贴文字。
+
+按照 [Web Interface Guidelines](https://raw.githubusercontent.com/vercel-labs/web-interface-guidelines/main/command.md)（2026-09-28读取）复查，并运行 `scripts/v4-prototype-a11y-review.mjs`：11种页面/表单状态×深浅主题共22次axe扫描，最初3个严重对比度问题修复后均为0。修复为未选收支文字用ink、分类选中用accent/on-accent；人工另查焦点与大字。扫描未覆盖全部详情/错误/二级确认，不等于完整WCAG符合认证。正式路由将使用语义链接，原型按钮导航不直接复制到产品。
+
+新增[视口焦点图](prototype-r4/screens/surface-focus-viewport.png)、[健康计划状态](prototype-r4/screens/surface-health-schedules.png)、[文件竞态](prototype-r4/screens/file-race-observations.json)、[最终定向观察](prototype-r4/screens/final-review-observations.json)、[axe观察](prototype-r4/screens/a11y-observations.json)。全页截图可能把负top的固定skip链接收入画布；实际视口测量其非焦点bottom=-38px，另有视口截图确认无覆盖。

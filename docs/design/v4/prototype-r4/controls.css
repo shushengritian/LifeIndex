@@ -69,7 +69,8 @@
   text-align: left;
   color: #f9f2e9;
   background: transparent;
-  padding: 12px 0;
+  /* Keep glyphs clear of the inset keyboard ring without reducing the row's hit area. */
+  padding: 12px 8px;
   border-radius: 6px;
 }
 .surface-copy {
@@ -170,8 +171,105 @@
 .control-row {
   scroll-margin-block: 24px 140px;
 }
+/* Focus is drawn inside the actual surface with a paired color, so a theme accent cannot disappear on completion paper. */
+.control-row button:focus-visible {
+  outline: 3px solid #f7ecd4;
+  outline-offset: -4px;
+}
+[data-controls='surface'] .control-row[data-completed='true'] button:focus-visible,
+[data-controls='slide'] .control-row[data-completed='true'] button:focus-visible,
+.paper-action[aria-pressed='false']:focus-visible {
+  outline-color: #2d2435;
+}
+.type-switch button:not([aria-pressed='true']) {
+  color: var(--ink);
+}
+.category[aria-pressed='true'] {
+  background: var(--accent);
+  color: var(--on-accent);
+  box-shadow: none;
+}
+.skip-main {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 100;
+  padding: 12px 18px;
+  background: var(--surface);
+  color: var(--ink);
+  transform: translateY(-200%);
+}
+.skip-main:focus-visible {
+  transform: none;
+}
 .habit-station .section-heading h2 {
   font-weight: 600;
+}
+.mobile-dock {
+  container-type: inline-size;
+}
+.dock-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 88px 1fr 1fr;
+  gap: 4px;
+  align-items: center;
+}
+.dock-grid .dock-compose {
+  grid-column: 3;
+  grid-row: 1;
+}
+.dock-grid [data-page='today'] {
+  grid-column: 1;
+  grid-row: 1;
+}
+.dock-grid [data-page='health'] {
+  grid-column: 2;
+  grid-row: 1;
+}
+.dock-grid [data-page='focus'] {
+  grid-column: 4;
+  grid-row: 1;
+}
+.dock-grid [data-page='finance'] {
+  grid-column: 5;
+  grid-row: 1;
+}
+@media (max-width: 820px) {
+  .mobile-dock {
+    display: block;
+  }
+}
+/* rem in a container query responds to text enlargement; navigation labels keep their full requested size. */
+@container (max-width: 20rem) {
+  .dock-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px 8px;
+  }
+  .dock-grid .dock-compose {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    flex-direction: row;
+    justify-self: end;
+    width: auto;
+    min-height: 44px;
+    padding: 8px 16px;
+    border-radius: 12px;
+  }
+  .dock-grid .dock-link {
+    grid-row: 2;
+  }
+  .dock-grid [data-page='today'] {
+    grid-column: 1;
+  }
+  .dock-grid [data-page='health'] {
+    grid-column: 2;
+  }
+  .dock-grid [data-page='focus'] {
+    grid-column: 3;
+  }
+  .dock-grid [data-page='finance'] {
+    grid-column: 4;
+  }
 }
 @media (hover: hover) and (pointer: fine) {
   .habit-surface:hover,
@@ -206,8 +304,7 @@
   }
   .mobile-dock {
     width: min(calc(100% - 16px), 590px);
-    grid-template-columns: 1fr 1fr 88px 1fr 1fr;
-    gap: 2px;
+    display: block;
     padding-inline: 6px;
   }
   .dock-compose {
