@@ -22,7 +22,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['docs/design/v4/prototype-r2/studio.js'],
+    files: ['docs/design/v4/prototype-*/studio.js'],
     languageOptions: { globals: { icons: 'readonly', icon: 'readonly' } },
   },
   {
