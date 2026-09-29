@@ -29,7 +29,7 @@ WebKit仅离线专项使用`http://127.0.0.1:60619/LifeIndex/`代理：上游取
 
 ## 可复核证据
 
-- [完整运行日志](deployed.log)：原始line与JSON输出，保留版本、各例和离线方式日志。
+- [完整运行日志](deployed.log.txt)：原始line与JSON输出，保留版本、各例和离线方式日志。
 - [结构化结果](results.json)：8个实际用例、时长、零skip/retry统计及附件。
 - [来源证据](origin-evidence.json)：published/effective origin、断网方式和拒绝请求数量。
 - [公开资源快照](resources.json)：采样时间、URL、HTTP状态、SHA256、资源引用及manifest。

@@ -1,0 +1,68 @@
+v4.deployed.configuration { operation: 'verify', targetType: 'preview' }
+
+Running 8 tests using 1 worker
+
+v4.deployed.configuration { operation: 'verify', targetType: 'preview' }
+
+(node:50238) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1/8] [v4-live-chromium] › tests/v4-deployed/pages.spec.ts:30:1 › actual deployed identity, deep routes, base-scoped resources and worker are healthy
+[v4-live-chromium] › tests/v4-deployed/pages.spec.ts:30:1 › actual deployed identity, deep routes, base-scoped resources and worker are healthy
+v4.deployed.identity.passed { version: '4.0.0', operation: 'verify' }
+
+[2/8] [v4-live-chromium] › tests/v4-deployed/pages.spec.ts:108:1 › three real entry types persist and receipt opens the saved fact without changing origin
+[v4-live-chromium] › tests/v4-deployed/pages.spec.ts:108:1 › three real entry types persist and receipt opens the saved fact without changing origin
+v4.qa.entry.saved { entityType: 'expense' }
+
+v4.qa.entry.saved { entityType: 'weight' }
+
+v4.qa.entry.saved { entityType: 'activity' }
+
+v4.deployed.persistence.passed { count: 3 }
+
+[3/8] [v4-live-chromium] › tests/v4-deployed/pages.spec.ts:151:1 › deployed focus start, pause, resume and completion save exactly one session
+[v4-live-chromium] › tests/v4-deployed/pages.spec.ts:151:1 › deployed focus start, pause, resume and completion save exactly one session
+v4.deployed.focus.passed { count: 1 }
+
+[4/8] [v4-live-chromium] › tests/v4-deployed/pages.spec.ts:178:1 › offline deployed shell, unseen lazy route, local write and backup remain usable
+[v4-live-chromium] › tests/v4-deployed/pages.spec.ts:178:1 › offline deployed shell, unseen lazy route, local write and backup remain usable
+v4.qa.entry.saved { entityType: 'expense' }
+
+v4.deployed.offline.passed { operation: 'reload-write-export', originType: 'actual-target' }
+
+v4.deployed.configuration { operation: 'verify', targetType: 'preview' }
+
+(node:50268) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+[5/8] [v4-live-webkit] › tests/v4-deployed/pages.spec.ts:30:1 › actual deployed identity, deep routes, base-scoped resources and worker are healthy
+[v4-live-webkit] › tests/v4-deployed/pages.spec.ts:30:1 › actual deployed identity, deep routes, base-scoped resources and worker are healthy
+v4.deployed.identity.passed { version: '4.0.0', operation: 'verify' }
+
+[6/8] [v4-live-webkit] › tests/v4-deployed/pages.spec.ts:108:1 › three real entry types persist and receipt opens the saved fact without changing origin
+[v4-live-webkit] › tests/v4-deployed/pages.spec.ts:108:1 › three real entry types persist and receipt opens the saved fact without changing origin
+v4.qa.entry.saved { entityType: 'expense' }
+
+v4.qa.entry.saved { entityType: 'weight' }
+
+v4.qa.entry.saved { entityType: 'activity' }
+
+v4.deployed.persistence.passed { count: 3 }
+
+[7/8] [v4-live-webkit] › tests/v4-deployed/pages.spec.ts:151:1 › deployed focus start, pause, resume and completion save exactly one session
+[v4-live-webkit] › tests/v4-deployed/pages.spec.ts:151:1 › deployed focus start, pause, resume and completion save exactly one session
+v4.deployed.focus.passed { count: 1 }
+
+[8/8] [v4-live-webkit] › tests/v4-deployed/pages.spec.ts:178:1 › offline deployed shell, unseen lazy route, local write and backup remain usable
+[v4-live-webkit] › tests/v4-deployed/pages.spec.ts:178:1 › offline deployed shell, unseen lazy route, local write and backup remain usable
+v4.qa.origin.disconnected { transport: 'tcp-refusal' }
+
+v4.qa.entry.saved { entityType: 'expense' }
+
+v4.deployed.offline.passed {
+  operation: 'reload-write-export',
+  originType: 'local-proxy-of-published-bytes'
+}
+
+  8 passed (32.3s)

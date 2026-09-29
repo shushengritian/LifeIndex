@@ -6,7 +6,7 @@ Preview: `http://127.0.0.1:4177/LifeIndex/`. Ran both projects in `playwright.v4
 
 This is local preview coverage of the actual Pages base path, not a live Pages result. WebKit offline uses a local TCP-disconnected proxy of target bytes preserving `/LifeIndex/`; the other WebKit tests and all Chromium tests use the target preview directly. All test data is synthetic. Browser process and temporary preview were closed; port 4177 is verified closed.
 
-Persistent evidence in this directory: [build log](build.log), [test log](deployed.log), [artifact identity](evidence.json). The following paths record original local collection locations and may be temporary.
+Persistent evidence in this directory: [build log](build.log.txt), [test log](deployed.log.txt), [artifact identity](evidence.json). The following paths record original local collection locations and may be temporary.
 
 Original evidence:
 - `/tmp/lifeindex-v4-subpath-build.log`
