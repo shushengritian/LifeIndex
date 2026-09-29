@@ -1,6 +1,6 @@
 # LifeIndex 部署与发布验证
 
-应用部署为 HTTPS 静态站点。当前交付版本为3.3.0。部署和线上验证证据见[发布记录](../releases/v3.3.0.md)；发布必须由用户授权。
+应用部署为 HTTPS 静态站点。4.0升级已获用户完整发布授权，候选尚在验收；线上仍为3.3.0。新版证据集中于[4.0发布记录](../releases/v4.0.0.md)，历史证据保留于[3.3发布记录](../releases/v3.3.0.md)。
 
 ## 发布前
 
@@ -17,7 +17,7 @@ manifest、图标、Service Worker 路径和 Hash 导航须与 base 一致。仓
 
 ## 发布后证据
 
-记录源码提交、流水线、公开入口、实际版本及本次验证结果；使用 `LIFEINDEX_DEPLOYED_URL` 指向明确站点后运行 `pnpm test:deployed`。线上验证使用隔离浏览器和合成数据。将结果填入 [发布记录](../releases/v3.3.0.md)。
+记录源码提交、流水线、公开入口、实际版本及本次验证结果；使用 `LIFEINDEX_DEPLOYED_URL` 指向明确站点后运行 `pnpm test:deployed`。该命令现执行V4路由/schema验证；使用 `LIFEINDEX_EXPECTED_BUILD_ID` 指定精确SHA，GitHub工作流默认核对GITHUB_SHA。线上验证使用隔离浏览器和合成数据。将结果填入 [4.0发布记录](../releases/v4.0.0.md)。
 
 用户沿原入口联网更新，确认设置版本。提醒完成 [iPhone 验收](IPHONE_ACCEPTANCE.md)，不要求卸载或清网站数据。
 
