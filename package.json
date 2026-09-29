@@ -1,6 +1,6 @@
 {
   "name": "lifeindex",
-  "version": "4.0.0",
+  "version": "3.3.0",
   "private": true,
   "type": "module",
   "description": "A calm local-first finance, focus, and health index for iPhone.",
@@ -20,12 +20,9 @@
     "test:unit": "vitest run tests/unit",
     "test:integration": "vitest run tests/integration --passWithNoTests",
     "test:watch": "vitest",
-    "test:e2e": "playwright test --config playwright.v4.config.ts",
-    "test:e2e:legacy": "playwright test --config playwright.config.ts",
-    "test:deployed": "playwright test --config playwright.v4-deployed.config.ts",
-    "test:deployed:legacy": "playwright test --config playwright.deployed.config.ts",
-    "quality": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build",
-    "test:e2e:v4": "playwright test --config playwright.v4.config.ts"
+    "test:e2e": "playwright test",
+    "test:deployed": "playwright test --config playwright.deployed.config.ts",
+    "quality": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build"
   },
   "dependencies": {
     "dexie": "4.4.5",

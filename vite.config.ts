@@ -22,9 +22,6 @@ function normalizeBasePath(value: string | undefined): string {
 
 export default defineConfig(() => {
   const base = normalizeBasePath(process.env.LIFEINDEX_BASE_PATH)
-  // Public build provenance identifies the exact Pages commit and makes local A/B update checks observable.
-  const buildId = process.env.LIFEINDEX_BUILD_ID ?? process.env.GITHUB_SHA ?? 'local'
-  if (!/^[A-Za-z0-9._-]{1,80}$/.test(buildId)) throw new Error('Invalid public build identifier')
 
   return {
     base,
@@ -37,8 +34,7 @@ export default defineConfig(() => {
         registerType: 'prompt',
         injectRegister: null,
         injectManifest: {
-          // The locally licensed variable font is shell material and must also work after an offline reload.
-          globPatterns: ['**/*.{html,js,css,svg,png,ttf,woff2,webmanifest}'],
+          globPatterns: ['**/*.{html,js,css,svg,png,webmanifest}'],
         },
         manifest: {
           id: base,
@@ -50,8 +46,8 @@ export default defineConfig(() => {
           display: 'standalone',
           display_override: ['standalone', 'minimal-ui'],
           orientation: 'portrait-primary',
-          background_color: '#f5f0e8',
-          theme_color: '#f5f0e8',
+          background_color: '#f4f3ee',
+          theme_color: '#f4f3ee',
           lang: 'zh-CN',
           categories: ['lifestyle', 'productivity', 'finance'],
           prefer_related_applications: false,
@@ -80,7 +76,6 @@ export default defineConfig(() => {
     ],
     define: {
       __APP_VERSION__: JSON.stringify(packageMetadata.version),
-      __APP_BUILD_ID__: JSON.stringify(buildId),
     },
     resolve: {
       alias: {

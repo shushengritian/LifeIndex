@@ -19,10 +19,6 @@
     "vite.config.ts",
     "vitest.config.ts",
     "playwright.config.ts",
-    "playwright.deployed.config.ts",
-    "playwright.v4*.config.ts",
-    "tests/v4-e2e",
-    "tests/v4-deployed",
-    "tests/v4-performance"
+    "playwright.deployed.config.ts"
   ]
 }

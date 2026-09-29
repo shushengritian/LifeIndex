@@ -1,2 +1,0 @@
-// This isolated extension changes no content and has access only to local test pages.
-chrome.runtime.onInstalled.addListener(() => console.info('native-zoom-extension.ready'));

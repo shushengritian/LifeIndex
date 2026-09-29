@@ -6,10 +6,9 @@ const require = createRequire(import.meta.url)
 const assetRequire = createRequire(require.resolve('@vite-pwa/assets-generator'))
 const sharp = assetRequire('sharp')
 const source = fileURLToPath(
-  new URL('../docs/design/assets/lifeindex-v4-icon.svg', import.meta.url),
+  new URL('../docs/design/assets/lifeindex-ocean-icon.svg', import.meta.url),
 )
 const outputs = [
-  ['favicon-16.png', 16],
   ['favicon-32.png', 32],
   ['apple-touch-icon.png', 180],
   ['icon-192.png', 192],

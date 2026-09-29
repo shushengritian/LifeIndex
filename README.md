@@ -1,10 +1,12 @@
 # LifeIndex
 
+2026-09-29：用户要求撤回4.0并恢复3.3.0，当前已还原升级前代码，重新验证及部署中。4.0不再是当前产品或待推进任务。见[回退决策](docs/adr/0002-restore-3-3.md)。
+
 Index your life.
 
 LifeIndex 是面向 iPhone 的本地优先生活记录 PWA，包含今天、健康（体重、运动、习惯）、专注、记账和设置。数据保存在本机 IndexedDB；应用外壳支持离线，JSON 备份由用户自行保存和恢复。
 
-当前版本：**4.0.0「日常调频」**，已部署至[LifeIndex](https://shushengritian.github.io/LifeIndex/)，线上独立验收8项通过。最终部署与验证证据见[4.0发布记录](docs/releases/v4.0.0.md)和[交付计划](PLAN.md)。
+当前版本：**3.3.0**，已部署至[LifeIndex](https://shushengritian.github.io/LifeIndex/)。自动化与线上验证通过，真机专项待用户确认；证据见[交付计划](PLAN.md)。
 
 ## 开发
 
@@ -18,8 +20,6 @@ pnpm dev
 质量检查：`pnpm quality`；浏览器验证：`pnpm test:e2e`。生产 PWA 行为使用构建预览验证，详见 [开发指南](docs/development/DEV.md)。
 
 ## 文档
-
-4.0 当前实现以[新版使用与范围](docs/product/V4.md)、[冻结设计](docs/design/v4/FREEZE.md)、[架构](docs/design/v4/ARCHITECTURE.md)、[数据服务](docs/development/v4/CORE.md)、[应用流程](docs/development/v4/SHELL.md)、[领域页面](docs/development/v4/FEATURES.md)和[验收矩阵](docs/testing/v4/ACCEPTANCE_MATRIX.md)为准。以下未标V4的历史产品/架构文档描述3.x，不是新版兼容要求。
 
 - [新会话交接与代码定位](docs/project/HANDOFF.md)
 - [产品基线](LifeIndex-Project-Baseline.md)与[范围决策](docs/adr/0001-current-product-scope.md)

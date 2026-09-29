@@ -1,7 +1,0 @@
-{
-  "manifest_version": 3,
-  "name": "LifeIndex isolated native zoom verification",
-  "version": "1.0",
-  "host_permissions": ["http://127.0.0.1/*"],
-  "background": { "service_worker": "background.js" }
-}

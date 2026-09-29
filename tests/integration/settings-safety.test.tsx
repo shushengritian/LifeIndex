@@ -208,10 +208,7 @@ it('opens independent settings details and returns to the four-group home', asyn
     await user.click(await screen.findByRole('link', { name: title }))
     expect(await screen.findByRole('heading', { name: title, level: 1 })).toBeInTheDocument()
     if (title === '关于 LifeIndex') {
-      // The retained legacy page must still reflect release metadata, rather than pinning a historical version.
-      expect(screen.getByLabelText(`应用版本 ${__APP_VERSION__}`)).toHaveTextContent(
-        __APP_VERSION__,
-      )
+      expect(screen.getByLabelText(`应用版本 ${__APP_VERSION__}`)).toHaveTextContent('3.3.0')
       expect(screen.queryByText('数据库版本')).not.toBeInTheDocument()
     }
     expect(screen.queryByRole('heading', { name: '分类' })).not.toBeInTheDocument()
