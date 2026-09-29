@@ -1,0 +1,198 @@
+[WebServer] (node:58408) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 92 tests using 2 workers
+
+  ✓   2 [chromium] › tests/e2e/app-shell.spec.ts:125:1 › loads the LifeIndex shell and navigates between primary destinations (956ms)
+accessibility.matrix.checked { theme: 'light', route: '/today' }
+(node:58409) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   3 [chromium] › tests/e2e/app-shell.spec.ts:134:1 › has no automatically detectable accessibility violations on the shell (1.3s)
+accessibility.matrix.checked { theme: 'light', route: '/health' }
+accessibility.matrix.checked { theme: 'light', route: '/health/weight-history' }
+  ✓   4 [chromium] › tests/e2e/app-shell.spec.ts:142:1 › creates, persists, edits, and deletes a local transaction (2.1s)
+accessibility.matrix.checked { theme: 'light', route: '/health/activity-history' }
+  ✓   5 [chromium] › tests/e2e/app-shell.spec.ts:178:1 › creates a habit and persists reversible daily check-in (2.0s)
+accessibility.matrix.checked { theme: 'light', route: '/health/habits' }
+accessibility.matrix.checked { theme: 'light', route: '/focus' }
+accessibility.matrix.checked { theme: 'light', route: '/focus/history' }
+accessibility.matrix.checked { theme: 'light', route: '/finance' }
+  ✓   6 [chromium] › tests/e2e/app-shell.spec.ts:205:1 › creates and persists local weight and Activity records (4.4s)
+accessibility.matrix.checked { theme: 'light', route: '/settings' }
+accessibility.matrix.checked { theme: 'light', route: '/settings/appearance' }
+accessibility.matrix.checked { theme: 'light', route: '/settings/export' }
+accessibility.matrix.checked { theme: 'light', route: '/settings/restore' }
+accessibility.matrix.checked { theme: 'light', route: '/settings/about' }
+  ✓   1 [chromium] › tests/e2e/accessibility-matrix.spec.ts:21:3 › final light route accessibility and narrow-screen matrix (12.1s)
+  ✓   7 [chromium] › tests/e2e/app-shell.spec.ts:297:1 › restores an active focus timer after reload and saves one early finish (3.2s)
+accessibility.matrix.checked { theme: 'dark', route: '/today' }
+accessibility.matrix.checked { theme: 'dark', route: '/health' }
+finance.quickentry.cancellation.passed { count: 0 }
+(node:58410) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 [chromium] › tests/e2e/app-shell.spec.ts:324:1 › returns quick-entry cancellation to Today without writing or reopening on reload (2.5s)
+accessibility.matrix.checked { theme: 'dark', route: '/health/weight-history' }
+accessibility.matrix.checked { theme: 'dark', route: '/health/activity-history' }
+accessibility.matrix.checked { theme: 'dark', route: '/health/habits' }
+  ✓  10 [chromium] › tests/e2e/app-shell.spec.ts:347:1 › keeps Today calm while reflecting cross-feature local changes (2.4s)
+accessibility.matrix.checked { theme: 'dark', route: '/focus' }
+accessibility.matrix.checked { theme: 'dark', route: '/focus/history' }
+  ✓  11 [chromium] › tests/e2e/app-shell.spec.ts:386:1 › persists appearance and manages Finance category lifecycle (3.1s)
+accessibility.matrix.checked { theme: 'dark', route: '/finance' }
+accessibility.matrix.checked { theme: 'dark', route: '/settings' }
+accessibility.matrix.checked { theme: 'dark', route: '/settings/appearance' }
+accessibility.matrix.checked { theme: 'dark', route: '/settings/export' }
+accessibility.matrix.checked { theme: 'dark', route: '/settings/restore' }
+accessibility.matrix.checked { theme: 'dark', route: '/settings/about' }
+  ✓   8 [chromium] › tests/e2e/accessibility-matrix.spec.ts:21:3 › final dark route accessibility and narrow-screen matrix (12.1s)
+  ✓  12 [chromium] › tests/e2e/app-shell.spec.ts:442:1 › exports, previews, and replaces data from a downloaded backup (2.4s)
+  ✓  14 [chromium] › tests/e2e/app-shell.spec.ts:489:1 › ships base-aware install metadata and complete icon assets (211ms)
+accessibility.finance.keyboard.passed { operation: 'discard' }
+  ✓  13 [chromium] › tests/e2e/accessibility-matrix.spec.ts:47:1 › finance sheet and discard confirmation contain and restore keyboard focus (1.3s)
+  ✓  15 [chromium] › tests/e2e/app-shell.spec.ts:541:1 › rejects retired financial links without changing data (1.7s)
+category.compact.checked { theme: '浅色', count: 1 }
+  ✓  16 [chromium] › tests/e2e/category-compact.spec.ts:5:3 › compact categories and name-only children in 浅色 (2.6s)
+  ✓  17 [chromium] › tests/e2e/app-shell.spec.ts:555:1 › supports habit and focus actions while scrubbing cancel and invalid fragments (2.9s)
+category.compact.checked { theme: '深色', count: 1 }
+  ✓  18 [chromium] › tests/e2e/category-compact.spec.ts:5:3 › compact categories and name-only children in 深色 (2.7s)
+finance.report.browser.started { theme: '浅色', operation: 'read' }
+  ✓  19 [chromium] › tests/e2e/app-shell.spec.ts:593:1 › creates and persists local data after the browser goes offline (2.1s)
+  ✓  21 [chromium] › tests/e2e/app-shell.spec.ts:619:1 › reloads the cached application shell and persisted data offline in Chromium (2.1s)
+finance.report.browser.completed { theme: '浅色', operation: 'read' }
+  ✓  20 [chromium] › tests/e2e/finance-report.spec.ts:5:3 › read-only report preserves calendar context in 浅色 (2.7s)
+finance.report.browser.started { theme: '深色', operation: 'read' }
+  ✓  22 [chromium] › tests/e2e/app-shell.spec.ts:647:1 › rejects an invalid backup in the UI without changing current records (1.4s)
+finance.report.browser.completed { theme: '深色', operation: 'read' }
+  ✓  23 [chromium] › tests/e2e/finance-report.spec.ts:5:3 › read-only report preserves calendar context in 深色 (2.3s)
+focus.progress.spacing.checked { theme: '浅色', operation: 'running' }
+  ✓  25 [chromium] › tests/e2e/focus-progress.spec.ts:4:3 › live elapsed time and separator spacing in 浅色 (2.1s)
+focus.progress.spacing.checked { theme: '深色', operation: 'running' }
+  ✓  26 [chromium] › tests/e2e/focus-progress.spec.ts:4:3 › live elapsed time and separator spacing in 深色 (2.1s)
+  ✓  27 [chromium] › tests/e2e/focus-progress.spec.ts:56:3 › full focus circle and reachable stop at 320px (1.1s)
+  ✓  28 [chromium] › tests/e2e/focus-progress.spec.ts:56:3 › full focus circle and reachable stop at 430px (1.1s)
+  ✓  24 [chromium] › tests/e2e/app-shell.spec.ts:669:1 › keeps primary routes and entry states free of detectable accessibility violations (9.1s)
+habit.heatmap.inspection.passed { theme: '浅色', count: 98 }
+  ✓  29 [chromium] › tests/e2e/habit-heatmap.spec.ts:5:3 › habit heatmap inspection is read-only and accessible in 浅色 (3.5s)
+  ✓  30 [chromium] › tests/e2e/app-shell.spec.ts:703:1 › fits long representative content and touch controls at 320 CSS pixels (1.9s)
+  ✓  32 [chromium] › tests/e2e/app-shell.spec.ts:775:1 › centers add icons and keeps date-time controls full width on iPhone layouts (1.6s)
+  ✓  33 [chromium] › tests/e2e/app-shell.spec.ts:807:1 › keeps fragment payloads out of requests and privacy-safe runtime logs (931ms)
+habit.heatmap.inspection.passed { theme: '深色', count: 98 }
+  ✓  31 [chromium] › tests/e2e/habit-heatmap.spec.ts:5:3 › habit heatmap inspection is read-only and accessible in 深色 (3.5s)
+health.history.scroll-test.open { kind: 'weight', count: 40 }
+health.history.scroll-test.passed { kind: 'weight', count: 40 }
+  ✓  34 [chromium] › tests/e2e/health-history-scroll.spec.ts:4:3 › weight history retains context after editing the oldest of forty records (2.0s)
+test.iconfirst.layout.checked { theme: '浅色', count: 3 }
+  ✓  35 [chromium] › tests/e2e/icon-first-layout.spec.ts:4:3 › read and write targets stay separated in 浅色 (1.5s)
+test.iconfirst.layout.checked { theme: '深色', count: 3 }
+  ✓  37 [chromium] › tests/e2e/icon-first-layout.spec.ts:4:3 › read and write targets stay separated in 深色 (1.5s)
+health.history.scroll-test.open { kind: 'activity', count: 40 }
+health.history.scroll-test.passed { kind: 'activity', count: 40 }
+  ✓  36 [chromium] › tests/e2e/health-history-scroll.spec.ts:4:3 › activity history retains context after editing the oldest of forty records (1.9s)
+  ✓  38 [chromium] › tests/e2e/mobile-polish.spec.ts:3:1 › health uses one content entry and phone scrollbar suppression preserves scrolling (1.0s)
+  ✓  40 [chromium] › tests/e2e/mobile-polish.spec.ts:45:3 › icon-only header return on /health/weight-history (957ms)
+settings.about.return.checked { operation: 'navigate' }
+  ✓  39 [chromium] › tests/e2e/settings-recovery.spec.ts:17:1 › settings callouts, file cancellation and nested dialog return keep navigation usable (1.9s)
+  ✓  41 [chromium] › tests/e2e/mobile-polish.spec.ts:45:3 › icon-only header return on /health/activity-history (958ms)
+  ✓  42 [chromium] › tests/e2e/settings-recovery.spec.ts:71:3 › rounded settings feedback in 浅色 (1.0s)
+  ✓  43 [chromium] › tests/e2e/mobile-polish.spec.ts:45:3 › icon-only header return on /focus/history (984ms)
+  ✓  44 [chromium] › tests/e2e/settings-recovery.spec.ts:71:3 › rounded settings feedback in 深色 (1.0s)
+  ✓  45 [chromium] › tests/e2e/mobile-polish.spec.ts:45:3 › icon-only header return on /health/habits (924ms)
+  ✓  47 [chromium] › tests/e2e/mobile-polish.spec.ts:63:1 › nested finance editor hides indicators without blocking access to its fields (1.1s)
+  ✓  48 [mobile-safari] › tests/e2e/app-shell.spec.ts:125:1 › loads the LifeIndex shell and navigates between primary destinations (1.5s)
+accessibility.matrix.checked { theme: 'light', route: '/today' }
+(node:58613) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  49 [mobile-safari] › tests/e2e/app-shell.spec.ts:134:1 › has no automatically detectable accessibility violations on the shell (1.6s)
+accessibility.matrix.checked { theme: 'light', route: '/health' }
+accessibility.matrix.checked { theme: 'light', route: '/health/weight-history' }
+  ✓  50 [mobile-safari] › tests/e2e/app-shell.spec.ts:142:1 › creates, persists, edits, and deletes a local transaction (2.5s)
+accessibility.matrix.checked { theme: 'light', route: '/health/activity-history' }
+accessibility.matrix.checked { theme: 'light', route: '/health/habits' }
+  ✓  51 [mobile-safari] › tests/e2e/app-shell.spec.ts:178:1 › creates a habit and persists reversible daily check-in (2.0s)
+accessibility.matrix.checked { theme: 'light', route: '/focus' }
+accessibility.matrix.checked { theme: 'light', route: '/focus/history' }
+accessibility.matrix.checked { theme: 'light', route: '/finance' }
+  ✓  52 [mobile-safari] › tests/e2e/app-shell.spec.ts:205:1 › creates and persists local weight and Activity records (4.9s)
+accessibility.matrix.checked { theme: 'light', route: '/settings' }
+accessibility.matrix.checked { theme: 'light', route: '/settings/appearance' }
+accessibility.matrix.checked { theme: 'light', route: '/settings/export' }
+accessibility.matrix.checked { theme: 'light', route: '/settings/restore' }
+accessibility.matrix.checked { theme: 'light', route: '/settings/about' }
+  ✓  46 [mobile-safari] › tests/e2e/accessibility-matrix.spec.ts:21:3 › final light route accessibility and narrow-screen matrix (15.8s)
+  ✓  53 [mobile-safari] › tests/e2e/app-shell.spec.ts:297:1 › restores an active focus timer after reload and saves one early finish (3.4s)
+accessibility.matrix.checked { theme: 'dark', route: '/today' }
+finance.quickentry.cancellation.passed { count: 0 }
+(node:58633) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  55 [mobile-safari] › tests/e2e/app-shell.spec.ts:324:1 › returns quick-entry cancellation to Today without writing or reopening on reload (2.1s)
+accessibility.matrix.checked { theme: 'dark', route: '/health' }
+accessibility.matrix.checked { theme: 'dark', route: '/health/weight-history' }
+accessibility.matrix.checked { theme: 'dark', route: '/health/activity-history' }
+  ✓  56 [mobile-safari] › tests/e2e/app-shell.spec.ts:347:1 › keeps Today calm while reflecting cross-feature local changes (2.7s)
+accessibility.matrix.checked { theme: 'dark', route: '/health/habits' }
+accessibility.matrix.checked { theme: 'dark', route: '/focus' }
+  ✓  57 [mobile-safari] › tests/e2e/app-shell.spec.ts:386:1 › persists appearance and manages Finance category lifecycle (3.2s)
+accessibility.matrix.checked { theme: 'dark', route: '/focus/history' }
+accessibility.matrix.checked { theme: 'dark', route: '/finance' }
+  ✓  58 [mobile-safari] › tests/e2e/app-shell.spec.ts:442:1 › exports, previews, and replaces data from a downloaded backup (2.8s)
+accessibility.matrix.checked { theme: 'dark', route: '/settings' }
+  ✓  59 [mobile-safari] › tests/e2e/app-shell.spec.ts:489:1 › ships base-aware install metadata and complete icon assets (482ms)
+accessibility.matrix.checked { theme: 'dark', route: '/settings/appearance' }
+accessibility.matrix.checked { theme: 'dark', route: '/settings/export' }
+accessibility.matrix.checked { theme: 'dark', route: '/settings/restore' }
+accessibility.matrix.checked { theme: 'dark', route: '/settings/about' }
+  ✓  54 [mobile-safari] › tests/e2e/accessibility-matrix.spec.ts:21:3 › final dark route accessibility and narrow-screen matrix (14.5s)
+  ✓  60 [mobile-safari] › tests/e2e/app-shell.spec.ts:541:1 › rejects retired financial links without changing data (2.0s)
+accessibility.finance.keyboard.passed { operation: 'discard' }
+  ✓  61 [mobile-safari] › tests/e2e/accessibility-matrix.spec.ts:47:1 › finance sheet and discard confirmation contain and restore keyboard focus (1.7s)
+  ✓  62 [mobile-safari] › tests/e2e/app-shell.spec.ts:555:1 › supports habit and focus actions while scrubbing cancel and invalid fragments (3.5s)
+category.compact.checked { theme: '浅色', count: 1 }
+  ✓  63 [mobile-safari] › tests/e2e/category-compact.spec.ts:5:3 › compact categories and name-only children in 浅色 (3.2s)
+  ✓  64 [mobile-safari] › tests/e2e/app-shell.spec.ts:593:1 › creates and persists local data after the browser goes offline (2.2s)
+  -  66 [mobile-safari] › tests/e2e/app-shell.spec.ts:619:1 › reloads the cached application shell and persisted data offline in Chromium
+  ✓  67 [mobile-safari] › tests/e2e/app-shell.spec.ts:647:1 › rejects an invalid backup in the UI without changing current records (1.6s)
+category.compact.checked { theme: '深色', count: 1 }
+  ✓  65 [mobile-safari] › tests/e2e/category-compact.spec.ts:5:3 › compact categories and name-only children in 深色 (3.2s)
+finance.report.browser.started { theme: '浅色', operation: 'read' }
+finance.report.browser.completed { theme: '浅色', operation: 'read' }
+  ✓  69 [mobile-safari] › tests/e2e/finance-report.spec.ts:5:3 › read-only report preserves calendar context in 浅色 (3.1s)
+finance.report.browser.started { theme: '深色', operation: 'read' }
+finance.report.browser.completed { theme: '深色', operation: 'read' }
+  ✓  70 [mobile-safari] › tests/e2e/finance-report.spec.ts:5:3 › read-only report preserves calendar context in 深色 (3.1s)
+focus.progress.spacing.checked { theme: '浅色', operation: 'running' }
+  ✓  71 [mobile-safari] › tests/e2e/focus-progress.spec.ts:4:3 › live elapsed time and separator spacing in 浅色 (2.7s)
+  ✓  68 [mobile-safari] › tests/e2e/app-shell.spec.ts:669:1 › keeps primary routes and entry states free of detectable accessibility violations (10.6s)
+focus.progress.spacing.checked { theme: '深色', operation: 'running' }
+  ✓  72 [mobile-safari] › tests/e2e/focus-progress.spec.ts:4:3 › live elapsed time and separator spacing in 深色 (2.7s)
+  ✓  73 [mobile-safari] › tests/e2e/app-shell.spec.ts:703:1 › fits long representative content and touch controls at 320 CSS pixels (2.1s)
+  ✓  74 [mobile-safari] › tests/e2e/focus-progress.spec.ts:56:3 › full focus circle and reachable stop at 320px (1.3s)
+  ✓  76 [mobile-safari] › tests/e2e/focus-progress.spec.ts:56:3 › full focus circle and reachable stop at 430px (1.3s)
+  ✓  75 [mobile-safari] › tests/e2e/app-shell.spec.ts:775:1 › centers add icons and keeps date-time controls full width on iPhone layouts (2.1s)
+  ✓  78 [mobile-safari] › tests/e2e/app-shell.spec.ts:807:1 › keeps fragment payloads out of requests and privacy-safe runtime logs (1.1s)
+health.history.scroll-test.open { kind: 'weight', count: 40 }
+health.history.scroll-test.passed { kind: 'weight', count: 40 }
+  ✓  79 [mobile-safari] › tests/e2e/health-history-scroll.spec.ts:4:3 › weight history retains context after editing the oldest of forty records (2.2s)
+habit.heatmap.inspection.passed { theme: '浅色', count: 98 }
+  ✓  77 [mobile-safari] › tests/e2e/habit-heatmap.spec.ts:5:3 › habit heatmap inspection is read-only and accessible in 浅色 (3.9s)
+health.history.scroll-test.open { kind: 'activity', count: 40 }
+health.history.scroll-test.passed { kind: 'activity', count: 40 }
+  ✓  80 [mobile-safari] › tests/e2e/health-history-scroll.spec.ts:4:3 › activity history retains context after editing the oldest of forty records (2.3s)
+habit.heatmap.inspection.passed { theme: '深色', count: 98 }
+  ✓  81 [mobile-safari] › tests/e2e/habit-heatmap.spec.ts:5:3 › habit heatmap inspection is read-only and accessible in 深色 (3.9s)
+test.iconfirst.layout.checked { theme: '浅色', count: 3 }
+  ✓  82 [mobile-safari] › tests/e2e/icon-first-layout.spec.ts:4:3 › read and write targets stay separated in 浅色 (1.9s)
+  ✓  83 [mobile-safari] › tests/e2e/mobile-polish.spec.ts:3:1 › health uses one content entry and phone scrollbar suppression preserves scrolling (1.3s)
+test.iconfirst.layout.checked { theme: '深色', count: 3 }
+  ✓  84 [mobile-safari] › tests/e2e/icon-first-layout.spec.ts:4:3 › read and write targets stay separated in 深色 (1.9s)
+  ✓  85 [mobile-safari] › tests/e2e/mobile-polish.spec.ts:45:3 › icon-only header return on /health/weight-history (1.2s)
+  ✓  87 [mobile-safari] › tests/e2e/mobile-polish.spec.ts:45:3 › icon-only header return on /health/activity-history (1.2s)
+settings.about.return.checked { operation: 'navigate' }
+  ✓  86 [mobile-safari] › tests/e2e/settings-recovery.spec.ts:17:1 › settings callouts, file cancellation and nested dialog return keep navigation usable (2.4s)
+  ✓  88 [mobile-safari] › tests/e2e/mobile-polish.spec.ts:45:3 › icon-only header return on /focus/history (1.2s)
+  ✓  89 [mobile-safari] › tests/e2e/settings-recovery.spec.ts:71:3 › rounded settings feedback in 浅色 (1.2s)
+  ✓  90 [mobile-safari] › tests/e2e/mobile-polish.spec.ts:45:3 › icon-only header return on /health/habits (1.2s)
+  ✓  91 [mobile-safari] › tests/e2e/settings-recovery.spec.ts:71:3 › rounded settings feedback in 深色 (1.2s)
+  ✓  92 [mobile-safari] › tests/e2e/mobile-polish.spec.ts:63:1 › nested finance editor hides indicators without blocking access to its fields (1.2s)
+
+  1 skipped
+  91 passed (2.1m)

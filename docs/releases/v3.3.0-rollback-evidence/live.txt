@@ -1,0 +1,24 @@
+
+Running 12 tests using 1 worker
+
+  ✓   1 [deployed-chromium] › tests/deployed/pages.spec.ts:20:1 › serves base-scoped routes, assets, manifest, and worker without runtime errors (5.9s)
+deployed.health.persistence.passed { count: 2 }
+(node:59487) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 [deployed-chromium] › tests/deployed/pages.spec.ts:110:1 › persists synthetic Health records locally on the deployed candidate (2.8s)
+  ✓   3 [deployed-chromium] › tests/deployed/pages.spec.ts:153:1 › keeps synthetic records local and durable across an online reload (2.4s)
+  ✓   4 [deployed-chromium] › tests/deployed/pages.spec.ts:178:1 › keeps action fragments out of the deployed network boundary (1.3s)
+  ✓   5 [deployed-chromium] › tests/deployed/pages.spec.ts:200:1 › mutates and preserves local data after the deployed app goes offline (3.9s)
+  ✓   6 [deployed-chromium] › tests/deployed/pages.spec.ts:223:1 › reloads the deployed cached shell offline in Chromium (3.2s)
+  ✓   7 [deployed-mobile-safari] › tests/deployed/pages.spec.ts:20:1 › serves base-scoped routes, assets, manifest, and worker without runtime errors (5.6s)
+deployed.health.persistence.passed { count: 2 }
+(node:59525) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   8 [deployed-mobile-safari] › tests/deployed/pages.spec.ts:110:1 › persists synthetic Health records locally on the deployed candidate (2.7s)
+  ✓   9 [deployed-mobile-safari] › tests/deployed/pages.spec.ts:153:1 › keeps synthetic records local and durable across an online reload (3.2s)
+  ✓  10 [deployed-mobile-safari] › tests/deployed/pages.spec.ts:178:1 › keeps action fragments out of the deployed network boundary (1.4s)
+  ✓  11 [deployed-mobile-safari] › tests/deployed/pages.spec.ts:200:1 › mutates and preserves local data after the deployed app goes offline (7.4s)
+  -  12 [deployed-mobile-safari] › tests/deployed/pages.spec.ts:223:1 › reloads the deployed cached shell offline in Chromium
+
+  1 skipped
+  11 passed (42.3s)
