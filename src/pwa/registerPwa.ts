@@ -34,7 +34,13 @@ export function registerPwa(): void {
   window.addEventListener('offline', () => setPwaOnline(false))
   void verifyConnectivity()
 
+  let approvedReload: (() => void) | undefined
   const updateServiceWorker = registerSW({
+    // Workbox's isUpdate is fixed on registration and may be false for a first-visit A→B update.
+    // Only a UI-approved update may reload; another tab activating a worker must not discard drafts.
+    onNeedReload() {
+      approvedReload?.()
+    },
     immediate: true,
     onOfflineReady() {
       logger.info('pwa.offline.ready', { operation: 'cache' })
@@ -61,5 +67,42 @@ export function registerPwa(): void {
   })
 
   // Registration and UI stay decoupled; only this opaque callback crosses the boundary.
-  setPwaUpdateHandler(updateServiceWorker)
+  setPwaUpdateHandler(
+    () =>
+      new Promise<void>((resolve, reject) => {
+        const previous = navigator.serviceWorker.controller
+        let settled = false
+        const cleanup = () => {
+          window.clearTimeout(timeout)
+          navigator.serviceWorker.removeEventListener('controllerchange', changed)
+          approvedReload = undefined
+        }
+        const changed = () => {
+          if (
+            settled ||
+            !navigator.serviceWorker.controller ||
+            navigator.serviceWorker.controller === previous
+          )
+            return
+          settled = true
+          cleanup()
+          logger.info('pwa.update.activated', { operation: 'reload' })
+          resolve()
+          window.location.reload()
+        }
+        const failed = () => {
+          if (settled) return
+          settled = true
+          cleanup()
+          logger.warn('pwa.update.activation.failed', { failureClass: 'WorkerActivation' })
+          reject(new Error('新版本未能及时接管，请稍后重试。'))
+        }
+        // Listen before SKIP_WAITING, including first-install sessions that the plugin does not reload.
+        const timeout = window.setTimeout(failed, 30_000)
+        approvedReload = changed
+        navigator.serviceWorker.addEventListener('controllerchange', changed)
+        logger.info('pwa.update.activation.requested', { operation: 'update' })
+        void updateServiceWorker(true).catch(failed)
+      }),
+  )
 }

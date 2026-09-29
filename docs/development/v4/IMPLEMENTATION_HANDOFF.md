@@ -17,7 +17,7 @@
 
 `@/app/v4/useQuery`：`useV4Query<T>(query: () => Promise<Snapshot<T>>)` 返回 `{status:'loading'|'ready'|'failed', snapshot:Snapshot<T>|undefined, error:DomainError|undefined, retry():void}`。调用方用 `useCallback` 固定 query 身份；失败不自动变空数据。
 
-`@/app/v4/Flow`：`useFlow()` 返回 `openComposer()`、`openCreate(kind:'expense'|'weight'|'activity', options?:{defaultDate?:string})`、`openRecord(kind:'transaction'|'weight'|'activity'|'focus'|'habitCheck', id:string)`、`notify(message:string)`。方法在真实事件中捕获来源路由、滚动与 data-focus-key。默认日期总为当前本机今天，只有明确日期动作传 defaultDate。
+`@/app/v4/Flow`：`useFlow()` 返回 `openComposer()`、`openCreate(kind:'expense'|'weight'|'activity', options?:{defaultDate?:string})`、`openRecord(kind:'transaction'|'weight'|'activity'|'focus'|'habitCheck', id:string)`、`close(fallback?:string)`、`notify(message:string, record?:{kind:RecordKind;id:string})`。方法在真实事件中捕获来源路由、滚动与 data-focus-key；有 record 的保存回执提供“查看记录”，打开命令实际返回的实体，不改来源日期筛选。默认日期总为当前本机今天，只有明确日期动作传 defaultDate。
 
 `@/app/v4/Confirmation`：`useConfirm()` 返回 `(options:{title:string;description:string;confirmLabel?:string;cancelLabel?:string}) => Promise<boolean>`。确认层处理焦点；调用方仍负责真实命令及失败显示。
 

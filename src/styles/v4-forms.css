@@ -1,0 +1,234 @@
+.v4-modal {
+  color: var(--ink);
+  background: var(--surface);
+  border: 0;
+  padding: 0;
+  border-radius: 24px;
+  width: min(600px, calc(100% - 40px));
+  max-height: calc(100dvh - 48px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  box-shadow: 0 24px 80px #120b2338;
+}
+.v4-modal::backdrop {
+  background: #160f2259;
+  backdrop-filter: blur(3px);
+}
+.modal-heading {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 18px 24px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+.modal-heading h2 {
+  font-size: 1.25rem;
+}
+.modal-content {
+  padding: 24px;
+  display: grid;
+  gap: 24px;
+}
+.modal-content > p {
+  color: var(--muted);
+}
+.modal-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  background: var(--surface);
+  padding: 16px 24px max(20px, env(safe-area-inset-bottom));
+  border-top: 1px solid var(--line);
+}
+.modal-footer p {
+  font-size: 0.75rem;
+  color: var(--muted);
+  flex: 1;
+  min-width: 130px;
+}
+.modal-footer .button {
+  flex-shrink: 0;
+}
+.confirmation-actions,
+.detail-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.composer-options {
+  display: grid;
+  gap: 12px;
+}
+.composer-option {
+  display: flex;
+  align-items: center;
+  text-align: left;
+  gap: 18px;
+  background: var(--soft);
+  padding: 22px 20px;
+  border-radius: 14px;
+  font-weight: 600;
+}
+.composer-option span {
+  flex: 1;
+}
+.field {
+  display: grid;
+  gap: 8px;
+  font-size: 0.875rem;
+  min-width: 0;
+}
+.field input,
+.field textarea,
+.field select {
+  width: 100%;
+}
+.field small,
+.field > .muted {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+.amount-field {
+  display: grid;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+.amount-field > div {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  border-bottom: 2px solid var(--ink);
+}
+.amount-field input {
+  background: transparent;
+  border: 0;
+  padding: 12px 0;
+  min-width: 0;
+  width: 100%;
+  font-size: clamp(2rem, 8vw, 3.5rem);
+  font-weight: 550;
+  color: var(--ink);
+  border-radius: 0;
+  letter-spacing: -0.04em;
+}
+.amount-field strong {
+  font-size: 1.125rem;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.amount-field small {
+  font-size: 0.75rem;
+}
+.amount-field input:focus-visible {
+  outline-offset: 3px;
+}
+.category-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.category-choice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px;
+  min-width: 70px;
+  min-height: 72px;
+  max-width: 100%;
+  border-radius: 12px;
+  background: var(--soft);
+  color: var(--ink);
+  font-size: 0.8125rem;
+  overflow-wrap: anywhere;
+}
+.category-choice[aria-pressed='true'] {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.category-field legend {
+  font-size: 0.875rem;
+}
+.type-switch {
+  display: flex;
+  gap: 8px;
+  background: var(--soft);
+  padding: 4px;
+  border-radius: 12px;
+}
+.type-switch button {
+  flex: 1;
+  border-radius: 9px;
+  padding: 10px 20px;
+}
+.type-switch [aria-pressed='true'] {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.entry-error,
+.field-error {
+  color: var(--danger);
+  font-size: 0.875rem;
+}
+.entry-error {
+  border-left: 3px solid var(--danger);
+  padding: 12px;
+  background: var(--soft);
+}
+.detail-value {
+  font-size: clamp(2rem, 8vw, 3.5rem);
+  overflow-wrap: anywhere;
+  line-height: 1.2;
+}
+.detail-facts {
+  display: grid;
+  gap: 16px;
+  margin: 0;
+}
+.detail-facts > div {
+  display: grid;
+  grid-template-columns: 70px minmax(0, 1fr);
+  gap: 16px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 14px;
+}
+.detail-facts dt {
+  color: var(--muted);
+  font-size: 0.8125rem;
+}
+.detail-facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+@media (max-width: 600px) {
+  .v4-modal {
+    width: 100%;
+    max-width: none;
+    max-height: calc(100dvh - env(safe-area-inset-top) - 12px);
+    margin: auto 0 0;
+    border-radius: 24px 24px 0 0;
+  }
+  .modal-content {
+    padding: 24px 20px;
+  }
+  .modal-heading {
+    padding: 16px 20px;
+  }
+  .modal-footer {
+    padding-inline: 20px;
+  }
+}
