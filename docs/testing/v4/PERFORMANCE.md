@@ -1,6 +1,6 @@
 # LifeIndex 4.0 性能采集
 
-状态：采集工具已准备，尚未执行生产性能门槛。依据冻结的 [TEST_STRATEGY 第6节](TEST_STRATEGY.md)，本文件不提高或替换其门槛。性能结果和独立审核完成后追加实际证据；浏览器模拟不等于物理 iPhone 验收。
+状态：第五候选构建完整49+2采样已通过冻结自动门槛，见[正式报告](release/2026-09-29-performance/REPORT.md)。[独立性能复核](release/2026-09-29-performance/INDEPENDENT_REVIEW.md)已签收通过。依据冻结的 [TEST_STRATEGY 第6节](TEST_STRATEGY.md)，本文件不提高或替换其门槛；浏览器模拟不等于物理 iPhone 验收。
 
 ## 执行边界
 
@@ -86,7 +86,7 @@ node node_modules/typescript/bin/tsc -p tests/v4-performance/tsconfig.json --pre
 node node_modules/eslint/bin/eslint.js tests/v4-performance playwright.v4-performance.config.ts --max-warnings 0
 ```
 
-实际生产采集：待协调。独立性能签收：待执行与复核。
+实际生产采集：2026-09-29第五候选构建49+2完整通过，构建前后SHA256一致。独立性能签收：待审核角色复核，详见[正式报告及证据](release/2026-09-29-performance/REPORT.md)。
 
 ## 探针诊断修正（2026-09-29）
 

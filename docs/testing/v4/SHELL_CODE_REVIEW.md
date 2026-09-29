@@ -149,3 +149,25 @@ D02输入保留已通过，但重试Feedback被放在TargetForm的Modal外侧，
 文档一致性抽查：README、旧版PWA/DEV及HANDOFF明确3.x存档与4.0当前入口；候选发布记录明确未部署，没有提前宣称上线。发现发布记录的“S01–S05复查中”和PLAN末段“F1待修复”落后于当前修订，已通知根协调在本轮证据收口时更新；这些是状态滞后，不是虚构通过。
 
 批准更新至实际接管间再创建草稿的竞态依现有beforeunload保护，本轮未实测，不追加新阻断。若后续增强，建议在真正reload时再次读取当前guard并延迟刷新到草稿释放，保持worker已接管与页面尚未重载两个事实分开；不要把批准瞬间的无草稿永久视作之后仍无草稿。本轮增量签收保留此未测边界。
+
+## 原生200%页面缩放：能力阻塞，未签收
+
+按TEST_STRATEGY要求，原生浏览器文字/页面缩放独立于CSS文字压力模拟。本审核人读取Browser技能并初始化其官方运行时；`getForUrl('http://127.0.0.1:4190/LifeIndex/')`返回`No browser is available`，再按bootstrap-troubleshooting只读发现一次，`agent.browsers.list()`返回空数组。没有可用Browser连接，也未取得任何native zoom接口。
+
+随后按Computer Use技能尝试预装Chrome的原生UI：只读应用列表确认Chrome已运行后，发送Cmd+Shift+N打开隔离无痕窗口，拟再获取新窗口状态。此调用约579秒未返回，被中止，未获得窗口/截图/200%菜单值。不能确认快捷键是否实际执行，因此不盲目关闭未知用户窗口。本审核人没有导航到4190测试页，没有读取用户profile、session、cookies或现有标签内容，也未新启动Playwright/browser进程；已告知根协调停止工具尝试，避免干扰性能独占。
+
+结论：**原生200%缩放未验证，当前是工具连接/执行能力阻塞。** 不以deviceScaleFactor、CDP pinch、CSS放大或已有84项文字压力测试冒充此项通过，不降低原验收标准。若后续恢复可用原生控制或由用户执行，需要实际菜单缩放值、核心页/录入弹层重排及可滚动证据后才能签收。本节限制不撤销此前已完成且范围明确的代码及定向交互审核。
+
+## 原生缩放能力恢复与实际验收通过
+
+根协调明确批准免费隔离Chromium扩展方案后，本审核人依[Chrome官方Tabs API](https://developer.chrome.com/docs/extensions/reference/api/tabs#method-setZoom)及[automatic缩放模式](https://developer.chrome.com/docs/extensions/reference/api/tabs#type-ZoomSettingsMode)，使用真正的`chrome.tabs.setZoom(2)`；[Playwright官方扩展说明](https://playwright.dev/docs/chrome-extensions)提供persistent context和`channel: chromium`启动方式。扩展仅具localhost host permission，没有content script；每次mkdtemp创建空profile，未访问用户profile。此前Browser/Computer Use能力阻塞是真实历史，现由这一明确授权且验证成功的方法解除原生页面缩放验收阻塞。
+
+2026-09-29对第五生产构建4190实际执行：窗口1280/780/640宽、1328高，100%原生getZoom=1时innerWidth同窗口；200%原生getZoom=2时innerWidth分别640/390/320，innerHeight664，visualViewport.scale始终1，CSS zoom始终1，rootFont始终16px。这证明是浏览器页面缩放导致布局视口变化，不是CSS字体放大、deviceScaleFactor、移动模拟或CDP pinch。原生getZoom、settings、前后尺寸完整保存在`/tmp/lifeindex-native-zoom/result.json`。
+
+五核心页（今天/健康/专注/记账/设置）×三档、三录入弹层（金额/体重/运动）×三档，共24路径通过：根文档无横向溢出；全局录入及保存目标尺寸至少44CSS px、中心实际命中；弹层可滚动到备注并填入合成文本，九次真实UI保存成功。最终独立执行6.86秒，exit0，context已关闭。脚本、扩展、官方方法说明、最终日志、100%/200%截图及dist/index.html哈希保存在`/tmp/lifeindex-native-zoom`。
+
+首次fullPage截图在原生缩放下触发Playwright截取左半的截图限制，未据此签收视觉；切换viewport截图实际重跑，并补充滚动到备注与清除回执遮挡后得到完整画面。本审核人实际查看最窄录入和专注截图；最终`width-640-expense-dialog-200.png`清楚呈现滚动后的日期/备注与完整固定保存栏，所有PNG使用viewport方法。此项通过覆盖Chromium原生200%页面缩放；不声称Safari仅文字缩放或物理iPhone已验。
+
+## c15269c 主导航复位增量审核
+
+只读核对`c15269c0fdd4ab9c830c47695daab95141a2b0f8`：仅带navigationStart标记的主导航/品牌/设置入口PUSH归零滚动并聚焦可聚焦main；Flow保存/取消返回使用REPLACE，浏览器后退为POP，均不触发此分支。对照FlowProvider及报表返回保存合同，范围明确，有原因注释及隐私安全日志，未发现新阻断。实际双引擎主导航2项与返回10项由QA执行签收，不冒充本人的执行。最终AppShell源码哈希已更新到`/tmp/lifeindex-v4-release-review/final-source-sha256.json`。

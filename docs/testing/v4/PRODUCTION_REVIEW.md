@@ -1,6 +1,8 @@
 # LifeIndex 4.0 独立生产测试与代码审核
 
-负责人：`/root/design_reviewer`。日期：2026-09-29。状态：**首批浏览器验收代码通过静态检查；独立运行的3项FocusController集成回归通过；已独立执行Chromium定向12项（11通过、1失败），完整双引擎验收待跑，不能宣称发布通过。**
+负责人：首批`/root/design_reviewer`，后续独立复验`/root/qa_release`。日期：2026-09-29。最新状态：**第四构建本地双引擎84项全过；第五构建导航2项及录入/报表返回10项通过；本地deployed harness 8项通过。Linux CI为82过2败，均为长页截图32767像素限制；证据工具修订后本地WebKit320浅深、导航、录入窄回归5项通过，分片专项2项通过，云端重跑仍待确认。**完整历史失败保留在下文，不以本地结果替代Pages发布验收。
+
+[性能报告](release/2026-09-29-performance/REPORT.md)及[独立复核](release/2026-09-29-performance/INDEPENDENT_REVIEW.md)、[原生200% zoom报告](release/2026-09-29-native-zoom/REPORT.md)已由各自负责人签收；此处链接证据，不代签或扩大为实体iPhone验证。
 
 设计冻结依据为[REVIEW_R3](../../design/v4/REVIEW_R3.md)与[REVIEW_R4](../../design/v4/REVIEW_R4.md)；实施接口以[交接约定](../../development/v4/IMPLEMENTATION_HANDOFF.md)、[架构v3](../../design/v4/ARCHITECTURE.md)与[测试契约](TEST_STRATEGY.md)为准。本文件跟踪独立执行和缺陷，不修改产品实现，也不代签作者修复。
 
@@ -13,9 +15,9 @@
 - 结果在test-results/v4与playwright-report/v4。失败保留trace/截图，axe保存全部违规；serious/critical自动阻断，其余逐项复查。测试及日志只使用合成数据，记录operation/entityType/count，不输出字段内容。
 - 浏览器视口、文字压力模拟和WebKit不是实体iPhone。首次实际运行若遇引擎能力限制，记录原始失败与明确覆盖缺口，不用静默skip、自动retry或旧版通过数量代替。
 
-## 已编写能力映射
+## 首批能力映射（历史快照）
 
-以下是能力映射。可访问名称已按接线后的真实组件核对；“待跑”指完整双引擎验收，部分定向执行证据另外列明。
+以下保留首批编写时的能力映射和当时状态；表内“待跑”不是当前状态。后续扩展、完整84项与第五构建窄复验的实际结果见本文后续记录及顶部最新状态。
 
 | 能力 | 当前可执行用例 | 数据/体验断言 | 状态 |
 | --- | --- | --- | --- |
@@ -93,7 +95,7 @@ WebKit离线夹具通过本地TCP拒绝连接替代其`context.setOffline()+relo
 
 扩展初测Chromium320浅色与A/B更新：**0通过/2失败**，日志`/tmp/lifeindex-v4-independent-expanded-initial.log`、产物`test-results/v4-independent-expanded-initial`。长边界数据健康页200%文字横溢33px，继续收集其余页问题。真实A/B更新中脏草稿阻止更新、保存后解除均通过，但批准后仍停留build A；trace记录waiting→approved→worker activated，没有页面reload。独立源码定位第三方register辅助仅在controlling.isUpdate为true时reload；首访装A时该标志固定false，同会话更新B可复现。此为真实更新分支缺陷，不能给测试加一次reload掩盖。根协调负责生产修订，未解除。
 
-全320浅色布局诊断使用软断言继续收集，仍以失败退出，没有放宽门槛：17路由+四详情+三编辑器共保留47张阶段截图，确认仅三处根横溢：health的1000 kg大数值末尾kg右缘353.016；weight/activity历史月份控件右缘322。其余阶段无根/dialog横滚；这只覆盖Chromium320浅色，不外推全宽全主题。日志`/tmp/lifeindex-v4-independent-expanded-diagnostic.log`。
+全320浅色布局诊断使用软断言继续收集，仍以失败退出，没有放宽门槛：17路由+四详情+三编辑器共保留44张阶段截图及3份横溢JSON诊断，确认仅三处根横溢：health的1000 kg大数值末尾kg右缘353.016；weight/activity历史月份控件右缘322。其余阶段无根/dialog横滚；这只覆盖Chromium320浅色，不外推全宽全主题。日志`/tmp/lifeindex-v4-independent-expanded-diagnostic.log`。
 
 S03 provider接线专项：执行`node node_modules/vitest/vitest.mjs run tests/integration/v4-review/focus-provider.test.tsx --reporter=dot`，**6项全通过，2.37秒**，日志`/tmp/lifeindex-v4-qa-provider.log`。真实PwaProvider/FocusRuntimeProvider与真实core组合，延迟start/pause/finalizeCompletion的成功/失败两种结局：执行中dirtyFormCount和busyFormCount均>0，applyUpdate不能触发注册handler；结局后两计数回0，正常持久running不保持脏态。此为jsdom provider/真实core集成，不当作A/B更新通过；A/B首访更新不reload问题独立保留。
 
@@ -104,3 +106,39 @@ S03 provider接线专项：执行`node node_modules/vitest/vitest.mjs run tests/
 线上harness由根追加授权接管：`tests/v4-deployed/pages.spec.ts`仅WebKit离线专项用HTTPS上游的已发布字节经随机本地HTTP origin安装SW，保留Pages路径，再断TCP验证未缓存探针失败、reload、lazy备份页、保存/导出及再次reload。附件同时保存published/effective origin与传输方式；**不能称作实际Pages HTTPS origin的WebKit离线刷新证明**。其余三项每引擎仍直连真实target验证身份、资源、记录与专注；Chromium离线也保持真实target。该扩展当前待新dist的本地harness执行以及部署后的真实target执行，不能提前签收线上。
 
 最终构建前新增待跑覆盖：axe扩至17页面态×2主题×2引擎（每组另含8个编辑/确认态，共25态）。A/B增加activation-timeout独立变体：真实B已安装waiting，只在浏览器SW消息传输边界丢一次SKIP_WAITING，31秒可控时钟触发生产30秒超时，核验可见失败、重试按钮、A与记录保留，再重试真正激活B并检查无未捕获异常。正常成功变体仍单独保留。完整浏览器收集应为84项；新增变体当前未执行，静态TypeScript已通过。
+
+## 第四构建最终独立验收（2026-09-29）
+
+执行完整命令`node node_modules/@playwright/test/cli.js test --config playwright.v4.config.ts --output=test-results/v4-independent-final --reporter=line`：**84项全通过，10.0分钟，exit0，单worker、零重试、零skip**。日志`/tmp/lifeindex-v4-independent-final.log`，全部原始产物`test-results/v4-independent-final`。被测是根第四次成功构建（`/tmp/lifeindex-v4-build-fourth.log`），期间src固定；检查点`9bc618a`包含该轮实现与测试。
+
+- 20个宽度×主题×引擎上下文，各含17页面态默认/200%字号、四类长备注详情、三编辑器长内容；此前health 33px和历史月份2px横溢均双引擎复验通过。
+- 四个主题×引擎axe上下文各25态，共100次扫描，全部零违规。Tab/反向Tab、来源/动作焦点均通过。
+- 320/390×两引擎专注开始/运行/暂停主控首屏与命中均通过，原dock遮挡问题解除。
+- 两引擎各自真实A/B正常批准更新、30秒激活超时→可见失败→重试激活两变体全通过。首访同会话A→B已真实reload，脏草稿未丢，保存事实相等，超时没有未捕获pageerror。临时A/B构建index/SW指纹保存在各自`real-build-provenance`附件。
+- 六核心任务、原生IDB写失败/回滚、异日回执返回、跨午夜自然专注、跨页写冲突、离线lazy/保存与隐私专项全部包含。
+
+固定dist指纹：`index.html` SHA256 `ea97090cf0f74a0daf695746e26ed1a86fa6afa04e4bb229beecd54691b84fba`；`sw.js` SHA256 `5b5bea07dc8eec85d9319f67e9508ac628afd97a8d585a5b7037e333d700e9a9`。所有历史失败证据仍保留。
+
+上述200%为文档定义的字号/行高预采样压力模拟，不能标注为浏览器原生zoom或实体iPhone系统大字验证。原生zoom人工补查和真iPhone边界继续单列；这里的通过也不代表Pages线上已部署或线上冒烟完成。下一步运行本地deployed harness和普通合成数据主视觉，再交还CPU进行独立性能采样。
+
+## 本地部署harness与最终导航复验
+
+本地deployed初轮8项为6过2败（30.9秒），保留`test-results/v4-independent-deployed-local`与`/tmp/lifeindex-v4-independent-deployed-local.log`。两失败均为测试选择器歧义：健康背景和composer同时存在“记体重”，全page匹配触发strict mode；support.openEntry现明确限定chooser dialog，业务数值/焦点断言不变。随后显式`LIFEINDEX_DEPLOYED_URL=http://127.0.0.1:4175/ LIFEINDEX_EXPECTED_BUILD_ID=local`执行`playwright.v4-deployed.config.ts`：**8项全过，29.9秒**，产物`test-results/v4-independent-deployed-local-final`，日志`/tmp/lifeindex-v4-independent-deployed-local-final.log`。这是第四构建本地harness通过，绝非Pages线上结果。
+
+主视觉取图时发现跨空间滚动风险，另用真实底栏点击复現：健康页滚至769后点专注，专注h1为y=-227，完全离开首屏。日志`/tmp/lifeindex-v4-navigation-review.log`，截图`/tmp/lifeindex-v4-release-visual/navigation-专注.png`。没有只把取图scrollTop归零而隐藏产品问题。根修订第五构建：主导航/品牌/设置入口在成功PUSH后归顶且焦点落main；Flow REPLACE和报表返回保持各自上下文。
+
+第五构建窄复验首轮12项10过2败（`/tmp/lifeindex-v4-independent-navigation-fifth.log`）。两导航失败分别属于Chromium尚未结束wheel事件继续滚入新页，以及mobile WebKit不支持mouse.wheel；保留失败产物。测试校正为Chromium等待原生scrollend后再点导航；WebKit仅滚动前置使用scrollTo，导航仍是真实点击，不skip。**两引擎导航2项均通过，11.2秒**，`/tmp/lifeindex-v4-independent-navigation-settled.log`与`test-results/v4-independent-navigation-settled`；Today→Health→Focus→Finance→Settings每段断言scrollY=0、main获焦、标题首屏可见。此前同构建的录入取消/保存、异日回执、全局默认日期和月报返回10项均通过。该批导航源码只改入口返回策略，未改数据库/SW；没有无理由重跑全84或把第四版全量结果称作第五版全量。
+
+第五构建指纹：index SHA256 `ae66a77f2a3eff74a002b8aded7473ceb76bbe4212737272d1e71615de4f6855`，SW SHA256 `df606d40a0eb92ee5d4faa746bb18ef8a838462211aa4e0f9af7e3f61a7999ed`；对应修复检查点`c15269c`。最新测试目录ESLint、全项目tsc和Prettier检查均通过，日志前缀`/tmp/lifeindex-v4-qa-fifth-`。
+
+最终普通合成数据主视觉8张位于`/tmp/lifeindex-v4-release-visual/normal`：Today/Health/Focus/Finance，390×664，浅深两主题，已逐张检查。真实SW控制、无PWA未就绪警告；只有新测试context中的演示记录。第五版取图日志`/tmp/lifeindex-v4-normal-visual-fifth.log`。上一级长内容/极值图保留为边界证据，不混作普通记录展示。QA浏览器及4175预览已关闭，CPU已交还性能采样。
+
+## Linux CI长页面截图尺寸修正
+
+GitHub Actions job `109237284566`保留原始结果：**82通过、2失败**。两项为WebKit 320px浅深主题，失败发生于`attachEvidence`捕获第11号习惯详情的200%长内容截图，错误为`Cannot take screenshot larger than 32767 pixels on any dimension`，此前布局断言无失败。旧Linux日志没有打印文档具体尺寸，不能用macOS尺寸冒充Linux实测；下次CI的每个截图现在会记录平台、CSS宽高、DPR、推导设备像素及实际PNG尺寸清单，以补足Linux证据。
+
+已核查安装的Playwright 1.62.1 WebKit实现：非Darwin平台在截图前检查32767限制，默认按DPR计算；`scale: 'css'`直接传`omitDeviceScaleFactor: true`给`Page.snapshotRect`，不是先生成超限DPR位图再缩小。`support.ts`因此仅调整截图输出分辨率，保持原viewport、DPR、字号、数据长度和全部布局断言。完整页面若CSS尺寸本身超限，或引擎仍返回该已知限制，则按文档坐标分片覆盖全部页面并保存JSON清单；其他截图异常继续使测试失败。片边长按`floor(16000 / DPR)`限幅，亦兼容先分配设备像素的实现。没有截掉末尾内容、缩短夹具、降低DPR或跳过用例。
+
+macOS本地真实复验：WebKit320浅深主题、底栏导航、T1–T3录入及dirty cancel，**5项通过，44.3秒**。命令为`node node_modules/@playwright/test/cli.js test --config playwright.v4.config.ts --project=v4-webkit --grep 'layout and 200% text at 320px|bottom navigation|T1–T3|dirty cancel' --output=test-results/v4-independent-artifact-scale --reporter=line`，日志`/tmp/lifeindex-v4-independent-artifact-scale.log`。两主题习惯详情清单均为CSS320×11099、DPR3、推导设备960×33297；新完整PNG为320×11099，原完整页面内容保留。清单位于对应结果目录的`{light,dark}-320-11-text200-dimensions.json`。
+
+另以临时独立WebKit夹具真实执行分片：34000 CSS px文档触发7片；12000 CSS px文档仅首个截图调用注入已知32767异常，后续真实捕获3片，验证异常回退分支。两项均断言片矩形首尾连续、完整覆盖原高度、每片实际PNG尺寸匹配、设备位图边长安全、viewport320×568与DPR3未变，**2项通过，2.5秒**。命令使用`--config /tmp/lifeindex-v4-artifact-harness/playwright.config.ts`，日志`/tmp/lifeindex-v4-artifact-tiling.log`，产物`/tmp/lifeindex-v4-artifact-tiling-output`。人工异常注入不等同于再次实际触发Linux引擎错误；真实Linux修复确认仍以新CI为准。本次只改证据生成工具，无生产源码变更，不重跑已完成性能矩阵。

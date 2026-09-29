@@ -1,0 +1,213 @@
+{
+  "groups": {
+    "F0-expense": {
+      "fcp": {
+        "min": 228,
+        "max": 360,
+        "median": 240
+      },
+      "ready": {
+        "min": 697.1999998092651,
+        "max": 997.3999996185303,
+        "median": 731.5999994277954
+      },
+      "chooser": {
+        "min": 28.600000381469727,
+        "max": 52.80000019073486,
+        "median": 35
+      },
+      "editor": {
+        "min": 87.19999980926514,
+        "max": 151.30000019073486,
+        "median": 101.80000019073486
+      }
+    },
+    "F0-weight": {
+      "fcp": {
+        "min": 224,
+        "max": 312,
+        "median": 248
+      },
+      "ready": {
+        "min": 690.3000001907349,
+        "max": 882.3999996185303,
+        "median": 720.1000003814697
+      },
+      "chooser": {
+        "min": 26.699999809265137,
+        "max": 41.69999980926514,
+        "median": 30.90000057220459
+      },
+      "editor": {
+        "min": 83,
+        "max": 109.39999961853027,
+        "median": 89.59999942779541
+      }
+    },
+    "F0-activity": {
+      "fcp": {
+        "min": 224,
+        "max": 248,
+        "median": 240
+      },
+      "ready": {
+        "min": 686.1000003814697,
+        "max": 728.7999992370605,
+        "median": 714.1000003814697
+      },
+      "chooser": {
+        "min": 26.199999809265137,
+        "max": 32.40000057220459,
+        "median": 28.699999809265137
+      },
+      "editor": {
+        "min": 89.69999980926514,
+        "max": 103.90000057220459,
+        "median": 95.10000038146973
+      }
+    },
+    "F1-expense": {
+      "fcp": {
+        "min": 220,
+        "max": 252,
+        "median": 232
+      },
+      "ready": {
+        "min": 665.6999998092651,
+        "max": 717.8000001907349,
+        "median": 681.6000003814697
+      },
+      "chooser": {
+        "min": 31.100000381469727,
+        "max": 35.40000057220459,
+        "median": 31.899999618530273
+      },
+      "editor": {
+        "min": 92.39999961853027,
+        "max": 105.19999980926514,
+        "median": 95.89999961853027
+      }
+    },
+    "F1-weight": {
+      "fcp": {
+        "min": 228,
+        "max": 284,
+        "median": 244
+      },
+      "ready": {
+        "min": 676.6000003814697,
+        "max": 794.6999998092651,
+        "median": 693.0999994277954
+      },
+      "chooser": {
+        "min": 29.899999618530273,
+        "max": 37.30000019073486,
+        "median": 31.200000762939453
+      },
+      "editor": {
+        "min": 87.60000038146973,
+        "max": 111.30000019073486,
+        "median": 90.60000038146973
+      }
+    },
+    "F1-activity": {
+      "fcp": {
+        "min": 220,
+        "max": 236,
+        "median": 224
+      },
+      "ready": {
+        "min": 666.5,
+        "max": 702.3999996185303,
+        "median": 678.9000005722046
+      },
+      "chooser": {
+        "min": 28.09999942779541,
+        "max": 37.5,
+        "median": 29.399999618530273
+      },
+      "editor": {
+        "min": 91.80000019073486,
+        "max": 111.09999942779541,
+        "median": 99.60000038146973
+      }
+    },
+    "F3-expense": {
+      "fcp": {
+        "min": 280,
+        "max": 376,
+        "median": 308
+      },
+      "ready": {
+        "min": 751.5,
+        "max": 869.6000003814697,
+        "median": 788.1000003814697
+      },
+      "chooser": {
+        "min": 29.100000381469727,
+        "max": 37.40000057220459,
+        "median": 33
+      },
+      "editor": {
+        "min": 98,
+        "max": 157.5,
+        "median": 103.69999980926514
+      }
+    }
+  },
+  "maxima": {
+    "fcp": 43,
+    "ready": 1,
+    "chooser": 1,
+    "editor": 43
+  },
+  "totals": {
+    "rawBytes": 805779,
+    "javascriptGzip": 193163,
+    "cssGzip": 6932,
+    "inlineScriptGzip": 0,
+    "precacheRawBytes": 782386
+  },
+  "precacheCount": 40,
+  "beforeAfterHash": "dcbe8c5a22a05975fd172d7c5d34edfbc0aca609b38c491974ff30029dd219dc",
+  "rawReportHashVerified": true,
+  "rawReportKeys": [
+    "schemaVersion",
+    "runId",
+    "protocolVersion",
+    "fixtureVersion",
+    "seed",
+    "budgetVersion",
+    "budgets",
+    "environment",
+    "browser",
+    "baseURL",
+    "build",
+    "samplingOrder",
+    "exclusions",
+    "buildProvenance",
+    "finishedAt",
+    "finalEnvironment",
+    "finalBuildHash",
+    "passed",
+    "samples",
+    "observations",
+    "summary",
+    "artifactGate",
+    "resourceGroups",
+    "manualReviewRequired"
+  ],
+  "retainedScreenshotsMatchOriginals": true,
+  "currentDistFileHashesRecomputed": true,
+  "sampleCount": 49,
+  "observations": 2,
+  "passed": true,
+  "nodeGzipAllFilesRecomputed": true,
+  "gzipRecalculation": {
+    "javascript": 193163,
+    "css": 6932
+  },
+  "rawExclusions": [],
+  "rawSummaryAndEverySampleMetricMatch": true,
+  "all51PreparationRequestsOnlyBlank": true
+}

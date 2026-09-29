@@ -1,4 +1,5 @@
 import { expect, type Locator, type Page, type TestInfo } from '@playwright/test'
+import { writeFile } from 'node:fs/promises'
 
 export const stores = [
   'categories',
@@ -191,11 +192,102 @@ export async function assertTouchTarget(locator: Locator) {
 }
 
 export async function attachEvidence(page: Page, testInfo: TestInfo, name: string) {
-  const path = testInfo.outputPath(`${name}.png`)
-  // Persist the artifact even with the concise line reporter used for targeted independent runs.
-  await page.screenshot({ path, fullPage: true })
-  await testInfo.attach(name, {
-    path,
-    contentType: 'image/png',
+  const dimensions = await page.evaluate(() => ({
+    width: Math.max(
+      document.body.scrollWidth,
+      document.documentElement.scrollWidth,
+      document.body.offsetWidth,
+      document.documentElement.offsetWidth,
+      document.body.clientWidth,
+      document.documentElement.clientWidth,
+    ),
+    height: Math.max(
+      document.body.scrollHeight,
+      document.documentElement.scrollHeight,
+      document.body.offsetHeight,
+      document.documentElement.offsetHeight,
+      document.body.clientHeight,
+      document.documentElement.clientHeight,
+    ),
+    devicePixelRatio,
+  }))
+  const manifest = {
+    name,
+    platform: process.platform,
+    css: dimensions,
+    devicePixels: {
+      width: Math.ceil(dimensions.width * dimensions.devicePixelRatio),
+      height: Math.ceil(dimensions.height * dimensions.devicePixelRatio),
+    },
+    scale: 'css',
+    segmented: false,
+    pieces: [] as Array<{
+      file: string
+      x: number
+      y: number
+      width: number
+      height: number
+      pngWidth: number
+      pngHeight: number
+    }>,
+  }
+  console.info('v4.qa.evidence.started', { name, ...dimensions })
+  async function capture(
+    file: string,
+    clip?: { x: number; y: number; width: number; height: number },
+  ) {
+    const path = testInfo.outputPath(file)
+    // CSS output changes only raster resolution. The iPhone DPR, layout, fonts, viewport and complete document stay untouched.
+    const bytes = await page.screenshot({
+      path,
+      fullPage: true,
+      scale: 'css',
+      ...(clip ? { clip } : {}),
+    })
+    manifest.pieces.push({
+      file,
+      ...(clip ?? { x: 0, y: 0, width: dimensions.width, height: dimensions.height }),
+      pngWidth: bytes.readUInt32BE(16),
+      pngHeight: bytes.readUInt32BE(20),
+    })
+    await testInfo.attach(file, { path, contentType: 'image/png' })
+  }
+  let segmented = dimensions.width > 32767 || dimensions.height > 32767
+  if (!segmented) {
+    try {
+      await capture(`${name}.png`)
+    } catch (error) {
+      // Only the known engine bitmap limit can trigger tiling; unrelated capture failures still fail the test.
+      if (!(error instanceof Error) || !error.message.includes('32767')) {
+        console.warn('v4.qa.evidence.failed', { name, failureClass: 'CaptureFailure' })
+        throw error
+      }
+      segmented = true
+      console.warn('v4.qa.evidence.bitmaplimit', { name, failureClass: 'BitmapDimensionLimit' })
+    }
+  }
+  if (segmented) {
+    manifest.segmented = true
+    // Each document-coordinate clip fits even an engine that allocates a DPR bitmap before CSS scaling.
+    // Adjacent rectangles cover the entire document without truncating long notes or changing the tested page.
+    const side = Math.max(1, Math.floor(16000 / Math.max(1, dimensions.devicePixelRatio)))
+    console.info('v4.qa.evidence.segmenting', { name, side })
+    for (let y = 0; y < dimensions.height; y += side) {
+      for (let x = 0; x < dimensions.width; x += side) {
+        await capture(`${name}-part-${manifest.pieces.length + 1}.png`, {
+          x,
+          y,
+          width: Math.min(side, dimensions.width - x),
+          height: Math.min(side, dimensions.height - y),
+        })
+      }
+    }
+  }
+  const manifestPath = testInfo.outputPath(`${name}-dimensions.json`)
+  await writeFile(manifestPath, JSON.stringify(manifest, null, 2))
+  await testInfo.attach(`${name}-dimensions`, {
+    path: manifestPath,
+    contentType: 'application/json',
   })
+  console.info('v4.qa.evidence.saved', { name, pieces: manifest.pieces.length, segmented })
 }
