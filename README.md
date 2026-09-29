@@ -29,3 +29,5 @@ pnpm dev
 - [测试计划](docs/testing/TEST_PLAN.md)、[PWA 使用](docs/operations/PWA.md)、[部署](docs/operations/DEPLOYMENT.md)、[iPhone 验收](docs/operations/IPHONE_ACCEPTANCE.md)
 
 数据仅在当前设备和浏览器来源内保存。定期导出备份；更新时沿用原入口，不清除网站数据。备份文件不进入仓库。
+
+[4.0设计参考档案](docs/design/v4/README.md)保留可借鉴的思路与截图，仅作历史参考，当前应用保持3.3.0。

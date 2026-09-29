@@ -1,0 +1,1125 @@
+{
+  "scope": "author layout stress checks, not physical device acceptance",
+  "layoutObservations": [
+    {
+      "engine": "chromium",
+      "width": 320,
+      "theme": "light",
+      "initial": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 204,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 180,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 100,
+            "height": 44
+          }
+        ]
+      },
+      "enlarged": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 188,
+            "height": 144
+          },
+          {
+            "width": 60,
+            "height": 48
+          },
+          {
+            "width": 164,
+            "height": 144
+          },
+          {
+            "width": 60,
+            "height": 48
+          },
+          {
+            "width": 139,
+            "height": 55
+          }
+        ]
+      },
+      "keyboardCompletion": "pass"
+    },
+    {
+      "engine": "chromium",
+      "width": 320,
+      "theme": "dark",
+      "initial": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 204,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 180,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 100,
+            "height": 44
+          }
+        ]
+      },
+      "enlarged": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 188,
+            "height": 144
+          },
+          {
+            "width": 60,
+            "height": 48
+          },
+          {
+            "width": 164,
+            "height": 144
+          },
+          {
+            "width": 60,
+            "height": 48
+          },
+          {
+            "width": 139,
+            "height": 55
+          }
+        ]
+      },
+      "keyboardCompletion": "pass"
+    },
+    {
+      "engine": "chromium",
+      "width": 390,
+      "theme": "light",
+      "initial": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 246,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 222,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 88,
+            "height": 65
+          }
+        ]
+      },
+      "enlarged": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 230,
+            "height": 150
+          },
+          {
+            "width": 60,
+            "height": 48
+          },
+          {
+            "width": 206,
+            "height": 234
+          },
+          {
+            "width": 60,
+            "height": 48
+          },
+          {
+            "width": 139,
+            "height": 55
+          }
+        ]
+      },
+      "keyboardCompletion": "pass"
+    },
+    {
+      "engine": "chromium",
+      "width": 390,
+      "theme": "dark",
+      "initial": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 246,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 222,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 88,
+            "height": 65
+          }
+        ]
+      },
+      "enlarged": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 230,
+            "height": 150
+          },
+          {
+            "width": 60,
+            "height": 48
+          },
+          {
+            "width": 206,
+            "height": 234
+          },
+          {
+            "width": 60,
+            "height": 48
+          },
+          {
+            "width": 139,
+            "height": 55
+          }
+        ]
+      },
+      "keyboardCompletion": "pass"
+    },
+    {
+      "engine": "chromium",
+      "width": 430,
+      "theme": "light",
+      "initial": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 286,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 262,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 88,
+            "height": 65
+          }
+        ]
+      },
+      "enlarged": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 270,
+            "height": 150
+          },
+          {
+            "width": 60,
+            "height": 48
+          },
+          {
+            "width": 246,
+            "height": 150
+          },
+          {
+            "width": 60,
+            "height": 48
+          },
+          {
+            "width": 139,
+            "height": 55
+          }
+        ]
+      },
+      "keyboardCompletion": "pass"
+    },
+    {
+      "engine": "chromium",
+      "width": 430,
+      "theme": "dark",
+      "initial": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 286,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 262,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 88,
+            "height": 65
+          }
+        ]
+      },
+      "enlarged": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 270,
+            "height": 150
+          },
+          {
+            "width": 60,
+            "height": 48
+          },
+          {
+            "width": 246,
+            "height": 150
+          },
+          {
+            "width": 60,
+            "height": 48
+          },
+          {
+            "width": 139,
+            "height": 55
+          }
+        ]
+      },
+      "keyboardCompletion": "pass"
+    },
+    {
+      "engine": "chromium",
+      "width": 768,
+      "theme": "light",
+      "initial": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 496,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 472,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 65,
+            "height": 65
+          }
+        ]
+      },
+      "enlarged": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 480,
+            "height": 114
+          },
+          {
+            "width": 60,
+            "height": 48
+          },
+          {
+            "width": 456,
+            "height": 114
+          },
+          {
+            "width": 60,
+            "height": 48
+          },
+          {
+            "width": 139,
+            "height": 55
+          }
+        ]
+      },
+      "keyboardCompletion": "pass"
+    },
+    {
+      "engine": "chromium",
+      "width": 768,
+      "theme": "dark",
+      "initial": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 496,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 472,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 65,
+            "height": 65
+          }
+        ]
+      },
+      "enlarged": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 480,
+            "height": 114
+          },
+          {
+            "width": 60,
+            "height": 48
+          },
+          {
+            "width": 456,
+            "height": 114
+          },
+          {
+            "width": 60,
+            "height": 48
+          },
+          {
+            "width": 139,
+            "height": 55
+          }
+        ]
+      },
+      "keyboardCompletion": "pass"
+    },
+    {
+      "engine": "chromium",
+      "width": 1440,
+      "theme": "light",
+      "initial": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 171,
+            "height": 48
+          },
+          {
+            "width": 451.71875,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 427.71875,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          }
+        ]
+      },
+      "enlarged": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 171,
+            "height": 66
+          },
+          {
+            "width": 435.71875,
+            "height": 114
+          },
+          {
+            "width": 60,
+            "height": 48
+          },
+          {
+            "width": 411.71875,
+            "height": 114
+          },
+          {
+            "width": 60,
+            "height": 48
+          }
+        ]
+      },
+      "keyboardCompletion": "pass"
+    },
+    {
+      "engine": "chromium",
+      "width": 1440,
+      "theme": "dark",
+      "initial": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 171,
+            "height": 48
+          },
+          {
+            "width": 451.71875,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 427.71875,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          }
+        ]
+      },
+      "enlarged": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 171,
+            "height": 66
+          },
+          {
+            "width": 435.71875,
+            "height": 114
+          },
+          {
+            "width": 60,
+            "height": 48
+          },
+          {
+            "width": 411.71875,
+            "height": 114
+          },
+          {
+            "width": 60,
+            "height": 48
+          }
+        ]
+      },
+      "keyboardCompletion": "pass"
+    },
+    {
+      "engine": "webkit",
+      "width": 320,
+      "theme": "light",
+      "initial": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 204,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 180,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 98.390625,
+            "height": 44
+          }
+        ]
+      },
+      "enlarged": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 190.296875,
+            "height": 144
+          },
+          {
+            "width": 57.703125,
+            "height": 48
+          },
+          {
+            "width": 166.296875,
+            "height": 144
+          },
+          {
+            "width": 57.703125,
+            "height": 48
+          },
+          {
+            "width": 135.265625,
+            "height": 55
+          }
+        ]
+      },
+      "keyboardCompletion": "pass"
+    },
+    {
+      "engine": "webkit",
+      "width": 320,
+      "theme": "dark",
+      "initial": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 204,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 180,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 98.390625,
+            "height": 44
+          }
+        ]
+      },
+      "enlarged": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 190.296875,
+            "height": 144
+          },
+          {
+            "width": 57.703125,
+            "height": 48
+          },
+          {
+            "width": 166.296875,
+            "height": 144
+          },
+          {
+            "width": 57.703125,
+            "height": 48
+          },
+          {
+            "width": 135.265625,
+            "height": 55
+          }
+        ]
+      },
+      "keyboardCompletion": "pass"
+    },
+    {
+      "engine": "webkit",
+      "width": 390,
+      "theme": "light",
+      "initial": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 246,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 222,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 88,
+            "height": 65
+          }
+        ]
+      },
+      "enlarged": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 232.296875,
+            "height": 150
+          },
+          {
+            "width": 57.703125,
+            "height": 48
+          },
+          {
+            "width": 208.296875,
+            "height": 234
+          },
+          {
+            "width": 57.703125,
+            "height": 48
+          },
+          {
+            "width": 135.265625,
+            "height": 55
+          }
+        ]
+      },
+      "keyboardCompletion": "pass"
+    },
+    {
+      "engine": "webkit",
+      "width": 390,
+      "theme": "dark",
+      "initial": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 246,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 222,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 88,
+            "height": 65
+          }
+        ]
+      },
+      "enlarged": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 232.296875,
+            "height": 150
+          },
+          {
+            "width": 57.703125,
+            "height": 48
+          },
+          {
+            "width": 208.296875,
+            "height": 234
+          },
+          {
+            "width": 57.703125,
+            "height": 48
+          },
+          {
+            "width": 135.265625,
+            "height": 55
+          }
+        ]
+      },
+      "keyboardCompletion": "pass"
+    },
+    {
+      "engine": "webkit",
+      "width": 430,
+      "theme": "light",
+      "initial": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 286,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 262,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 88,
+            "height": 65
+          }
+        ]
+      },
+      "enlarged": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 272.296875,
+            "height": 150
+          },
+          {
+            "width": 57.703125,
+            "height": 48
+          },
+          {
+            "width": 248.296875,
+            "height": 150
+          },
+          {
+            "width": 57.703125,
+            "height": 48
+          },
+          {
+            "width": 135.265625,
+            "height": 55
+          }
+        ]
+      },
+      "keyboardCompletion": "pass"
+    },
+    {
+      "engine": "webkit",
+      "width": 430,
+      "theme": "dark",
+      "initial": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 286,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 262,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 88,
+            "height": 65
+          }
+        ]
+      },
+      "enlarged": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 272.296875,
+            "height": 150
+          },
+          {
+            "width": 57.703125,
+            "height": 48
+          },
+          {
+            "width": 248.296875,
+            "height": 150
+          },
+          {
+            "width": 57.703125,
+            "height": 48
+          },
+          {
+            "width": 135.265625,
+            "height": 55
+          }
+        ]
+      },
+      "keyboardCompletion": "pass"
+    },
+    {
+      "engine": "webkit",
+      "width": 768,
+      "theme": "light",
+      "initial": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 496,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 472,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 65,
+            "height": 65
+          }
+        ]
+      },
+      "enlarged": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 482.296875,
+            "height": 114
+          },
+          {
+            "width": 57.703125,
+            "height": 48
+          },
+          {
+            "width": 458.296875,
+            "height": 114
+          },
+          {
+            "width": 57.703125,
+            "height": 48
+          },
+          {
+            "width": 135.265625,
+            "height": 55
+          }
+        ]
+      },
+      "keyboardCompletion": "pass"
+    },
+    {
+      "engine": "webkit",
+      "width": 768,
+      "theme": "dark",
+      "initial": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 496,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 472,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 65,
+            "height": 65
+          }
+        ]
+      },
+      "enlarged": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 482.296875,
+            "height": 114
+          },
+          {
+            "width": 57.703125,
+            "height": 48
+          },
+          {
+            "width": 458.296875,
+            "height": 114
+          },
+          {
+            "width": 57.703125,
+            "height": 48
+          },
+          {
+            "width": 135.265625,
+            "height": 55
+          }
+        ]
+      },
+      "keyboardCompletion": "pass"
+    },
+    {
+      "engine": "webkit",
+      "width": 1440,
+      "theme": "light",
+      "initial": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 171,
+            "height": 48
+          },
+          {
+            "width": 451.71875,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 427.71875,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          }
+        ]
+      },
+      "enlarged": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 171,
+            "height": 66
+          },
+          {
+            "width": 438.015625,
+            "height": 114
+          },
+          {
+            "width": 57.703125,
+            "height": 48
+          },
+          {
+            "width": 414.015625,
+            "height": 114
+          },
+          {
+            "width": 57.703125,
+            "height": 48
+          }
+        ]
+      },
+      "keyboardCompletion": "pass"
+    },
+    {
+      "engine": "webkit",
+      "width": 1440,
+      "theme": "dark",
+      "initial": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 171,
+            "height": 48
+          },
+          {
+            "width": 451.71875,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          },
+          {
+            "width": 427.71875,
+            "height": 76
+          },
+          {
+            "width": 44,
+            "height": 48
+          }
+        ]
+      },
+      "enlarged": {
+        "overflow": false,
+        "actions": [
+          {
+            "width": 171,
+            "height": 66
+          },
+          {
+            "width": 438.015625,
+            "height": 114
+          },
+          {
+            "width": 57.703125,
+            "height": 48
+          },
+          {
+            "width": 414.015625,
+            "height": 114
+          },
+          {
+            "width": 57.703125,
+            "height": 48
+          }
+        ]
+      },
+      "keyboardCompletion": "pass"
+    }
+  ]
+}
