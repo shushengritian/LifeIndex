@@ -1,5 +1,5 @@
 import { useEffect, useRef, type ReactNode } from 'react'
-import { NavLink, Link } from 'react-router-dom'
+import { NavLink, Link, useLocation, useNavigationType } from 'react-router-dom'
 import { useFlow } from './Flow'
 import { usePwa } from '@/pwa/PwaContext'
 import { Icon } from '@/shared/ui/v4/Icon'
@@ -37,6 +37,7 @@ function Navigation() {
         <NavLink
           key={key}
           to={`/${key}`}
+          state={{ navigationStart: true }}
           className="v4-nav-link"
           data-nav={key}
           data-focus-key={`nav:${key}`}
@@ -98,7 +99,16 @@ function PwaStatus() {
 import { useState } from 'react'
 export function AppShellV4({ children }: { children: ReactNode }) {
   const flow = useFlow(),
+    location = useLocation(),
+    navigationType = useNavigationType(),
     dock = useRef<HTMLElement>(null)
+  useEffect(() => {
+    // Primary destinations open at their beginning. Overlay returns use REPLACE and keep Flow's saved scroll/focus.
+    if (navigationType !== 'PUSH' || !location.state?.navigationStart) return
+    window.scrollTo({ top: 0, behavior: 'instant' })
+    document.querySelector<HTMLElement>('#main-content')?.focus({ preventScroll: true })
+    logger.info('ui.navigation.arrived', { reason: 'primary-destination' })
+  }, [location.key, location.state, navigationType])
   useEffect(() => {
     const element = dock.current
     if (!element) return
@@ -145,7 +155,7 @@ export function AppShellV4({ children }: { children: ReactNode }) {
         跳到主要内容
       </a>
       <aside className="v4-rail">
-        <Link className="v4-wordmark" to="/today">
+        <Link className="v4-wordmark" to="/today" state={{ navigationStart: true }}>
           <Brand />
           LifeIndex
         </Link>
@@ -170,11 +180,21 @@ export function AppShellV4({ children }: { children: ReactNode }) {
       </aside>
       <div className="v4-app">
         <header className="v4-header">
-          <Link className="v4-wordmark" to="/today" aria-label="LifeIndex 今天">
+          <Link
+            className="v4-wordmark"
+            to="/today"
+            state={{ navigationStart: true }}
+            aria-label="LifeIndex 今天"
+          >
             <Brand />
             LifeIndex
           </Link>
-          <Link className="v4-settings" to="/settings" data-focus-key="settings">
+          <Link
+            className="v4-settings"
+            to="/settings"
+            state={{ navigationStart: true }}
+            data-focus-key="settings"
+          >
             <Icon name="settings" size={17} />
             设置
           </Link>

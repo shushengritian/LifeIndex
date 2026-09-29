@@ -141,7 +141,11 @@ export async function openEntry(page: Page, kind: EntryKind) {
   expect(rect!.y).toBeGreaterThanOrEqual(0)
   expect(rect!.y + rect!.height).toBeLessThanOrEqual(viewport.height + 1)
   await trigger.click()
-  await page.getByRole('button', { name: entryNames[kind], exact: true }).click()
+  // Scope to the chooser: domain pages can also expose an identically named inline create action.
+  await page
+    .getByRole('dialog')
+    .getByRole('button', { name: entryNames[kind], exact: true })
+    .click()
   const dialog = page.getByRole('dialog').last()
   const field = dialog.getByLabel(fieldNames[kind]).first()
   // This asserts application-delivered focus; neither .focus() nor .fill() is used to create it.
