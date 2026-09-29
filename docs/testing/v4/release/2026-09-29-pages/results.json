@@ -1,0 +1,445 @@
+{
+  "config": {
+    "argv": [
+      "/Users/fh/.nvm/versions/node/v20.19.5/bin/node",
+      "/Users/fh/MyProjects/LifeIndex/node_modules/@playwright/test/cli.js",
+      "test",
+      "--config",
+      "playwright.v4-deployed.config.ts",
+      "--output=/tmp/lifeindex-v4-pages-results",
+      "--reporter=line,json"
+    ],
+    "configFile": "/Users/fh/MyProjects/LifeIndex/playwright.v4-deployed.config.ts",
+    "rootDir": "/Users/fh/MyProjects/LifeIndex/tests/v4-deployed",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/tmp/lifeindex-v4-pages-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "v4-live-chromium",
+        "name": "v4-live-chromium",
+        "testDir": "/Users/fh/MyProjects/LifeIndex/tests/v4-deployed",
+        "testIgnore": [],
+        "testMatch": ["**/*.@(spec|test).?(c|m)[jt]s?(x)"],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/tmp/lifeindex-v4-pages-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "v4-live-webkit",
+        "name": "v4-live-webkit",
+        "testDir": "/Users/fh/MyProjects/LifeIndex/tests/v4-deployed",
+        "testIgnore": [],
+        "testMatch": ["**/*.@(spec|test).?(c|m)[jt]s?(x)"],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [["line"], ["json"]],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.62.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "pages.spec.ts",
+      "file": "pages.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "actual deployed identity, deep routes, base-scoped resources and worker are healthy",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "v4-live-chromium",
+              "projectName": "v4-live-chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 12469,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "v4.deployed.identity.passed { version: \u001b[32m'4.0.0'\u001b[39m, operation: \u001b[32m'verify'\u001b[39m }\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-29T04:12:13.242Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "deployed-identity",
+                      "contentType": "application/json",
+                      "body": "eyJ2ZXJzaW9uIjoiNC4wLjAiLCJiYXNlIjoiaHR0cHM6Ly9zaHVzaGVuZ3JpdGlhbi5naXRodWIuaW8vTGlmZUluZGV4LyIsInNjaGVtYSI6MX0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9bb6bb2ed574bebb3c58-7768d980f7eb3be281eb",
+          "file": "pages.spec.ts",
+          "line": 30,
+          "column": 1
+        },
+        {
+          "title": "three real entry types persist and receipt opens the saved fact without changing origin",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "v4-live-chromium",
+              "projectName": "v4-live-chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2820,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "v4.qa.entry.saved { entityType: \u001b[32m'expense'\u001b[39m }\n"
+                    },
+                    {
+                      "text": "v4.qa.entry.saved { entityType: \u001b[32m'weight'\u001b[39m }\n"
+                    },
+                    {
+                      "text": "v4.qa.entry.saved { entityType: \u001b[32m'activity'\u001b[39m }\n"
+                    },
+                    {
+                      "text": "v4.deployed.persistence.passed { count: \u001b[33m3\u001b[39m }\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-29T04:12:26.090Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9bb6bb2ed574bebb3c58-310216e89e8b813d2089",
+          "file": "pages.spec.ts",
+          "line": 108,
+          "column": 1
+        },
+        {
+          "title": "deployed focus start, pause, resume and completion save exactly one session",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "v4-live-chromium",
+              "projectName": "v4-live-chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1638,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "v4.deployed.focus.passed { count: \u001b[33m1\u001b[39m }\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-29T04:12:28.916Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9bb6bb2ed574bebb3c58-c06897abad3fddfc1c2d",
+          "file": "pages.spec.ts",
+          "line": 151,
+          "column": 1
+        },
+        {
+          "title": "offline deployed shell, unseen lazy route, local write and backup remain usable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "v4-live-chromium",
+              "projectName": "v4-live-chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5172,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "v4.qa.entry.saved { entityType: \u001b[32m'expense'\u001b[39m }\n"
+                    },
+                    {
+                      "text": "v4.deployed.offline.passed { operation: \u001b[32m'reload-write-export'\u001b[39m, originType: \u001b[32m'actual-target'\u001b[39m }\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-29T04:12:30.560Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "offline-origin-and-transport",
+                      "contentType": "application/json",
+                      "body": "eyJicm93c2VyTmFtZSI6ImNocm9taXVtIiwicHVibGlzaGVkIjoiaHR0cHM6Ly9zaHVzaGVuZ3JpdGlhbi5naXRodWIuaW8vTGlmZUluZGV4LyIsImVmZmVjdGl2ZSI6Imh0dHBzOi8vc2h1c2hlbmdyaXRpYW4uZ2l0aHViLmlvL0xpZmVJbmRleC8iLCJtZXRob2QiOiJhY3R1YWwgdGFyZ2V0IG9yaWdpbjsgYnJvd3NlciBvZmZsaW5lIGVtdWxhdGlvbiIsInVuYXZhaWxhYmxlIjp0cnVlLCJyZWZ1c2VkUmVxdWVzdHMiOm51bGx9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9bb6bb2ed574bebb3c58-e24c345c2d6c53108633",
+          "file": "pages.spec.ts",
+          "line": 178,
+          "column": 1
+        },
+        {
+          "title": "actual deployed identity, deep routes, base-scoped resources and worker are healthy",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "v4-live-webkit",
+              "projectName": "v4-live-webkit",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 9884,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "v4.deployed.identity.passed { version: \u001b[32m'4.0.0'\u001b[39m, operation: \u001b[32m'verify'\u001b[39m }\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-29T04:12:36.179Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "deployed-identity",
+                      "contentType": "application/json",
+                      "body": "eyJ2ZXJzaW9uIjoiNC4wLjAiLCJiYXNlIjoiaHR0cHM6Ly9zaHVzaGVuZ3JpdGlhbi5naXRodWIuaW8vTGlmZUluZGV4LyIsInNjaGVtYSI6MX0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9bb6bb2ed574bebb3c58-04eac93599e2456ef04d",
+          "file": "pages.spec.ts",
+          "line": 30,
+          "column": 1
+        },
+        {
+          "title": "three real entry types persist and receipt opens the saved fact without changing origin",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "v4-live-webkit",
+              "projectName": "v4-live-webkit",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4002,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "v4.qa.entry.saved { entityType: \u001b[32m'expense'\u001b[39m }\n"
+                    },
+                    {
+                      "text": "v4.qa.entry.saved { entityType: \u001b[32m'weight'\u001b[39m }\n"
+                    },
+                    {
+                      "text": "v4.qa.entry.saved { entityType: \u001b[32m'activity'\u001b[39m }\n"
+                    },
+                    {
+                      "text": "v4.deployed.persistence.passed { count: \u001b[33m3\u001b[39m }\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-29T04:12:46.679Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9bb6bb2ed574bebb3c58-28729897f96b1357691d",
+          "file": "pages.spec.ts",
+          "line": 108,
+          "column": 1
+        },
+        {
+          "title": "deployed focus start, pause, resume and completion save exactly one session",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "v4-live-webkit",
+              "projectName": "v4-live-webkit",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2130,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "v4.deployed.focus.passed { count: \u001b[33m1\u001b[39m }\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-29T04:12:50.686Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9bb6bb2ed574bebb3c58-e37fbf8873dfbe8b94df",
+          "file": "pages.spec.ts",
+          "line": 151,
+          "column": 1
+        },
+        {
+          "title": "offline deployed shell, unseen lazy route, local write and backup remain usable",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "v4-live-webkit",
+              "projectName": "v4-live-webkit",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7525,
+                  "errors": [],
+                  "stdout": [
+                    {
+                      "text": "v4.qa.origin.disconnected { transport: \u001b[32m'tcp-refusal'\u001b[39m }\n"
+                    },
+                    {
+                      "text": "v4.qa.entry.saved { entityType: \u001b[32m'expense'\u001b[39m }\n"
+                    },
+                    {
+                      "text": "v4.deployed.offline.passed {\n  operation: \u001b[32m'reload-write-export'\u001b[39m,\n  originType: \u001b[32m'local-proxy-of-published-bytes'\u001b[39m\n}\n"
+                    }
+                  ],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-09-29T04:12:52.821Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "offline-origin-and-transport",
+                      "contentType": "application/json",
+                      "body": "eyJicm93c2VyTmFtZSI6IndlYmtpdCIsInB1Ymxpc2hlZCI6Imh0dHBzOi8vc2h1c2hlbmdyaXRpYW4uZ2l0aHViLmlvL0xpZmVJbmRleC8iLCJlZmZlY3RpdmUiOiJodHRwOi8vMTI3LjAuMC4xOjYwNjE5L0xpZmVJbmRleC8iLCJtZXRob2QiOiJwdWJsaXNoZWQgYnl0ZXMgdGhyb3VnaCBsb2NhbCBwcm94eTsgVENQIHJlZnVzYWw7IG5vdCBwdWJsaXNoZWQgSFRUUFMtb3JpZ2luIG9mZmxpbmUgcHJvb2YiLCJ1bmF2YWlsYWJsZSI6dHJ1ZSwicmVmdXNlZFJlcXVlc3RzIjoxNn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "9bb6bb2ed574bebb3c58-f2ca88c4e65cc1b37517",
+          "file": "pages.spec.ts",
+          "line": 178,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-29T04:12:12.733Z",
+    "duration": 47704.313,
+    "expected": 8,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}
