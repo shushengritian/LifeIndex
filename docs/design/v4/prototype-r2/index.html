@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content"
+    />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f5f0e8" />
+    <title>LifeIndex · 日常调频 · R2 挑战稿</title>
+    <link rel="stylesheet" href="./studio.css" />
+  </head>
+  <body data-theme="light">
+    <aside class="review-tools" aria-label="评审工具">
+      <strong>R2 · 日常调频</strong><span>合成互动原型，不连接真实数据</span
+      ><label
+        >场景<select id="scenario">
+          <option value="ready">正常数据</option>
+          <option value="empty">空状态</option>
+          <option value="read-failed">读取失败</option>
+          <option value="save-failed">保存失败</option>
+        </select></label
+      ><button id="theme-switch" type="button">切换深色</button>
+    </aside>
+    <div class="studio-shell">
+      <aside class="studio-rail" aria-label="桌面导航"></aside>
+      <div class="studio-app">
+        <header class="studio-header">
+          <button class="wordmark" type="button" data-page="today" aria-label="LifeIndex 今天">
+            <span class="brand-sign" aria-hidden="true"></span>LifeIndex<span class="brand-edition"
+              >生活索引</span
+            ></button
+          ><button class="settings-trigger" type="button" data-page="settings"></button>
+        </header>
+        <main id="main" tabindex="-1"></main>
+      </div>
+    </div>
+    <nav class="mobile-dock" aria-label="主要导航"></nav>
+    <dialog id="studio-dialog" aria-labelledby="dialog-title"><div id="dialog-body"></div></dialog>
+    <dialog id="confirm-dialog" aria-labelledby="confirm-title">
+      <div class="confirm-inner">
+        <h2 id="confirm-title"></h2>
+        <p id="confirm-message"></p>
+        <div class="confirm-actions">
+          <button class="button secondary" type="button" id="confirm-cancel">继续编辑</button
+          ><button class="button danger" type="button" id="confirm-accept">放弃修改</button>
+        </div>
+      </div>
+    </dialog>
+    <div class="toast" id="toast" role="status" hidden></div>
+    <script src="./icons.js"></script>
+    <script src="./studio.js"></script>
+  </body>
+</html>

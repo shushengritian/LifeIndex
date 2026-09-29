@@ -1,5 +1,6 @@
 # LifeIndex 开发指南
 
+> 历史文档：下述为 3.x 实现存档。4.0 当前范围见 [V4 产品说明](../product/V4.md)，数据契约见 [V4 Core](../development/v4/CORE.md)，交互与运行流程见 [V4 Shell](../development/v4/SHELL.md) 和 [领域实现](../development/v4/FEATURES.md)。不要用旧库、旧备份或旧交互定义约束 4.0。
 需要 Node.js ≥20.19.0 和 package.json 声明的 pnpm。依赖使用锁文件安装，无后端、密钥或原生工程要求。
 
 ```sh

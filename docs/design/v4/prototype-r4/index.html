@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content"
+    />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f5f0e8" />
+    <title>LifeIndex · 日常调频 · R4 动作与完成方式</title>
+    <link rel="stylesheet" href="../prototype-r3/studio.css" />
+    <link rel="stylesheet" href="./controls.css" />
+  </head>
+  <body data-theme="light">
+    <a class="skip-main" href="#main">跳到主要内容</a>
+    <aside class="review-tools" aria-label="评审工具">
+      <strong>R4 · 动作重设计</strong><span>合成互动原型，不连接真实数据</span
+      ><label
+        >场景<select id="scenario">
+          <option value="ready">正常数据</option>
+          <option value="empty">空状态</option>
+          <option value="read-failed">读取失败</option>
+          <option value="save-failed">保存失败</option>
+          <option value="weight-failed">体重读取失败</option>
+          <option value="finance-failed">记账读取失败</option>
+          <option value="busy">慢速保存</option>
+        </select></label
+      ><label
+        >应用壳<select id="shell-scenario">
+          <option value="ready">就绪</option>
+          <option value="offline">离线</option>
+          <option value="failed">SW失败</option>
+          <option value="update">更新就绪</option>
+        </select></label
+      ><button id="draft-conflict" type="button">模拟恢复冲突</button
+      ><button id="theme-switch" type="button">切换深色</button>
+    </aside>
+    <div class="studio-shell">
+      <aside class="studio-rail" aria-label="桌面导航"></aside>
+      <div class="studio-app">
+        <header class="studio-header">
+          <button class="wordmark" type="button" data-page="today" aria-label="LifeIndex 今天">
+            <span class="brand-sign" aria-hidden="true"></span>LifeIndex<span class="brand-edition"
+              >生活索引</span
+            ></button
+          ><button class="settings-trigger" type="button" data-page="settings"></button>
+        </header>
+        <main id="main" tabindex="-1"></main>
+      </div>
+    </div>
+    <nav class="mobile-dock" aria-label="主要导航"></nav>
+    <dialog id="studio-dialog" aria-labelledby="dialog-title"><div id="dialog-body"></div></dialog>
+    <dialog id="confirm-dialog" aria-labelledby="confirm-title">
+      <div class="confirm-inner">
+        <h2 id="confirm-title"></h2>
+        <p id="confirm-message"></p>
+        <div class="confirm-actions">
+          <button class="button secondary" type="button" id="confirm-cancel">继续编辑</button
+          ><button class="button danger" type="button" id="confirm-accept">放弃修改</button>
+        </div>
+      </div>
+    </dialog>
+    <div class="toast" id="toast" role="status" hidden></div>
+    <script src="../prototype-r3/icons.js"></script>
+    <script src="../prototype-r3/complete.js"></script>
+    <script src="../prototype-r3/studio.js"></script>
+    <script src="./controls.js"></script>
+  </body>
+</html>

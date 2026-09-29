@@ -1,0 +1,47 @@
+{
+  "scope": "R4 prototype author checks, not independent acceptance",
+  "observations": [
+    {
+      "variant": "surface",
+      "completionUndoAndFocus": "pass",
+      "detailsReadOnly": "pass",
+      "twoTapEntry": "pass",
+      "dimensions": {
+        "overflow": false,
+        "action": {
+          "width": 246,
+          "height": 76
+        }
+      },
+      "gesture": "not-applicable"
+    },
+    {
+      "variant": "paper",
+      "completionUndoAndFocus": "pass",
+      "detailsReadOnly": "pass",
+      "twoTapEntry": "pass",
+      "dimensions": {
+        "overflow": false,
+        "action": {
+          "width": 84,
+          "height": 64
+        }
+      },
+      "gesture": "not-applicable"
+    },
+    {
+      "variant": "slide",
+      "completionUndoAndFocus": "pass",
+      "detailsReadOnly": "pass",
+      "twoTapEntry": "pass",
+      "dimensions": {
+        "overflow": false,
+        "action": {
+          "width": 246,
+          "height": 76
+        }
+      },
+      "gesture": "mouse drag commit, below-threshold cancellation and vertical gesture pass; physical touch unverified"
+    }
+  ]
+}

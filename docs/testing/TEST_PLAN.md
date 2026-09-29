@@ -24,3 +24,9 @@
 运行命令见 [DEV](../development/DEV.md)。记录准确命令、日期、引擎、通过/失败/跳过数量和未覆盖边界。失败或跳过必须披露，不以重试隐去不稳定项。版本与源代码一致后，结果填写 [发布记录](../releases/v3.3.0.md)。
 
 真机使用 [iPhone 清单](../operations/IPHONE_ACCEPTANCE.md)，仅用户实际确认后可标通过。浏览器模拟与历史视觉参考不构成本次设备证据。
+
+## 测试运行器边界
+
+Vitest 负责 `tests/unit` 与 `tests/integration`；`tests/e2e`、`tests/deployed`、`tests/performance` 均由各自 Playwright 配置收集。性能采集通过 `playwright test --config playwright.performance.config.ts` 单独执行，不参与 Vitest 的 jsdom 生命周期。
+
+2026-09-28，4.0 草稿 PR 的 [CI 36440973014](https://github.com/shushengritian/LifeIndex/actions/runs/36440973014) 在全部 252 项既有测试通过后，因误收集新增性能 spec 而失败（`Playwright Test did not expect test() to be called here`）。已将性能目录加入 Vitest 的浏览器套件排除项，保留全部测试。修订后本机 Vitest 48 文件 / 252 项通过（17.90 秒），Playwright `--list` 仍收集 9 项性能测试；本次仅验证运行器划分，未重测或宣称 4.0 产品性能通过。

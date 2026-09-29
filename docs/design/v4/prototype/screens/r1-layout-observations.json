@@ -1,0 +1,204 @@
+[
+  {
+    "direction": "day",
+    "shortViewport": [
+      {
+        "name": "记一笔",
+        "top": 234.796875,
+        "bottom": 304.796875,
+        "width": 110,
+        "height": 70
+      },
+      {
+        "name": "记体重",
+        "top": 234.796875,
+        "bottom": 304.796875,
+        "width": 110,
+        "height": 70
+      },
+      {
+        "name": "记运动",
+        "top": 234.796875,
+        "bottom": 304.796875,
+        "width": 110,
+        "height": 70
+      },
+      {
+        "name": "读 20 分钟，已完成，点按撤销",
+        "top": 390.296875,
+        "bottom": 434.296875,
+        "width": 44,
+        "height": 44
+      },
+      {
+        "name": "到户外走走，点按完成",
+        "top": 460.296875,
+        "bottom": 504.296875,
+        "width": 44,
+        "height": 44
+      },
+      {
+        "name": "今天健康专注记账",
+        "top": 594,
+        "bottom": 664,
+        "width": 390,
+        "height": 70
+      }
+    ]
+  },
+  {
+    "direction": "day",
+    "width": 320,
+    "overflow": false
+  },
+  {
+    "direction": "day",
+    "width": 390,
+    "overflow": false
+  },
+  {
+    "direction": "day",
+    "width": 430,
+    "overflow": false
+  },
+  {
+    "direction": "day",
+    "width": 768,
+    "overflow": false
+  },
+  {
+    "direction": "day",
+    "width": 1440,
+    "overflow": false
+  },
+  {
+    "direction": "coordinate",
+    "shortViewport": [
+      {
+        "name": "记一笔",
+        "top": 414.796875,
+        "bottom": 482.796875,
+        "width": 110,
+        "height": 68
+      },
+      {
+        "name": "记体重",
+        "top": 414.796875,
+        "bottom": 482.796875,
+        "width": 110,
+        "height": 68
+      },
+      {
+        "name": "记运动",
+        "top": 414.796875,
+        "bottom": 482.796875,
+        "width": 110,
+        "height": 68
+      },
+      {
+        "name": "读 20 分钟，已完成，点按撤销",
+        "top": 547.234375,
+        "bottom": 591.234375,
+        "width": 44,
+        "height": 44
+      },
+      {
+        "name": "到户外走走，点按完成",
+        "top": 617.234375,
+        "bottom": 661.234375,
+        "width": 44,
+        "height": 44
+      },
+      {
+        "name": "今天健康专注记账",
+        "top": 594,
+        "bottom": 664,
+        "width": 390,
+        "height": 70
+      }
+    ]
+  },
+  {
+    "direction": "coordinate",
+    "width": 320,
+    "overflow": false
+  },
+  {
+    "direction": "coordinate",
+    "width": 390,
+    "overflow": false
+  },
+  {
+    "direction": "coordinate",
+    "width": 430,
+    "overflow": false
+  },
+  {
+    "direction": "coordinate",
+    "width": 768,
+    "overflow": false
+  },
+  {
+    "direction": "coordinate",
+    "width": 1440,
+    "overflow": false
+  },
+  {
+    "direction": "journal",
+    "shortViewport": [
+      {
+        "name": "添一条记录",
+        "top": 341.171875,
+        "bottom": 389.171875,
+        "width": 346,
+        "height": 48
+      },
+      {
+        "name": "读 20 分钟，已完成，点按撤销",
+        "top": 933.359375,
+        "bottom": 977.359375,
+        "width": 44,
+        "height": 44
+      },
+      {
+        "name": "到户外走走，点按完成",
+        "top": 999.359375,
+        "bottom": 1043.359375,
+        "width": 44,
+        "height": 44
+      },
+      {
+        "name": "今天健康专注记账",
+        "top": 594,
+        "bottom": 664,
+        "width": 390,
+        "height": 70
+      }
+    ]
+  },
+  {
+    "direction": "journal",
+    "width": 320,
+    "overflow": false
+  },
+  {
+    "direction": "journal",
+    "width": 390,
+    "overflow": false
+  },
+  {
+    "direction": "journal",
+    "width": 430,
+    "overflow": false
+  },
+  {
+    "direction": "journal",
+    "width": 768,
+    "overflow": false
+  },
+  {
+    "direction": "journal",
+    "width": 1440,
+    "overflow": false
+  }
+]

@@ -1,0 +1,3976 @@
+{
+  "schemaVersion": 1,
+  "runId": "2026-09-29T03-25-31-770Z-47552",
+  "protocolVersion": "lifeindex-v4-performance-2",
+  "fixtureVersion": "lifeindex-v4-synthetic-1",
+  "seed": 4029,
+  "budgetVersion": "frozen-r3-v3",
+  "budgets": {
+    "version": "frozen-r3-v3",
+    "fcp": 400,
+    "ready": 1400,
+    "longHistoryReady": 2000,
+    "chooser": 350,
+    "editor": 350,
+    "javascriptGzip": 256000,
+    "cssGzip": 16384
+  },
+  "passed": true,
+  "buildProvenance": "fifth-build-c15269c",
+  "baseURL": "http://127.0.0.1:4190/",
+  "build": {
+    "buildHash": "dcbe8c5a22a05975fd172d7c5d34edfbc0aca609b38c491974ff30029dd219dc",
+    "basePath": "/",
+    "files": [
+      {
+        "name": "assets/AboutV4-6-cDECy8.js",
+        "kind": "javascript",
+        "rawBytes": 1547,
+        "gzipBytes": 992,
+        "sha256": "91fa28532945be700ecd7b16feb8e08062a121638f954bb198c7fb76fb39f4ea",
+        "modifiedAt": "2026-09-29T03:20:51.371Z"
+      },
+      {
+        "name": "assets/ActivityHistoryV4-Bqkunjq_.js",
+        "kind": "javascript",
+        "rawBytes": 242,
+        "gzipBytes": 190,
+        "sha256": "8b2f3f7644635790e14277d08f556fa860c2be53314c9b0a534a8d500be5259b",
+        "modifiedAt": "2026-09-29T03:20:51.372Z"
+      },
+      {
+        "name": "assets/AppearanceV4-nXivyZL8.js",
+        "kind": "javascript",
+        "rawBytes": 1844,
+        "gzipBytes": 1052,
+        "sha256": "1f915ebd05861269c655d4bf5eacb929ab2dcfc6df2357d4a14aa01cd8d47458",
+        "modifiedAt": "2026-09-29T03:20:51.372Z"
+      },
+      {
+        "name": "assets/BackupV4-BHG4J-A4.js",
+        "kind": "javascript",
+        "rawBytes": 5781,
+        "gzipBytes": 2471,
+        "sha256": "071d70f1ab7d63b1c07f20d3c32039f024eede9f28cad40a62a4af777d4eb767",
+        "modifiedAt": "2026-09-29T03:20:51.372Z"
+      },
+      {
+        "name": "assets/CategoriesV4-fSY0RIyu.js",
+        "kind": "javascript",
+        "rawBytes": 9463,
+        "gzipBytes": 3682,
+        "sha256": "7d0b7e03c6036f4cdad0f9278945e139ab2c979e4d02c8c24029092d4b55b61d",
+        "modifiedAt": "2026-09-29T03:20:51.372Z"
+      },
+      {
+        "name": "assets/Elements-CbNF6sHh.js",
+        "kind": "javascript",
+        "rawBytes": 104686,
+        "gzipBytes": 34578,
+        "sha256": "e91a54b727baa4302158df2544eedeac12c402d1d8f64f74198b8d162e648d3f",
+        "modifiedAt": "2026-09-29T03:20:51.372Z"
+      },
+      {
+        "name": "assets/FinanceReportV4-3Fg73fSv.js",
+        "kind": "javascript",
+        "rawBytes": 2490,
+        "gzipBytes": 1214,
+        "sha256": "0e1ebf93806f85dedcd6f619d62ef9b2200b0fb391622edd937b442648af8ab2",
+        "modifiedAt": "2026-09-29T03:20:51.372Z"
+      },
+      {
+        "name": "assets/FinanceV4-BPCxgLu-.js",
+        "kind": "javascript",
+        "rawBytes": 3350,
+        "gzipBytes": 1610,
+        "sha256": "6372680db3f36da6bffd944d777def4f2859174e4b0047bcb0c4a9bc9b1457f8",
+        "modifiedAt": "2026-09-29T03:20:51.372Z"
+      },
+      {
+        "name": "assets/FocusHistoryV4-D29FKazw.js",
+        "kind": "javascript",
+        "rawBytes": 712,
+        "gzipBytes": 528,
+        "sha256": "02449ea279f6f354c7519b5afaeb4bfbbb43074e6da6a632929ff480c37e942b",
+        "modifiedAt": "2026-09-29T03:20:51.373Z"
+      },
+      {
+        "name": "assets/FocusV4-CqqQnINw.js",
+        "kind": "javascript",
+        "rawBytes": 5307,
+        "gzipBytes": 2248,
+        "sha256": "7f5cfdf33e9de76aed9bb678194b3a7893abf5e1e260ceeac3187807de9f785c",
+        "modifiedAt": "2026-09-29T03:20:51.373Z"
+      },
+      {
+        "name": "assets/HabitAction-EvPpoE8g.js",
+        "kind": "javascript",
+        "rawBytes": 2514,
+        "gzipBytes": 1333,
+        "sha256": "928b472de6b3bbcda5effdf683d2060bce5542461c99b44e495a3ab34bdfaf26",
+        "modifiedAt": "2026-09-29T03:20:51.373Z"
+      },
+      {
+        "name": "assets/HabitCollection-Dk3wUZ9L.js",
+        "kind": "javascript",
+        "rawBytes": 1573,
+        "gzipBytes": 929,
+        "sha256": "9555ddffe8166811de149fdf301aa31b5368835c062688f7fd6ef8fae5d88907",
+        "modifiedAt": "2026-09-29T03:20:51.373Z"
+      },
+      {
+        "name": "assets/HabitsV4-OfjOuTlS.js",
+        "kind": "javascript",
+        "rawBytes": 10603,
+        "gzipBytes": 4286,
+        "sha256": "bc3796815f65a777150b10c41fc913ea61b7c6c6eccb9ed55089f173dc43df79",
+        "modifiedAt": "2026-09-29T03:20:51.373Z"
+      },
+      {
+        "name": "assets/HealthV4-DtVEmgy4.js",
+        "kind": "javascript",
+        "rawBytes": 8202,
+        "gzipBytes": 3254,
+        "sha256": "e59568cc2ad070db1f2d882f1b3b7bf2bef28627f14b17e7bba163a0db304c79",
+        "modifiedAt": "2026-09-29T03:20:51.373Z"
+      },
+      {
+        "name": "assets/HistoryView-BOGgCfyT.js",
+        "kind": "javascript",
+        "rawBytes": 958,
+        "gzipBytes": 624,
+        "sha256": "c6d20db04ae4c920942a28cb2c7e33b03fe8e655e45f573dc7d17924a88583af",
+        "modifiedAt": "2026-09-29T03:20:51.373Z"
+      },
+      {
+        "name": "assets/MonthPicker-CIaK8MtL.js",
+        "kind": "javascript",
+        "rawBytes": 334,
+        "gzipBytes": 275,
+        "sha256": "0ca1ae9aad5f2b2d17f389d98290abe6360e7e45afe76c4438883fa9c622548e",
+        "modifiedAt": "2026-09-29T03:20:51.373Z"
+      },
+      {
+        "name": "assets/RecordList-DszFeTTR.js",
+        "kind": "javascript",
+        "rawBytes": 1169,
+        "gzipBytes": 668,
+        "sha256": "a4264d4d618e5025aabaada303c3c883a22814b693b99a6f180197a82184e929",
+        "modifiedAt": "2026-09-29T03:20:51.373Z"
+      },
+      {
+        "name": "assets/RecordPageSection-COBoV9YT.js",
+        "kind": "javascript",
+        "rawBytes": 2627,
+        "gzipBytes": 1192,
+        "sha256": "6bb56ca334d8d702275f18041cb47a06f74ee0c958c759088a320a223572c3db",
+        "modifiedAt": "2026-09-29T03:20:51.373Z"
+      },
+      {
+        "name": "assets/RecordRoute-BVPhl50E.js",
+        "kind": "javascript",
+        "rawBytes": 5003,
+        "gzipBytes": 2171,
+        "sha256": "2753a12ea8a7414e6dd5497ac9a0084655183cc3e3c4b533c1a0b892beba5ab8",
+        "modifiedAt": "2026-09-29T03:20:51.374Z"
+      },
+      {
+        "name": "assets/ReportNavigation-DJA89Oet.js",
+        "kind": "javascript",
+        "rawBytes": 1431,
+        "gzipBytes": 806,
+        "sha256": "36f71fab88c91e760e6d6587374c94f61e3d3eabce029492d2ee6180511291b4",
+        "modifiedAt": "2026-09-29T03:20:51.374Z"
+      },
+      {
+        "name": "assets/Services-WDOoZahA.js",
+        "kind": "javascript",
+        "rawBytes": 1112,
+        "gzipBytes": 634,
+        "sha256": "956cfefc845ce469e59b9c88c458f6571041d9202b765c97fe774b53dda26c3c",
+        "modifiedAt": "2026-09-29T03:20:51.374Z"
+      },
+      {
+        "name": "assets/SettingsV4-CD98d07l.js",
+        "kind": "javascript",
+        "rawBytes": 2117,
+        "gzipBytes": 1250,
+        "sha256": "6bfcd09937ad5e55fab11a0838124f3ac6f072868ac19b73409e3b92b2d0d0f2",
+        "modifiedAt": "2026-09-29T03:20:51.374Z"
+      },
+      {
+        "name": "assets/TodayV4-bTctE5rs.js",
+        "kind": "javascript",
+        "rawBytes": 6671,
+        "gzipBytes": 2471,
+        "sha256": "d95288506b8e064da48c2f6f543a3b0ffa7301f4f477453d2d46bccadd4fd588",
+        "modifiedAt": "2026-09-29T03:20:51.374Z"
+      },
+      {
+        "name": "assets/WeightHistoryV4-q3xa59HD.js",
+        "kind": "javascript",
+        "rawBytes": 236,
+        "gzipBytes": 187,
+        "sha256": "b8d3d5f79317b6f633612eaf25d99958931829012ba0613d8187b8fe0b0af142",
+        "modifiedAt": "2026-09-29T03:20:51.374Z"
+      },
+      {
+        "name": "assets/data-B9zE1qbm.js",
+        "kind": "javascript",
+        "rawBytes": 1596,
+        "gzipBytes": 918,
+        "sha256": "cda78f0c07ad6d743d98c61be45a9a37b3cbd2ed787c4840f5fed40b00b62438",
+        "modifiedAt": "2026-09-29T03:20:51.375Z"
+      },
+      {
+        "name": "assets/index-AVdAxTO4.js",
+        "kind": "javascript",
+        "rawBytes": 363131,
+        "gzipBytes": 114573,
+        "sha256": "70e86b30eb5f65cde83bdc7c873c8845a3dd6f99b3015ce7b4885ecfaa0eb27f",
+        "modifiedAt": "2026-09-29T03:20:51.371Z"
+      },
+      {
+        "name": "assets/index-NRIiKnql.css",
+        "kind": "css",
+        "rawBytes": 30871,
+        "gzipBytes": 6932,
+        "sha256": "c5cff78709daa63dd16983eb588289178fda017c424167c31b2f0f1d80b2e241",
+        "modifiedAt": "2026-09-29T03:20:51.375Z"
+      },
+      {
+        "name": "assets/intent-CN1-LxUy.js",
+        "kind": "javascript",
+        "rawBytes": 170,
+        "gzipBytes": 146,
+        "sha256": "bc405723bd631505c1f4d1c919697409d17469e7bbcdb6e1285f2bc9e774b0fd",
+        "modifiedAt": "2026-09-29T03:20:51.375Z"
+      },
+      {
+        "name": "assets/recordPresentation-Ck5Qv0XI.js",
+        "kind": "javascript",
+        "rawBytes": 612,
+        "gzipBytes": 352,
+        "sha256": "7c08a92bb47de32f75e38b2637f434c168389d29d81af749c1632026c9fd1bf5",
+        "modifiedAt": "2026-09-29T03:20:51.375Z"
+      },
+      {
+        "name": "assets/workbox-window.prod.es5-Bd17z0YL.js",
+        "kind": "javascript",
+        "rawBytes": 5653,
+        "gzipBytes": 2199,
+        "sha256": "17bcc17d60dc78f927834b880c39649b03af46fd1f5cdbb8c42c5ae2b515dce9",
+        "modifiedAt": "2026-09-29T03:20:51.375Z"
+      },
+      {
+        "name": "fonts/Manrope-OFL.txt",
+        "kind": "other",
+        "rawBytes": 4386,
+        "gzipBytes": 1974,
+        "sha256": "d6a309fcfb963d329a93baf9df66fa5f3c23a4be2b5f67edf24d6cafecde12ac",
+        "modifiedAt": "2026-09-29T03:20:51.276Z"
+      },
+      {
+        "name": "fonts/Manrope.ttf",
+        "kind": "font",
+        "rawBytes": 164700,
+        "gzipBytes": 68860,
+        "sha256": "3ae11c49db0455a3cc33e37d380f20fdb8c7f8b41dc07625c177e3d87a9d6ae6",
+        "modifiedAt": "2026-09-29T03:20:51.277Z"
+      },
+      {
+        "name": "icons/apple-touch-icon.png",
+        "kind": "image",
+        "rawBytes": 3668,
+        "gzipBytes": 3411,
+        "sha256": "1450832fd356a0f9262ab5667da873443932603a2766290341909afab035c287",
+        "modifiedAt": "2026-09-29T03:20:51.278Z"
+      },
+      {
+        "name": "icons/favicon-16.png",
+        "kind": "image",
+        "rawBytes": 334,
+        "gzipBytes": 357,
+        "sha256": "96dd5b424b89bc350be97cc8626fa0e8e5be72c03be775be24225b0efc2399ed",
+        "modifiedAt": "2026-09-29T03:20:51.278Z"
+      },
+      {
+        "name": "icons/favicon-32.png",
+        "kind": "image",
+        "rawBytes": 659,
+        "gzipBytes": 682,
+        "sha256": "fa3f81c5c545762973e2ee6f9fc6a8b7c2186f5de8159fefa570d589c77a916f",
+        "modifiedAt": "2026-09-29T03:20:51.278Z"
+      },
+      {
+        "name": "icons/favicon.svg",
+        "kind": "image",
+        "rawBytes": 296,
+        "gzipBytes": 221,
+        "sha256": "1c2feab51e2fd1f69d4fa317c46985966672a2c7720a93228f7f23d4ad47ad52",
+        "modifiedAt": "2026-09-29T03:20:51.279Z"
+      },
+      {
+        "name": "icons/icon-192.png",
+        "kind": "image",
+        "rawBytes": 3937,
+        "gzipBytes": 3643,
+        "sha256": "c9e0d0d7c16aeab7fc4531d79a4538dc64a355fa4c9a67adf6a1057b92f656bb",
+        "modifiedAt": "2026-09-29T03:20:51.279Z"
+      },
+      {
+        "name": "icons/icon-512.png",
+        "kind": "image",
+        "rawBytes": 12320,
+        "gzipBytes": 10734,
+        "sha256": "8832a932a611d98dad933e654514993b68dc1d486d6111b82ddda33272fbdb5c",
+        "modifiedAt": "2026-09-29T03:20:51.279Z"
+      },
+      {
+        "name": "icons/icon-maskable-512.png",
+        "kind": "image",
+        "rawBytes": 12320,
+        "gzipBytes": 10734,
+        "sha256": "8832a932a611d98dad933e654514993b68dc1d486d6111b82ddda33272fbdb5c",
+        "modifiedAt": "2026-09-29T03:20:51.279Z"
+      },
+      {
+        "name": "index.html",
+        "kind": "html",
+        "rawBytes": 1502,
+        "gzipBytes": 692,
+        "sha256": "ae66a77f2a3eff74a002b8aded7473ceb76bbe4212737272d1e71615de4f6855",
+        "modifiedAt": "2026-09-29T03:20:51.376Z"
+      },
+      {
+        "name": "manifest.webmanifest",
+        "kind": "manifest",
+        "rawBytes": 645,
+        "gzipBytes": 327,
+        "sha256": "3f9fd2bfd8789dc9971d5c75b4ae4993546b4ab59c6f01f3433589f18de638d0",
+        "modifiedAt": "2026-09-29T03:20:51.376Z"
+      },
+      {
+        "name": "sw.js",
+        "kind": "javascript",
+        "rawBytes": 19007,
+        "gzipBytes": 6330,
+        "sha256": "df606d40a0eb92ee5d4faa746bb18ef8a838462211aa4e0f9af7e3f61a7999ed",
+        "modifiedAt": "2026-09-29T03:20:52.086Z"
+      }
+    ],
+    "totals": {
+      "rawBytes": 805779,
+      "javascriptGzip": 193163,
+      "cssGzip": 6932,
+      "inlineScriptGzip": 0,
+      "precacheRawBytes": 782386
+    },
+    "htmlScripts": [
+      {
+        "source": "/assets/index-AVdAxTO4.js",
+        "inlineBytes": 0,
+        "inlineGzipBytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "unusualScripts": [],
+    "precache": [
+      "manifest.webmanifest",
+      "index.html",
+      "icons/icon-maskable-512.png",
+      "icons/icon-512.png",
+      "icons/icon-192.png",
+      "icons/favicon.svg",
+      "icons/favicon-32.png",
+      "icons/favicon-16.png",
+      "icons/apple-touch-icon.png",
+      "fonts/Manrope.ttf",
+      "assets/workbox-window.prod.es5-Bd17z0YL.js",
+      "assets/recordPresentation-Ck5Qv0XI.js",
+      "assets/intent-CN1-LxUy.js",
+      "assets/index-NRIiKnql.css",
+      "assets/index-AVdAxTO4.js",
+      "assets/data-B9zE1qbm.js",
+      "assets/WeightHistoryV4-q3xa59HD.js",
+      "assets/TodayV4-bTctE5rs.js",
+      "assets/SettingsV4-CD98d07l.js",
+      "assets/Services-WDOoZahA.js",
+      "assets/ReportNavigation-DJA89Oet.js",
+      "assets/RecordRoute-BVPhl50E.js",
+      "assets/RecordPageSection-COBoV9YT.js",
+      "assets/RecordList-DszFeTTR.js",
+      "assets/MonthPicker-CIaK8MtL.js",
+      "assets/HistoryView-BOGgCfyT.js",
+      "assets/HealthV4-DtVEmgy4.js",
+      "assets/HabitsV4-OfjOuTlS.js",
+      "assets/HabitCollection-Dk3wUZ9L.js",
+      "assets/HabitAction-EvPpoE8g.js",
+      "assets/FocusV4-CqqQnINw.js",
+      "assets/FocusHistoryV4-D29FKazw.js",
+      "assets/FinanceV4-BPCxgLu-.js",
+      "assets/FinanceReportV4-3Fg73fSv.js",
+      "assets/Elements-CbNF6sHh.js",
+      "assets/CategoriesV4-fSY0RIyu.js",
+      "assets/BackupV4-BHG4J-A4.js",
+      "assets/AppearanceV4-nXivyZL8.js",
+      "assets/ActivityHistoryV4-Bqkunjq_.js",
+      "assets/AboutV4-6-cDECy8.js"
+    ],
+    "exclusions": [],
+    "transferNote": "File gzip is a deterministic artifact calculation; actual HTTP encoding is recorded per response."
+  },
+  "finalBuildHash": "dcbe8c5a22a05975fd172d7c5d34edfbc0aca609b38c491974ff30029dd219dc",
+  "environment": {
+    "capturedAt": "2026-09-29T03:25:31.878Z",
+    "commit": "c15269c0fdd4ab9c830c47695daab95141a2b0f8",
+    "dirty": true,
+    "changedPathCount": 7,
+    "node": "v20.19.5",
+    "packageManager": "11.19.0",
+    "playwright": "1.62.1",
+    "machine": {
+      "platform": "darwin",
+      "release": "24.2.0",
+      "arch": "arm64",
+      "model": "MacBookPro18,3",
+      "cpu": "Apple M1 Pro",
+      "logicalCores": 8,
+      "totalMemoryBytes": 17179869184,
+      "freeMemoryBytes": 370638848,
+      "loadAverage": [16.927734375, 15.75048828125, 16.72412109375],
+      "powerSource": "AC",
+      "batteryPercent": "100",
+      "thermalState": "no-warning-reported",
+      "physicalIPhone": false
+    }
+  },
+  "finalEnvironment": {
+    "capturedAt": "2026-09-29T03:28:44.881Z",
+    "commit": "c15269c0fdd4ab9c830c47695daab95141a2b0f8",
+    "dirty": true,
+    "changedPathCount": 7,
+    "node": "v20.19.5",
+    "packageManager": "11.19.0",
+    "playwright": "1.62.1",
+    "machine": {
+      "platform": "darwin",
+      "release": "24.2.0",
+      "arch": "arm64",
+      "model": "MacBookPro18,3",
+      "cpu": "Apple M1 Pro",
+      "logicalCores": 8,
+      "totalMemoryBytes": 17179869184,
+      "freeMemoryBytes": 380289024,
+      "loadAverage": [15.6328125, 15.3515625, 16.31591796875],
+      "powerSource": "AC",
+      "batteryPercent": "100",
+      "thermalState": "no-warning-reported",
+      "physicalIPhone": false
+    }
+  },
+  "browser": {
+    "version": "151.0.7922.34",
+    "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/26.5 Mobile/15E148 Safari/604.1",
+    "viewport": {
+      "width": 390,
+      "height": 664
+    },
+    "screen": {
+      "width": 390,
+      "height": 844
+    },
+    "deviceScaleFactor": 3,
+    "isMobile": true,
+    "hasTouch": true,
+    "defaultBrowserType": "webkit",
+    "locale": "zh-CN",
+    "timezoneId": "Asia/Shanghai",
+    "colorScheme": "light",
+    "reducedMotion": "reduce",
+    "serviceWorkers": "block",
+    "cpuRate": 4,
+    "networkThrottle": "none"
+  },
+  "rawReportPath": "test-results/v4-performance/2026-09-29T03-25-31-770Z-47552/report.json",
+  "rawReportSha256": "1be6d437ce885f1bd62856844f56fcd9f15689984d1f038cedc80aa54ef7cbeb",
+  "summary": [
+    {
+      "group": "F0-expense",
+      "sampleCount": 7,
+      "failedSamples": [],
+      "dateConsistent": true,
+      "metrics": {
+        "fcp": {
+          "values": [360, 260, 236, 268, 228, 228, 240],
+          "min": 228,
+          "max": 360,
+          "median": 240,
+          "limit": 400,
+          "passed": true
+        },
+        "ready": {
+          "values": [
+            997.3999996185303, 765.8999996185303, 731.5999994277954, 749.9000005722046,
+            703.4000005722046, 697.1999998092651, 716.6999998092651
+          ],
+          "min": 697.1999998092651,
+          "max": 997.3999996185303,
+          "median": 731.5999994277954,
+          "limit": 1400,
+          "passed": true
+        },
+        "chooser": {
+          "values": [
+            52.80000019073486, 35, 39.09999942779541, 36.5, 34.69999980926514, 32.39999961853027,
+            28.600000381469727
+          ],
+          "min": 28.600000381469727,
+          "max": 52.80000019073486,
+          "median": 35,
+          "limit": 350,
+          "passed": true
+        },
+        "editor": {
+          "values": [
+            151.30000019073486, 106.10000038146973, 101.80000019073486, 110.19999980926514,
+            91.19999980926514, 87.19999980926514, 93.90000057220459
+          ],
+          "min": 87.19999980926514,
+          "max": 151.30000019073486,
+          "median": 101.80000019073486,
+          "limit": 350,
+          "passed": true
+        }
+      }
+    },
+    {
+      "group": "F0-weight",
+      "sampleCount": 7,
+      "failedSamples": [],
+      "dateConsistent": true,
+      "metrics": {
+        "fcp": {
+          "values": [232, 224, 248, 228, 248, 248, 312],
+          "min": 224,
+          "max": 312,
+          "median": 248,
+          "limit": 400,
+          "passed": true
+        },
+        "ready": {
+          "values": [
+            700.9000005722046, 704.2000007629395, 720.1000003814697, 690.3000001907349, 742.5, 740,
+            882.3999996185303
+          ],
+          "min": 690.3000001907349,
+          "max": 882.3999996185303,
+          "median": 720.1000003814697,
+          "limit": 1400,
+          "passed": true
+        },
+        "chooser": {
+          "values": [
+            27.800000190734863, 30.90000057220459, 32.5, 26.699999809265137, 29.800000190734863,
+            41.69999980926514, 36.10000038146973
+          ],
+          "min": 26.699999809265137,
+          "max": 41.69999980926514,
+          "median": 30.90000057220459,
+          "limit": 350,
+          "passed": true
+        },
+        "editor": {
+          "values": [
+            86.10000038146973, 89.59999942779541, 100.59999942779541, 87.80000019073486, 83,
+            109.39999961853027, 107.10000038146973
+          ],
+          "min": 83,
+          "max": 109.39999961853027,
+          "median": 89.59999942779541,
+          "limit": 350,
+          "passed": true
+        }
+      }
+    },
+    {
+      "group": "F0-activity",
+      "sampleCount": 7,
+      "failedSamples": [],
+      "dateConsistent": true,
+      "metrics": {
+        "fcp": {
+          "values": [228, 240, 248, 232, 224, 240, 248],
+          "min": 224,
+          "max": 248,
+          "median": 240,
+          "limit": 400,
+          "passed": true
+        },
+        "ready": {
+          "values": [
+            704.8999996185303, 714.1000003814697, 719.1000003814697, 686.8999996185303,
+            686.1000003814697, 718.7000007629395, 728.7999992370605
+          ],
+          "min": 686.1000003814697,
+          "max": 728.7999992370605,
+          "median": 714.1000003814697,
+          "limit": 1400,
+          "passed": true
+        },
+        "chooser": {
+          "values": [
+            32.40000057220459, 31.399999618530273, 28.5, 27.59999942779541, 26.199999809265137,
+            29.90000057220459, 28.699999809265137
+          ],
+          "min": 26.199999809265137,
+          "max": 32.40000057220459,
+          "median": 28.699999809265137,
+          "limit": 350,
+          "passed": true
+        },
+        "editor": {
+          "values": [
+            101.30000019073486, 95.40000057220459, 103.90000057220459, 95.10000038146973, 91,
+            90.60000038146973, 89.69999980926514
+          ],
+          "min": 89.69999980926514,
+          "max": 103.90000057220459,
+          "median": 95.10000038146973,
+          "limit": 350,
+          "passed": true
+        }
+      }
+    },
+    {
+      "group": "F1-expense",
+      "sampleCount": 7,
+      "failedSamples": [],
+      "dateConsistent": true,
+      "metrics": {
+        "fcp": {
+          "values": [232, 220, 224, 240, 224, 252, 252],
+          "min": 220,
+          "max": 252,
+          "median": 232,
+          "limit": 400,
+          "passed": true
+        },
+        "ready": {
+          "values": [
+            677.7000007629395, 671.6999998092651, 681.6000003814697, 703.5, 665.6999998092651,
+            717.8000001907349, 709.1999998092651
+          ],
+          "min": 665.6999998092651,
+          "max": 717.8000001907349,
+          "median": 681.6000003814697,
+          "limit": 1400,
+          "passed": true
+        },
+        "chooser": {
+          "values": [
+            32, 31.800000190734863, 35.40000057220459, 31.300000190734863, 31.100000381469727,
+            31.899999618530273, 33.19999980926514
+          ],
+          "min": 31.100000381469727,
+          "max": 35.40000057220459,
+          "median": 31.899999618530273,
+          "limit": 350,
+          "passed": true
+        },
+        "editor": {
+          "values": [
+            95.60000038146973, 95.89999961853027, 99, 95, 92.39999961853027, 105.19999980926514, 97
+          ],
+          "min": 92.39999961853027,
+          "max": 105.19999980926514,
+          "median": 95.89999961853027,
+          "limit": 350,
+          "passed": true
+        }
+      }
+    },
+    {
+      "group": "F1-weight",
+      "sampleCount": 7,
+      "failedSamples": [],
+      "dateConsistent": true,
+      "metrics": {
+        "fcp": {
+          "values": [228, 232, 236, 252, 244, 284, 284],
+          "min": 228,
+          "max": 284,
+          "median": 244,
+          "limit": 400,
+          "passed": true
+        },
+        "ready": {
+          "values": [
+            676.6000003814697, 685.8999996185303, 690.5, 711.6999998092651, 693.0999994277954,
+            757.3000001907349, 794.6999998092651
+          ],
+          "min": 676.6000003814697,
+          "max": 794.6999998092651,
+          "median": 693.0999994277954,
+          "limit": 1400,
+          "passed": true
+        },
+        "chooser": {
+          "values": [
+            37.30000019073486, 31.09999942779541, 31.200000762939453, 33.5, 30.399999618530273,
+            29.899999618530273, 34.90000057220459
+          ],
+          "min": 29.899999618530273,
+          "max": 37.30000019073486,
+          "median": 31.200000762939453,
+          "limit": 350,
+          "passed": true
+        },
+        "editor": {
+          "values": [
+            92.5, 88.69999980926514, 88.80000019073486, 90.60000038146973, 87.60000038146973,
+            111.30000019073486, 102.89999961853027
+          ],
+          "min": 87.60000038146973,
+          "max": 111.30000019073486,
+          "median": 90.60000038146973,
+          "limit": 350,
+          "passed": true
+        }
+      }
+    },
+    {
+      "group": "F1-activity",
+      "sampleCount": 7,
+      "failedSamples": [],
+      "dateConsistent": true,
+      "metrics": {
+        "fcp": {
+          "values": [224, 232, 224, 228, 220, 220, 236],
+          "min": 220,
+          "max": 236,
+          "median": 224,
+          "limit": 400,
+          "passed": true
+        },
+        "ready": {
+          "values": [
+            678.9000005722046, 688.1999998092651, 672.4000005722046, 675.9000005722046, 666.5,
+            702.3999996185303, 702
+          ],
+          "min": 666.5,
+          "max": 702.3999996185303,
+          "median": 678.9000005722046,
+          "limit": 1400,
+          "passed": true
+        },
+        "chooser": {
+          "values": [
+            28.09999942779541, 29.800000190734863, 28.5, 29.399999618530273, 37.5,
+            36.69999980926514, 28.399999618530273
+          ],
+          "min": 28.09999942779541,
+          "max": 37.5,
+          "median": 29.399999618530273,
+          "limit": 350,
+          "passed": true
+        },
+        "editor": {
+          "values": [
+            107, 98.80000019073486, 99.60000038146973, 91.80000019073486, 102.40000057220459,
+            111.09999942779541, 94.39999961853027
+          ],
+          "min": 91.80000019073486,
+          "max": 111.09999942779541,
+          "median": 99.60000038146973,
+          "limit": 350,
+          "passed": true
+        }
+      }
+    },
+    {
+      "group": "F3-expense",
+      "sampleCount": 7,
+      "failedSamples": [],
+      "dateConsistent": true,
+      "metrics": {
+        "fcp": {
+          "values": [376, 308, 280, 308, 316, 320, 304],
+          "min": 280,
+          "max": 376,
+          "median": 308,
+          "limit": 400,
+          "passed": true
+        },
+        "ready": {
+          "values": [
+            869.6000003814697, 813.8999996185303, 751.5, 782.6999998092651, 788.1000003814697,
+            803.3999996185303, 778.1999998092651
+          ],
+          "min": 751.5,
+          "max": 869.6000003814697,
+          "median": 788.1000003814697,
+          "limit": 2000,
+          "passed": true
+        },
+        "chooser": {
+          "values": [
+            33.89999961853027, 37.40000057220459, 29.100000381469727, 33, 35, 31.300000190734863, 31
+          ],
+          "min": 29.100000381469727,
+          "max": 37.40000057220459,
+          "median": 33,
+          "limit": 350,
+          "passed": true
+        },
+        "editor": {
+          "values": [
+            157.5, 107.39999961853027, 98.60000038146973, 103.69999980926514, 102.39999961853027,
+            119.5, 98
+          ],
+          "min": 98,
+          "max": 157.5,
+          "median": 103.69999980926514,
+          "limit": 350,
+          "passed": true
+        }
+      }
+    }
+  ],
+  "artifactGate": {
+    "javascript": true,
+    "css": true,
+    "unusualScripts": true,
+    "precacheObserved": true,
+    "unchangedBuild": true
+  },
+  "samples": [
+    {
+      "order": 1,
+      "group": "F0-expense",
+      "repetition": 1,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 360,
+        "ready": 997.3999996185303,
+        "chooser": 52.80000019073486,
+        "editor": 151.30000019073486
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 262.5,
+          "source": "load-ready"
+        },
+        {
+          "time": 484.19999980926514,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "af83ac9eb9cb8d29956b6770daa89fd1ea51c73339044e508135a12ab21c2564",
+      "screenshot": "01-F0-expense-1.png"
+    },
+    {
+      "order": 2,
+      "group": "F0-expense",
+      "repetition": 2,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 260,
+        "ready": 765.8999996185303,
+        "chooser": 35,
+        "editor": 106.10000038146973
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 181.19999980926514,
+          "source": "load-ready"
+        },
+        {
+          "time": 279.0999994277954,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "64fdf92bf34003765ee4d52d199cbbbdaec1a2fe09bab5939706b35d3e648344",
+      "screenshot": "02-F0-expense-2.png"
+    },
+    {
+      "order": 3,
+      "group": "F0-expense",
+      "repetition": 3,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 236,
+        "ready": 731.5999994277954,
+        "chooser": 39.09999942779541,
+        "editor": 101.80000019073486
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 159.5,
+          "source": "load-ready"
+        },
+        {
+          "time": 254.19999980926514,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "c7115242f41f07df5c298fbb8234a975a8aa1e7e2ac64c051e03ca810feff8fe",
+      "screenshot": "03-F0-expense-3.png"
+    },
+    {
+      "order": 4,
+      "group": "F0-expense",
+      "repetition": 4,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 268,
+        "ready": 749.9000005722046,
+        "chooser": 36.5,
+        "editor": 110.19999980926514
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 181.10000038146973,
+          "source": "load-ready"
+        },
+        {
+          "time": 288.80000019073486,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "f989426a6353dfeb9921c2445002ca0241151ec69206e00f5fd34756944e02e8",
+      "screenshot": "04-F0-expense-4.png"
+    },
+    {
+      "order": 5,
+      "group": "F0-expense",
+      "repetition": 5,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 228,
+        "ready": 703.4000005722046,
+        "chooser": 34.69999980926514,
+        "editor": 91.19999980926514
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 158.9000005722046,
+          "source": "load-ready"
+        },
+        {
+          "time": 246.9000005722046,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "b89e69c47375b906883805e3d152df1d8e1f23b9b91ff13bc97483ef67aa9b0e",
+      "screenshot": "05-F0-expense-5.png"
+    },
+    {
+      "order": 6,
+      "group": "F0-expense",
+      "repetition": 6,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 228,
+        "ready": 697.1999998092651,
+        "chooser": 32.39999961853027,
+        "editor": 87.19999980926514
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 154.30000019073486,
+          "source": "load-ready"
+        },
+        {
+          "time": 247,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "40bd446ab526110ed53d8a57f5c1987cd9615699790a7c5989cdf24e5255b250",
+      "screenshot": "06-F0-expense-6.png"
+    },
+    {
+      "order": 7,
+      "group": "F0-expense",
+      "repetition": 7,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 240,
+        "ready": 716.6999998092651,
+        "chooser": 28.600000381469727,
+        "editor": 93.90000057220459
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 163.29999923706055,
+          "source": "load-ready"
+        },
+        {
+          "time": 265.19999980926514,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "2083eec7bd7aff92193a6896f13286fa70c034e1b30cc279212cf25fb21a86d7",
+      "screenshot": "07-F0-expense-7.png"
+    },
+    {
+      "order": 8,
+      "group": "F0-weight",
+      "repetition": 1,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 232,
+        "ready": 700.9000005722046,
+        "chooser": 27.800000190734863,
+        "editor": 86.10000038146973
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 160.4000005722046,
+          "source": "load-ready"
+        },
+        {
+          "time": 250,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "5883550a695f9e8604dab04f09fb79d384ad844f17fee6b72d31d9d523f9533b",
+      "screenshot": "08-F0-weight-1.png"
+    },
+    {
+      "order": 9,
+      "group": "F0-weight",
+      "repetition": 2,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 224,
+        "ready": 704.2000007629395,
+        "chooser": 30.90000057220459,
+        "editor": 89.59999942779541
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 151.9000005722046,
+          "source": "load-ready"
+        },
+        {
+          "time": 240.30000019073486,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "c38b45f122023498097e3e5486c548c868d2911097b6a8e3c3bb59c32cedb258",
+      "screenshot": "09-F0-weight-2.png"
+    },
+    {
+      "order": 10,
+      "group": "F0-weight",
+      "repetition": 3,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 248,
+        "ready": 720.1000003814697,
+        "chooser": 32.5,
+        "editor": 100.59999942779541
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 170.20000076293945,
+          "source": "load-ready"
+        },
+        {
+          "time": 268.1000003814697,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "a02b537eeff774d68621f3c665a071cd7872e1a18e693c717ef8db0112021717",
+      "screenshot": "10-F0-weight-3.png"
+    },
+    {
+      "order": 11,
+      "group": "F0-weight",
+      "repetition": 4,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 228,
+        "ready": 690.3000001907349,
+        "chooser": 26.699999809265137,
+        "editor": 87.80000019073486
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 153.70000076293945,
+          "source": "load-ready"
+        },
+        {
+          "time": 245.9000005722046,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "b2ee3bd248c5344813420eca89bc02eca723f3005658b1958de3102d2e775b81",
+      "screenshot": "11-F0-weight-4.png"
+    },
+    {
+      "order": 12,
+      "group": "F0-weight",
+      "repetition": 5,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 248,
+        "ready": 742.5,
+        "chooser": 29.800000190734863,
+        "editor": 83
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 167.80000019073486,
+          "source": "load-ready"
+        },
+        {
+          "time": 266.9000005722046,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "102065f6faf882d840b89ff26a24d57f6e42f8d555fface7da68d6b3831c14ec",
+      "screenshot": "12-F0-weight-5.png"
+    },
+    {
+      "order": 13,
+      "group": "F0-weight",
+      "repetition": 6,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 248,
+        "ready": 740,
+        "chooser": 41.69999980926514,
+        "editor": 109.39999961853027
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 166.0999994277954,
+          "source": "load-ready"
+        },
+        {
+          "time": 264.19999980926514,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "7ed8c34802751a210d4d1c97f4fc934f98c4f4b269bac118d3947632c0a0bf78",
+      "screenshot": "13-F0-weight-6.png"
+    },
+    {
+      "order": 14,
+      "group": "F0-weight",
+      "repetition": 7,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 312,
+        "ready": 882.3999996185303,
+        "chooser": 36.10000038146973,
+        "editor": 107.10000038146973
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 193.5999994277954,
+          "source": "load-ready"
+        },
+        {
+          "time": 339.69999980926514,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "23439c0b042e7b1e9d6ba09a68639515e88529bff76474b7609c5abf029061b2",
+      "screenshot": "14-F0-weight-7.png"
+    },
+    {
+      "order": 15,
+      "group": "F0-activity",
+      "repetition": 1,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 228,
+        "ready": 704.8999996185303,
+        "chooser": 32.40000057220459,
+        "editor": 101.30000019073486
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 155.30000019073486,
+          "source": "load-ready"
+        },
+        {
+          "time": 248,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "a05072c8686691cc51dcbde0909426b4c4a6b51e60c0a1a3147a0df01f0d1272",
+      "screenshot": "15-F0-activity-1.png"
+    },
+    {
+      "order": 16,
+      "group": "F0-activity",
+      "repetition": 2,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 240,
+        "ready": 714.1000003814697,
+        "chooser": 31.399999618530273,
+        "editor": 95.40000057220459
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 163.10000038146973,
+          "source": "load-ready"
+        },
+        {
+          "time": 262.19999980926514,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "cbcb700730582dca287e92e6096f7e17cc70e69fe28c474e63c9ef60f8775b64",
+      "screenshot": "16-F0-activity-2.png"
+    },
+    {
+      "order": 17,
+      "group": "F0-activity",
+      "repetition": 3,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 248,
+        "ready": 719.1000003814697,
+        "chooser": 28.5,
+        "editor": 103.90000057220459
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 164.80000019073486,
+          "source": "load-ready"
+        },
+        {
+          "time": 270.30000019073486,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "2c2691b5b2954fc5249e34abad4289cecaef58ef9f2e5cf6cafeaed1d1f72ae2",
+      "screenshot": "17-F0-activity-3.png"
+    },
+    {
+      "order": 18,
+      "group": "F0-activity",
+      "repetition": 4,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 232,
+        "ready": 686.8999996185303,
+        "chooser": 27.59999942779541,
+        "editor": 95.10000038146973
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 158.10000038146973,
+          "source": "load-ready"
+        },
+        {
+          "time": 250.5,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "0ba5dd8b26a9e9a39bda05aeccac7ff5ff9d4b4acc61d47f31afc9ee63f40132",
+      "screenshot": "18-F0-activity-4.png"
+    },
+    {
+      "order": 19,
+      "group": "F0-activity",
+      "repetition": 5,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 224,
+        "ready": 686.1000003814697,
+        "chooser": 26.199999809265137,
+        "editor": 91
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 153.9000005722046,
+          "source": "load-ready"
+        },
+        {
+          "time": 241.60000038146973,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "e8ff249839406b86508ac340a2bab92d615761c92902458ffe6be759d3bd269c",
+      "screenshot": "19-F0-activity-5.png"
+    },
+    {
+      "order": 20,
+      "group": "F0-activity",
+      "repetition": 6,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 240,
+        "ready": 718.7000007629395,
+        "chooser": 29.90000057220459,
+        "editor": 90.60000038146973
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 160.70000076293945,
+          "source": "load-ready"
+        },
+        {
+          "time": 262.9000005722046,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "61a96030a4de2023e1abbea0f82c85d7b82fdfd4d7c0a6600d7e4c5422d28d79",
+      "screenshot": "20-F0-activity-6.png"
+    },
+    {
+      "order": 21,
+      "group": "F0-activity",
+      "repetition": 7,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 248,
+        "ready": 728.7999992370605,
+        "chooser": 28.699999809265137,
+        "editor": 89.69999980926514
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 176,
+          "source": "load-ready"
+        },
+        {
+          "time": 269.79999923706055,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "1183158eb77647e52295de9935a3de62c55d174c342036ef2136b2ba80cdd07e",
+      "screenshot": "21-F0-activity-7.png"
+    },
+    {
+      "order": 22,
+      "group": "F1-expense",
+      "repetition": 1,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 232,
+        "ready": 677.7000007629395,
+        "chooser": 32,
+        "editor": 95.60000038146973
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 157.20000076293945,
+          "source": "load-ready"
+        },
+        {
+          "time": 254.30000019073486,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "933e7d95c7982d7daa379a76173d0a37a2fc98e09fcac2676458313fa3fe9456",
+      "screenshot": "22-F1-expense-1.png"
+    },
+    {
+      "order": 23,
+      "group": "F1-expense",
+      "repetition": 2,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 220,
+        "ready": 671.6999998092651,
+        "chooser": 31.800000190734863,
+        "editor": 95.89999961853027
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 150.0999994277954,
+          "source": "load-ready"
+        },
+        {
+          "time": 242.80000019073486,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "6d47dc6e67ba33203c84d68f608d018743157c83e27ec72314dac7fac97ef1cb",
+      "screenshot": "23-F1-expense-2.png"
+    },
+    {
+      "order": 24,
+      "group": "F1-expense",
+      "repetition": 3,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 224,
+        "ready": 681.6000003814697,
+        "chooser": 35.40000057220459,
+        "editor": 99
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 152.60000038146973,
+          "source": "load-ready"
+        },
+        {
+          "time": 247,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "1eec463226e0a59580a4193d85f661f8624df5e7036703e71345592b56a4e3bf",
+      "screenshot": "24-F1-expense-3.png"
+    },
+    {
+      "order": 25,
+      "group": "F1-expense",
+      "repetition": 4,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 240,
+        "ready": 703.5,
+        "chooser": 31.300000190734863,
+        "editor": 95
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 161.89999961853027,
+          "source": "load-ready"
+        },
+        {
+          "time": 265.5,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "2c2a52485ffd852dddbf04adc752bee189699430ee5df8f1287fd9a52f0c3061",
+      "screenshot": "25-F1-expense-4.png"
+    },
+    {
+      "order": 26,
+      "group": "F1-expense",
+      "repetition": 5,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 224,
+        "ready": 665.6999998092651,
+        "chooser": 31.100000381469727,
+        "editor": 92.39999961853027
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 150.30000019073486,
+          "source": "load-ready"
+        },
+        {
+          "time": 244.19999980926514,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "a2334ab94eeee82a1c25c4cc4a681f7db6c804885b97d383bedd2c8be9dcba80",
+      "screenshot": "26-F1-expense-5.png"
+    },
+    {
+      "order": 27,
+      "group": "F1-expense",
+      "repetition": 6,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 252,
+        "ready": 717.8000001907349,
+        "chooser": 31.899999618530273,
+        "editor": 105.19999980926514
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 166.10000038146973,
+          "source": "load-ready"
+        },
+        {
+          "time": 280.6000003814697,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "f68c70229b19a3afdcb8bc24fb4233b0ef3b8195a6ce511274772e919e0854e5",
+      "screenshot": "27-F1-expense-6.png"
+    },
+    {
+      "order": 28,
+      "group": "F1-expense",
+      "repetition": 7,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 252,
+        "ready": 709.1999998092651,
+        "chooser": 33.19999980926514,
+        "editor": 97
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 176.19999980926514,
+          "source": "load-ready"
+        },
+        {
+          "time": 278.1000003814697,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "5d46cd65e76a2c345e234dddec8c1699439c2f28ffcc3ffed81aaa6f0cec576d",
+      "screenshot": "28-F1-expense-7.png"
+    },
+    {
+      "order": 29,
+      "group": "F1-weight",
+      "repetition": 1,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 228,
+        "ready": 676.6000003814697,
+        "chooser": 37.30000019073486,
+        "editor": 92.5
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 155.60000038146973,
+          "source": "load-ready"
+        },
+        {
+          "time": 252.4000005722046,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "c99fb3b92b689b683ef3ee6443a22cb0d978f3f013e4989e35d02ecf0e06e124",
+      "screenshot": "29-F1-weight-1.png"
+    },
+    {
+      "order": 30,
+      "group": "F1-weight",
+      "repetition": 2,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 232,
+        "ready": 685.8999996185303,
+        "chooser": 31.09999942779541,
+        "editor": 88.69999980926514
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 150.5,
+          "source": "load-ready"
+        },
+        {
+          "time": 258.69999980926514,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "c191c92ce6d248ec3bbc8103916a9c0b820d8bf738c9d31ef1ae0b9bf7c5340f",
+      "screenshot": "30-F1-weight-2.png"
+    },
+    {
+      "order": 31,
+      "group": "F1-weight",
+      "repetition": 3,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 236,
+        "ready": 690.5,
+        "chooser": 31.200000762939453,
+        "editor": 88.80000019073486
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 159.69999980926514,
+          "source": "load-ready"
+        },
+        {
+          "time": 266.5999994277954,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "fe2fa5943dc10bc4ecb5a908170002899a694a21fc956950c610886fb18a21ef",
+      "screenshot": "31-F1-weight-3.png"
+    },
+    {
+      "order": 32,
+      "group": "F1-weight",
+      "repetition": 4,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 252,
+        "ready": 711.6999998092651,
+        "chooser": 33.5,
+        "editor": 90.60000038146973
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 172.5999994277954,
+          "source": "load-ready"
+        },
+        {
+          "time": 277.29999923706055,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "5dd6130934818cbaa68e5dc523cfd09d8abe92ddb9f0c2c64e064816ab16389a",
+      "screenshot": "32-F1-weight-4.png"
+    },
+    {
+      "order": 33,
+      "group": "F1-weight",
+      "repetition": 5,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 244,
+        "ready": 693.0999994277954,
+        "chooser": 30.399999618530273,
+        "editor": 87.60000038146973
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 162,
+          "source": "load-ready"
+        },
+        {
+          "time": 266.0999994277954,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "84e2405dd0be44087a6b89d31916c898bdbd5d86e8de37f85c0d30c2c20c00c3",
+      "screenshot": "33-F1-weight-5.png"
+    },
+    {
+      "order": 34,
+      "group": "F1-weight",
+      "repetition": 6,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 284,
+        "ready": 757.3000001907349,
+        "chooser": 29.899999618530273,
+        "editor": 111.30000019073486
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 194,
+          "source": "load-ready"
+        },
+        {
+          "time": 307.70000076293945,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "14ea836a50f319355104048cc19c051a71b2ada6e27307a3adb905e0f08e8893",
+      "screenshot": "34-F1-weight-6.png"
+    },
+    {
+      "order": 35,
+      "group": "F1-weight",
+      "repetition": 7,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 284,
+        "ready": 794.6999998092651,
+        "chooser": 34.90000057220459,
+        "editor": 102.89999961853027
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 200.60000038146973,
+          "source": "load-ready"
+        },
+        {
+          "time": 323.69999980926514,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "880798d314204f05f8bc832e46049d664460b3f2b7d665779598302c69f03e49",
+      "screenshot": "35-F1-weight-7.png"
+    },
+    {
+      "order": 36,
+      "group": "F1-activity",
+      "repetition": 1,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 224,
+        "ready": 678.9000005722046,
+        "chooser": 28.09999942779541,
+        "editor": 107
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 154.30000019073486,
+          "source": "load-ready"
+        },
+        {
+          "time": 246.80000019073486,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "da1b23bcc550e39cb66b1bcf09e139073d55a621a28490bde0927aae9be2e633",
+      "screenshot": "36-F1-activity-1.png"
+    },
+    {
+      "order": 37,
+      "group": "F1-activity",
+      "repetition": 2,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 232,
+        "ready": 688.1999998092651,
+        "chooser": 29.800000190734863,
+        "editor": 98.80000019073486
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 159.80000019073486,
+          "source": "load-ready"
+        },
+        {
+          "time": 256.30000019073486,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "83793be5746e3d8082b0fb9e4ebf4da51e54382bcc20a233da8616b2a3e4d032",
+      "screenshot": "37-F1-activity-2.png"
+    },
+    {
+      "order": 38,
+      "group": "F1-activity",
+      "repetition": 3,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 224,
+        "ready": 672.4000005722046,
+        "chooser": 28.5,
+        "editor": 99.60000038146973
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 153.5,
+          "source": "load-ready"
+        },
+        {
+          "time": 245.9000005722046,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "b39fd79dc77358d8e65f348cc7a09fb9c1aea7f8877e2ac343194ce0c1eff54f",
+      "screenshot": "38-F1-activity-3.png"
+    },
+    {
+      "order": 39,
+      "group": "F1-activity",
+      "repetition": 4,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 228,
+        "ready": 675.9000005722046,
+        "chooser": 29.399999618530273,
+        "editor": 91.80000019073486
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 153.5,
+          "source": "load-ready"
+        },
+        {
+          "time": 252.30000019073486,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "9f58f695ec76dbab5dd700c6e4a0904ea73d72e73110d42df10090622e15a004",
+      "screenshot": "39-F1-activity-4.png"
+    },
+    {
+      "order": 40,
+      "group": "F1-activity",
+      "repetition": 5,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 220,
+        "ready": 666.5,
+        "chooser": 37.5,
+        "editor": 102.40000057220459
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 152,
+          "source": "load-ready"
+        },
+        {
+          "time": 244,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "253d7a718dba2d717fe392e3579cd4f4c42accd5e6e3bea034030416ab34c849",
+      "screenshot": "40-F1-activity-5.png"
+    },
+    {
+      "order": 41,
+      "group": "F1-activity",
+      "repetition": 6,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 220,
+        "ready": 702.3999996185303,
+        "chooser": 36.69999980926514,
+        "editor": 111.09999942779541
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 148.80000019073486,
+          "source": "load-ready"
+        },
+        {
+          "time": 243.10000038146973,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "8ba9ad42bce31b28bb89deb0845343250fb70061653fa4522457e8902eea45e9",
+      "screenshot": "41-F1-activity-6.png"
+    },
+    {
+      "order": 42,
+      "group": "F1-activity",
+      "repetition": 7,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 236,
+        "ready": 702,
+        "chooser": 28.399999618530273,
+        "editor": 94.39999961853027
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 158.9000005722046,
+          "source": "load-ready"
+        },
+        {
+          "time": 256.69999980926514,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "3a3d24769f43588bc808c1bf0e86e7e3150887617574d594f6d489192cfd8e44",
+      "screenshot": "42-F1-activity-7.png"
+    },
+    {
+      "order": 43,
+      "group": "F3-expense",
+      "repetition": 1,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 376,
+        "ready": 869.6000003814697,
+        "chooser": 33.89999961853027,
+        "editor": 157.5
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 281,
+          "source": "load-ready"
+        },
+        {
+          "time": 406.1000003814697,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "a18d46f29b0d1f03ae2edaa9a443aa1c0830c210a9d669d56c83735b94877233",
+      "screenshot": "43-F3-expense-1.png"
+    },
+    {
+      "order": 44,
+      "group": "F3-expense",
+      "repetition": 2,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 308,
+        "ready": 813.8999996185303,
+        "chooser": 37.40000057220459,
+        "editor": 107.39999961853027
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 217.60000038146973,
+          "source": "load-ready"
+        },
+        {
+          "time": 330.30000019073486,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "a37611e5086bce31b13d63a28359d8d118385bba23b500d004025e8758c74d54",
+      "screenshot": "44-F3-expense-2.png"
+    },
+    {
+      "order": 45,
+      "group": "F3-expense",
+      "repetition": 3,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 280,
+        "ready": 751.5,
+        "chooser": 29.100000381469727,
+        "editor": 98.60000038146973
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 193.20000076293945,
+          "source": "load-ready"
+        },
+        {
+          "time": 302.1000003814697,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "b72fcf55ac9314d5e4b0b4cac32ecfef35217f465e51b0475d8dd95621e5bdb3",
+      "screenshot": "45-F3-expense-3.png"
+    },
+    {
+      "order": 46,
+      "group": "F3-expense",
+      "repetition": 4,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 308,
+        "ready": 782.6999998092651,
+        "chooser": 33,
+        "editor": 103.69999980926514
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 217.0999994277954,
+          "source": "load-ready"
+        },
+        {
+          "time": 330.5,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "f86aeaa0532f7506a835a51b2d7bf2c3896d613b44e4cb4b16f4262013539ff8",
+      "screenshot": "46-F3-expense-4.png"
+    },
+    {
+      "order": 47,
+      "group": "F3-expense",
+      "repetition": 5,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 316,
+        "ready": 788.1000003814697,
+        "chooser": 35,
+        "editor": 102.39999961853027
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 222.39999961853027,
+          "source": "load-ready"
+        },
+        {
+          "time": 338,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "6162c030b69b6fe06b9fffd340552b8545e8e826818e16aebc0030345db779e5",
+      "screenshot": "47-F3-expense-5.png"
+    },
+    {
+      "order": 48,
+      "group": "F3-expense",
+      "repetition": 6,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 320,
+        "ready": 803.3999996185303,
+        "chooser": 31.300000190734863,
+        "editor": 119.5
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 218.39999961853027,
+          "source": "load-ready"
+        },
+        {
+          "time": 344.80000019073486,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "2982f89459cc6ba65fd1cb949d72ac12aab40c292a67482ef5786df9af64ff47",
+      "screenshot": "48-F3-expense-6.png"
+    },
+    {
+      "order": 49,
+      "group": "F3-expense",
+      "repetition": 7,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 304,
+        "ready": 778.1999998092651,
+        "chooser": 31,
+        "editor": 98
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 209.9000005722046,
+          "source": "load-ready"
+        },
+        {
+          "time": 328.9000005722046,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "6c491a0fe5734239563346cc6f8cfec09df439ed46b1be842e36e698775f648a",
+      "screenshot": "49-F3-expense-7.png"
+    }
+  ],
+  "observations": [
+    {
+      "order": 50,
+      "group": "F1-expense",
+      "repetition": 1,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 232,
+        "ready": 681.2000007629395,
+        "chooser": 41.80000019073486,
+        "editor": 95.80000019073486
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 157.80000019073486,
+          "source": "load-ready"
+        },
+        {
+          "time": 255.30000019073486,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "1ff5bfce9738e7852e6ef0fdfbd53f0136701c35a9f9166d922232a0bbe5baa3",
+      "screenshot": "50-F1-expense-1-normal-motion.png"
+    },
+    {
+      "order": 51,
+      "group": "F1-expense",
+      "repetition": 1,
+      "status": "passed",
+      "failure": null,
+      "baseDate": "2026-09-29",
+      "metrics": {
+        "fcp": 232,
+        "ready": 687.5,
+        "chooser": 29.40000057220459,
+        "editor": 88.39999961853027
+      },
+      "readyChecks": {
+        "identity": true,
+        "regions": true,
+        "theme": true,
+        "compose": true,
+        "navigation": true,
+        "modes": true,
+        "habits": true,
+        "settings": true,
+        "focus": true,
+        "content": true,
+        "unobstructed": true
+      },
+      "regionStates": {
+        "shell": "ready",
+        "today-habits": "ready",
+        "today-finance": "ready",
+        "focus-runtime": "ready",
+        "today-records": "ready"
+      },
+      "field": {
+        "label": true,
+        "unit": true,
+        "focused": true,
+        "editable": true
+      },
+      "fontShift": 0,
+      "fontCompletions": [
+        {
+          "time": 158,
+          "source": "load-ready"
+        },
+        {
+          "time": 253.4000005722046,
+          "source": "loading-done"
+        }
+      ],
+      "keyboardChangedValue": true,
+      "cancelPreservedDatabase": true,
+      "databaseDigest": "826c39c15ab3c14d03cdeb28ea5a02e20cde5e6a08ae40ab1fa47431fafc527e",
+      "screenshot": "51-F1-expense-1-keyboard.png"
+    }
+  ],
+  "representativeResourceGroups": [
+    {
+      "order": 1,
+      "beforeReady": [
+        {
+          "name": "/assets/index-AVdAxTO4.js",
+          "initiatorType": "script",
+          "startTime": 92.89999961853027,
+          "responseEnd": 113.59999942779541,
+          "duration": 20.699999809265137,
+          "transferSize": 114873,
+          "encodedBodySize": 114573,
+          "decodedBodySize": 363131
+        },
+        {
+          "name": "/assets/Elements-CbNF6sHh.js",
+          "initiatorType": "other",
+          "startTime": 93.39999961853027,
+          "responseEnd": 105.39999961853027,
+          "duration": 12,
+          "transferSize": 34878,
+          "encodedBodySize": 34578,
+          "decodedBodySize": 104686
+        },
+        {
+          "name": "/assets/Services-WDOoZahA.js",
+          "initiatorType": "other",
+          "startTime": 93.80000019073486,
+          "responseEnd": 101.39999961853027,
+          "duration": 7.59999942779541,
+          "transferSize": 934,
+          "encodedBodySize": 634,
+          "decodedBodySize": 1112
+        },
+        {
+          "name": "/assets/index-NRIiKnql.css",
+          "initiatorType": "link",
+          "startTime": 93.89999961853027,
+          "responseEnd": 100.89999961853027,
+          "duration": 7,
+          "transferSize": 7232,
+          "encodedBodySize": 6932,
+          "decodedBodySize": 30871
+        },
+        {
+          "name": "/__lifeindex_connectivity__",
+          "initiatorType": "fetch",
+          "startTime": 255.80000019073486,
+          "responseEnd": 462.19999980926514,
+          "duration": 206.39999961853027,
+          "transferSize": 300,
+          "encodedBodySize": 0,
+          "decodedBodySize": 0
+        },
+        {
+          "name": "/assets/workbox-window.prod.es5-Bd17z0YL.js",
+          "initiatorType": "script",
+          "startTime": 259.5,
+          "responseEnd": 478.3999996185303,
+          "duration": 218.89999961853027,
+          "transferSize": 2499,
+          "encodedBodySize": 2199,
+          "decodedBodySize": 5653
+        },
+        {
+          "name": "/fonts/Manrope.ttf",
+          "initiatorType": "css",
+          "startTime": 283,
+          "responseEnd": 467.8999996185303,
+          "duration": 184.89999961853027,
+          "transferSize": 165000,
+          "encodedBodySize": 164700,
+          "decodedBodySize": 164700
+        },
+        {
+          "name": "/assets/TodayV4-bTctE5rs.js",
+          "initiatorType": "script",
+          "startTime": 602,
+          "responseEnd": 613.5,
+          "duration": 11.5,
+          "transferSize": 2771,
+          "encodedBodySize": 2471,
+          "decodedBodySize": 6671
+        },
+        {
+          "name": "/assets/data-B9zE1qbm.js",
+          "initiatorType": "script",
+          "startTime": 602.3999996185303,
+          "responseEnd": 615.8000001907349,
+          "duration": 13.40000057220459,
+          "transferSize": 1218,
+          "encodedBodySize": 918,
+          "decodedBodySize": 1596
+        },
+        {
+          "name": "/assets/recordPresentation-Ck5Qv0XI.js",
+          "initiatorType": "script",
+          "startTime": 602.5999994277954,
+          "responseEnd": 610.3999996185303,
+          "duration": 7.800000190734863,
+          "transferSize": 912,
+          "encodedBodySize": 612,
+          "decodedBodySize": 612
+        },
+        {
+          "name": "/assets/RecordList-DszFeTTR.js",
+          "initiatorType": "script",
+          "startTime": 602.5999994277954,
+          "responseEnd": 616.1999998092651,
+          "duration": 13.600000381469727,
+          "transferSize": 968,
+          "encodedBodySize": 668,
+          "decodedBodySize": 1169
+        },
+        {
+          "name": "/assets/ReportNavigation-DJA89Oet.js",
+          "initiatorType": "script",
+          "startTime": 602.5999994277954,
+          "responseEnd": 617.8000001907349,
+          "duration": 15.200000762939453,
+          "transferSize": 1106,
+          "encodedBodySize": 806,
+          "decodedBodySize": 1431
+        },
+        {
+          "name": "/assets/HabitAction-EvPpoE8g.js",
+          "initiatorType": "script",
+          "startTime": 603.3000001907349,
+          "responseEnd": 619.5,
+          "duration": 16.199999809265137,
+          "transferSize": 1633,
+          "encodedBodySize": 1333,
+          "decodedBodySize": 2514
+        },
+        {
+          "name": "/assets/intent-CN1-LxUy.js",
+          "initiatorType": "script",
+          "startTime": 603.3999996185303,
+          "responseEnd": 619.8000001907349,
+          "duration": 16.40000057220459,
+          "transferSize": 470,
+          "encodedBodySize": 170,
+          "decodedBodySize": 170
+        }
+      ],
+      "firstInteractionNew": [],
+      "transferBytes": 334794,
+      "encodedBodyBytes": 330594,
+      "decodedBodyBytes": 684316,
+      "chooserToTypeEventGap": 26
+    },
+    {
+      "order": 43,
+      "beforeReady": [
+        {
+          "name": "/assets/index-AVdAxTO4.js",
+          "initiatorType": "script",
+          "startTime": 132.80000019073486,
+          "responseEnd": 158.69999980926514,
+          "duration": 25.899999618530273,
+          "transferSize": 114873,
+          "encodedBodySize": 114573,
+          "decodedBodySize": 363131
+        },
+        {
+          "name": "/assets/Elements-CbNF6sHh.js",
+          "initiatorType": "other",
+          "startTime": 133.60000038146973,
+          "responseEnd": 147.10000038146973,
+          "duration": 13.5,
+          "transferSize": 34878,
+          "encodedBodySize": 34578,
+          "decodedBodySize": 104686
+        },
+        {
+          "name": "/assets/index-NRIiKnql.css",
+          "initiatorType": "link",
+          "startTime": 133.69999980926514,
+          "responseEnd": 142.80000019073486,
+          "duration": 9.100000381469727,
+          "transferSize": 7232,
+          "encodedBodySize": 6932,
+          "decodedBodySize": 30871
+        },
+        {
+          "name": "/assets/Services-WDOoZahA.js",
+          "initiatorType": "other",
+          "startTime": 133.69999980926514,
+          "responseEnd": 143,
+          "duration": 9.300000190734863,
+          "transferSize": 934,
+          "encodedBodySize": 634,
+          "decodedBodySize": 1112
+        },
+        {
+          "name": "/__lifeindex_connectivity__",
+          "initiatorType": "fetch",
+          "startTime": 276.5,
+          "responseEnd": 279,
+          "duration": 2.5,
+          "transferSize": 300,
+          "encodedBodySize": 0,
+          "decodedBodySize": 0
+        },
+        {
+          "name": "/assets/workbox-window.prod.es5-Bd17z0YL.js",
+          "initiatorType": "script",
+          "startTime": 280.30000019073486,
+          "responseEnd": 281.80000019073486,
+          "duration": 1.5,
+          "transferSize": 2499,
+          "encodedBodySize": 2199,
+          "decodedBodySize": 5653
+        },
+        {
+          "name": "/fonts/Manrope.ttf",
+          "initiatorType": "css",
+          "startTime": 304.80000019073486,
+          "responseEnd": 376.4000005722046,
+          "duration": 71.60000038146973,
+          "transferSize": 165000,
+          "encodedBodySize": 164700,
+          "decodedBodySize": 164700
+        },
+        {
+          "name": "/assets/TodayV4-bTctE5rs.js",
+          "initiatorType": "script",
+          "startTime": 461.6000003814697,
+          "responseEnd": 470.69999980926514,
+          "duration": 9.09999942779541,
+          "transferSize": 2771,
+          "encodedBodySize": 2471,
+          "decodedBodySize": 6671
+        },
+        {
+          "name": "/assets/data-B9zE1qbm.js",
+          "initiatorType": "script",
+          "startTime": 462.4000005722046,
+          "responseEnd": 469.69999980926514,
+          "duration": 7.299999237060547,
+          "transferSize": 1218,
+          "encodedBodySize": 918,
+          "decodedBodySize": 1596
+        },
+        {
+          "name": "/assets/RecordList-DszFeTTR.js",
+          "initiatorType": "script",
+          "startTime": 462.9000005722046,
+          "responseEnd": 469,
+          "duration": 6.09999942779541,
+          "transferSize": 968,
+          "encodedBodySize": 668,
+          "decodedBodySize": 1169
+        },
+        {
+          "name": "/assets/recordPresentation-Ck5Qv0XI.js",
+          "initiatorType": "script",
+          "startTime": 463,
+          "responseEnd": 467.9000005722046,
+          "duration": 4.90000057220459,
+          "transferSize": 912,
+          "encodedBodySize": 612,
+          "decodedBodySize": 612
+        },
+        {
+          "name": "/assets/ReportNavigation-DJA89Oet.js",
+          "initiatorType": "script",
+          "startTime": 463,
+          "responseEnd": 469.9000005722046,
+          "duration": 6.90000057220459,
+          "transferSize": 1106,
+          "encodedBodySize": 806,
+          "decodedBodySize": 1431
+        },
+        {
+          "name": "/assets/HabitAction-EvPpoE8g.js",
+          "initiatorType": "script",
+          "startTime": 463,
+          "responseEnd": 470.5,
+          "duration": 7.5,
+          "transferSize": 1633,
+          "encodedBodySize": 1333,
+          "decodedBodySize": 2514
+        },
+        {
+          "name": "/assets/intent-CN1-LxUy.js",
+          "initiatorType": "script",
+          "startTime": 463.1000003814697,
+          "responseEnd": 470.69999980926514,
+          "duration": 7.59999942779541,
+          "transferSize": 470,
+          "encodedBodySize": 170,
+          "decodedBodySize": 170
+        }
+      ],
+      "firstInteractionNew": [],
+      "transferBytes": 334794,
+      "encodedBodyBytes": 330594,
+      "decodedBodyBytes": 684316,
+      "chooserToTypeEventGap": 89.10000038146973
+    }
+  ],
+  "representativeResponseEncodings": {
+    "/__lifeindex-v4-perf-blank__": "identity",
+    "/": "gzip",
+    "/assets/index-NRIiKnql.css": "gzip",
+    "/assets/Services-WDOoZahA.js": "gzip",
+    "/assets/Elements-CbNF6sHh.js": "gzip",
+    "/assets/index-AVdAxTO4.js": "gzip",
+    "/__lifeindex_connectivity__": "identity",
+    "/fonts/Manrope.ttf": "identity",
+    "/assets/workbox-window.prod.es5-Bd17z0YL.js": "gzip",
+    "/assets/recordPresentation-Ck5Qv0XI.js": "identity",
+    "/assets/TodayV4-bTctE5rs.js": "gzip",
+    "/assets/data-B9zE1qbm.js": "gzip",
+    "/assets/RecordList-DszFeTTR.js": "gzip",
+    "/assets/ReportNavigation-DJA89Oet.js": "gzip",
+    "/assets/HabitAction-EvPpoE8g.js": "gzip",
+    "/assets/intent-CN1-LxUy.js": "identity"
+  }
+}

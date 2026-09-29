@@ -1,0 +1,53 @@
+{
+  "ratios": [
+    {
+      "name": "light action on canvas",
+      "foreground": "#b53b1e",
+      "background": "#f5f0e8",
+      "ratio": 5.129
+    },
+    {
+      "name": "light action on surface",
+      "foreground": "#b53b1e",
+      "background": "#fffbf5",
+      "ratio": 5.644
+    },
+    {
+      "name": "primary button text",
+      "foreground": "#fffaf3",
+      "background": "#b53b1e",
+      "ratio": 5.603
+    },
+    {
+      "name": "light secondary text",
+      "foreground": "#706572",
+      "background": "#f5f0e8",
+      "ratio": 4.88
+    },
+    {
+      "name": "orange tile text",
+      "foreground": "#342236",
+      "background": "#f18a54",
+      "ratio": 5.954
+    },
+    {
+      "name": "dark action on canvas",
+      "foreground": "#ffa275",
+      "background": "#221e29",
+      "ratio": 8.304
+    },
+    {
+      "name": "dark button text",
+      "foreground": "#322126",
+      "background": "#ffa275",
+      "ratio": 7.731
+    }
+  ],
+  "sha256": {
+    "index.html": "c2c19c3de7bbb38cab1fe0b205aadf24dcbc05f5de78e5d34a1b77f3658338ec",
+    "studio.css": "b40c8d2b3f408006c697a0e49811d35ebe80129cbb4ba52a46072bce9844fefd",
+    "studio.js": "f7c8a2f8cab3447e0c4094c51482c85aec15311fb9cc561e83581b6966e65a03",
+    "icons.js": "fdc99d593a32a6ef2a2d0c1aec14d22a66188e46a4f31d25f34a27364f2423ea",
+    "Manrope.ttf": "3ae11c49db0455a3cc33e37d380f20fdb8c7f8b41dc07625c177e3d87a9d6ae6"
+  }
+}

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <title>LifeIndex 4.0 · 第一轮方向原型</title>
+    <link rel="stylesheet" href="../styles.css" />
+  </head>
+  <body data-direction="day" data-theme="light">
+    <aside class="review-tools" aria-label="原型评审控制">
+      <div><strong>4.0 方向原型</strong><span>合成数据 · 不连接数据库</span></div>
+      <div class="review-controls">
+        <label
+          >方向<select id="direction">
+            <option value="day">A · 日序</option>
+            <option value="coordinate">B · 坐标</option>
+            <option value="journal">C · 生活书页</option>
+          </select></label
+        >
+        <button id="theme-toggle" type="button">深色</button>
+        <button id="data-toggle" type="button">看空状态</button
+        ><button id="failure-toggle" type="button">读取失败</button>
+      </div>
+    </aside>
+    <div class="workspace">
+      <aside class="desktop-rail" aria-label="桌面导航"></aside>
+      <div class="app">
+        <header class="app-header">
+          <a href="#today" class="brand" data-page="today"
+            ><span class="brand-symbol" aria-hidden="true"></span>LifeIndex<span class="brand-cn"
+              >生活索引</span
+            ></a
+          ><button
+            type="button"
+            class="icon-button settings-trigger"
+            data-page="settings"
+            aria-label="设置"
+          ></button>
+        </header>
+        <main id="main" tabindex="-1"></main>
+        <nav class="mobile-nav" aria-label="主要导航"></nav>
+      </div>
+    </div>
+    <dialog id="entry-dialog" aria-labelledby="entry-title">
+      <form id="entry-form">
+        <div class="dialog-top">
+          <button type="button" class="quiet-button" id="cancel-entry">取消</button>
+          <h2 id="entry-title">记一笔</h2>
+          <span class="local-note">本机记录</span>
+        </div>
+        <div id="entry-content"></div>
+        <div class="form-footer">
+          <p>方向原型仅演示交互，所有输入在刷新后清除。</p>
+          <button class="primary-button" type="submit">保存记录</button>
+        </div>
+      </form>
+    </dialog>
+    <div id="feedback" class="feedback" role="status" hidden></div>
+    <script src="./r1-2.js"></script>
+  </body>
+</html>

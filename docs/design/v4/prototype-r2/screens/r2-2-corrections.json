@@ -1,0 +1,35 @@
+{
+  "editors": [
+    {
+      "kind": "finance",
+      "active": "record-amount",
+      "date": "2026-09-28",
+      "editable": true,
+      "cancelFocus": ""
+    },
+    {
+      "kind": "weight",
+      "active": "record-amount",
+      "date": "2026-09-28",
+      "editable": true,
+      "cancelFocus": ""
+    },
+    {
+      "kind": "activity",
+      "active": "record-amount",
+      "date": "2026-09-28",
+      "editable": true,
+      "cancelFocus": ""
+    }
+  ],
+  "globalDateAfterLedger": "2026-09-28",
+  "saveFocus": true,
+  "monthTotalAfterOctoberSave": "¥1,286.00",
+  "weekActivity": "本周运动\n0分钟 · 0 次记录\n记录一次运动",
+  "calendar": {
+    "minWidth": 44.5625,
+    "minHeight": 44
+  },
+  "failedFocus": "完成 · 等待保存\n收起，保留待保存\n此刻，只需要在这里。\n24:59\n剩余时间\n重试保存\n结束\n\n已专注 00:01 · 目标 25 分钟",
+  "failedHome": "专注完成，待保存\n00:01 已用 · 时间已停止，等待保存\n返回专注"
+}
